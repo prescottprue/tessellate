@@ -38,19 +38,12 @@ exports.get = function(req, res, next){
 		query = User.findOne({username:req.params.username}, {password:0, __v:0});
 		isList = false;
 	}
-	query.exec(function (err, result){
-		if(err) { res.status(500).send(err);}
-		if(!result){
-			res.status(500).send(null);
-		}
-		res.send(result);
+	w.runQuery(query).then(function(userData){
+		//Remove sensitiveuser data from user
+		res.send(userData);
+	}, function(err){
+		res.status(500).send('Error getting user:', err);
 	});
-	// w.runQuery(query).then(function(userData){
-	// 	//Remove sensitiveuser data from user
-	// 	res.send(userData);
-	// }, function(err){
-	// 	res.status(500).send('User(s) Query error:', err);
-	// });
 };
 /**
  * @api {post} /users Add User
@@ -83,7 +76,7 @@ exports.add = function(req, res, next){
 
 	var query;
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
-		res.status(400).json({code:400, message:"Username or Email required to add a new user"});
+		return res.status(400).json({code:400, message:"Username or Email required to add a new user"});
 	}
 	if(_.has(req.body, "username")){
 		query = User.findOne({"username":req.body.username}); // find using username field

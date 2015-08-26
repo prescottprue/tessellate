@@ -2,6 +2,12 @@
 
 This repo is the **SERVER** for the Tessellate API, [Matter](http://github.com/KyperTech/matter) and [Build](http://github.com/KyperTech/build).
 
+## Documentation
+
+[REST API DOCS](http://tessellate.elasticbeanstalk.com/docs/index.html)
+
+Documentation is automatically generated to `public/docs` folder through the `grunt docs` task which makes use of `grunt-apiDoc`.
+
 ## Getting Started
 
 ### Server Local Development
@@ -62,4 +68,4 @@ Login and Signup pages.
 
 ## TODO
 * Change Password route
-* App Name Middleware to handle app specific requests
+* App specific presense (login/signup)

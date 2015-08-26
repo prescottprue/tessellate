@@ -15,12 +15,13 @@ var config = require('../config/default').config;
 var UserSchema = new mongoose.Schema(
 	{
 		username:{type:String, index:true, unique:true},
-		name:{type: String, default:''},
-		email:{type: String, default:'', index:true},
-		title:{type: String, default:''},
-		password:{type: String, default:''},
+		name:{type: String},
+		email:{type: String, index:true},
+		title:{type: String},
+		password:{type: String},
 		role:{type: String, default:'user'},
 		sessionId:{type:String},
+		groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
 		createdAt: { type: Date, default: Date.now},
 		updatedAt: { type: Date, default: Date.now}
 	},

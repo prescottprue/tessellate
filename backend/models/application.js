@@ -16,11 +16,11 @@ var ApplicationSchema = new mongoose.Schema({
 		provider:{type:String, default:'amazon'},
 		bucketName:{type:String}
 	},
-	// server:{
-	// 	url:{type:String, default:''},
-	// 	provider:{type:String, default:'Heroku'},
-	// 	appName:{type:String, default:''}
-	// },
+	server:{
+		url:{type:String},
+		provider:{type:String},
+		appName:{type:String}
+	},
 	groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
 	collaborators:[{type: mongoose.Schema.Types.ObjectId, ref:'User'}],
 	createdAt: { type: Date, default: Date.now},
@@ -197,6 +197,16 @@ ApplicationSchema.methods = {
 			console.error('Error with userPromises', err);
 			return;
 		});
+	},
+	login:function(loginData){
+		//Search for user in application's database
+		//Create session in application for user
+	},
+	signup:function(signupData) {
+
+	},
+	logout:function(){
+
 	}
 };
 function findUser(find){

@@ -541,3 +541,58 @@ exports.addCollaborators = function(req, res, next){
 		res.status(400).send('Application name and users array are required to add collaborators.');
 	}
 };
+
+/**
+ * @api {put} /applications/:name/collaborators  Add File Storage
+ * @apiDescription Add collaborators by providing their usernames
+ * @apiName addCollaborators
+ * @apiGroup Application
+ *
+ * @apiSuccess {Array} users Array containing usernames of users to add as collaborators
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       name: "exampleApp",
+ *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
+ *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       collaborators:[],
+ *       createdAt:1438737438578,
+ *       updatedAt:1438737438578
+ *     }
+ * @apiErrorExample  Error-Response (Not Found):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Application not found."
+ *     }
+ *
+ *
+ */
+ //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
+exports.login = function(req, res, next){
+	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
+	//TODO: Check that user is allowed to add collaborators
+	if(req.params.name && req.body){ //Get data for a specific application
+		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
+		query.exec(function (err, foundApp){
+			if(err) {
+				console.error('[ApplicationCtrl.login] Login error:', err);
+				return res.status(500).send('Error logging in.');
+			}
+			if(!foundApp){
+				console.error('[ApplicationCtrl.login] User not found');
+				// return next (new Error('User could not be found'));
+				return res.status(401).send('Invalid Authentication Credentials');
+			}
+			foundApp.login(req.body.password).then(function(token){
+				// console.log('[ApplicationCtrl.login] Login Successful. Token:', token);
+				res.send({token:token, user:foundApp.strip()});
+			}, function(err){
+				//TODO: Handle wrong password
+				res.status(400).send('[ApplicationCtrl.login] Login Error:', err);
+			});
+		});
+	} else {
+		res.status(400).send('Application name and users array are required to add collaborators.');
+	}
+};

@@ -51,8 +51,7 @@ exports.signup = function(req, res, next){
 		}
 		//user does not already exist
 		//Build user data from request
-		var userData = _.pick(req.body, ["username", "email", "name", "role", "title"]);
-		var user = new User(userData);
+		var user = new User(req.body);
 		// TODO: Start a session with new user
 		user.createWithPass(req.body.password).then(function(newUser){
 			res.send(newUser);
@@ -78,12 +77,15 @@ exports.signup = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       name: "John Doe",
- *       username:"hackerguy1",
- *       title: "Front End Developer",
- *       role:"admin",
- *       createdAt:1438737438578
- *       updatedAt:1438737438578
+ *       user:{
+ *         name: "John Doe",
+ *         username:"hackerguy1",
+ *         title: "Front End Developer",
+ *         role:"admin",
+ *         createdAt:1438737438578
+ *         updatedAt:1438737438578
+ *       },
+ *       token:'99qaisnuufa9suf9ue0hf2h'
  *     }
  *
  */
@@ -100,7 +102,7 @@ exports.login = function(req, res, next){
 		query.exec(function (err, currentUser){
 			if(err) {
 				console.error('[AuthCtrl.login] Login error:', err);
-				return next(err);
+				return res.status(500).send('Error logging in.');
 			}
 			if(!currentUser){
 				console.error('[AuthCtrl.login] User not found');

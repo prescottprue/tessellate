@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 //Protect all routes except allowedPaths by requiring Authorization header
-var allowedPaths = ['/login', '/signup', '/docs', '/docs/**'];
+var allowedPaths = ['/','/login', '/signup', '/docs', '/docs/**'];
 app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));
 //Handle unauthorized errors
 app.use(function (err, req, res, next) {
