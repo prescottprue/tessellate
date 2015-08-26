@@ -1,0 +1,13 @@
+html {
+  background-color: #f2f4f8;
+  overflow-x: hidden;
+}
+body {
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #788288;
+  background-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+.md-content {
+	background-color: #f2f4f8 !important;
+}

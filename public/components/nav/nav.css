@@ -1,0 +1,10 @@
+md-sidenav, 
+md-sidenav.md-locked-open, 
+md-sidenav.md-closed.md-locked-open-add-active {
+    min-width: 130px !important;
+    width: 55vw !important;
+    max-width: 400px !important;
+}
+.navbar-dark {
+  background-color: #616161 !important;
+}

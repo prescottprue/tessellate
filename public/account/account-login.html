@@ -1,0 +1,32 @@
+<md-content>
+    <md-card>
+      <md-card-content>
+         <md-content layout-padding layout="column" layout-sm="column" layout-align="center">
+         <form name="loginForm">
+          <div flex>
+            <md-input-container>
+              <label>Username or Email</label>
+              <input ng-model="loginData.username" type="text" required name="username">
+                <div ng-messages="loginForm.username.$error  && missing.username">
+                  <div ng-message="required">This is required.</div>
+                </div>
+            </md-input-container>
+            <md-input-container>
+              <label>Password</label>
+              <input ng-model="loginData.password" type="password" name="password" required>
+                <div ng-messages="loginForm.password.$error && missing.password">
+                  <div ng-message="required">This is required.</div>
+                </div>
+            </md-input-container>
+          </div>
+          <section layout="row" layout-sm="column" layout-align="center center">
+            <md-progress-circular md-mode="indeterminate" ng-if="loginData.loading"></md-progress-circular>
+            <md-button class="md-raised" aria-label="Login" ng-click="login()"  type="submit" ng-if="!loginData.loading">
+              <span >Login</span>
+            </md-button>
+          </section>
+        </md-content>
+        </form>
+      </md-card-content>
+    </md-card>
+  </md-content>

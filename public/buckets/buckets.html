@@ -1,0 +1,29 @@
+<md-content>
+  <div id="table-wrap">
+  <div class="table-responsive-vertical shadow-z-1">
+  <!-- Table starts here -->
+    <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>createdDate</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="bucket in buckets">
+          <td data-title="Name">{{bucket.Name || "No Name"}}</td>
+          <td data-title="Name">{{bucket.CreationDate || "No Date"}}</td>
+          <td data-title="Delete" stop-event>      
+            <md-button ng-click="delete($index)"
+               aria-label="Delete"
+               class="md-icon-button" >
+                <i class="fa fa-trash"></i>
+            </md-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+</md-content>

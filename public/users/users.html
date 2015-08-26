@@ -1,0 +1,33 @@
+<md-content layout-fill>
+  <div id="table-wrap">
+  <div class="table-responsive-vertical shadow-z-1">
+  <!-- Table starts here -->
+    <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="user in users"  ui-sref="user({username:user.username})">
+          <td data-title="Username">{{user.username}}</td>
+          <td data-title="Name">{{user.name}}</td>
+          <td data-title="Email">{{user.email}}</td>
+          <td data-title="Role">{{user.role || "No Role"}}</td>
+          <td data-title="Delete" stop-event>      
+            <md-button ng-click="delete($index)"
+               aria-label="Delete"
+               class="md-icon-button" >
+                <i class="fa fa-trash"></i>
+            </md-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+</md-content>

@@ -1,0 +1,22 @@
+<md-content layout="column" layout-padding layout-align="center center">
+  <md-whiteframe flex class="md-whiteframe-z1" layout-align="center center">
+    <section layout="row" layout-sm="column" layout-align="center center">
+      <md-input-container >
+        <!-- Use floating label instead of placeholder -->
+        <label>Name</label>
+        <input ng-model="role.name" type="text">
+      </md-input-container>
+    </section>
+    <section layout="column" layout-sm="column" layout-align="">
+      <span>Accounts:</span>
+      <ul>
+        <li ng-repeat="account in role.accounts">
+          {{account.name}}
+        </li>
+      </ul>
+    </section>
+    <section layout="row" layout-sm="column" layout-align="center center">
+      <md-button class="md-raised" ng-click="update()">Save</md-button>
+    </section>
+  </md-whiteframe>
+</md-content>

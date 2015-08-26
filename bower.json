@@ -1,0 +1,12 @@
+{
+  "name": "tessellate",
+  "dependencies": {
+    "angular": "~1.3.0",
+    "ngstorage": "~0.3.4",
+    "angular-jwt": "~0.0.8",
+    "angular-material": "~0.10.0",
+    "ui-router": "~0.2.15",
+    "underscore": "~1.8.3",
+    "angular-messages": "~1.4.1"
+  }
+}
