@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.auth')
+angular.module('tessellate.auth')
 .service('Session', ['$log', '$sessionStorage', '$rootScope','jwtHelper',  function ($log, $sessionStorage, $rootScope, jwtHelper) {
   this.exists = function(){
     return angular.isDefined($sessionStorage.token);

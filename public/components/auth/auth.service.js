@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.auth')
+angular.module('tessellate.auth')
 
 .factory('AuthService', ['$q', '$http', '$log', '$sessionStorage','$rootScope', 'Session', 'AUTH_EVENTS', 'USER_ROLES', function ($q, $http, $log, $sessionStorage, $rootScope, Session, AUTH_EVENTS, USER_ROLES) {
 	return {

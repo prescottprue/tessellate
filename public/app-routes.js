@@ -1,4 +1,4 @@
-angular.module('hypercubeServer')
+angular.module('tessellate')
 .config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, USER_ROLES) {
   $stateProvider
     .state('layout', {

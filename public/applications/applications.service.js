@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.applications')
+angular.module('tessellate.applications')
 .factory('applicationsService', ['$q', '$http', '$rootScope','$sessionStorage', function ($q, $http, $rootScope, $sessionStorage) {
 	var applications = null;
 	return {

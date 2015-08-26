@@ -124,8 +124,8 @@ exports.add = function(req, res, next){
 		console.log('add request with name: ' + req.body.name + ' with body:', req.body);
 		var appData = _.extend({}, req.body);
 		if(!_.has(appData, 'owner')){
-			console.log('No owner provided. Using account', req.account);
-			appData.owner = req.account.id;
+			console.log('No owner provided. Using account', req.user);
+			appData.owner = req.user.id;
 		}
 		var query = Application.findOne({"name":req.body.name}); // find using name field
 		query.exec(function (qErr, qResult){

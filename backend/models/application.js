@@ -6,8 +6,6 @@ q = require('q'),
 _ = require('underscore'),
 sqs = require('../utils/sqs');
 
-
-
 var Account = require('./account').Account;
 
 var ApplicationSchema = new mongoose.Schema({
@@ -177,21 +175,21 @@ ApplicationSchema.methods = {
 	getStructure:function(){
 		return fileStorage.getFiles(this.frontend.bucketName);
 	},
-	addCollaborators:function(accountsArray){
+	addCollaborators:function(usersArray){
 		var self = this;
-		var accountPromises = [];
-		//TODO: Check to see if account exists and is already a collaborator before adding
-		if(accountsArray && _.isArray(accountsArray)){
-			accountsArray.forEach(function (account){
+		var userPromises = [];
+		//TODO: Check to see if user exists and is already a collaborator before adding
+		if(usersArray && _.isArray(usersArray)){
+			usersArray.forEach(function (user){
 				var d = q.defer();
-				accountPromises.push(d);
-				findAccount(account).then(function (foundAccount){
+				userPromises.push(d);
+				findAccount(user).then(function (foundAccount){
 					console.log('[Application.addCollaborators()] Found collaborator:', foundAccount);
 					//Add Account's ObjectID to application's collaborators
 					self.collaborators.push(foundAccount._id);
 					d.resolve(foundAccount);
 				}, function (err){
-					console.error('[Application.addCollaborators()] Error finding account:', account);
+					console.error('[Application.addCollaborators()] Error finding user:', user);
 					d.reject(err);
 				});
 			});

@@ -1,1 +1,1 @@
-angular.module('hypercubeServer.applications', ['hypercubeServer.users'])
+angular.module('tessellate.applications', ['tessellate.users'])

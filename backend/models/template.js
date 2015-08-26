@@ -139,7 +139,7 @@ TemplateSchema.methods = {
 };
 
 /*
- * Construct `Account` model from `AccountSchema`
+ * Construct `User` model from `UserSchema`
  */
 db.hypercube.model('Template', TemplateSchema);
 

@@ -21,9 +21,13 @@ exports.get = function(req, res, next){
 		isList = false;
 	}
 	query.exec(function (err, result){
-		if(err) { return next(err);}
+		if(err) {
+			console.error('[GroupCtrl.get()] Error querying group:', err);
+			return res.status(500).send('Error looking for group.');
+		}
 		if(!result){
-			return next (new Error('Group could not be found'));
+			console.error('[GroupCtrl.get()] Group not found');
+			return res.status(500).send('Group could not be found.');
 		}
 		var resData = result;
 		res.send(resData);
@@ -70,9 +74,13 @@ exports.add = function(req, res, next){
  */
 exports.update = function(req, res, next){
 	Group.update({_id:req.id}, req.body, {upsert:true}, function (err, numberAffected, result) {
-		if (err) { return next(err); }
-		if (!result) {
-			return next(new Error('Group could not be added.'));
+		if(err) {
+			console.error('[GroupCtrl.update()] Error updating group:', err);
+			return res.status(500).send('Error updating group.');
+		}
+		if(!result){
+			console.error('[GroupCtrl.update()] Group not updated.');
+			return res.status(500).send('Group could not be updated.');
 		}
 		res.json(result);
 	});
@@ -85,9 +93,13 @@ exports.delete = function(req, res, next){
 	var urlParams = url.parse(req.url, true).query;
 	var query = Group.findOneAndRemove({'_id':req.params.id}); // find and delete using id field
 	query.exec(function (err, result){
-		if (err) { return next(err); }
-		if (!result) {
-			return next(new Error('Translation could not be deleted.'));
+		if(err) {
+			console.error('[GroupCtrl.delete()] Error deleting group:', err);
+			return res.status(500).send('Error deleting group.');
+		}
+		if(!result){
+			console.error('[GroupCtrl.delete()] Group not deleted.');
+			return res.status(500).send('Group could not be deleted.');
 		}
 		res.json(result);
 	});

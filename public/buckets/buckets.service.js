@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.buckets')
+angular.module('tessellate.buckets')
 .factory('bucketsService', ['$q', '$http', '$log', '$rootScope','$sessionStorage', function ($q, $http, $log, $rootScope, $sessionStorage) {
 	var buckets = null;
 	return {

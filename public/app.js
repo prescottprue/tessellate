@@ -1,19 +1,18 @@
-angular.module('hypercubeServer', [
+angular.module('tessellate', [
     'ui.router', 
     'ngMaterial', 
     'ngStorage', 
     'angular-jwt',
     'ngMessages',
 
-    'hypercubeServer.auth',
-    'hypercubeServer.account',
-    'hypercubeServer.nav',
-    'hypercubeServer.home', 
-    'hypercubeServer.roles', 
-    'hypercubeServer.users',
-    'hypercubeServer.applications',
-    'hypercubeServer.buckets'
-
+    'tessellate.auth',
+    'tessellate.account',
+    'tessellate.nav',
+    'tessellate.home', 
+    'tessellate.roles', 
+    'tessellate.users',
+    'tessellate.applications',
+    'tessellate.buckets'
 
   ])
 .config(function ($httpProvider) {

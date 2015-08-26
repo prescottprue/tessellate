@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.auth')
+angular.module('tessellate.auth')
 
 .directive('authRoles', ['AuthService', function(AuthService) {
   return {

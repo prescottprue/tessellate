@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.account')
+angular.module('tessellate.account')
 .controller('AccountCtrl', ['$scope','AuthService', '$state', '$log', function($scope, AuthService, $state, $log){
 	
 	// set-up loading state

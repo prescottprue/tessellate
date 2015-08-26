@@ -72,8 +72,6 @@ exports.get = function(req, res, next){
  */
 exports.add = function(req, res, next){
 	//Query for existing account with same _id
-	var query = Account.findOne({"username":req.body.username}); // find using username field
-
 	var query;
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
 		return res.status(400).json({code:400, message:"Accountname or Email required to add a new account"});

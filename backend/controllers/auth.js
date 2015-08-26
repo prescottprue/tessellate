@@ -36,18 +36,21 @@ exports.signup = function(req, res, next){
 	console.log('Signup request with :', req.body);
 	//Check for username or email
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
-		res.status(400).json({code:400, message:"Accountname or Email required to signup"});
+		res.status(400).json({code:400, message:"Username or Email required to signup"});
 	}
 	if(_.has(req.body, "username")){
 		query = Account.findOne({"username":req.body.username}); // find using username field
 	} else {
 		query = Account.findOne({"email":req.body.email}); // find using email field
 	}
-	query.exec(function (qErr, qResult){
-		if (qErr) { return next(qErr); }
-		if(qResult){ //Matching account already exists
+	query.exec(function (err, result){
+		if (err) {
+			console.error('[AuthCtrl.signup] Error querying for account.', err);
+			return res.status(500).send('Error querying for account.'); 
+		}
+		if(result){ //Matching account already exists
 			// TODO: Respond with a specific error code
-			return next(new Error('Account with this information already exists.'));
+			return res.status(400).send('Account with this information already exists.');
 		}
 		//account does not already exist
 		//Build account data from request
@@ -67,12 +70,12 @@ exports.signup = function(req, res, next){
  * @apiName Login
  * @apiGroup Auth
  *
- * @apiParam {Number} id Accounts unique ID.
- * @apiParam {String} username Accountname of account to login as. Email must be provided if username is not.
- * @apiParam {String} [email] Email of account to login as. Can be used instead of username.
- * @apiParam {String} password Password of account to login as.
+ * @apiParam {Number} id Users unique ID.
+ * @apiParam {String} username Username of user to login as. Email must be provided if username is not.
+ * @apiParam {String} [email] Email of user to login as. Can be used instead of username.
+ * @apiParam {String} password Password of user to login as.
  *
- * @apiSuccess {Object} accountData Object containing accounts data.
+ * @apiSuccess {Object} userData Object containing users data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -137,14 +140,14 @@ exports.login = function(req, res, next){
  */
 exports.logout = function(req, res, next){
 	//TODO:Invalidate token
-	var account = new Account(req.account);
+	var account = new Account(req.user);
 	// console.log('ending accounts session:', account);
 	account.endSession().then(function(){
 		// console.log('successfully ended session');
-		res.status(200).send({message:'Logout successful'});
+		res.send({message:'Logout successful'});
 	}, function(err){
 		console.log('Error ending session:', err);
-		res.send({message:'Error ending session'});
+		res.status(500).send({message:'Error ending session'});
 	});
 };
 
@@ -170,23 +173,27 @@ exports.logout = function(req, res, next){
  */
 exports.verify = function(req, res, next){
 	//TODO:Actually verify account instead of just returning account data
-	// console.log('verify request:', req.account);
+	// console.log('verify request:', req.user);
 	var query;
-	if(req.account){
+	if(req.user){
 		//Find by username in token
-		if(_.has(req.account, "username")){
-			query = Account.findOne({username:req.account.username});
+		if(_.has(req.user, "username")){
+			query = Account.findOne({username:req.user.username});
 		}
 		//Find by username in token
 		else {
-			query = Account.findOne({email:req.account.email});
+			query = Account.findOne({email:req.user.email});
 		}
 		query.exec(function (err, result){
 			// console.log('verify returned:', result, err);
-			if (err) { return next(err); }
+			if (err) {
+				console.error('[AuthCtrl.verify] Error querying for account', err);
+				return res.status(500).send('Unable to verify token.');
+			}
 			if(!result){ //Matching account already exists
 				// TODO: Respond with a specific error code
-				return next(new Error('Account with this information does not exist.'));
+				console.error('[AuthCtrl.verify] Error querying for account', err);
+				return res.status(400).send('Account with this information does not exist.');
 			}
 			res.json(result);
 		});

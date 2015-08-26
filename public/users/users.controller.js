@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.users')
+angular.module('tessellate.users')
 .controller('UsersCtrl', ['$scope', '$http', 'usersService', function($scope, $http, usersService){
 		$scope.data = {
 			loading:true,

@@ -1,1 +1,1 @@
-angular.module('hypercubeServer.account', ['ui.router', 'ngMessages', 'hypercubeServer.auth'])
+angular.module('tessellate.account', ['ui.router', 'ngMessages', 'tessellate.auth'])

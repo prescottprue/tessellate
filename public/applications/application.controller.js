@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.applications')
+angular.module('tessellate.applications')
 .controller('ApplicationCtrl', ['$scope', '$http', '$stateParams', 'applicationsService', 'usersService', function($scope, $http, $stateParams, applicationsService, usersService){
 		$scope.data = {
 			loading:false,

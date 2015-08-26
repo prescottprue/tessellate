@@ -55,7 +55,7 @@ exports.get = function(req, res, next){
  *     HTTP/1.1 200 OK
  *     {
  *       "name": "template1",
- *       "owner": {"username":"testAccount"}
+ *       "owner": {"username":"testUser"}
  *     }
  *
  */
@@ -67,8 +67,8 @@ exports.add = function(req, res, next){
 		console.log('add request with name: ' + req.body.name + ' with body:', req.body);
 		var appData = _.extend({}, req.body);
 		if(!_.has(appData, 'author')){
-			console.log('No author provided. Using account', req.account);
-			appData.author = req.account.accountId;
+			console.log('No author provided. Using account', req.user);
+			appData.author = req.user.accountId;
 		}
 		var query = Template.findOne({"name":req.body.name}); // find using name field
 		query.exec(function (qErr, qResult){

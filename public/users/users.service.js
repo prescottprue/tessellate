@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.users')
+angular.module('tessellate.users')
 .factory('usersService', ['$q', '$http', '$rootScope', '$log', function ($q, $http, $rootScope, $log) {
 	var users = null;
 	return {

@@ -11,7 +11,7 @@ var SessionSchema = new mongoose.Schema({
 
 SessionSchema.set('collection', 'sessions');
 /*
- * Construct `Account` model from `AccountSchema`
+ * Construct `User` model from `UserSchema`
  */
 db.hypercube.model('Session', SessionSchema);
 

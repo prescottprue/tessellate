@@ -75,7 +75,7 @@ RoleSchema.methods = {
 	}
 };
 /*
- * Construct `Role` model from `AccountSchema`
+ * Construct `Role` model from `UserSchema`
  */
 db.hypercube.model('Role', RoleSchema);
 

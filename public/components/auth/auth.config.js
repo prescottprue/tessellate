@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.auth')
+angular.module('tessellate.auth')
 //Enable Auth Interceptor
 .config(function ($httpProvider) {
   $httpProvider.interceptors.push([

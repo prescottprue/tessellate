@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.nav')
+angular.module('tessellate.nav')
 .controller('NavCtrl', ['$scope', 'AuthService', '$state', '$log', function ($scope, AuthService, $state, $log){
   $scope.logout = function () {
     AuthService.logout().then(function () {

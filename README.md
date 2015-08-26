@@ -8,6 +8,7 @@ This repo is the **SERVER** for the Tessellate API, [Matter](http://github.com/K
 
 Documentation is automatically generated to `public/docs` folder through the `grunt docs` task which makes use of `grunt-apiDoc`.
 
+application management service under the new name.
 ## Getting Started
 
 ### Server Local Development
@@ -68,4 +69,8 @@ Login and Signup pages.
 
 ## TODO
 * Change Password route
+<<<<<<< HEAD
 * App specific presense (login/signup)
+=======
+* App Name Middleware to handle app specific requests
+>>>>>>> Initial commit. Code adapted from hypercube-server repo to setup application management service under the new name.

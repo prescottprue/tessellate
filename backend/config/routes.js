@@ -7,8 +7,6 @@ var templateCtrls = require('../controllers/templates');
 var rolesCtrl = require('../controllers/roles');
 var adminCtrl = require('../controllers/admin');
 
-
-
 module.exports =  {
 	//login(get token)
 	//logout (revoke token)

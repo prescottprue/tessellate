@@ -15,14 +15,13 @@ var app = express();
 
 var routes = require('./backend/config/routes');
 var routeBuilder = require('./backend/utils/routeBuilder')(app);
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.set('config', config);
 app.set('env', app.get('config').env);
 
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

@@ -1,1 +1,1 @@
-angular.module('hypercubeServer.nav', ['hypercubeServer.auth'])
+angular.module('tessellate.nav', ['tessellate.auth'])

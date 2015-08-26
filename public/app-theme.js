@@ -1,4 +1,4 @@
-angular.module('hypercubeServer')
+angular.module('tessellate')
 .config(function($mdThemingProvider) {
   $mdThemingProvider.theme('default')
     .primaryPalette('blue')

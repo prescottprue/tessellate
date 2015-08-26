@@ -1,4 +1,4 @@
-angular.module('hypercubeServer.buckets')
+angular.module('tessellate.buckets')
 .controller('BucketsCtrl', ['$scope', '$http', '$log', 'bucketsService', function($scope, $http, $log, bucketsService){
 		$scope.data = {
 			loading:true,

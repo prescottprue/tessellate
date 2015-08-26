@@ -39,11 +39,12 @@ var fileStorage = require('../utils/fileStorage');
  */
 exports.getBuckets = function(req, res, next){
 	fileStorage.getBuckets().then(function(buckets){
-		console.log("buckets");
+		console.log("buckets", buckets);
 		res.send(buckets);
 	}, function(err){
-		res.status(500).send(err);
-	})
+		console.error('Error getting buckets:', err);
+		res.status(500).send('Error getting buckets.');
+	});
 };
 /**
  * @api {delete} /admin/buckets Delete Bucket

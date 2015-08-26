@@ -1,4 +1,4 @@
-angular.module('hypercubeServer')
+angular.module('tessellate')
 
   .controller('AppCtrl', ['$scope', '$state', '$mdToast','$mdDialog', 'AuthService',  function ($scope, $state, $mdToast, $mdDialog, AuthService) {
     $scope.toastPosition = {
