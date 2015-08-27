@@ -1,7 +1,7 @@
 var express = require('express');
 var indexCtrls = require('../controllers/index');
 var authCtrls = require('../controllers/auth');
-var userCtrls = require('../controllers/users');
+var accountCtrls = require('../controllers/accounts');
 var appCtrls = require('../controllers/applications');
 var templateCtrls = require('../controllers/templates');
 var rolesCtrl = require('../controllers/roles');
@@ -46,32 +46,32 @@ module.exports =  {
 		{
 			type:'GET',
 			endpoint: '/users',
-			controller:userCtrls.get
+			controller:accountCtrls.get
 		},
 		{
 			type:'GET',
 			endpoint: '/users/:username',
-			controller:userCtrls.get
+			controller:accountCtrls.get
 		},
 		{
 			type:'POST',
 			endpoint: '/users',
-			controller:userCtrls.add
+			controller:accountCtrls.add
 		},
 		{
 			type:'PUT',
 			endpoint: '/user/:username',
-			controller:userCtrls.update
+			controller:accountCtrls.update
 		},
 		{
 			type:'DELETE',
 			endpoint: '/users/:username',
-			controller:userCtrls['delete']
+			controller:accountCtrls['delete']
 		},
 		{
 			type:'GET',
 			endpoint: '/users/search/:searchQuery',
-			controller:userCtrls.search
+			controller:accountCtrls.search
 		}
 	],
 	applications:[
@@ -114,6 +114,21 @@ module.exports =  {
 			type:'PUT',
 			endpoint: '/apps/:name/storage',
 			controller:appCtrls.addStorage
+		},
+		{
+			type:'PUT',
+			endpoint: '/apps/:name/login',
+			controller:appCtrls.login
+		},
+		{
+			type:'PUT',
+			endpoint: '/apps/:name/logout',
+			controller:appCtrls.logout
+		},
+		{
+			type:'POST',
+			endpoint:'/apps/:name/signup',
+			controller: appCtrls.signup
 		},
 		{
 			type:'DELETE',

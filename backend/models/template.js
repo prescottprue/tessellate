@@ -1,9 +1,9 @@
-var db = require('./../lib/db');
+var db = require('./../utils/db');
 var mongoose = require('mongoose');
-var fileStorage = require('../lib/fileStorage');
+var fileStorage = require('../utils/fileStorage');
 var q = require('q');
 var _ = require('underscore');
-var sqs = require('./../lib/sqs');
+var sqs = require('./../utils/sqs');
 var templateBucket = "hypercube-templates";
 var formidable = require('formidable');
 var util = require('util');
@@ -12,7 +12,7 @@ var rimraf = require('rimraf');
 
 var TemplateSchema = new mongoose.Schema({
 	name:{type:String, default:'', unique:true, index:true},
-	author:{type: mongoose.Schema.Types.ObjectId, ref:'User'},
+	author:{type: mongoose.Schema.Types.ObjectId, ref:'Account'},
 	location:{type:String},
 	description:{type:String},
 	tags:[{type:String}],
@@ -139,7 +139,7 @@ TemplateSchema.methods = {
 };
 
 /*
- * Construct `User` model from `UserSchema`
+ * Construct `Account` model from `AccountSchema`
  */
 db.hypercube.model('Template', TemplateSchema);
 

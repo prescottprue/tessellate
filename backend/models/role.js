@@ -1,12 +1,12 @@
-var db = require('./../lib/db');
+var db = require('./../utils/db');
 var mongoose = require('mongoose');
 var q = require('q');
-var User = require('../models/user').User;
+var Account = require('../models/account').Account;
 var _ = require('underscore');
 
 var RoleSchema = new mongoose.Schema({
 	name:{type:String, default:'', unique:true},
-	accounts:[{type: mongoose.Schema.Types.ObjectId, ref:'User'}],
+	accounts:[{type: mongoose.Schema.Types.ObjectId, ref:'Account'}],
 	applications:[{type:mongoose.Schema.Types.ObjectId, ref:'Application'}],
 	createdAt: { type: Date, default: Date.now, index: true},
 	updatedAt: { type: Date, default: Date.now, index: true}
@@ -26,20 +26,20 @@ RoleSchema.methods = {
 		this.save(function (err, result){
 			if(err) { d.reject(err);}
 			if(!result){
-				d.reject(new Error('New User could not be saved'));
+				d.reject(new Error('New Account could not be saved'));
 			}
 			d.resolve(result);
 		});
 		return d.promise;
 	},
-	addAccount:function(userData){
+	addAccount:function(accountData){
 		//TODO: Handle adding an account to the Role
 		var d = q.defer();
-		this.accounts.push(userData._id);
+		this.accounts.push(accountData._id);
 		this.save(function (err, result){
 			if(err) { d.reject(err);}
 			if(!result){
-				d.reject(new Error('New User could not be saved'));
+				d.reject(new Error('New Account could not be saved'));
 			}
 			d.resolve(result);
 		});
@@ -47,7 +47,7 @@ RoleSchema.methods = {
 	},
 	findAccounts:function(){
 		var d = q.defer();
-		var query = User.find({role:this.name});
+		var query = Account.find({role:this.name});
 		var self = this;
 		query.exec(function (err, accountsList){
 			if(err) { d.reject(err);}
@@ -75,7 +75,7 @@ RoleSchema.methods = {
 	}
 };
 /*
- * Construct `Role` model from `UserSchema`
+ * Construct `Role` model from `AccountSchema`
  */
 db.hypercube.model('Role', RoleSchema);
 

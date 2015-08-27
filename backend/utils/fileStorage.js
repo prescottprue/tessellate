@@ -1,12 +1,10 @@
-/** FileStorage Lib 
- *	@description generalized lib for file storage so the service/platform used for storage can be changed without affecting file storage calls
+/** FileStorage Util
+ *	@description standardized interface file storage so the service/platform used for storage can be changed without affecting file storage calls
  */
 var q = require('q'),
 _ = require('underscore'),
-s3 = require('./s3');
-
-
-var bucketKeyPrefix = "hypercube-test1-";
+s3 = require('./s3'),
+conf  = require('../config/default').config;
 
 exports.createBucket = function(bucketName){
 	console.log('[fileStorage.createBucket()]');

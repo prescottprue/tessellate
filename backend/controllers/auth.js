@@ -5,22 +5,22 @@ var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('underscore');
 
-var User = require('../models/user').User;
+var Account = require('../models/account').Account;
 var Session = require('../models/session').Session;
 
 /**
  * @api {post} /signup Sign Up
- * @apiDescription Sign up a new user and start a session as that new user
+ * @apiDescription Sign up a new account and start a session as that new account
  * @apiName Signup
  * @apiGroup Auth
  *
- * @apiParam {Number} id Users unique ID.
- * @apiParam {String} username Username of user to signup as.
- * @apiParam {String} [title] Title of user to signup as.
- * @apiParam {String} email Email of user to signup as.
- * @apiParam {String} password Password of user to signup as.
+ * @apiParam {Number} id Accounts unique ID.
+ * @apiParam {String} username Accountname of account to signup as.
+ * @apiParam {String} [title] Title of account to signup as.
+ * @apiParam {String} email Email of account to signup as.
+ * @apiParam {String} password Password of account to signup as.
  *
- * @apiSuccess {Object} userData Object containing users data.
+ * @apiSuccess {Object} accountData Object containing accounts data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -36,25 +36,25 @@ exports.signup = function(req, res, next){
 	console.log('Signup request with :', req.body);
 	//Check for username or email
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
-		res.status(400).json({code:400, message:"Username or Email required to signup"});
+		res.status(400).json({code:400, message:"Accountname or Email required to signup"});
 	}
 	if(_.has(req.body, "username")){
-		query = User.findOne({"username":req.body.username}); // find using username field
+		query = Account.findOne({"username":req.body.username}); // find using username field
 	} else {
-		query = User.findOne({"email":req.body.email}); // find using email field
+		query = Account.findOne({"email":req.body.email}); // find using email field
 	}
 	query.exec(function (qErr, qResult){
 		if (qErr) { return next(qErr); }
-		if(qResult){ //Matching user already exists
+		if(qResult){ //Matching account already exists
 			// TODO: Respond with a specific error code
-			return next(new Error('User with this information already exists.'));
+			return next(new Error('Account with this information already exists.'));
 		}
-		//user does not already exist
-		//Build user data from request
-		var user = new User(req.body);
-		// TODO: Start a session with new user
-		user.createWithPass(req.body.password).then(function(newUser){
-			res.send(newUser);
+		//account does not already exist
+		//Build account data from request
+		var account = new Account(req.body);
+		// TODO: Start a session with new account
+		account.createWithPass(req.body.password).then(function(newAccount){
+			res.send(newAccount);
 		}, function(err){
 			res.status(500).json({code:500, message:'Error hashing password', error:err});
 		});
@@ -67,17 +67,17 @@ exports.signup = function(req, res, next){
  * @apiName Login
  * @apiGroup Auth
  *
- * @apiParam {Number} id Users unique ID.
- * @apiParam {String} username Username of user to login as. Email must be provided if username is not.
- * @apiParam {String} [email] Email of user to login as. Can be used instead of username.
- * @apiParam {String} password Password of user to login as.
+ * @apiParam {Number} id Accounts unique ID.
+ * @apiParam {String} username Accountname of account to login as. Email must be provided if username is not.
+ * @apiParam {String} [email] Email of account to login as. Can be used instead of username.
+ * @apiParam {String} password Password of account to login as.
  *
- * @apiSuccess {Object} userData Object containing users data.
+ * @apiSuccess {Object} accountData Object containing accounts data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       user:{
+ *       account:{
  *         name: "John Doe",
  *         username:"hackerguy1",
  *         title: "Front End Developer",
@@ -92,26 +92,26 @@ exports.signup = function(req, res, next){
 exports.login = function(req, res, next){
 	var query;
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
-		res.status(400).json({code:400, message:"Username or Email required to login"});
+		res.status(400).json({code:400, message:"Accountname or Email required to login"});
 	} else {
 		if(_.has(req.body, "username")){
-			query = User.findOne({"username":req.body.username}); // find using username field
+			query = Account.findOne({"username":req.body.username}); // find using username field
 		} else {
-			query = User.findOne({"email":req.body.email}); // find using email field
+			query = Account.findOne({"email":req.body.email}); // find using email field
 		}
-		query.exec(function (err, currentUser){
+		query.exec(function (err, currentAccount){
 			if(err) {
 				console.error('[AuthCtrl.login] Login error:', err);
 				return res.status(500).send('Error logging in.');
 			}
-			if(!currentUser){
-				console.error('[AuthCtrl.login] User not found');
-				// return next (new Error('User could not be found'));
+			if(!currentAccount){
+				console.error('[AuthCtrl.login] Account not found');
+				// return next (new Error('Account could not be found'));
 				return res.status(401).send('Invalid Authentication Credentials');
 			}
-			currentUser.login(req.body.password).then(function(token){
+			currentAccount.login(req.body.password).then(function(token){
 				// console.log('[AuthCtrl.login] Login Successful. Token:', token);
-				res.send({token:token, user:currentUser.strip()});
+				res.send({token:token, account:currentAccount.strip()});
 			}, function(err){
 				//TODO: Handle wrong password
 				res.status(400).send('[AuthCtrl.login] Login Error:', err);
@@ -122,11 +122,11 @@ exports.login = function(req, res, next){
 
 /**
  * @api {post} /logout Logout
- * @apiDescription Logout the currently logged in user and invalidate their token.
+ * @apiDescription Logout the currently logged in account and invalidate their token.
  * @apiName Logout
  * @apiGroup Auth
  *
- * @apiSuccess {Object} userData Object containing users data.
+ * @apiSuccess {Object} accountData Object containing accounts data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -137,9 +137,9 @@ exports.login = function(req, res, next){
  */
 exports.logout = function(req, res, next){
 	//TODO:Invalidate token
-	var user = new User(req.user);
-	// console.log('ending users session:', user);
-	user.endSession().then(function(){
+	var account = new Account(req.account);
+	// console.log('ending accounts session:', account);
+	account.endSession().then(function(){
 		// console.log('successfully ended session');
 		res.status(200).send({message:'Logout successful'});
 	}, function(err){
@@ -150,11 +150,11 @@ exports.logout = function(req, res, next){
 
 /**
  * @api {put} /verify Verify
- * @apiDescription Verify token and get matching user's data.
+ * @apiDescription Verify token and get matching account's data.
  * @apiName Verify
  * @apiGroup Auth
  *
- * @apiSuccess {Object} userData Object containing users data.
+ * @apiSuccess {Object} accountData Object containing accounts data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -169,24 +169,24 @@ exports.logout = function(req, res, next){
  *
  */
 exports.verify = function(req, res, next){
-	//TODO:Actually verify user instead of just returning user data
-	// console.log('verify request:', req.user);
+	//TODO:Actually verify account instead of just returning account data
+	// console.log('verify request:', req.account);
 	var query;
-	if(req.user){
+	if(req.account){
 		//Find by username in token
-		if(_.has(req.user, "username")){
-			query = User.findOne({username:req.user.username});
+		if(_.has(req.account, "username")){
+			query = Account.findOne({username:req.account.username});
 		}
 		//Find by username in token
 		else {
-			query = User.findOne({email:req.user.email});
+			query = Account.findOne({email:req.account.email});
 		}
 		query.exec(function (err, result){
 			// console.log('verify returned:', result, err);
 			if (err) { return next(err); }
-			if(!result){ //Matching user already exists
+			if(!result){ //Matching account already exists
 				// TODO: Respond with a specific error code
-				return next(new Error('User with this information does not exist.'));
+				return next(new Error('Account with this information does not exist.'));
 			}
 			res.json(result);
 		});

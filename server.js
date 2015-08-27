@@ -14,7 +14,7 @@ systemUtils = require('./lib/systemUtils');
 var app = express();
 
 var routes = require('./backend/config/routes');
-var routeBuilder = require('./backend/lib/routeBuilder')(app);
+var routeBuilder = require('./backend/utils/routeBuilder')(app);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 
 //Protect all routes except allowedPaths by requiring Authorization header
-var allowedPaths = ['/','/login', '/signup', '/docs', '/docs/**'];
+var allowedPaths = ['/','/login', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/];
 app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));
 //Handle unauthorized errors
 app.use(function (err, req, res, next) {

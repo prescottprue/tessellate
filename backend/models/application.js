@@ -1,14 +1,17 @@
-var db = require('./../lib/db');
-var mongoose = require('mongoose');
-var fileStorage = require('../lib/fileStorage');
-var q = require('q');
-var _ = require('underscore');
-var sqs = require('./../lib/sqs');
+var conf  = require('../config/default').config,
+db = require('../utils/db'),
+mongoose = require('mongoose'),
+fileStorage = require('../utils/fileStorage'),
+q = require('q'),
+_ = require('underscore'),
+sqs = require('../utils/sqs');
 
-var User = require('./user').User;
+
+
+var Account = require('./account').Account;
 
 var ApplicationSchema = new mongoose.Schema({
-	owner:{type: mongoose.Schema.Types.ObjectId, ref:'User'},
+	owner:{type: mongoose.Schema.Types.ObjectId, ref:'Account'},
 	name:{type:String, default:'', unique:true, index:true},
 	frontend:{
 		siteUrl:{type:String},
@@ -22,15 +25,19 @@ var ApplicationSchema = new mongoose.Schema({
 		appName:{type:String}
 	},
 	groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
-	collaborators:[{type: mongoose.Schema.Types.ObjectId, ref:'User'}],
+	collaborators:[{type: mongoose.Schema.Types.ObjectId, ref:'Account'}],
+	directories:[{type: mongoose.Schema.Types.ObjectId, ref:'Directory'}],
 	createdAt: { type: Date, default: Date.now},
 	updatedAt: { type: Date, default: Date.now}
 });
 
 ApplicationSchema.set('collection', 'applications');
 
-// Prefix applied to bucketname
-var bucketPrefix = "hypercube-test1-";
+//Set bucket prefix
+var bucketPrefix = "tessellate-";
+if(_.has(conf, 's3') && _.has(conf.s3, 'bucketPrefix')) {
+	bucketPrefix = conf.s3.bucketPrefix;
+}
 
 ApplicationSchema.methods = {
 	saveNew: function(){
@@ -170,46 +177,97 @@ ApplicationSchema.methods = {
 	getStructure:function(){
 		return fileStorage.getFiles(this.frontend.bucketName);
 	},
-	addCollaborators:function(usersArray){
+	addCollaborators:function(accountsArray){
 		var self = this;
-		var userPromises = [];
-		//TODO: Check to see if user exists and is already a collaborator before adding
-		if(usersArray && _.isArray(usersArray)){
-			usersArray.forEach(function (user){
+		var accountPromises = [];
+		//TODO: Check to see if account exists and is already a collaborator before adding
+		if(accountsArray && _.isArray(accountsArray)){
+			accountsArray.forEach(function (account){
 				var d = q.defer();
-				userPromises.push(d);
-				findUser(user).then(function (foundUser){
-					console.log('[Application.addCollaborators()] Found collaborator:', foundUser);
-					//Add User's ObjectID to application's collaborators
-					self.collaborators.push(foundUser._id);
-					d.resolve(foundUser);
+				accountPromises.push(d);
+				findAccount(account).then(function (foundAccount){
+					console.log('[Application.addCollaborators()] Found collaborator:', foundAccount);
+					//Add Account's ObjectID to application's collaborators
+					self.collaborators.push(foundAccount._id);
+					d.resolve(foundAccount);
 				}, function (err){
-					console.error('[Application.addCollaborators()] Error finding user:', user);
+					console.error('[Application.addCollaborators()] Error finding account:', account);
 					d.reject(err);
 				});
 			});
 		}
 		//Add save promise to end of promises list
-		return q.all(userPromises).then(function (usersArray){
-			console.log('collaborators all found:', usersArray);
+		return q.all(accountPromises).then(function (accountsArray){
+			console.log('collaborators all found:', accountsArray);
 			return self.saveNew();
 		}, function(err){
-			console.error('Error with userPromises', err);
+			console.error('Error with accountPromises', err);
 			return;
 		});
 	},
-	login:function(loginData){
-		//Search for user in application's database
-		//Create session in application for user
+	login:function(){
+		//Search for account in application's directories
+		var searchPromises = [];
+		var d = Q.defer();
+		var self = this;
+		//TODO: Only search directories until a user is found (instead of all)
+		_.each(this.directories, function(directory){
+			//TODO: Find by things other than username
+			var d = Q.defer();
+			searchPromises.push(d);
+			directory.findAccount(self).then(function (account){
+				d.resolve(account);
+			}, function(err){
+				console.error('Error finding account in directory', err);
+				d.reject(err);
+			});
+		});
+		Q.all(searchPromises).then(function (directorySearches){
+			if(directorySearches){
+				console.log('directory queries finished:', directorySearches);
+				var foundAccount = _.find(directorySearches, function (search){
+					return search;
+				});
+				var account = new Account(foundAccount);
+				account.login(loginData).then(function(loggedInAccount){
+					console.log('Account login successful', loggedInAccount);
+					d.resolve(loggedInAccount);
+				}, function(err){
+					d.reject(err);
+				});
+			}
+		}, function (err){
+			console.error('Error searching directories:', err);
+			d.reject(err);
+		});
+		return d.promise;
 	},
 	signup:function(signupData) {
 
 	},
 	logout:function(){
 
+	},
+	addDirectory:function(directory){
+		//TODO: Handle checking for and creating a new directory if one doesn't exist
+		this.accounts.push(directory._id);
+		return this.saveNew();
+	},
+	addNewGroup:function(){
+		var group = new Group(groupData);
+		var self = this;
+		return group.saveNew().then(function(){
+			self.groups.push(group._id);
+			return self.saveNew();
+		});
+	},
+	addGroup:function(group){
+		//TODO: make sure that group does not already exist
+		this.groups.push(group._id);
+		return this.saveNew();
 	}
 };
-function findUser(find){
+function findAccount(find){
 	var d = q.defer();
 	var findObj = {};
 	if(_.isString(find)){
@@ -222,21 +280,21 @@ function findUser(find){
 		//Assume find is object
 		findObj = find;
 	}
-	User.find(findObj).exec(function (err, foundUser){
+	Account.find(findObj).exec(function (err, foundAccount){
 		if(err) {
-			console.error('Error finding user:', user);
+			console.error('Error finding account:', account);
 			d.reject({message:'Error Adding collaborator.', error:err});
-		} else if(!foundUser){
-			console.error('User could not be found:', user);
-			d.reject({message:'User could not be found', user:user});
+		} else if(!foundAccount){
+			console.error('Account could not be found:', account);
+			d.reject({message:'Account could not be found', account:account});
 		} else {
-			d.resolve(foundUser);
+			d.resolve(foundAccount);
 		}
 	});
 	return d.promise;
 }
 /*
- * Construct `User` model from `UserSchema`
+ * Construct `Account` model from `AccountSchema`
  */
 db.hypercube.model('Application', ApplicationSchema);
 

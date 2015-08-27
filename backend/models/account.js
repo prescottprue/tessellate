@@ -1,4 +1,4 @@
-var db = require('./../lib/db');
+var db = require('./../utils/db');
 var mongoose = require('mongoose');
 var _ = require('underscore');
 var sessionCtrls = require('../controllers/session');
@@ -12,15 +12,14 @@ var config = require('../config/default').config;
 //collection name
 //model name
 
-var UserSchema = new mongoose.Schema(
+var AccountSchema = new mongoose.Schema(
 	{
 		username:{type:String, index:true, unique:true},
 		name:{type: String},
-		email:{type: String, index:true},
+		email:{type: String, index:true, unique:true},
 		title:{type: String},
 		password:{type: String},
-		role:{type: String, default:'user'},
-		sessionId:{type:String},
+		sessionId:{type:mongoose.Schema.Types.ObjectId, ref:'Session'},
 		groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
 		createdAt: { type: Date, default: Date.now},
 		updatedAt: { type: Date, default: Date.now}
@@ -30,30 +29,29 @@ var UserSchema = new mongoose.Schema(
 	}
 );
 /*
- * Set collection name to 'user'
+ * Set collection name to 'account'
  */
-UserSchema.set('collection', 'users');
+AccountSchema.set('collection', 'accounts');
 
-
-// UserSchema.virtual('id')
+// AccountSchema.virtual('id')
 // .get(function (){
 // 	return this._id;
 // })
 // .set(function (id){
 // 	return this._id = id;
 // });
-UserSchema.methods = {
+AccountSchema.methods = {
 	//Remove values that should not be sent
 	strip: function(){
 		return _.omit(this.toJSON(), ["password", "__v", "_id", '$$hashKey']);
 	},
 	tokenData: function(){
-		var data = _.pick(this.toJSON(), ["username", "role"]);
-		console.log('[User.tokenData()] role:', data.role);
-		data.userId = this.toJSON().id;
+		var data = _.pick(this.toJSON(), ["username", "groups", "sessionId"]);
+		console.log('[Account.tokenData()] role:', data.role);
+		data.accountId = this.toJSON().id;
 		return data;
 	},
-	//Log user in
+	//Log account in
 	login:function(passwordAttempt){
 		var d = Q.defer();
 		var self = this;
@@ -62,6 +60,7 @@ UserSchema.methods = {
 			//Start new session
 			self.startSession().then(function(sessionInfo){
 				//Create Token
+				self.sessionId = sessionInfo._id;
 				var token = self.generateToken(sessionInfo);
 				d.resolve(token);
 			}, function(err){
@@ -85,9 +84,8 @@ UserSchema.methods = {
 		return d.promise;
 	},
 	generateToken: function(session){
-		//Encode a JWT with user info
+		//Encode a JWT with account info
 		var tokenData = this.tokenData();
-		tokenData.sessionId = session._id;
 		return jwt.sign(tokenData, config.jwtSecret);
 	},
 	//Wrap query in promise
@@ -96,13 +94,13 @@ UserSchema.methods = {
 		this.save(function (err, result){
 			if(err) { d.reject(err);}
 			if(!result){
-				d.reject(new Error('New User could not be saved'));
+				d.reject(new Error('New Account could not be saved'));
 			}
 			d.resolve(result);
 		});
 		return d.promise;
 	},
-	//Create a new session with user information attached
+	//Create a new session with account information attached
 	startSession: function(){
 		//Create new session
 		/** New Session Function
@@ -111,7 +109,7 @@ UserSchema.methods = {
 		 */
 		//Session does not already exist
 		var deferred = Q.defer();
-		var session = new Session({userId:this._id});
+		var session = new Session({accountId:this._id});
 		session.save(function (err, result) {
 			if (err) { deferred.reject(err); }
 			if (!result) {
@@ -124,22 +122,22 @@ UserSchema.methods = {
 	endSession: function(){
 		//Find current session and mark it as ended
 		//Set active to false
-		console.log('[User.endSession()] Ending session with id:', this.sessionId);
+		console.log('[Account.endSession()] Ending session with id:', this.sessionId);
 		/** End Session Function
 		 * @description Create a new session and return a promise
 		 * @params {String} email - Email of Session
 		 */
 		var deferred = Q.defer();
-		//Find session by userId and update with active false
+		//Find session by accountId and update with active false
 		Session.update({_id:this.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, function (err, affect, result) {
-			console.log('[User.endSession()] Session update:', err, affect, result);
+			console.log('[Account.endSession()] Session update:', err, affect, result);
 			if (err) { deferred.reject(err); }
 			if (!result) {
 				console.log('Error finding session to end');
 				deferred.reject(new Error('Session could not be added.'));
 			}
 			if(affect.nModified != 1){
-				console.log('[User.endSession()] Multiple sessions were ended', affect);
+				console.log('[Account.endSession()] Multiple sessions were ended', affect);
 			}
 			deferred.resolve(result);
 		});
@@ -147,16 +145,16 @@ UserSchema.methods = {
 	},
 	hashPassword:function(password){
 		var d = Q.defer();
-		console.log('[User.hashPassword()] Hashing password');
+		console.log('[Account.hashPassword()] Hashing password');
 		bcrypt.genSalt(10, function(err, salt) {
 			if(err){
-				console.log('[User.hashPassword()] Error generating salt:', err);
+				console.log('[Account.hashPassword()] Error generating salt:', err);
 				d.reject(err);
 			}
 		  bcrypt.hash(password, salt, function(err, hash) {
-				//Add hash to userData
+				//Add hash to accountData
 				if(err){
-					console.log('[User.hashPassword()] Error Hashing password:', err);
+					console.log('[Account.hashPassword()] Error Hashing password:', err);
 					d.reject(err);
 				}
 				d.resolve(hash);
@@ -166,13 +164,13 @@ UserSchema.methods = {
 	},
 	createWithPass:function(password){
 		//TODO: Hash password
-		//Save new user with password
+		//Save new account with password
 		var d = Q.defer();
 		var self = this;
 		self.hashPassword(password).then(function (hashedPass){
 			self.password = hashedPass;
-			self.saveNew().then(function(newUser){
-				d.resolve(newUser);
+			self.saveNew().then(function(newAccount){
+				d.resolve(newAccount);
 			}, function(err){
 				d.reject(err);
 			});
@@ -183,13 +181,13 @@ UserSchema.methods = {
 	}
 };
 /*
- * Construct `User` model from `UserSchema`
+ * Construct `Account` model from `AccountSchema`
  */
-db.hypercube.model('User', UserSchema);
+db.hypercube.model('Account', AccountSchema);
 /*
  * Make model accessible from controllers
  */
-var User = db.hypercube.model('User');
-User.collectionName = UserSchema.get('collection');
+var Account = db.hypercube.model('Account');
+Account.collectionName = AccountSchema.get('collection');
 
-exports.User = db.hypercube.model('User');
+exports.Account = db.hypercube.model('Account');

@@ -5,16 +5,16 @@
 // Current Errors.
 // ------------------------------------------------------------------------------------------
 /**
- * @apiDefine CreateUserError
+ * @apiDefine CreateAccountError
  * @apiVersion 0.2.0
  *
  * @apiError NoAccessRight Only authenticated Admins can access the data.
- * @apiError UserNameTooShort Minimum of 5 characters required.
+ * @apiError AccountNameTooShort Minimum of 5 characters required.
  *
  * @apiErrorExample  Response (example):
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "error": "UserNameTooShort"
+ *       "error": "AccountNameTooShort"
  *     }
  */
 var Application = require('../models/application').Application;
@@ -124,8 +124,8 @@ exports.add = function(req, res, next){
 		console.log('add request with name: ' + req.body.name + ' with body:', req.body);
 		var appData = _.extend({}, req.body);
 		if(!_.has(appData, 'owner')){
-			console.log('No owner provided. Using user', req.user);
-			appData.owner = req.user.id;
+			console.log('No owner provided. Using account', req.account);
+			appData.owner = req.account.id;
 		}
 		var query = Application.findOne({"name":req.body.name}); // find using name field
 		query.exec(function (qErr, qResult){
@@ -291,7 +291,7 @@ exports.delete = function(req, res, next){
  *
  */
 exports.files = function(req, res, next){
-	//TODO: Check that user is owner or collaborator before uploading
+	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile function
 	if(req.params.name){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
@@ -348,7 +348,7 @@ exports.files = function(req, res, next){
  var localDir = "./public";
 exports.publishFile = function(req, res, next){
 	console.log('dir upload request with app name: ' + req.params.name + ' with body:', req.body);
-	//TODO: Check that user is owner or collaborator before uploading
+	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile function
 	if(req.params.name){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
@@ -406,7 +406,7 @@ exports.publishFile = function(req, res, next){
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.applyTemplate = function(req, res, next){
 	console.log('apply template request with app name: ' + req.params.name + ' with body:', req.body);
-	//TODO: Check that user is owner or collaborator before uploading
+	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile function
 	if(req.params.name){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
@@ -461,7 +461,7 @@ exports.applyTemplate = function(req, res, next){
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.addStorage = function(req, res, next){
 	console.log('add storage request with app name: ' + req.params.name + ' with body:', req.body);
-	//TODO: Check that user is owner or collaborator before uploading
+	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile function
 	if(req.params.name){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
@@ -494,7 +494,7 @@ exports.addStorage = function(req, res, next){
  * @apiName addCollaborators
  * @apiGroup Application
  *
- * @apiSuccess {Array} users Array containing usernames of users to add as collaborators
+ * @apiSuccess {Array} accounts Array containing usernames of accounts to add as collaborators
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -517,8 +517,8 @@ exports.addStorage = function(req, res, next){
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.addCollaborators = function(req, res, next){
 	console.log('add storage request with app name: ' + req.params.name + ' with body:', req.body);
-	//TODO: Check that user is allowed to add collaborators
-	if(req.params.name && req.body.users){ //Get data for a specific application
+	//TODO: Check that account is allowed to add collaborators
+	if(req.params.name && req.body.accounts){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		query.exec(function (err, foundApp){
 			if(err) { 
@@ -529,7 +529,7 @@ exports.addCollaborators = function(req, res, next){
 				console.error('[ApplicationsCtrl.addCollaborators()] Error finding application:');
 				return res.status(400).send('Application could not be found');
 			}
-			foundApp.addCollaborators(req.body.users).then(function (appWithCollabs){
+			foundApp.addCollaborators(req.body.accounts).then(function (appWithCollabs){
 				console.log('Added storage to application successfully:', appWithCollabs);
 				res.send(appWithCollabs);
 			}, function (err){
@@ -538,32 +538,27 @@ exports.addCollaborators = function(req, res, next){
 			});
 		});
 	} else {
-		res.status(400).send('Application name and users array are required to add collaborators.');
+		res.status(400).send('Application name and accounts array are required to add collaborators.');
 	}
 };
 
 /**
- * @api {put} /applications/:name/collaborators  Add File Storage
- * @apiDescription Add collaborators by providing their usernames
- * @apiName addCollaborators
+ * @api {put} /applications/:name/login  Add File Storage
+ * @apiDescription Log into an application
+ * @apiName login
  * @apiGroup Application
- *
- * @apiSuccess {Array} users Array containing usernames of users to add as collaborators
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       name: "exampleApp",
- *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
- *       collaborators:[],
- *       createdAt:1438737438578,
- *       updatedAt:1438737438578
+ *       username:"hackerguy1", 
+ *       email:"test@test.com", 
+ *       name:"John Doe"
  *     }
  * @apiErrorExample  Error-Response (Not Found):
  *     HTTP/1.1 400 Bad Request
  *     {
- *       "message":"Application not found."
+ *       "message":"Account not found."
  *     }
  *
  *
@@ -571,7 +566,6 @@ exports.addCollaborators = function(req, res, next){
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.login = function(req, res, next){
 	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
-	//TODO: Check that user is allowed to add collaborators
 	if(req.params.name && req.body){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		query.exec(function (err, foundApp){
@@ -580,19 +574,113 @@ exports.login = function(req, res, next){
 				return res.status(500).send('Error logging in.');
 			}
 			if(!foundApp){
-				console.error('[ApplicationCtrl.login] User not found');
-				// return next (new Error('User could not be found'));
+				console.error('[ApplicationCtrl.login] Account not found');
 				return res.status(401).send('Invalid Authentication Credentials');
 			}
 			foundApp.login(req.body.password).then(function(token){
 				// console.log('[ApplicationCtrl.login] Login Successful. Token:', token);
-				res.send({token:token, user:foundApp.strip()});
+				res.send({token:token, account:foundApp.strip()});
 			}, function(err){
 				//TODO: Handle wrong password
 				res.status(400).send('[ApplicationCtrl.login] Login Error:', err);
 			});
 		});
 	} else {
-		res.status(400).send('Application name and users array are required to add collaborators.');
+		res.status(400).send('Application name and accounts array are required to add collaborators.');
+	}
+};
+
+/**
+ * @api {put} /applications/:name/logout  Add File Storage
+ * @apiDescription Log a user out of an application
+ * @apiName logout
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       username:"hackerguy1", 
+ *       email:"test@test.com", 
+ *       name:"John Doe"
+ *     }
+ * @apiErrorExample  Error-Response (Not Found):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Account not found."
+ *     }
+ *
+ *
+ */
+exports.logout = function(req, res, next){
+	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
+	if(req.params.name && req.body){ //Get data for a specific application
+		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
+		query.exec(function (err, foundApp){
+			if(err) {
+				console.error('[ApplicationCtrl.logout] Login error:', err);
+				return res.status(500).send('Error logging in.');
+			}
+			if(!foundApp){
+				console.error('[ApplicationCtrl.logout] Account not found');
+				return res.status(401).send('Invalid Authentication Credentials');
+			}
+			foundApp.logout(req.body.password).then(function(token){
+				// console.log('[ApplicationCtrl.logout] Login Successful. Token:', token);
+				res.send({token:token, account:foundApp.strip()});
+			}, function(err){
+				//TODO: Handle wrong password
+				res.status(400).send('[ApplicationCtrl.logout] Login Error:', err);
+			});
+		});
+	} else {
+		res.status(400).send('Application name and accounts array are required to add collaborators.');
+	}
+};
+
+/**
+ * @api {put} /applications/:name/signup  Signup
+ * @apiDescription Signup a user to an application
+ * @apiName signup
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       username:"hackerguy1", 
+ *       email:"test@test.com", 
+ *       name:"John Doe"
+ *     }
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Account already exists."
+ *     }
+ *
+ *
+ */
+exports.signup = function(req, res, next){
+	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
+	//TODO: Check that account is allowed to add collaborators
+	if(req.params.name && req.body){ //Get data for a specific application
+		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
+		query.exec(function (err, foundApp){
+			if(err) {
+				console.error('[ApplicationCtrl.signup] Login error:', err);
+				return res.status(500).send('Error logging in.');
+			}
+			if(!foundApp){
+				console.error('[ApplicationCtrl.signup] Account not found');
+				return res.status(401).send('Invalid Authentication Credentials');
+			}
+			foundApp.signup(req.body.password).then(function(token){
+				// console.log('[ApplicationCtrl.signup] Login Successful. Token:', token);
+				res.send({token:token, account:foundApp.strip()});
+			}, function(err){
+				//TODO: Handle wrong password
+				res.status(400).send('[ApplicationCtrl.signup] Login Error:', err);
+			});
+		});
+	} else {
+		res.status(400).send('Application name is required.');
 	}
 };

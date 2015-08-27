@@ -1,9 +1,9 @@
-var db = require('./../lib/db');
+var db = require('./../utils/db');
 var mongoose = require('mongoose');
 var q = require('q');
 var GroupSchema = new mongoose.Schema({
 	name:{type:String, default:'', unique:true},
-	accounts:[{type: mongoose.Schema.Types.ObjectId, ref:'User'}],
+	accounts:[{type: mongoose.Schema.Types.ObjectId, ref:'Account'}],
 	applications:[{type:mongoose.Schema.Types.ObjectId, ref:'Application'}],
 	createdAt: { type: Date, default: Date.now, index: true},
 	updatedAt: { type: Date, default: Date.now, index: true}
@@ -34,7 +34,7 @@ GroupSchema.methods = {
 
 };
 /*
- * Construct `User` model from `UserSchema`
+ * Construct `Account` model from `AccountSchema`
  */
 db.hypercube.model('Group', GroupSchema);
 

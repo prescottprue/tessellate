@@ -6,7 +6,7 @@ var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('underscore');
 var q = require('q');
-var fileStorage = require('../lib/fileStorage');
+var fileStorage = require('../utils/fileStorage');
 /**
  * @api {get} /admin/buckets Get Buckets
  * @apiDescription Get list of buckets.

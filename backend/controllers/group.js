@@ -2,7 +2,7 @@ var Group = require('../models/group').Group;
 var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('underscore');
-var mp = require('../lib/mongoPromise');
+var mp = require('../utils/mongoPromise');
 
 /**
  * @description Group controller functions

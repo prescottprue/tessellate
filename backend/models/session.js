@@ -1,8 +1,8 @@
-var db = require('./../lib/db');
+var db = require('./../utils/db');
 var mongoose = require('mongoose');
 
 var SessionSchema = new mongoose.Schema({
-	userId:{type: mongoose.Schema.Types.ObjectId, ref:'User'},
+	accountId:{type: mongoose.Schema.Types.ObjectId, ref:'Account'},
 	active:{type: Boolean, default:true},
 	createdAt: { type: Date, default: Date.now, index: true},
 	endedAt: { type: Date, index: true},
@@ -11,7 +11,7 @@ var SessionSchema = new mongoose.Schema({
 
 SessionSchema.set('collection', 'sessions');
 /*
- * Construct `User` model from `UserSchema`
+ * Construct `Account` model from `AccountSchema`
  */
 db.hypercube.model('Session', SessionSchema);
 
