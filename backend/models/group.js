@@ -1,17 +1,25 @@
 var db = require('./../utils/db');
 var mongoose = require('mongoose');
 var q = require('q');
+var Application = require('./application').Application;
+var Account = require('./account').Account;
+
 var GroupSchema = new mongoose.Schema({
-	name:{type:String, default:'', unique:true},
+	application:{type: mongoose.Schema.Types.ObjectId, ref:'Application'},
+	name:{type:String, default:''},
 	accounts:[{type: mongoose.Schema.Types.ObjectId, ref:'Account'}],
-	applications:[{type:mongoose.Schema.Types.ObjectId, ref:'Application'}],
-	createdAt: { type: Date, default: Date.now, index: true},
+	createdAt: { type: Date, default: Date.now},
 	updatedAt: { type: Date, default: Date.now, index: true}
-});
+},
+	{
+		toJSON:{virtuals:true}
+	});
 /*
  * Set collection name
  */
 GroupSchema.set('collection', 'groups');
+
+
 /*
  * Setup schema methods
  */
@@ -28,10 +36,14 @@ GroupSchema.methods = {
 		});
 		return d.promise;
 	},
-	addAccount:function(){
+	addAccount:function(account){
 		//TODO: Handle adding an account to the group
-	},
+		this.saveNew().then(function(){
 
+		}, function(err){
+			console.error('Error', err);
+		});
+	}
 };
 /*
  * Construct `Account` model from `AccountSchema`

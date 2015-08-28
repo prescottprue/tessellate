@@ -98,7 +98,8 @@ exports.login = function(req, res, next){
 		res.status(400).json({code:400, message:"Accountname or Email required to login"});
 	} else {
 		if(_.has(req.body, "username")){
-			query = Account.findOne({"username":req.body.username}); // find using username field
+			query = Account.findOne({"username":req.body.username}).populate({path:'groups', select:'name'}); // find using username field
+			console.log('login by username called.')
 		} else {
 			query = Account.findOne({"email":req.body.email}); // find using email field
 		}

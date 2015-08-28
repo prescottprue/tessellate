@@ -3,6 +3,8 @@ var mongoose = require('mongoose');
 var _ = require('underscore');
 var sessionCtrls = require('../controllers/session');
 var Session = require('./session').Session;
+var Group = require('./group').Group;
+
 var Q = require('q');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcrypt');
@@ -32,7 +34,29 @@ var AccountSchema = new mongoose.Schema(
  * Set collection name to 'account'
  */
 AccountSchema.set('collection', 'accounts');
-
+/*
+ * Groups virtual to return names
+ */
+// AccountSchema.virtual('groupNames')
+// .get(function (){
+// 	// return "test";
+// 	var self = this;
+// 	var namesArray = _.map(self.groups, function(group){
+// 		if(_.isString(group)){
+// 			console.log('was a string');
+// 			group = JSON.parse(group);
+// 		}
+// 		console.log('group:', group);
+// 		if(_.has(group, 'name')){
+// 			return group.name;
+// 		} else {
+// 			console.log('but it does not exist');
+// 			return group;
+// 		}
+// 	});
+// 	console.log('names array:', namesArray);
+// 	return namesArray;
+// });
 // AccountSchema.virtual('id')
 // .get(function (){
 // 	return this._id;
@@ -46,8 +70,8 @@ AccountSchema.methods = {
 		return _.omit(this.toJSON(), ["password", "__v", "_id", '$$hashKey']);
 	},
 	tokenData: function(){
-		var data = _.pick(this.toJSON(), ["username", "groups", "sessionId"]);
-		console.log('[Account.tokenData()] role:', data.role);
+		var data = _.pick(this.toJSON(), ["username", "groups", "sessionId", "groupNames"]);
+		console.log('[Account.tokenData()] Token data selected:', data);
 		data.accountId = this.toJSON().id;
 		return data;
 	},

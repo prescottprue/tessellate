@@ -4,8 +4,9 @@ var authCtrls = require('../controllers/auth');
 var accountCtrls = require('../controllers/accounts');
 var appCtrls = require('../controllers/applications');
 var templateCtrls = require('../controllers/templates');
-var rolesCtrl = require('../controllers/roles');
 var adminCtrl = require('../controllers/admin');
+var groupsCtrl = require('../controllers/groups');
+
 
 module.exports =  {
 	//login(get token)
@@ -166,31 +167,31 @@ module.exports =  {
 			controller:templateCtrls['delete']
 		}
 	],
-	roles:[
+	groups:[
 		{
 			type:'GET',
-			endpoint: '/roles',
-			controller:rolesCtrl.getList
+			endpoint: '/groups',
+			controller:groupsCtrl.get
 		},
 		{
 			type:'GET',
-			endpoint: '/roles/:name',
-			controller:rolesCtrl.get
+			endpoint: '/groups/:name',
+			controller:groupsCtrl.get
 		},
 		{
 			type:'POST',
-			endpoint: '/roles',
-			controller:rolesCtrl.add
+			endpoint: '/groups',
+			controller:groupsCtrl.add
 		},
 		{
 			type:'PUT',
-			endpoint: '/roles/:name',
-			controller:rolesCtrl.update
+			endpoint: '/groups/:name',
+			controller:groupsCtrl.update
 		},
 		{
 			type:'DELETE',
-			endpoint: '/roles/:name',
-			controller:rolesCtrl['delete']
+			endpoint: '/groups/:name',
+			controller:groupsCtrl['delete']
 		}
 	],
 	admin:[

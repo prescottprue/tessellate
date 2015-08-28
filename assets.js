@@ -36,11 +36,6 @@ module.exports = {
 		'/applications/applications.controller.js',
 		'/applications/application.controller.js',
 
-		'/roles/roles.module.js',
-		'/roles/roles.service.js',
-		'/roles/roles.controller.js',
-		'/roles/role.controller.js',
-
 		'/buckets/buckets.module.js',
 		'/buckets/buckets.service.js',
 		'/buckets/buckets.controller.js',

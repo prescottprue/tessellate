@@ -9,7 +9,6 @@ angular.module('tessellate', [
     'tessellate.account',
     'tessellate.nav',
     'tessellate.home', 
-    'tessellate.roles', 
     'tessellate.users',
     'tessellate.applications',
     'tessellate.buckets'

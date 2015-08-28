@@ -8,6 +8,12 @@ sqs = require('../utils/sqs');
 
 var Account = require('./account').Account;
 
+//Set bucket prefix
+var bucketPrefix = "tessellate-";
+if(_.has(conf, 's3') && _.has(conf.s3, 'bucketPrefix')) {
+	bucketPrefix = conf.s3.bucketPrefix;
+}
+
 var ApplicationSchema = new mongoose.Schema({
 	owner:{type: mongoose.Schema.Types.ObjectId, ref:'Account'},
 	name:{type:String, default:'', unique:true, index:true},
@@ -27,15 +33,20 @@ var ApplicationSchema = new mongoose.Schema({
 	directories:[{type: mongoose.Schema.Types.ObjectId, ref:'Directory'}],
 	createdAt: { type: Date, default: Date.now},
 	updatedAt: { type: Date, default: Date.now}
-});
+},
+	{
+		toJSON:{virtuals:true}
+	});
 
 ApplicationSchema.set('collection', 'applications');
 
-//Set bucket prefix
-var bucketPrefix = "tessellate-";
-if(_.has(conf, 's3') && _.has(conf.s3, 'bucketPrefix')) {
-	bucketPrefix = conf.s3.bucketPrefix;
-}
+/*
+ * Id virtual
+ */
+ApplicationSchema.virtual('id')
+.get(function (){
+	return this._id;
+});
 
 ApplicationSchema.methods = {
 	saveNew: function(){

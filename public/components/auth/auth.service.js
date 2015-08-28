@@ -106,6 +106,7 @@ angular.module('tessellate.auth')
 				deferred.resolve(null);
 			}, function(err){
 				console.error('Error logging out:', err);
+				Session.destroy();
 				deferred.reject(err);
 			});
 			return deferred.promise;
