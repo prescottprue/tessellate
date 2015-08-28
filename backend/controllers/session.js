@@ -26,7 +26,7 @@ exports.get = function(req, res, next){
 		}
 		if(!result){
 			console.error('[SessionCtrl.get()] Session could not be found.');
-			return res.status(500).send('Session could not be ended.');
+			return res.status(400).send('Session could not be ended.');
 		}
 		var resData = result;
 		if(!isList){
@@ -55,7 +55,7 @@ exports.add = function(req, res, next){
 		}
 		if(!result){
 			console.error('[SessionCtrl.add()] Session could not be saved.');
-			return res.status(500).send('Session could not be created.');
+			return res.status(400).send('Session could not be created.');
 		}
 		res.json(result);
 	});
@@ -76,7 +76,7 @@ exports.update = function(req, res, next){
 		}
 		if(!result){
 			console.error('[SessionCtrl.update()] Session could not be updated.');
-			return res.status(500).send('Session could not be updated.');
+			return res.status(400).send('Session could not be updated.');
 		}
 		res.json(result);
 	});
@@ -95,7 +95,7 @@ exports.delete = function(req, res, next){
 		}
 		if(!result){
 			console.error('[SessionCtrl.delete()] Session could not be deleted.');
-			return res.status(500).send('Session could not be deleted.');
+			return res.status(400).send('Session could not be deleted.');
 		}
 		res.json(result);
 	});
