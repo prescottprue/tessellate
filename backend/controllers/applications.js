@@ -566,8 +566,8 @@ exports.addCollaborators = function(req, res, next){
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.login = function(req, res, next){
 	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
-	if(req.params.name && req.body){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
+	if(req.params.name && req.body && _.has(req.body, 'username') && _.has(req.body, 'password')){ //Get data for a specific application
+		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'}).populate({path:'directories', select:'name'});
 		query.exec(function (err, foundApp){
 			if(err) {
 				console.error('[ApplicationCtrl.login] Login error:', err);
@@ -577,9 +577,9 @@ exports.login = function(req, res, next){
 				console.error('[ApplicationCtrl.login] Account not found');
 				return res.status(401).send('Invalid Authentication Credentials');
 			}
-			foundApp.login(req.body.password).then(function(token){
+			foundApp.login({username:req.body.username, password:req.body.password}).then(function(loginRes){
 				// console.log('[ApplicationCtrl.login] Login Successful. Token:', token);
-				res.send({token:token, account:foundApp.strip()});
+				res.send(loginRes);
 			}, function(err){
 				//TODO: Handle wrong password
 				res.status(400).send('[ApplicationCtrl.login] Login Error:', err);

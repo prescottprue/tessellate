@@ -8,17 +8,17 @@ if(conf.config.db.name){
 }
 
 // console.log('Connecting to mongo url:', dbUrl);
-var hypercube = mongoose.createConnection(dbUrl);
+var tessellate = mongoose.createConnection(dbUrl);
 
-hypercube.on('error',function (err) {
+tessellate.on('error',function (err) {
 	console.error('Mongoose error:', err);
 });
-hypercube.on('connected', function () {
+tessellate.on('connected', function () {
 	console.error('Connected to DB');
 });
-hypercube.on('disconnected', function () {
+tessellate.on('disconnected', function () {
 	console.error('Disconnected from DB');
 });
 
-exports.hypercube = hypercube;
+exports.tessellate = tessellate;
 

@@ -13,12 +13,12 @@ SessionSchema.set('collection', 'sessions');
 /*
  * Construct `User` model from `UserSchema`
  */
-db.hypercube.model('Session', SessionSchema);
+db.tessellate.model('Session', SessionSchema);
 
 /*
  * Make model accessible from controllers
  */
-var Session = db.hypercube.model('Session');
+var Session = db.tessellate.model('Session');
 Session.collectionName = SessionSchema.get('collection');
 
-exports.Session = db.hypercube.model('Session');
+exports.Session = db.tessellate.model('Session');

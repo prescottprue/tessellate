@@ -1,17 +1,17 @@
 var db = require('./../utils/db');
 var mongoose = require('mongoose');
 var _ = require('underscore');
-var Q = require('q');
+var q = require('q');
 var config = require('../config/default').config;
 var Group = require('./group').Group;
 var Account = require('./account').Account;
 
+console.log('account:', Account, Group);
 //Schema Object
 //collection name
 //model name
 
-var DirectorySchema = new mongoose.Schema(
-	{
+var DirectorySchema = new mongoose.Schema({
 		name:{type: String, unique:true, index:true},
 		groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
 		accounts:[{type:mongoose.Schema.Types.ObjectId, ref:'Account'}],
@@ -20,17 +20,16 @@ var DirectorySchema = new mongoose.Schema(
 	},
 	{
 		toJSON:{virtuals:true}
-	}
-);
+	});
 /*
  * Set collection name to 'account'
  */
-DirectorySchema.set('collection', 'accounts');
+DirectorySchema.set('collection', 'directories');
 
-// DirectorySchema.virtual('id')
-// .get(function (){
-// 	return this._id;
-// })
+DirectorySchema.virtual('id')
+.get(function (){
+	return this._id;
+})
 // .set(function (id){
 // 	return this._id = id;
 // });
@@ -51,10 +50,15 @@ DirectorySchema.methods = {
 		return d.promise;
 	},
 	findAccount:function(accountData){
-		var d = Q.defer();
+		var d = q.defer();
 		//TODO: Find by parameters other than username
 		if(accountData && _.has(accountData, 'username')){
-			var aq = new Account(accountData).find({username:accountData.username});
+			console.log('account data:', accountData);
+			// var account = new Account({username:accountData.username});
+			// var query = Account.findOne({username:accountData.username});
+			console.log('findAccount for directory', this);
+			var aq = this.model('Account').findOne().populate({path:'groups', select:'name accounts'});
+			// d.resolve(account);
 			aq.exec(function (err, result){
 				if(err){
 					console.error('[Directory.findAccount()] Error getting account:', JSON.stringify(err));
@@ -64,8 +68,12 @@ DirectorySchema.methods = {
 					console.error('[Directory.findAccount()] Error finding account.');
 					return d.reject(null);
 				}
+				console.log('directory returned:', result);
 				d.resolve(result);
 			});
+		} else {
+			console.err('[Directory.findAccount()] Username required to find account.');
+			d.reject({message:'Account not found.'});
 		}
 		return d.promise;
 	},
@@ -90,11 +98,11 @@ DirectorySchema.methods = {
 /*
  * Construct Directory model from DirectorySchema
  */
-db.hypercube.model('Directory', DirectorySchema);
+db.tessellate.model('Directory', DirectorySchema);
 /*
  * Make model accessible from controllers
  */
-var Directory = db.hypercube.model('Directory');
+var Directory = db.tessellate.model('Directory');
 Directory.collectionName = DirectorySchema.get('collection');
 
-exports.Directory = db.hypercube.model('Directory');
+exports.Directory = db.tessellate.model('Directory');

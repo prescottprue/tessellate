@@ -4,7 +4,7 @@ var fileStorage = require('../utils/fileStorage');
 var q = require('q');
 var _ = require('underscore');
 var sqs = require('./../utils/sqs');
-var templateBucket = "hypercube-templates";
+var templateBucket = "tessellate-templates";
 var formidable = require('formidable');
 var util = require('util');
 var mkdirp = require('mkdirp');
@@ -141,12 +141,12 @@ TemplateSchema.methods = {
 /*
  * Construct `User` model from `UserSchema`
  */
-db.hypercube.model('Template', TemplateSchema);
+db.tessellate.model('Template', TemplateSchema);
 
 /*
  * Make model accessible from controllers
  */
-var Template = db.hypercube.model('Template');
+var Template = db.tessellate.model('Template');
 Template.collectionName = TemplateSchema.get('collection');
 
-exports.Template = db.hypercube.model('Template');
+exports.Template = db.tessellate.model('Template');

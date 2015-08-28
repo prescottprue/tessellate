@@ -1,11 +1,10 @@
 var db = require('./../utils/db');
 var mongoose = require('mongoose');
 var _ = require('underscore');
-var sessionCtrls = require('../controllers/session');
 var Session = require('./session').Session;
 var Group = require('./group').Group;
 
-var Q = require('q');
+var q = require('q');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcrypt');
 var config = require('../config/default').config;
@@ -57,10 +56,10 @@ AccountSchema.set('collection', 'accounts');
 // 	console.log('names array:', namesArray);
 // 	return namesArray;
 // });
-// AccountSchema.virtual('id')
-// .get(function (){
-// 	return this._id;
-// })
+AccountSchema.virtual('id')
+.get(function (){
+	return this._id;
+})
 // .set(function (id){
 // 	return this._id = id;
 // });
@@ -77,9 +76,10 @@ AccountSchema.methods = {
 	},
 	//Log account in
 	login:function(passwordAttempt){
-		var d = Q.defer();
+		var d = q.defer();
 		var self = this;
 		//Check password
+		console.log('login called with:', passwordAttempt);
 		self.comparePassword(passwordAttempt).then(function(){
 			//Start new session
 			self.startSession().then(function(sessionInfo){
@@ -95,9 +95,22 @@ AccountSchema.methods = {
 		});
 		return d.promise;
 	},
+	logout:function(){
+		var d = q.defer();
+		//TODO: Invalidate token?
+		//End session
+		this.endSession().then(function(){
+			d.resolve();
+		}, function (err){
+			console.error('[Account.logout()] Error ending session:', err);
+			d.resolve();
+			// d.reject(err);
+		});
+		return d.promise;
+	},
 	comparePassword: function(passwordAttempt){
 		var self = this;
-		var d = Q.defer();
+		var d = q.defer();
 		bcrypt.compare(passwordAttempt, self.password, function(err, passwordsMatch){
 			if(err){d.reject(err);}
 			if(!passwordsMatch){
@@ -114,7 +127,7 @@ AccountSchema.methods = {
 	},
 	//Wrap query in promise
 	saveNew:function(){
-		var d = Q.defer();
+		var d = q.defer();
 		this.save(function (err, result){
 			if(err) { d.reject(err);}
 			if(!result){
@@ -132,7 +145,7 @@ AccountSchema.methods = {
 		 * @params {String} email - Email of Session
 		 */
 		//Session does not already exist
-		var deferred = Q.defer();
+		var deferred = q.defer();
 		var session = new Session({accountId:this._id});
 		session.save(function (err, result) {
 			if (err) { deferred.reject(err); }
@@ -151,7 +164,7 @@ AccountSchema.methods = {
 		 * @description Create a new session and return a promise
 		 * @params {String} email - Email of Session
 		 */
-		var deferred = Q.defer();
+		var deferred = q.defer();
 		//Find session by accountId and update with active false
 		Session.update({_id:this.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, function (err, affect, result) {
 			console.log('[Account.endSession()] Session update:', err, affect, result);
@@ -168,7 +181,7 @@ AccountSchema.methods = {
 		return deferred.promise;
 	},
 	hashPassword:function(password){
-		var d = Q.defer();
+		var d = q.defer();
 		console.log('[Account.hashPassword()] Hashing password');
 		bcrypt.genSalt(10, function(err, salt) {
 			if(err){
@@ -189,7 +202,7 @@ AccountSchema.methods = {
 	createWithPass:function(password){
 		//TODO: Hash password
 		//Save new account with password
-		var d = Q.defer();
+		var d = q.defer();
 		var self = this;
 		self.hashPassword(password).then(function (hashedPass){
 			self.password = hashedPass;
@@ -205,13 +218,12 @@ AccountSchema.methods = {
 	}
 };
 /*
- * Construct `Account` model from `AccountSchema`
+ * Construct Account model from AccountSchema
  */
-db.hypercube.model('Account', AccountSchema);
+db.tessellate.model('Account', AccountSchema);
 /*
  * Make model accessible from controllers
  */
-var Account = db.hypercube.model('Account');
+var Account = db.tessellate.model('Account');
 Account.collectionName = AccountSchema.get('collection');
-
-exports.Account = db.hypercube.model('Account');
+exports.Account = db.tessellate.model('Account');

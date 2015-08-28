@@ -7,6 +7,8 @@ _ = require('underscore'),
 sqs = require('../utils/sqs');
 
 var Account = require('./account').Account;
+var Directory = require('./directory').Directory;
+console.log('Account in application:', Account);
 
 //Set bucket prefix
 var bucketPrefix = "tessellate-";
@@ -64,23 +66,23 @@ ApplicationSchema.methods = {
 		});
 		return d.promise;
 	},
-	findPromise:function(){
-		var d = q.defer();
-		var query = Application.findOne({name:appName}).populate({path:'owner', select:'username name title email'});
-		query.exec(function (err, foundApp){
-			if(err) { 
-				console.error('[Application.findPromise()] Error finding application:', JSON.stringify(err));
-				d.reject();
-				return res.status(500).send('Error applying template to Application.');
-			} else if(!foundApp){
-				console.error('[Application.findPromise()] Application not found.');
-				return res.status(400).send('Application could not be found.');
-			} else {
-				d.resolve(foundApp);
-			}
-		});
-		return d.promise;
-	},
+	// findPromise:function(){
+	// 	var d = q.defer();
+	// 	var query = Application.findOne({name:appName}).populate({path:'owner', select:'username name title email'});
+	// 	query.exec(function (err, foundApp){
+	// 		if(err) { 
+	// 			console.error('[Application.findPromise()] Error finding application:', JSON.stringify(err));
+	// 			d.reject();
+	// 			return res.status(500).send('Error applying template to Application.');
+	// 		} else if(!foundApp){
+	// 			console.error('[Application.findPromise()] Application not found.');
+	// 			return res.status(400).send('Application could not be found.');
+	// 		} else {
+	// 			d.resolve(foundApp);
+	// 		}
+	// 	});
+	// 	return d.promise;
+	// },
 	createWithTemplate:function(templateName){
 		var self = this;
 		var d = q.defer();
@@ -214,52 +216,89 @@ ApplicationSchema.methods = {
 			return;
 		});
 	},
-	login:function(){
+	login:function(loginData){
 		//Search for account in application's directories
-		var searchPromises = [];
-		var d = Q.defer();
-		var self = this;
-		//TODO: Only search directories until a user is found (instead of all)
-		_.each(this.directories, function(directory){
-			//TODO: Find by things other than username
-			var d = Q.defer();
-			searchPromises.push(d);
-			directory.findAccount(self).then(function (account){
-				d.resolve(account);
-			}, function(err){
-				console.error('Error finding account in directory', err);
+		var d = q.defer();
+		this.findAccountInDirectories(loginData).then(function (foundAccount){
+			foundAccount.login(loginData.password).then(function (loggedInData){
+				console.log('Account login successful', loggedInData);
+				d.resolve({account:foundAccount.strip(), token:loggedInData});
+			}, function (err){
+				console.log('Error logging into account');
 				d.reject(err);
 			});
-		});
-		Q.all(searchPromises).then(function (directorySearches){
-			if(directorySearches){
-				console.log('directory queries finished:', directorySearches);
-				var foundAccount = _.find(directorySearches, function (search){
-					return search;
-				});
-				var account = new Account(foundAccount);
-				account.login(loginData).then(function(loggedInAccount){
-					console.log('Account login successful', loggedInAccount);
-					d.resolve(loggedInAccount);
-				}, function(err){
-					d.reject(err);
-				});
-			}
 		}, function (err){
-			console.error('Error searching directories:', err);
 			d.reject(err);
 		});
 		return d.promise;
 	},
 	signup:function(signupData) {
+		//TODO: Make this work
 
 	},
-	logout:function(){
-
+	logout:function(logoutData){
+		//Log the user out
+		//TODO: Make this work
+		// this.model('Account').findOne({username:logoutData.username});
+		var d = q.defer();
+		this.findAccountInDirectories(loginData).then(function (foundAccount){
+			foundAccount.logout(loginData.password).then(function (loggedInData){
+				console.log('Account login successful', loggedInData);
+				d.resolve(foundAccount.strip());
+			}, function (err){
+				console.log('Error logging into account');
+				d.reject(err);
+			});
+		}, function (err){
+			d.reject(err);
+		});
+		return d.promise;
+	},
+	findAccountInDirectories:function(accountData){
+		//Loop through directories, checking each one until account is found
+		//TODO: Only keep searching until account is found instead of searching all directories
+		var self = this;
+		var d = q.defer();
+		var searchPromises = [];
+		if(this.directories.length < 1) {
+			d.reject({message:'This application does not have any user directories.'});
+		} else {
+			_.each(self.directories, function (directoryData){
+				//TODO: Find by things other than username
+				var dirPromise = q.defer();
+				searchPromises.push(dirPromise.promise);
+				var directory = new Directory(directoryData);
+				directory.findAccount(accountData).then(function (account){
+					console.log('[Application.findAccountInDirectories()] account found in directory:', account);
+					dirPromise.resolve(account);
+				}, function(err){
+					console.error('[Application.findAccountInDirectories()] Error finding account in directory', err);
+					dirPromise.reject(err);
+				});
+			});
+			q.all(searchPromises).then(function (directorySearches){
+				if(directorySearches){
+					console.log('[Application.findAccountInDirectories()] directory queries finished:', directorySearches);
+					var foundAccountInd = _.findIndex(directorySearches, function (search){
+						return search;
+					});
+					console.log('[Application.findAccountInDirectories()] Index of directory containing account:', foundAccountInd);
+					console.log('[Application.findAccountInDirectories()] found account from array:', directorySearches[foundAccountInd]);
+					d.resolve(directorySearches[foundAccountInd]);
+				} else {
+					console.error('[Application.findAccountInDirectories()] No directorySearches array returned.');
+					d.reject();
+				}
+			}, function (err){
+				console.error('[Application.findAccountInDirectories()] Error searching directories:', err);
+				d.reject(err);
+			});
+		}
+		return d.promise;
 	},
 	addDirectory:function(directory){
 		//TODO: Handle checking for and creating a new directory if one doesn't exist
-		this.accounts.push(directory._id);
+		this.directories.push(directory._id);
 		return this.saveNew();
 	},
 	addNewGroup:function(){
@@ -305,12 +344,12 @@ function findAccount(find){
 /*
  * Construct `Account` model from `AccountSchema`
  */
-db.hypercube.model('Application', ApplicationSchema);
+db.tessellate.model('Application', ApplicationSchema);
 
 /*
  * Make model accessible from controllers
  */
-var Application = db.hypercube.model('Application');
+var Application = db.tessellate.model('Application');
 Application.collectionName = ApplicationSchema.get('collection');
 
-exports.Application = db.hypercube.model('Application');
+exports.Application = db.tessellate.model('Application');

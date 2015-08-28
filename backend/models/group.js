@@ -48,12 +48,12 @@ GroupSchema.methods = {
 /*
  * Construct `Account` model from `AccountSchema`
  */
-db.hypercube.model('Group', GroupSchema);
+db.tessellate.model('Group', GroupSchema);
 
 /*
  * Make model accessible from controllers
  */
-var Group = db.hypercube.model('Group');
+var Group = db.tessellate.model('Group');
 Group.collectionName = GroupSchema.get('collection');
 
-exports.Group = db.hypercube.model('Group');
+exports.Group = db.tessellate.model('Group');
