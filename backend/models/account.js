@@ -169,8 +169,8 @@ AccountSchema.methods = {
 		Session.update({_id:this.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, function (err, affect, result) {
 			console.log('[Account.endSession()] Session update:', err, affect, result);
 			if (err) { deferred.reject(err); }
-			if (!result) {
-				console.log('Error finding session to end');
+			if (!affect && affect.nModified == 0) {
+				console.log('Error finding session to end.');
 				deferred.reject(new Error('Session could not be added.'));
 			}
 			if(affect.nModified != 1){
@@ -200,19 +200,29 @@ AccountSchema.methods = {
 		return d.promise;
 	},
 	createWithPass:function(password){
-		//TODO: Hash password
 		//Save new account with password
 		var d = q.defer();
 		var self = this;
-		self.hashPassword(password).then(function (hashedPass){
-			self.password = hashedPass;
-			self.saveNew().then(function(newAccount){
-				d.resolve(newAccount);
+		var query = this.model('Account').findOne({username:self.username});
+		query.exec(function(err, result){
+			if(err){
+				console.log('Error querying accounts:', err);
+				return d.reject(err);
+			}
+			if(result){
+				console.log('A user with this username already exists');
+				return d.reject({message:'A user with this username already exists', status:'EXISTS'});
+			}
+			self.hashPassword(password).then(function (hashedPass){
+				self.password = hashedPass;
+				self.saveNew().then(function(newAccount){
+					d.resolve(newAccount);
+				}, function(err){
+					d.reject(err);
+				});
 			}, function(err){
 				d.reject(err);
 			});
-		}, function(err){
-			d.reject(err);
 		});
 		return d.promise;
 	}

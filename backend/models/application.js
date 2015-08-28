@@ -233,8 +233,64 @@ ApplicationSchema.methods = {
 		return d.promise;
 	},
 	signup:function(signupData) {
-		//TODO: Make this work
+		var d = q.defer();
+		var self = this;
+		/*if(this.directories.length < 1){
+			//If no directories exist, create a default one with a users group
+			this.addDirectory().then(function (newDir){
+				console.log('New Directory created successfully');
+				//TODO: Include this into the rest of the promise chain
+				// d.resolve(newDir);
+			}, function (err){
+				console.error('Directory could not be created.');
+				d.reject(err);
+			});
+		}*/
+		this.findAccountInDirectories(loginData).then(function (foundAccount){
+			console.log('Account already exists in application directories');
+			d.reject({message:'Account already exists in application directories.'});
+		}, function (err){
+			//TODO: Handle other errors
 
+			//Account is not in directories
+			console.log('Account does not already exist in directories', err);
+			var account = new Account(_.omit(signupData, 'password'));
+			account.createWithPass(signupData.password).then(function(newAccount){
+				//Account did not yet exist, so it was created
+
+				//TODO: Add to a group if none specified
+				// newAccount.addToGroup();
+				d.resolve(newAccount);
+			}, function (err){
+				if(err && err.status == 'EXISTS'){
+					//Add to account to directory
+					console.log('[Application.signup()] looking for directory with id:', self.directories[0]._id)
+					var dQuery = self.models('Directory').findOne({_id:self.directories[0]._id});
+					dQuery.exec(function(err, result){
+						if(err){
+							console.error('[Application.signup()] Error saving new account', err);
+							return d.reject(err);
+						}
+						if(!result){
+							console.error('[Application.signup()] Directory not found.');
+							return d.reject(err);
+						}
+						//TODO: Make sure account does not already exist in directory before adding.
+						result.addAccount(account).then(function(dirWithAccount){
+							console.log('[Application.signup()] Directory with account:', dirWithAccount);
+							d.resolve(dirWithAccount);
+						}, function (err){
+							console.error('[Application.signup()] Error adding account to directory:', err);
+							d.reject(err);
+						});
+					});
+				} else {
+					console.error('[Application.signup()] Error creating new account.', err);
+					d.reject(err);
+				}
+			});
+		});
+		return d.promise;
 	},
 	logout:function(logoutData){
 		//Log the user out
@@ -298,6 +354,7 @@ ApplicationSchema.methods = {
 	},
 	addDirectory:function(directory){
 		//TODO: Handle checking for and creating a new directory if one doesn't exist
+		//TODO: Make sure this directory does not already exist in this application
 		this.directories.push(directory._id);
 		return this.saveNew();
 	},
@@ -310,7 +367,11 @@ ApplicationSchema.methods = {
 		});
 	},
 	addGroup:function(group){
-		//TODO: make sure that group does not already exist
+		//TODO: make sure that group does not already exist in this application
+		// if(indexOf(this.groups, group._id) == -1){
+		// 	console.error('This group already exists application');
+		// 	return;
+		// }
 		this.groups.push(group._id);
 		return this.saveNew();
 	}

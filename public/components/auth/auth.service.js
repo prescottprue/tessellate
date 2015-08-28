@@ -55,8 +55,8 @@ angular.module('tessellate.auth')
 	    	$log.log('[AuthService.signup()]: Signup successful:', successRes.data);
 	    	//Login with new user
 	    	$log.log('[AuthService.signup()]: Logging in as new user');
-	    	self.login({username:successRes.data.username, password:signupData.password}).then(function(){
-					$log.info('New user logged in successfully:', err);
+	    	self.login({username:successRes.data.username, password:signupData.password}).then(function(loggedInUser){
+					$log.info('New user logged in successfully:', loggedInUser);
 	    		deferred.resolve(successRes.data);
 	    	}, function(err){
 					$log.error('Error Logging in as new user:', err);
