@@ -1,4 +1,5 @@
 module.exports = {
+	envName:'local',
 	db:{
 		url:process.env.TESSELLATE_MONGO
 	},

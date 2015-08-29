@@ -3,10 +3,9 @@ var mongoose = require('mongoose');
 var _ = require('underscore');
 var q = require('q');
 var config = require('../config/default').config;
-var Group = require('./group').Group;
-var Account = require('./account').Account;
+// var Group = require('./group').Group; //undefined?
+// var Account = require('./account').Account; //undefined?
 
-console.log('account:', Account, Group);
 //Schema Object
 //collection name
 //model name
@@ -57,7 +56,7 @@ DirectorySchema.methods = {
 			// var account = new Account({username:accountData.username});
 			// var query = Account.findOne({username:accountData.username});
 			console.log('findAccount for directory', this);
-			var aq = this.model('Account').findOne().populate({path:'groups', select:'name accounts'});
+			var aq = this.model('Account').findOne({username:accountData.username}).populate({path:'groups', select:'name accounts'});
 			// d.resolve(account);
 			aq.exec(function (err, result){
 				if(err){
@@ -77,17 +76,55 @@ DirectorySchema.methods = {
 		}
 		return d.promise;
 	},
-	addNewGroup:function(){
-		var group = new Group(groupData);
+	addNewGroup:function(groupData){
+		//Find by name and
 		var self = this;
-		return group.saveNew().then(function(){
-			self.groups.push(group._id);
-			return self.saveNew();
-		});
+
+		// if(this.groups.length > 0){
+		// 	//Check for group name already exisiting in directory
+		// 	_.any(self.groups, function(group){
+		// 		if(_.has(group, 'name')){
+		// 			//Check 
+		// 		} else {
+		// 			//Groups hasn't been populated
+		// 			console.log('Groups has not been populated');
+		// 			//query groups based on id?
+		// 			var groupQuery = this.model('Group').findById()
+		// 		}
+		// 	});
+		// }
+		// return group.saveNew().then(function(){
+		// 	self.groups.push(group._id);
+		// 	return self.saveNew();
+		// });
 	},
-	addGroup:function(group){
-		//TODO: make sure that group does not already exist
-		this.groups.push(group._id);
+	addGroup:function(groupData){
+		var self = this;
+		var groupId = groupData; //Assume string
+		//Handle group data being an object with an id
+		if(_.isObject(groupData) && _.has(groupData, '_id')){
+			groupId = groupData._id;
+		}
+		//make sure that group does not already exist in directory
+		var alreadyExists = _.any(self.groups, function(group){
+			if(_.isObject(group)){
+				//Check
+				console.log('group value is an object', group);
+				if(_.has(group, '_id') && group._id == groupId){
+					console.log('')
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				console.log('Groups has not been populated. Group is string?', group);
+				return false;
+			}
+		});
+		//add group if it is not already exisiting in directory
+		if(!alreadyExists){
+			this.groups.push(group._id);
+		}
 		return this.saveNew();
 	},
 	addAccount:function(account){

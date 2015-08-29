@@ -575,7 +575,7 @@ exports.login = function(req, res, next){
 			}
 			if(!foundApp){
 				console.error('[ApplicationCtrl.login] Account not found');
-				return res.status(401).send('Invalid Authentication Credentials');
+				return res.status(409).send('Application does not exist');
 			}
 			foundApp.login({username:req.body.username, password:req.body.password}).then(function(loginRes){
 				// console.log('[ApplicationCtrl.login] Login Successful. Token:', token);
@@ -672,10 +672,10 @@ exports.signup = function(req, res, next){
 				console.error('[ApplicationCtrl.signup] Account not found');
 				return res.status(401).send('Invalid Authentication Credentials');
 			}
-			foundApp.signup(req.body.password).then(function(token){
+			foundApp.signup(req.body.password).then(function (token){
 				// console.log('[ApplicationCtrl.signup] Login Successful. Token:', token);
 				res.send({token:token, account:foundApp.strip()});
-			}, function(err){
+			}, function (err){
 				//TODO: Handle wrong password
 				res.status(400).send('[ApplicationCtrl.signup] Login Error:', err);
 			});

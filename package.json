@@ -1,7 +1,6 @@
 {
-  "name": "tessellate",
-  "version": "0.0.0",
-  "private": true,
+  "name": "kyper-tessellate",
+  "version": "0.0.1",
   "scripts": {
     "start": "node server.js"
   },

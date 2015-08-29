@@ -6,9 +6,8 @@ q = require('q'),
 _ = require('underscore'),
 sqs = require('../utils/sqs');
 
-var Account = require('./account').Account;
+var Account = require('./account').Account; //undefined?
 var Directory = require('./directory').Directory;
-console.log('Account in application:', Account);
 
 //Set bucket prefix
 var bucketPrefix = "tessellate-";

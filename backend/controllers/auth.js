@@ -111,14 +111,15 @@ exports.login = function(req, res, next){
 			if(!currentAccount){
 				console.error('[AuthCtrl.login] Account not found');
 				// return next (new Error('Account could not be found'));
-				return res.status(401).send('Invalid Authentication Credentials');
+				return res.status(409).send('Account not found.');
 			}
 			currentAccount.login(req.body.password).then(function(token){
 				// console.log('[AuthCtrl.login] Login Successful. Token:', token);
 				res.send({token:token, account:currentAccount.strip()});
 			}, function(err){
 				//TODO: Handle wrong password
-				res.status(400).send('[AuthCtrl.login] Login Error:', err);
+				console.log('[AuthCtrl.login] Login Error:', err)
+				res.status(400).send('Error logging in.');
 			});
 		});
 	}
