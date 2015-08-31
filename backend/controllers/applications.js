@@ -125,7 +125,11 @@ exports.add = function(req, res, next){
 		var appData = _.extend({}, req.body);
 		if(!_.has(appData, 'owner')){
 			console.log('No owner provided. Using account', req.user);
-			appData.owner = req.user.id;
+			if(_.has(req, 'userId')){
+				appData.owner = req.userId;
+			} else if (_.has(req, 'id')) {
+				appData.owner = req.userId;
+			}
 		}
 		var query = Application.findOne({"name":req.body.name}); // find using name field
 		query.exec(function (qErr, qResult){
@@ -577,12 +581,13 @@ exports.login = function(req, res, next){
 				console.error('[ApplicationCtrl.login] Account not found');
 				return res.status(409).send('Application does not exist');
 			}
-			foundApp.login({username:req.body.username, password:req.body.password}).then(function(loginRes){
+			foundApp.login({username:req.body.username, password:req.body.password}).then(function (loginRes){
 				// console.log('[ApplicationCtrl.login] Login Successful. Token:', token);
 				res.send(loginRes);
-			}, function(err){
+			}, function (err){
 				//TODO: Handle wrong password
-				res.status(400).send('[ApplicationCtrl.login] Login Error:', err);
+				console.error('[ApplicationCtrl.login] Error logging in:', err);
+				res.status(400).send('Login Error.');
 			});
 		});
 	} else {
@@ -660,7 +665,6 @@ exports.logout = function(req, res, next){
  */
 exports.signup = function(req, res, next){
 	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
-	//TODO: Check that account is allowed to add collaborators
 	if(req.params.name && req.body){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		query.exec(function (err, foundApp){

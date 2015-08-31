@@ -1,4 +1,5 @@
 var conf  = require('../config/default').config,
+logger = require('../utils/logger'),
 db = require('../utils/db'),
 mongoose = require('mongoose'),
 fileStorage = require('../utils/fileStorage'),
@@ -6,9 +7,7 @@ q = require('q'),
 _ = require('underscore'),
 sqs = require('../utils/sqs');
 
-var Account = require('./account').Account; //undefined?
 var Directory = require('./directory').Directory;
-
 //Set bucket prefix
 var bucketPrefix = "tessellate-";
 if(_.has(conf, 's3') && _.has(conf.s3, 'bucketPrefix')) {
@@ -103,6 +102,7 @@ ApplicationSchema.methods = {
 	createWithStorage:function(){
 		var self = this;
 		var d = q.defer();
+		// TODO: Add a new group
 		this.saveNew().then(function (newApplication){
 			// console.log('[application.createWithStorage] new app saved successfully', newApplication);
 			self.createStorage().then(function(){
@@ -218,7 +218,7 @@ ApplicationSchema.methods = {
 	login:function(loginData){
 		//Search for account in application's directories
 		var d = q.defer();
-		this.findAccountInDirectories(loginData).then(function (foundAccount){
+		this.findAccount(loginData).then(function (foundAccount){
 			foundAccount.login(loginData.password).then(function (loggedInData){
 				console.log('Account login successful', loggedInData);
 				d.resolve({account:foundAccount.strip(), token:loggedInData});
@@ -234,30 +234,17 @@ ApplicationSchema.methods = {
 	signup:function(signupData) {
 		var d = q.defer();
 		var self = this;
-		/*if(this.directories.length < 1){
-			//If no directories exist, create a default one with a users group
-			this.addDirectory().then(function (newDir){
-				console.log('New Directory created successfully');
-				//TODO: Include this into the rest of the promise chain
-				// d.resolve(newDir);
-			}, function (err){
-				console.error('Directory could not be created.');
-				d.reject(err);
-			});
-		}*/
-		this.findAccountInDirectories(loginData).then(function (foundAccount){
+		this.findAccount(loginData).then(function (foundAccount){
 			console.log('Account already exists in application directories');
 			d.reject({message:'Account already exists in application directories.'});
 		}, function (err){
 			//TODO: Handle other errors
-
 			//Account is not in directories
 			console.log('Account does not already exist in directories', err);
 			var account = new Account(_.omit(signupData, 'password'));
 			account.createWithPass(signupData.password).then(function(newAccount){
 				//Account did not yet exist, so it was created
-
-				//TODO: Add to a group if none specified
+				//TODO: Add to default directory if none specified
 				// newAccount.addToGroup();
 				d.resolve(newAccount);
 			}, function (err){
@@ -296,7 +283,7 @@ ApplicationSchema.methods = {
 		//TODO: Make this work
 		// this.model('Account').findOne({username:logoutData.username});
 		var d = q.defer();
-		this.findAccountInDirectories(loginData).then(function (foundAccount){
+		this.findAccount(loginData).then(function (foundAccount){
 			foundAccount.logout(loginData.password).then(function (loggedInData){
 				console.log('Account login successful', loggedInData);
 				d.resolve(foundAccount.strip());
@@ -309,46 +296,58 @@ ApplicationSchema.methods = {
 		});
 		return d.promise;
 	},
-	findAccountInDirectories:function(accountData){
-		//Loop through directories, checking each one until account is found
-		//TODO: Only keep searching until account is found instead of searching all directories
+	findAccount:function(accountData){
 		var self = this;
 		var d = q.defer();
-		var searchPromises = [];
-		if(this.directories.length < 1) {
-			d.reject({message:'This application does not have any user directories.'});
-		} else {
-			_.each(self.directories, function (directoryData){
-				//TODO: Find by things other than username
-				var dirPromise = q.defer();
-				searchPromises.push(dirPromise.promise);
-				var directory = new Directory(directoryData);
-				directory.findAccount(accountData).then(function (account){
-					console.log('[Application.findAccountInDirectories()] account found in directory:', account);
-					dirPromise.resolve(account);
-				}, function(err){
-					console.error('[Application.findAccountInDirectories()] Error finding account in directory', err);
-					dirPromise.reject(err);
-				});
-			});
-			q.all(searchPromises).then(function (directorySearches){
-				if(directorySearches){
-					console.log('[Application.findAccountInDirectories()] directory queries finished:', directorySearches);
-					var foundAccountInd = _.findIndex(directorySearches, function (search){
-						return search;
-					});
-					console.log('[Application.findAccountInDirectories()] Index of directory containing account:', foundAccountInd);
-					console.log('[Application.findAccountInDirectories()] found account from array:', directorySearches[foundAccountInd]);
-					d.resolve(directorySearches[foundAccountInd]);
-				} else {
-					console.error('[Application.findAccountInDirectories()] No directorySearches array returned.');
-					d.reject();
-				}
+		//Find account first then see if its id is within either list
+		var accountQuery = this.model('Account').findOne({username:accountData.username});
+		accountQuery.exec(function(err, account){
+			if(err){
+				logger.error({message:'Error finding account.', obj:'Application', func:'findAccount'});
+				return d.reject(err);
+			}
+			if(!account){
+				logger.info({message:'Account not found.', obj:'Application', func:'findAccount'});
+				return d.reject({message:'Account not found'});
+			}
+			if(self.directories.length < 1 && self.groups.length < 1) {
+				logger.info({message:'Application does not have any groups or directories. Login Not possible. This application does not have any user groups or directories.', obj:'Application', func:'findAccount'});
+				return d.reject({message:'Login Not possible. This application does not have any user groups or directories.'});
+			}
+			logger.log({message:'Account found, looking for it in application.', application:self, account:account, obj:'Application', func:'findAccount'})
+			self.accountExistsInApp(account).then(function(){
+				d.resolve(account);
 			}, function (err){
-				console.error('[Application.findAccountInDirectories()] Error searching directories:', err);
 				d.reject(err);
 			});
-		}
+		});
+		return d.promise;
+	},
+	accountExistsInApp:function(account){
+		var self = this;
+		var d = q.defer();
+		var query = self.model('Application').findById(self._id).populate({path:'directories', select:'accounts groups'}).populate({path:'groups', select:'accounts'});
+		query.exec(function(err, selfData){
+			var existsInDirectories = _.any(selfData.directories, function(directory){
+				//TODO: Check groups in directories as well
+				logger.log({message:'Searching for account within directory.', directory:directory, accounts:directory.accounts, groups:directory.groups, obj:'Application', func:'accountExistsInApp'});
+				return _.any(directory.accounts, function(testAccountId){
+					return account._id.toString() == testAccountId;
+				});
+			});
+			var existsInGroups = _.any(selfData.groups, function(group){
+				return _.any(group.accounts, function(testAccountId){
+					return account._id.toString() == testAccountId;
+				});
+			});
+			if(existsInDirectories || existsInGroups){
+				logger.info({message:'Account found within application.', obj:'Application', func:'accountExistsInApp', existsInGroups:existsInGroups, existsInDirectories:existsInDirectories});
+				d.resolve(true);
+			} else {
+				logger.info({message:'Account found, but not placed into application groups or directories.', obj:'Application', func:'accountExistsInApp', existsInGroups:existsInGroups, existsInDirectories:existsInDirectories, application:self});
+				d.reject({message:'Account is not within application groups or directories.'});
+			}
+		});
 		return d.promise;
 	},
 	addDirectory:function(directory){
@@ -356,6 +355,14 @@ ApplicationSchema.methods = {
 		//TODO: Make sure this directory does not already exist in this application
 		this.directories.push(directory._id);
 		return this.saveNew();
+	},
+	addAccountToDirectory:function(accountData, directoryId){
+		if(!directoryId){
+			//TODO: Add to default directory
+		}
+		if(this.directories.length < 1){
+			//TODO: Create default directory
+		}
 	},
 	addNewGroup:function(){
 		var group = new Group(groupData);

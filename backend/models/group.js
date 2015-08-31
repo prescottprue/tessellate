@@ -1,6 +1,7 @@
 var db = require('./../utils/db');
 var mongoose = require('mongoose');
 var q = require('q');
+var _ = require('underscore');
 var Application = require('./application').Application;
 var Account = require('./account').Account;
 
@@ -43,7 +44,35 @@ GroupSchema.methods = {
 		}, function(err){
 			console.error('Error', err);
 		});
-	}
+	},
+	findAccount:function(accountData){
+		var d = q.defer();
+		//TODO: Find by parameters other than username
+		if(accountData && _.has(accountData, 'username')){
+			console.log('account data:', accountData);
+			// var account = new Account({username:accountData.username});
+			// var query = Account.findOne({username:accountData.username});
+			console.log('findAccount for group', this);
+			var aq = this.model('Account').findOne({username:accountData.username}).populate({path:'groups', select:'name accounts'});
+			// d.resolve(account);
+			aq.exec(function (err, result){
+				if(err){
+					console.error('[Directory.findAccount()] Error getting account:', JSON.stringify(err));
+					return d.reject(err);
+				}
+				if(!result){
+					console.error('[Directory.findAccount()] Error finding account.');
+					return d.reject(null);
+				}
+				console.log('directory returned:', result);
+				d.resolve(result);
+			});
+		} else {
+			console.err('[Directory.findAccount()] Username required to find account.');
+			d.reject({message:'Account not found.'});
+		}
+		return d.promise;
+	},
 };
 /*
  * Construct `Account` model from `AccountSchema`

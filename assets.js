@@ -1,5 +1,6 @@
 module.exports = {
 	vendor:[
+		'/bower/kyper-matter/dist/matter.bundle.js',
 		'/bower/angular/angular.js',
 		'/bower/angular-animate/angular-animate.min.js',
 		'/bower/angular-aria/angular-aria.min.js',

@@ -1,6 +1,8 @@
 angular.module('tessellate.auth')
 
 .factory('AuthService', ['$q', '$http', '$log', '$sessionStorage','$rootScope', 'Session', 'AUTH_EVENTS', 'USER_ROLES', function ($q, $http, $log, $sessionStorage, $rootScope, Session, AUTH_EVENTS, USER_ROLES) {
+	var matter = new Matter('tessellate');
+	console.warn('matter:', matter);
 	return {
 		isAuthenticated : function (){
 			return Session.exists();
@@ -75,25 +77,41 @@ angular.module('tessellate.auth')
 			var self = this;
 			$log.log('[AuthService.login()] Login called with:', loginData);
 			//TODO: Login with username or email
-			$http.put('/login', {
+			matter.login({
 	      username: loginData.username,
 	      password: loginData.password
-	    })
-	    .then(function (successRes){
+	    }).then(function (successRes){
 	    	$log.log('[AuthService.login()] Login response:', successRes);
 	    	Session.create(successRes.data.token);
 	    	$rootScope.currentUser = successRes.data.user;
-	    	$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 	    	deferred.resolve($rootScope.currentUser);
 	    })
 	    .catch(function (errRes) {
 	      console.error('Error logging in:', errRes);
-	    	$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
 	      if (errRes.status === 209) {
     			console.error('invalid email/password combo', errRes);
       	}
-	      deferred.reject(errRes.data);
+	      deferred.reject(errRes);
 	    });
+			// $http.put('/login', {
+	  //     username: loginData.username,
+	  //     password: loginData.password
+	  //   })
+	  //   .then(function (successRes){
+	  //   	$log.log('[AuthService.login()] Login response:', successRes);
+	  //   	Session.create(successRes.data.token);
+	  //   	$rootScope.currentUser = successRes.data.user;
+	  //   	$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+	  //   	deferred.resolve($rootScope.currentUser);
+	  //   })
+	  //   .catch(function (errRes) {
+	  //     console.error('Error logging in:', errRes);
+	  //   	$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
+	  //     if (errRes.status === 209) {
+   //  			console.error('invalid email/password combo', errRes);
+   //    	}
+	  //     deferred.reject(errRes.data);
+	  //   });
 	    return deferred.promise;
 		},
 		logout:function (){

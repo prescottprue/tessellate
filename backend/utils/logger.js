@@ -4,7 +4,7 @@ var _ = require('underscore');
 exports.log = function(logData){
 	var msgStr = buildMessageStr(logData);
 	if(conf.envName == 'local'){
-		console.log(msgStr);
+		console.log(logData);
 	} else {
 		console.log(msgStr);
 	}
@@ -45,13 +45,23 @@ function buildMessageStr(logData){
 	var msg = "";
 	//TODO: Attach time stamp
 	if(_.isObject(logData)){
-		if(_.has(logData, 'file') && _.has(logData, 'func')){
-			msg += '[' + logData.file + '.' + logData.func + '()] ';
+		if(_.has(logData, 'obj') && _.has(logData, 'func')){
+			msg += '[' + logData.obj + '.' + logData.func + '()] ';
 		}
-		//Print each key and its value other than file and func
-		_.each(_.omit(_.keys(logData), 'file', 'func'), function(key){
-			msg += ', ' + key + '=' + logData[key];
+		//Print each key and its value other than obj and func
+		_.each(_.omit(_.keys(logData), 'obj', 'func'), function(key, ind, list){
+			if(_.isString(logData[key])){
+				msg += key + ': ' + logData[key] + ', ';
+			} else {
+				//Print objects differently
+				msg += key + ': ' + logData[key] + ', ';
+			}
+			if(ind != list.length - 1){
+				msg += '\n';
+			}
 		});
+	} else if (_.isString(logData)){
+		msg = logData;
 	}
 	return msg;
 }
