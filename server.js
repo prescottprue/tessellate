@@ -33,13 +33,13 @@ app.use(cors());
 
 //Protect all routes except allowedPaths by requiring Authorization header
 var allowedPaths = ['/','/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/];
-app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));
-//Handle unauthorized errors
-app.use(function (err, req, res, next) {
-  if (err.name === 'UnauthorizedError') {
-    return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
-  }
-});
+// app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));
+// //Handle unauthorized errors
+// app.use(function (err, req, res, next) {
+//   if (err.name === 'UnauthorizedError') {
+//     return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
+//   }
+// });
 
 //Setup routes based on config
 routeBuilder(routes);
