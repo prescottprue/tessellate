@@ -1,5 +1,5 @@
 angular.module('tessellate.nav')
-.controller('NavCtrl', ['$scope', 'AuthService', '$state', '$log', function ($scope, AuthService, $state, $log){
+.controller('NavCtrl', ['$scope', 'AuthService', '$state', '$log', '$grout', function ($scope, AuthService, $state, $log, $grout){
   $scope.logout = function () {
     AuthService.logout().then(function () {
       $scope.showToast("Logout Successful");
@@ -9,4 +9,8 @@ angular.module('tessellate.nav')
       $state.go('home');
     });
   };
+	$grout.currentUser.then(function(userData){
+		$log.log('Current user loaded:', userData);
+		$scope.currentUser = userData;
+	}) 
 }])

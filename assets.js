@@ -1,15 +1,13 @@
 module.exports = {
 	vendor:[
-		'/bower/kyper-matter/dist/matter.bundle.js',
+		'/bower/kyper-grout/dist/grout.bundle.js',
 		'/bower/angular/angular.js',
 		'/bower/angular-animate/angular-animate.min.js',
 		'/bower/angular-aria/angular-aria.min.js',
 		'/bower/ui-router/release/angular-ui-router.min.js',
 		'/bower/angular-material/angular-material.min.js',
 		'/bower/angular-messages/angular-messages.min.js',
-		'/bower/ngstorage/ngStorage.min.js',
-		'/bower/angular-jwt/dist/angular-jwt.min.js',
-		'/bower/underscore/underscore-min.js',
+		'/bower/lodash/lodash.js'
 
 	],
 	app:[
@@ -22,7 +20,6 @@ module.exports = {
 		'/components/auth/auth.service.js',
 		'/components/auth/auth.config.js',
 		'/components/auth/auth.directive.js',
-		'/components/auth/auth-session.service.js',
 
 		'/components/nav/nav.module.js',
 		'/components/nav/nav.controller.js',

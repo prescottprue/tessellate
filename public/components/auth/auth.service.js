@@ -1,133 +1,42 @@
 angular.module('tessellate.auth')
 
-.factory('AuthService', ['$q', '$http', '$log', '$sessionStorage','$rootScope', 'Session', 'AUTH_EVENTS', 'USER_ROLES', function ($q, $http, $log, $sessionStorage, $rootScope, Session, AUTH_EVENTS, USER_ROLES) {
-	var matter = new Matter('tessellate');
-	console.warn('matter:', matter);
+.factory('AuthService', ['$q', '$http', '$log', '$rootScope', 'AUTH_EVENTS', 'USER_ROLES', function ($q, $http, $log, $rootScope, AUTH_EVENTS, USER_ROLES) {
+	var grout = new Grout();
+	console.warn('grout:', grout);
 	return {
 		isAuthenticated : function (){
-			return Session.exists();
+			return grout.isLoggedIn;
 		},
 		isAuthorized: function (authorizedRoles){
 			$log.log('Authorized roles:', authorizedRoles);
 			 if (!angular.isArray(authorizedRoles)) {
 	      authorizedRoles = [authorizedRoles];
 	    }
-	    $log.info('[isAuthorized()] Role: '+ Session.getRole() +' Is allowed:', authorizedRoles.indexOf(Session.getRole()) !== -1);
-	    return (this.isAuthenticated() && authorizedRoles.indexOf(Session.getRole()) !== -1);
+	    // $log.warn('Grout is in groups:', grout.isInGroups(authorizedRoles));
+	    // $log.info('[isAuthorized()]  Role: '+ grout. +' Is allowed:', authorizedRoles.indexOf(Session.getRole()) !== -1);
+	    // return (this.isAuthenticated() && authorizedRoles.indexOf(Session.getRole()) !== -1);
+			//TODO: Have this use grout.isAuthorized(authorizedRoles)
+			return this.isAuthenticated();
+			// return ( this.isAuthenticated() && grout.isInGroups(authorizedRoles));
 		},
 		getCurrentUser:function (){
-			var deferred = $q.defer();
-			if($rootScope.currentUser){
-				deferred.resolve($rootScope.currentUser);
-			} else if(Session.exists()){
-				$http.get('/user')
-				.then(function (successRes){
-					console.log('currentUser response:', successRes);
-					if(successRes.status == 401){
-						$rootScope.currentUser = null;
-						Session.destroy();
-						deferred.reject();
-					} else {
-						$rootScope.currentUser = successRes.data;
-						deferred.resolve($rootScope.currentUser);
-					}
-				}).catch(function (errRes){
-					$log.error('Error in requesting user:', errRes);
-					deferred.reject(errRes.data);
-				});
-			} else {
-				$log.info('No token found');
-				deferred.reject();
-			}
-			return deferred.promise;
+			return grout.currentUser;
 		},
 		signup:function (signupData){
-			var deferred = $q.defer();
-			console.log('signup called with:', signupData);
-			var self = this;
-			//TODO: Check confirm
-			$http.post('/signup', {
-	      username:signupData.username,
-	      email: signupData.email,
-	      password: signupData.password,
-	      name:signupData.name,
-	      title:signupData.title
-	    })
-	    .then(function (successRes){
-	    	$log.log('[AuthService.signup()]: Signup successful:', successRes.data);
-	    	//Login with new user
-	    	$log.log('[AuthService.signup()]: Logging in as new user');
-	    	self.login({username:successRes.data.username, password:signupData.password}).then(function(loggedInUser){
-					$log.info('New user logged in successfully:', loggedInUser);
-	    		deferred.resolve(successRes.data);
-	    	}, function(err){
-					$log.error('Error Logging in as new user:', err);
-	    		deferred.reject(err);
-	    	});
-	    })
-	    .catch(function (apiResponse) {
-	      console.error('AuthService: Error signing up:', apiResponse);
-	      deferred.reject(apiResponse.data);
-	      // TODO: Handle Invalid username / password combination.
-	    });
-	    return deferred.promise;
+			$log.log({description:'Signup called.', data:signupData, func:'signup', obj:'AuthService'});
+			return grout.signup(signupData);
 		},
 		login:function (loginData){
-			var deferred = $q.defer();
-			var self = this;
-			$log.log('[AuthService.login()] Login called with:', loginData);
+			$log.log({description:'Login called.', data:loginData, func:'login', obj:'AuthService'});
 			//TODO: Login with username or email
-			matter.login({
+			return grout.login({
 	      username: loginData.username,
 	      password: loginData.password
-	    }).then(function (successRes){
-	    	$log.log('[AuthService.login()] Login response:', successRes);
-	    	Session.create(successRes.data.token);
-	    	$rootScope.currentUser = successRes.data.user;
-	    	deferred.resolve($rootScope.currentUser);
-	    })
-	    .catch(function (errRes) {
-	      console.error('Error logging in:', errRes);
-	      if (errRes.status === 209) {
-    			console.error('invalid email/password combo', errRes);
-      	}
-	      deferred.reject(errRes);
 	    });
-			// $http.put('/login', {
-	  //     username: loginData.username,
-	  //     password: loginData.password
-	  //   })
-	  //   .then(function (successRes){
-	  //   	$log.log('[AuthService.login()] Login response:', successRes);
-	  //   	Session.create(successRes.data.token);
-	  //   	$rootScope.currentUser = successRes.data.user;
-	  //   	$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
-	  //   	deferred.resolve($rootScope.currentUser);
-	  //   })
-	  //   .catch(function (errRes) {
-	  //     console.error('Error logging in:', errRes);
-	  //   	$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
-	  //     if (errRes.status === 209) {
-   //  			console.error('invalid email/password combo', errRes);
-   //    	}
-	  //     deferred.reject(errRes.data);
-	  //   });
-	    return deferred.promise;
 		},
 		logout:function (){
-			console.log('user service: logout called');
-			var deferred = $q.defer();
-			$http.put('/logout').then(function(){
-				Session.destroy();
-				$rootScope.currentUser = null;
-				$rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
-				deferred.resolve(null);
-			}, function(err){
-				console.error('Error logging out:', err);
-				Session.destroy();
-				deferred.reject(err);
-			});
-			return deferred.promise;
+			$log.log({description:'Logout called.', func:'logout', obj:'AuthService'});
+			return grout.logout();
 		},
 		updateProfile:function (userId, userData){
 			var deferred = $q.defer();
@@ -146,23 +55,23 @@ angular.module('tessellate.auth')
 			return deferred.promise;
 		}
 	};
-}])
-.factory('AuthResolver', function ($q, $rootScope, $state) {
-  return {
-    resolve: function () {
-      var deferred = $q.defer();
-      var unwatch = $rootScope.$watch('currentUser', function (currentUser) {
-        if (angular.isDefined(currentUser)) {
-          if (currentUser) {
-            deferred.resolve(currentUser);
-          } else {
-            deferred.reject();
-            $state.go('login');
-          }
-          unwatch();
-        }
-      });
-      return deferred.promise;
-    }
-  };
-});
+}]);
+// .factory('AuthResolver', function ($q, $rootScope, $state) {
+//   return {
+//     resolve: function () {
+//       var deferred = $q.defer();
+//       var unwatch = $rootScope.$watch('currentUser', function (currentUser) {
+//         if (angular.isDefined(currentUser)) {
+//           if (currentUser) {
+//             deferred.resolve(currentUser);
+//           } else {
+//             deferred.reject();
+//             $state.go('login');
+//           }
+//           unwatch();
+//         }
+//       });
+//       return deferred.promise;
+//     }
+//   };
+// });

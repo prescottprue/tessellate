@@ -3,22 +3,104 @@ var _createClass = (function () { function defineProperties(target, props) { for
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('superagent'), require('underscore')) : typeof define === 'function' && define.amd ? define(['superagent', 'underscore'], factory) : global.Matter = factory(global.requester, global._);
-})(this, function (requester, _) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('lodash'), require('jwt-decode'), require('superagent')) : typeof define === 'function' && define.amd ? define(['lodash', 'jwt-decode', 'superagent'], factory) : global.Matter = factory(global._, global.jwtDecode, global.superagent);
+})(this, function (_, jwtDecode, superagent) {
 	'use strict';
 
-	requester = 'default' in requester ? requester['default'] : requester;
 	_ = 'default' in _ ? _['default'] : _;
+	jwtDecode = 'default' in jwtDecode ? jwtDecode['default'] : jwtDecode;
+	superagent = 'default' in superagent ? superagent['default'] : superagent;
 
 	var config = {
 		serverUrl: 'http://tessellate.elasticbeanstalk.com',
-		tokenName: 'matter'
+		tokenName: 'tessellate',
+		tokenDataName: 'tessellate-tokenData'
 	};
-	//Set server to local server if developing
-	if (typeof window != 'undefined' && (window.location.hostname == '' || window.location.hostname == 'localhost')) {
-		config.serverUrl = 'http://localhost:4000';
+
+	var logger = {
+		log: function log(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'local') {
+				console.log(logData);
+			} else {
+				console.log.apply(console, msgArgs);
+			}
+		},
+		info: function info(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'local') {
+				console.info(logData);
+			} else {
+				console.info.apply(console, msgArgs);
+			}
+		},
+		warn: function warn(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'local') {
+				console.warn(logData);
+			} else {
+				console.warn.apply(console, msgArgs);
+			}
+		},
+		debug: function debug(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'local') {
+				console.log(logData);
+			} else {
+				console.log.apply(console, msgArgs);
+			}
+		},
+		error: function error(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'local') {
+				console.error(logData);
+			} else {
+				console.error.apply(console, msgArgs);
+				//TODO: Log to external logger
+			}
+		}
+	};
+
+	function buildMessageArgs(logData) {
+		var msgStr = '';
+		var msgObj = {};
+		//TODO: Attach time stamp
+		if (_.isObject(logData)) {
+			if (_.has(logData, 'func')) {
+				if (_.has(logData, 'obj')) {
+					msgStr += '[' + logData.obj + '.' + logData.func + '()] ';
+				} else if (_.has(logData, 'file')) {
+					msgStr += '[' + logData.file + ' > ' + logData.func + '()] ';
+				} else {
+					msgStr += '[' + logData.func + '()] ';
+				}
+			}
+			//Print each key and its value other than obj and func
+			_.each(_.omit(_.keys(logData)), function (key, ind, list) {
+				if (key != 'func' && key != 'obj') {
+					if (key == 'description' || key == 'message') {
+						msgStr += logData[key];
+					} else if (_.isString(logData[key])) {
+						// msgStr += key + ': ' + logData[key] + ', ';
+						msgObj[key] = logData[key];
+					} else {
+						//Print objects differently
+						// msgStr += key + ': ' + logData[key] + ', ';
+						msgObj[key] = logData[key];
+					}
+				}
+			});
+			msgStr += '\n';
+		} else if (_.isString(logData)) {
+			msgStr = logData;
+		}
+		var msg = [msgStr, msgObj];
+
+		return msg;
 	}
 
+	var data = {};
+	// TODO: Store objects within local storage.
 	var storage = Object.defineProperties({
 		/**
    * @description
@@ -27,17 +109,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    * @param {String} itemName The items name
    * @param {String} itemValue The items value
    *
-   *  @private
    */
-		setItem: function setItem(itemName, itemValue) {
+		item: function item(itemName, itemValue) {
 			//TODO: Handle itemValue being an object instead of a string
-			if (this.exists) {
-				window.sessionStorage.setItem(itemName, itemValue);
-			}
+			return this.setItem(itemName, itemValue);
 		},
 		/**
    * @description
-   * Safley gets an item from session storage.
+   * Safley sets item to session storage. Alias: item()
+   *
+   * @param {String} itemName The items name
+   * @param {String} itemValue The items value
+   *
+   */
+		setItem: function setItem(itemName, itemValue) {
+			//TODO: Handle itemValue being an object instead of a string
+			// this.item(itemName) = itemValue;
+			data[itemName] = itemValue;
+			if (this.localExists) {
+				window.sessionStorage.setItem(itemName, itemValue);
+			}
+		},
+
+		/**
+   * @description
+   * Safley gets an item from session storage. Alias: item()
    *
    * @param {String} itemName The items name
    *
@@ -45,8 +141,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    *
    */
 		getItem: function getItem(itemName) {
-			if (this.exists) {
-				console.log('item loaded from session');
+			if (data[itemName]) {
+				return data[itemName];
+			} else if (this.localExists) {
 				return window.sessionStorage.getItem(itemName);
 			} else {
 				return null;
@@ -61,12 +158,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    */
 		removeItem: function removeItem(itemName) {
 			//TODO: Only remove used items
-			if (this.exists) {
+			if (data[itemName]) {
+				data[itemName] = null;
+			}
+			if (this.localExists) {
 				try {
 					//Clear session storage
 					window.sessionStorage.removeItem(itemName);
 				} catch (err) {
-					console.warn('Item could not be removed from session storage.', err);
+					logger.error({ description: 'Error removing item from session storage', error: err, obj: 'storage', func: 'removeItem' });
 				}
 			}
 		},
@@ -77,32 +177,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    * @param {String} itemName the items name
    * @param {String} itemValue the items value
    *
-   *  @private
    */
 		clear: function clear() {
 			//TODO: Only remove used items
-			if (this.exists) {
+			data = {};
+			if (this.localExists) {
 				try {
 					//Clear session storage
 					window.sessionStorage.clear();
 				} catch (err) {
-					console.warn('Session storage could not be cleared.', err);
+					logger.warn('Session storage could not be cleared.', err);
 				}
 			}
 		}
 
 	}, {
-		exists: {
+		localExists: {
 			get: function get() {
 				var testKey = 'test';
-				console.log('storage exists called');
-				if (typeof window != 'undefined') {
+				if (typeof window != 'undefined' && typeof window.sessionStorage != 'undefined') {
 					try {
 						window.sessionStorage.setItem(testKey, '1');
 						window.sessionStorage.removeItem(testKey);
 						return true;
 					} catch (err) {
-						console.warn('Session storage does not exist.', err);
+						logger.error({ description: 'Error saving to session storage', error: err, obj: 'storage', func: 'localExists' });
 						return false;
 					}
 				} else {
@@ -114,9 +213,65 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 	});
 
+	function decodeToken(tokenStr) {
+		var tokenData = undefined;
+		if (tokenStr && tokenStr != '') {
+			try {
+				tokenData = jwtDecode(tokenStr);
+			} catch (err) {
+				logger.error({ description: 'Error decoding token.', data: tokenData, error: err, func: 'decodeToken', file: 'token' });
+				throw new Error('Error decoding token.');
+			}
+		}
+		return tokenData;
+	}
+	var token = Object.defineProperties({
+		save: function save(tokenStr) {
+			this.string = tokenStr;
+		},
+		'delete': function _delete() {
+			storage.removeItem(config.tokenName);
+			logger.log({ description: 'Token was removed.', func: 'delete', obj: 'token' });
+		}
+	}, {
+		string: {
+			get: function get() {
+				return storage.getItem(config.tokenName);
+			},
+			set: function set(tokenStr) {
+				logger.log({ description: 'Token was set.', token: tokenStr, func: 'string', obj: 'token' });
+				this.data = jwtDecode(tokenStr);
+				storage.setItem(config.tokenName, tokenStr);
+			},
+			configurable: true,
+			enumerable: true
+		},
+		data: {
+			get: function get() {
+				if (storage.getItem(config.tokenDataName)) {
+					return storage.getItem(config.tokenDataName);
+				} else {
+					return decodeToken(this.string);
+				}
+			},
+			set: function set(tokenData) {
+				if (_.isString(tokenData)) {
+					var tokenStr = tokenData;
+					tokenData = decodeToken(tokenStr);
+					logger.info({ description: 'Token data was set as string. Decoding token.', token: tokenStr, tokenData: tokenData, func: 'data', obj: 'token' });
+				} else {
+					logger.log({ description: 'Token data was set.', data: tokenData, func: 'data', obj: 'token' });
+					storage.setItem(config.tokenDataName, tokenData);
+				}
+			},
+			configurable: true,
+			enumerable: true
+		}
+	});
+
 	var request = {
 		get: function get(endpoint, queryData) {
-			var req = requester.get(endpoint);
+			var req = superagent.get(endpoint);
 			if (queryData) {
 				req.query(queryData);
 			}
@@ -124,17 +279,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			return handleResponse(req);
 		},
 		post: function post(endpoint, data) {
-			var req = requester.post(endpoint).send(data);
+			var req = superagent.post(endpoint).send(data);
 			req = addAuthHeader(req);
 			return handleResponse(req);
 		},
 		put: function put(endpoint, data) {
-			var req = requester.put(endpoint).send(data);
+			var req = superagent.put(endpoint).send(data);
 			req = addAuthHeader(req);
 			return handleResponse(req);
 		},
 		del: function del(endpoint, data) {
-			var req = requester.put(endpoint).send(data);
+			var req = superagent.put(endpoint).send(data);
 			req = addAuthHeader(req);
 			return handleResponse(req);
 		}
@@ -145,11 +300,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return new Promise(function (resolve, reject) {
 			req.end(function (err, res) {
 				if (!err) {
-					// console.log('Response:', res);
+					// logger.log({description: 'Response:', response:res, func:'handleResponse', file: 'request'});
 					return resolve(res.body);
 				} else {
 					if (err.status == 401) {
-						console.warn('Unauthorized. You must be signed into make this request.');
+						logger.warn('Unauthorized. You must be signed into make this request.');
 					}
 					return reject(err);
 				}
@@ -157,48 +312,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		});
 	}
 	function addAuthHeader(req) {
-		if (storage.getItem(config.tokenName)) {
-			req = req.set('Authorization', 'Bearer ' + storage.getItem(config.tokenName));
-			console.log('Set auth header');
+		if (token.string) {
+			req = req.set('Authorization', 'Bearer ' + token.string);
+			logger.info({ message: 'Set auth header', func: 'addAuthHeader', file: 'request' });
 		}
 		return req;
 	}
-
-	var token = (function () {
-		function token() {
-			_classCallCheck(this, token);
-		}
-
-		_createClass(token, [{
-			key: 'str',
-			value: function str() {
-				return storage.setItem(config.tokenName, tokenStr);
-			}
-		}, {
-			key: 'save',
-
-			//TODO: Decode token
-			value: function save(tokenStr) {
-				this.str = tokenStr;
-				storage.setItem(config.tokenName, tokenStr);
-			}
-		}, {
-			key: 'delete',
-			value: function _delete() {
-				storage.removeItem(config.tokenName);
-			}
-		}, {
-			key: 'str',
-			get: function get() {
-				return storage.getItem(config.tokenName);
-			}
-		}, {
-			key: 'data',
-			get: function get() {}
-		}]);
-
-		return token;
-	})();
 
 	var user = undefined;
 	var endpoints = undefined;
@@ -208,13 +327,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    * @param {string} appName Name of application
    */
 
-		function Matter(appName) {
+		function Matter(appName, opts) {
 			_classCallCheck(this, Matter);
 
 			if (!appName) {
+				logger.error({ description: 'Application name requires to use Matter.', func: 'constructor', obj: 'Matter' });
 				throw new Error('Application name is required to use Matter');
 			} else {
 				this.name = appName;
+			}
+			if (opts) {
+				this.options = opts;
 			}
 		}
 
@@ -230,9 +353,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     */
 			value: function signup(signupData) {
 				return request.post(this.endpoint + '/signup', signupData).then(function (response) {
-					console.log(response);
+					logger.log({ description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
+					if (_.has(response, 'account')) {
+						return response.account;
+					} else {
+						logger.warn({ description: 'Account was not contained in signup response.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
+						return response;
+					}
 				})['catch'](function (errRes) {
-					console.error('[signup()] Error signing up:', errRes);
+					logger.error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
 					return Promise.reject(errRes);
 				});
 			}
@@ -243,23 +372,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'login',
 			value: function login(loginData) {
+				var _this = this;
+
 				if (!loginData || !loginData.password || !loginData.username) {
-					console.error('Username/Email and Password are required to login');
+					logger.error({ description: 'Username/Email and Password are required to login', func: 'login', obj: 'Matter' });
+					return Promise.reject({ message: 'Username/Email and Password are required to login' });
 				}
 				return request.put(this.endpoint + '/login', loginData).then(function (response) {
-					//TODO: Save token locally
-					console.log(response);
 					if (_.has(response, 'data') && _.has(response.data, 'status') && response.data.status == 409) {
-						console.error('[login()] Account not found: ', response);
+						logger.warn({ description: 'Account not found.', response: response, func: 'login', obj: 'Matter' });
 						return Promise.reject(response.data);
 					} else {
+						logger.log({ description: 'Successful login.', response: response, func: 'login', obj: 'Matter' });
 						if (_.has(response, 'token')) {
-							token.str = response.token;
+							_this.token.string = response.token;
 						}
-						return response;
+						if (_.has(response, 'account')) {
+							_this.storage.setItem('currentUser');
+						}
+						return response.account;
 					}
 				})['catch'](function (errRes) {
-					if (errRes.status == 409) {
+					logger.error({ description: 'Error requesting login.', error: errRes, status: errRes.status, func: 'login', obj: 'Matter' });
+					if (errRes.status == 409 || errRes.status == 400) {
 						errRes = errRes.response.text;
 					}
 					return Promise.reject(errRes);
@@ -271,49 +406,74 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'logout',
 			value: function logout() {
-				return request.put(this.endpoint + '/logout', {}).then(function (response) {
-					console.log('[logout()] Logout successful: ', response);
-					if (typeof window != 'undefined' && typeof window.localStorage.getItem(config.tokenName) != null) {
-						window.localStorage.setItem(config.tokenName, null);
-					}
-					return response.body;
+				var _this2 = this;
+
+				return request.put(this.endpoint + '/logout').then(function (response) {
+					logger.log({ description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter' });
+					_this2.storage.removeItem('currentUser');
+					_this2.token['delete']();
+					return response;
 				})['catch'](function (errRes) {
-					console.error('[logout()] Error logging out: ', errRes);
+					logger.error({ description: 'Error requesting log out: ', error: errRes, func: 'logout', obj: 'Matter' });
+					_this2.storage.removeItem('currentUser');
+					_this2.token['delete']();
 					return Promise.reject(errRes);
 				});
-			}
-		}, {
-			key: 'getCurrentUser',
-			value: function getCurrentUser() {
-				//TODO: Check Current user variable
-				return request.get(this.endpoint + '/user', {}).then(function (response) {
-					//TODO: Save user information locally
-					console.log('[getCurrentUser()] Current User:', response.data);
-					user = response.data;
-					return user;
-				})['catch'](function (errRes) {
-					console.error('[getCurrentUser()] Error getting current user: ', errRes);
-					return Promise.reject(errRes);
-				});
-			}
-		}, {
-			key: 'getAuthToken',
-			value: function getAuthToken() {
-				//TODO: Load token from storage
-				if (typeof window == 'undefined' || typeof window.localStorage.getItem(config.tokenName) == 'undefined') {
-					return null;
-				}
-				return window.localStorage.getItem(config.tokenName);
 			}
 		}, {
 			key: 'endpoint',
 			get: function get() {
+				var serverUrl = config.serverUrl;
+				if (_.has(this, 'options') && this.options.localServer) {
+					serverUrl = 'http://localhost:4000';
+					logger.info({ description: 'LocalServer option was set to true. Now server url is local server.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+				}
 				if (this.name == 'tessellate') {
-					return config.serverUrl;
-					//TODO:remove host if it is tessellate.kyper.io or tessellate.elasticbeanstalk.com
-				} else {
-						return config.serverUrl + '/apps/' + this.name;
+					//Remove url if host is server
+					if (window && _.has(window, 'location') && window.location.host == serverUrl) {
+						serverUrl = '';
+						logger.info({ description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
 					}
+				} else {
+					serverUrl = config.serverUrl + '/apps/' + this.name;
+					logger.info({ description: 'Server url set.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+				}
+				return serverUrl;
+			}
+		}, {
+			key: 'currentUser',
+			get: function get() {
+				var _this3 = this;
+
+				if (this.storage.item('currentUser')) {
+					//TODO: Check to see if this comes back as a string
+					return Promise.resove(this.storage.item('currentUser'));
+				} else {
+					return request.get(this.endpoint + '/user').then(function (response) {
+						//TODO: Save user information locally
+						logger.log({ description: 'Current User Request responded.', responseData: response.data, func: 'currentUser', obj: 'Matter' });
+						_this3.currentUser = response.data;
+						return response.data;
+					})['catch'](function (errRes) {
+						logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
+						return Promise.reject(errRes);
+					});
+				}
+			}
+		}, {
+			key: 'storage',
+			get: function get() {
+				return storage;
+			}
+		}, {
+			key: 'token',
+			get: function get() {
+				return token;
+			}
+		}, {
+			key: 'isLoggedIn',
+			get: function get() {
+				return this.token.string ? true : false;
 			}
 		}]);
 

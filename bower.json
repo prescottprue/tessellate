@@ -2,12 +2,14 @@
   "name": "kyper-tessellate",
   "dependencies": {
     "angular": "~1.3.0",
-    "angular-jwt": "~0.0.8",
     "angular-material": "~0.10.0",
     "angular-messages": "~1.4.1",
-    "kyper-matter": "~0.0.2",
-    "ngstorage": "~0.3.4",
+    "kyper-matter": "~0.0.4",
+    "kyper-grout": "~0.0.3",
     "ui-router": "~0.2.15",
-    "underscore": "~1.8.3"
+    "lodash": "~3.10.1"
+  },
+  "resolutions": {
+    "angular": "1.4.5"
   }
 }

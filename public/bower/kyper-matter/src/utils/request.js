@@ -1,14 +1,11 @@
 import config from '../config';
-import browserStorage from './browserStorage';
-import requester from 'superagent';
-
-if (typeof requester == 'undefined') {
-	console.error('superagent is required for Matter');
-}
-
+import logger from './logger';
+import token from './token';
+import storage from './envStorage';
+import superagent from 'superagent';
 let request = {
 	get(endpoint, queryData) {
-		var req = requester.get(endpoint);
+		var req = superagent.get(endpoint);
 		if (queryData) {
 			req.query(queryData);
 		}
@@ -16,21 +13,20 @@ let request = {
 		return handleResponse(req);
 	},
 	post(endpoint, data) {
-		var req = requester.post(endpoint).send(data);
+		var req = superagent.post(endpoint).send(data);
 		req = addAuthHeader(req);
 		return handleResponse(req);
 	},
 	put(endpoint, data) {
-		var req = requester.put(endpoint).send(data);
+		var req = superagent.put(endpoint).send(data);
 		req = addAuthHeader(req);
 		return handleResponse(req);
 	},
 	del(endpoint, data) {
-		var req = requester.put(endpoint).send(data);
+		var req = superagent.put(endpoint).send(data);
 		req = addAuthHeader(req);
 		return handleResponse(req);
 	}
-
 };
 
 export default request;
@@ -39,11 +35,11 @@ function handleResponse(req) {
 	return new Promise((resolve, reject) => {
 		req.end((err, res) => {
 			if (!err) {
-				// console.log('Response:', res);
+				// logger.log({description: 'Response:', response:res, func:'handleResponse', file: 'request'});
 				return resolve(res.body);
 			} else {
 				if (err.status == 401) {
-					console.warn('Unauthorized. You must be signed into make this request.');
+					logger.warn('Unauthorized. You must be signed into make this request.');
 				}
 				return reject(err);
 			}
@@ -51,9 +47,9 @@ function handleResponse(req) {
 	});
 }
 function addAuthHeader(req) {
-	if (browserStorage.getItem(config.tokenName)) {
-		req = req.set('Authorization', 'Bearer ' + browserStorage.getItem(config.tokenName));
-		console.log('Set auth header');
+	if (token.string) {
+		req = req.set('Authorization', 'Bearer ' + token.string);
+		logger.info({message: 'Set auth header', func: 'addAuthHeader', file: 'request'});
 	}
 	return req;
 }

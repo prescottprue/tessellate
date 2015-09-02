@@ -1,8 +1,6 @@
 angular.module('tessellate', [
     'ui.router', 
     'ngMaterial', 
-    'ngStorage', 
-    'angular-jwt',
     'ngMessages',
 
     'tessellate.auth',
@@ -17,6 +15,11 @@ angular.module('tessellate', [
 .config(function ($httpProvider) {
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 })
+.service('$grout', ['$window', '$log', function ($window, $log) {
+  var grout = new $window.Grout();
+  $log.info('new grout:', grout);
+  return grout;
+}])
 .directive('stopEvent', function () {
   return {
     restrict: 'A',

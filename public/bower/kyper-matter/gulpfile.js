@@ -62,7 +62,7 @@ createLintTask('lint-test', ['test/**/*.js']);
 gulp.task('build', ['lint-src', 'clean'], function(done) {
   rollup.rollup({
     entry: config.entryFileName,
-    external:['underscore','superagent'],
+    external:['lodash','superagent', 'jwt-decode'],
   }).then(function(bundle) {
     var res = bundle.generate({
       // Don't worry about the fact that the source map is inlined at this step.
@@ -115,11 +115,8 @@ function bundle(bundler) {
     .pipe($.livereload());
 }
 function addExternalModules(code) {
-  // Our browserify bundle is made up of our unit tests, which
-  // should individually load up pieces of our application.
-  // We also include the browserify setup file.
   // Create our bundler, passing in the arguments required for watchify
-  var bundler = browserify(destinationFolder+'/' + exportFileName + '.js', {standalone:'Matter'});
+  var bundler = browserify('src/' + exportFileName + '.js', {standalone:'Matter'});
 
   // Watch the bundler, and re-bundle it whenever files change
   // bundler = watchify(bundler);
@@ -161,11 +158,12 @@ function getTestBundler() {
 
   return bundler;
 };
+
 gulp.task('addExternals', function() {
   return bundle(addExternalModules());
 });
 gulp.task('build-bundle', function(callback) {
-  runSequence(['build'], 'addExternals', callback);
+  runSequence(['build'], 'addExternals', 'watch', callback);
 });
 // Build the unit test suite for running tests
 // in the browser
@@ -245,4 +243,4 @@ gulp.task('upload', function() {
     .pipe(awspublish.reporter());
 });
 // An alias of test
-gulp.task('default', ['test']);
+gulp.task('default', ['coverage', 'build-bundle']);

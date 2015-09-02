@@ -69,5 +69,5 @@ module.exports = function(grunt){
 	});
 	require('load-grunt-tasks')(grunt);
 	grunt.registerTask('docs', ['apidoc'])
-	grunt.registerTask('default', ['shell:mongodb', 'nodemon']);
+	grunt.registerTask('default', ['nodemon']);
 };

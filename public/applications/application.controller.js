@@ -9,19 +9,18 @@ angular.module('tessellate.applications')
 		//Load application data based on name
 		if($stateParams.name){
 			$scope.data.loading = true;
-			console.log('applicationName:', $stateParams.name)
 			applicationsService.get($stateParams.name)
 			.then(function (applicationData){
-				console.log('application Detail Ctrl: application data loaded:', applicationData);
+				$log.error({description:'Error getting application.', data:applicationData, obj:'ApplicationCtrl'});
 				$scope.application = applicationData;
 			}).catch(function (err){
-				console.error('application Detail Ctrl: Error loading application with id:' + $stateParams.name, err);
+				$log.error({description:'Error getting application.', name:$stateParams.name, obj:'ApplicationCtrl'});
 				$scope.data.error = err;
 			}).finally(function(){
 				$scope.data.loading = false;
 			});
 		} else {
-			console.error('application Detail Ctrl: Invalid application id state param');
+			$log.error({description:'Invalid application id param.', obj:'ApplicationCtrl'})
 			$scope.data.error = 'application Id is required to load application data';
 		}
 		//TODO: Make owner select an input that searches instead of a dropdown
@@ -35,10 +34,10 @@ angular.module('tessellate.applications')
 			$scope.data.loading = true;
 			applicationsService.update($stateParams.name, $scope.application)
 			.then(function (appData){
-				console.log('application Detail Ctrl: application data loaded:', appData);
 				// $scope.application = apiRes.data;
+				$log.log({description:'Application data loaded.', data:appData, func:'update', obj:'ApplicationCtrl'});
 			}).catch(function (err){
-				console.error('Error loading applications', err);
+				$log.error({description:'Error loading applications.', error:err, func:'update', obj:'ApplicationCtrl'});
 				$scope.data.error = err;
 			}).finally(function(){
 				$scope.data.loading = false;

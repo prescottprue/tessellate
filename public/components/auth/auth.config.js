@@ -1,18 +1,9 @@
 angular.module('tessellate.auth')
-//Enable Auth Interceptor
-.config(function ($httpProvider) {
-  $httpProvider.interceptors.push([
-    '$injector',
-    function ($injector) {
-      return $injector.get('AuthInterceptor');
-    }
-  ]);
-})
 //Stop route changes that are not authorized and emit auth events
-.run(function ($rootScope, $state, AUTH_EVENTS, AuthService) {
+.run(function ($rootScope, $state, AUTH_EVENTS, AuthService, $log) {
   //Set current user
-  AuthService.getCurrentUser(function(){
-    console.log('current user set:', $rootScope.currentUser);
+  AuthService.getCurrentUser().then(function(userData){
+    $log.log({description: 'Current user set', data:userData});
   });
   //Set route change listener to stop naviation for unauthroized roles and emit auth events
   $rootScope.$on('$stateChangeStart', function (event, next) {
@@ -22,12 +13,12 @@ angular.module('tessellate.auth')
         event.preventDefault();
         if (AuthService.isAuthenticated()) {
           // user's role is not within authorized roles
-          console.warn('User not allowed');
+          $log.warn('User not allowed');
           $rootScope.$broadcast(AUTH_EVENTS.notAuthorized);
           $state.go('login');
         } else {
           // user is not logged in
-          console.warn('User not logged in');
+          $log.warn('User not logged in');
           $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
           $state.go('login');
         }
@@ -36,22 +27,9 @@ angular.module('tessellate.auth')
   });
 
 })
-//Intercept $http requests and responses
-.factory('AuthInterceptor', function ($rootScope, $q, AUTH_EVENTS, Session, $log) {
-  function isHTTP(url){
-    return url.search(".html") == -1
-  }
+//Intercept $http responses
+.factory('AuthInterceptor', function ($rootScope, $q, AUTH_EVENTS, $log) {
   return {
-    //Set auth header on request if it is available
-    request: function (config) {
-    	//Only if session exists or it is an outward request (not a template request)
-      if (Session.exists() && isHTTP(config.url)) {
-        config.headers.Authorization = "Bearer " + Session.token();
-        // config.cache = true;
-        $log.debug("Authorized request to: " + config.url);
-      }
-      return config || $q.when(config);
-    },
     //Broadcast auth error events
     responseError: function (response) { 
       $rootScope.$broadcast({

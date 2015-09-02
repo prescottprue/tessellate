@@ -24,14 +24,14 @@
     "url": "git://github.com/KyperTech/matter"
   },
   "homepage": "https://github.com/KyperTech/matter",
-  "version": "0.0.2",
-  "_release": "0.0.2",
+  "version": "0.0.4",
+  "_release": "0.0.4",
   "_resolution": {
     "type": "version",
-    "tag": "v0.0.2",
-    "commit": "ee47d05e0d313fbb4fc62edafeffdb0b62a92dd5"
+    "tag": "v0.0.4",
+    "commit": "e1fabb9a777c9ae53423b535d3f2824fc755fbb1"
   },
   "_source": "git://github.com/KyperTech/matter.git",
-  "_target": "~0.0.2",
+  "_target": "~0.0.4",
   "_originalSource": "kyper-matter"
 }

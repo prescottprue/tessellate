@@ -1,5 +1,5 @@
 angular.module('tessellate.applications')
-.factory('applicationsService', ['$q', '$http', '$rootScope','$sessionStorage', function ($q, $http, $rootScope, $sessionStorage) {
+.factory('applicationsService', ['$q', '$http', '$rootScope', '$grout', function ($q, $http, $rootScope, $grout) {
 	var applications = null;
 	return {
 		add:function(applicationData){
@@ -8,8 +8,6 @@ angular.module('tessellate.applications')
 				$log.warn('[ApplicationsService.add()] No application data');
 				d.reject({message:'Name required to create new application'});
 			} else {
-				console.log('$rootScope:', $rootScope);
-				applicationData.owner = $rootScope.currentUser._id;
 				$http.post(DB_URL + '/apps', applicationData)
 				.then(function (apiRes){
 					d.resolve(apiRes.data);

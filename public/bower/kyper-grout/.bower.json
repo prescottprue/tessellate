@@ -1,0 +1,40 @@
+{
+  "name": "kyper-grout",
+  "main": [
+    "dist/grout.bundle.js"
+  ],
+  "description": "Library to communicate with tessellate application building/managing service.",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "authors": [
+    "Scott Prue <sprue.dev@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "package.json",
+    ".DS_Store",
+    "**/.DS_Store"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/KyperTech/grout"
+  },
+  "homepage": "https://github.com/KyperTech/grout",
+  "version": "0.0.3",
+  "_release": "0.0.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.0.3",
+    "commit": "88b61531bfa705bc546a37fdc6a27f2cac143db6"
+  },
+  "_source": "git://github.com/KyperTech/grout.git",
+  "_target": "~0.0.3",
+  "_originalSource": "kyper-grout"
+}

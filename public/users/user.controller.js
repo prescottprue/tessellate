@@ -1,5 +1,5 @@
 angular.module('tessellate')
-.controller('UserCtrl', ['$scope', '$http', '$stateParams', 'usersService', 'rolesService', function($scope, $http, $stateParams, usersService, rolesService){
+.controller('UserCtrl', ['$scope', '$http', '$stateParams', 'usersService', '$grout', function ($scope, $http, $stateParams, usersService, $grout){
 		$scope.data = {
 			loading:false,
 			error:null,
@@ -7,7 +7,6 @@ angular.module('tessellate')
 		};
 		if($stateParams.username){
 			$scope.data.loading = true;
-			console.log('userId:', $stateParams.username)
 			usersService.get($stateParams.username)
 			.then(function (userData){
 				console.log('User Detail Ctrl: user data loaded:', userData);
@@ -23,11 +22,11 @@ angular.module('tessellate')
 			$scope.data.error = 'User Id is required to load user data';
 		}
 
-		$scope.getRoles = function(){
-			return rolesService.get().then(function(rolesList){
-				$scope.rolesList = rolesList;
-			});
-		};
+		// $scope.getRoles = function(){
+		// 	return rolesService.get().then(function(rolesList){
+		// 		$scope.rolesList = rolesList;
+		// 	});
+		// };
 		$scope.update = function(){
 			$scope.data.editing = false;
 			$scope.data.loading = true;
