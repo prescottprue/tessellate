@@ -128,6 +128,7 @@ AccountSchema.methods = {
 	//Wrap query in promise
 	saveNew:function(){
 		var d = q.defer();
+		var self = this;
 		this.save(function (err, result){
 			if(err) { d.reject(err);}
 			if(!result){

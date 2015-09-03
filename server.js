@@ -30,6 +30,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //Set cors configuration
 app.use(cors());
+//Enable all preflight requests
+app.options('*', cors()); // include before other routes
 
 //Protect all routes except allowedPaths by requiring Authorization header
 var allowedPaths = ['/','/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/];

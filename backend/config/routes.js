@@ -121,6 +121,11 @@ module.exports =  {
 		},
 		{
 			type:'PUT',
+			endpoint: '/apps/:name/user/:username',
+			controller:accountCtrls.update
+		},
+		{
+			type:'PUT',
 			endpoint: '/apps/:name/logout',
 			controller:appCtrls.logout
 		},

@@ -3,11 +3,11 @@
  */
 var mongoose = require('mongoose');
 var url = require('url');
-var _ = require('underscore');
+var _ = require('lodash');
 var w = require('../utils/mongoPromise');
 var url = require('url');
 var Account = require('../models/account').Account;
-
+var logger = require('../utils/logger');
 /**
  * @api {get} /accounts Get Account(s)
  * @apiDescription Get list of accounts
@@ -121,14 +121,38 @@ exports.add = function(req, res, next){
  *
  */
 exports.update = function(req, res, next){
+	console.log('update called with:', req.body, req.params);
 	if(_.has(req.params, "username")){
-		Account.update({username:req.params.username}, req.body, {upsert:false}, function (err, numberAffected, result) {
-			if (err) { return next(err); }
-			//TODO: respond with updated data instead of passing through req.body
-			res.json(req.body);
+		Account.findOne({username:req.params.username}, function (err, account){
+			if(err){
+				logger.error({description: 'Error finding account.', username: req.params.username,error: err, func:'update', obj:'AccountsCtrl'});
+				res.status(500).send('Error finding account.');
+			} else if(!account){
+				res.status(400).send('Account not found.');
+			} else {
+				//Select only valid parameters
+				var updateData = _.pick(req.body, ['username', 'email', 'name', 'frontend', 'backend', 'groups', 'sessionId', 'password']);
+				//Apply each updated value to account.
+				_.each(_.keys(updateData), function(key){
+					account[key] = updateData[key];
+				});
+				console.log('account before save:', account);
+				account.saveNew().then(function(savedAccount){
+					logger.log({description: 'Account saved successfully.'});
+					res.json(savedAccount);
+				}, function(err){
+					logger.error({description: 'Error saving account.', error: err, func: 'update', obj: 'AccountsCtrl'});
+					res.status(500).send('Error updating account.');
+				});
+			}
 		});
+		// Account.update({username:req.params.username}, req.body, {upsert:false}, function (err, numberAffected, result) {
+		// 	if (err) { return next(err); }
+		// 	//TODO: respond with updated data instead of passing through req.body
+		// 	res.json(req.body);
+		// });
 	} else {
-		res.status(400).send({message:'Account id required'});
+		res.status(400).send({message:'Account username is required to update.'});
 	}
 };
 /**
