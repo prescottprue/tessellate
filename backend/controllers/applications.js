@@ -629,10 +629,12 @@ exports.logout = function(req, res, next){
 				console.error('[ApplicationCtrl.logout] Account not found');
 				return res.status(401).send('Invalid Authentication Credentials');
 			}
-			foundApp.logout(req.body.password).then(function(token){
+			console.log('before logout call:', req.user);
+
+			foundApp.logout(req.user).then(function (){
 				// console.log('[ApplicationCtrl.logout] Login Successful. Token:', token);
-				res.send({token:token, account:foundApp.strip()});
-			}, function(err){
+				res.send('Logout successful.');
+			}, function (err){
 				//TODO: Handle wrong password
 				res.status(400).send('[ApplicationCtrl.logout] Login Error:', err);
 			});

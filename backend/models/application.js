@@ -234,9 +234,9 @@ ApplicationSchema.methods = {
 	signup:function(signupData) {
 		var d = q.defer();
 		var self = this;
-		this.findAccount(loginData).then(function (foundAccount){
+		this.findAccount(signupData).then(function (foundAccount){
 			console.log('Account already exists in application directories');
-			d.reject({message:'Account already exists in application directories.'});
+			d.reject({message:'Account already exists in application.'});
 		}, function (err){
 			//TODO: Handle other errors
 			//Account is not in directories
@@ -283,15 +283,18 @@ ApplicationSchema.methods = {
 		//TODO: Make this work
 		// this.model('Account').findOne({username:logoutData.username});
 		var d = q.defer();
-		this.findAccount(loginData).then(function (foundAccount){
-			foundAccount.logout(loginData.password).then(function (loggedInData){
-				console.log('Account login successful', loggedInData);
-				d.resolve(foundAccount.strip());
+		console.log('logout called with:', logoutData);
+		this.findAccount(logoutData).then(function (foundAccount){
+			logger.log({description: 'Account found in application. Attempting to logout.', account: foundAccount});
+			foundAccount.logout().then(function (){
+				console.log('Account logout successful.');
+				d.resolve();
 			}, function (err){
-				console.log('Error logging into account');
+				logger.error({description: 'Error logging out of account', func: 'logout', obj: 'Application'});
 				d.reject(err);
 			});
 		}, function (err){
+			logger.log({description: 'Account not found.', data:logoutData, func: 'logout', obj: 'Application'});
 			d.reject(err);
 		});
 		return d.promise;
@@ -299,8 +302,15 @@ ApplicationSchema.methods = {
 	findAccount:function(accountData){
 		var self = this;
 		var d = q.defer();
+		var accountUsername;
+		console.log('Find account called with:', accountData);
+		if(_.has(accountData, 'username')){
+			accountUsername = accountData.username
+		} else if(_.isString(accountData)){
+			accountUsername = accountData;
+		}
 		//Find account first then see if its id is within either list
-		var accountQuery = this.model('Account').findOne({username:accountData.username});
+		var accountQuery = this.model('Account').findOne({username:accountUsername});
 		accountQuery.exec(function(err, account){
 			if(err){
 				logger.error({message:'Error finding account.', obj:'Application', func:'findAccount'});
@@ -316,6 +326,7 @@ ApplicationSchema.methods = {
 			}
 			logger.log({message:'Account found, looking for it in application.', application:self, account:account, obj:'Application', func:'findAccount'})
 			self.accountExistsInApp(account).then(function(){
+				logger.log({message:'Account exists in application.', application:self, account:account, obj:'Application', func:'findAccount'})
 				d.resolve(account);
 			}, function (err){
 				d.reject(err);
