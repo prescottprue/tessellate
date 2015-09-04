@@ -23,7 +23,7 @@ angular.module('tessellate.account')
 				$log.log('Successful login:', authData);
 				$scope.loginData.loading = false;
 				$scope.showToast("Logged in");
-				$state.go('users');
+				$state.go('apps');
 			}, function (err){
 				$log.error('Login error:', err);
 				$scope.loginData = {loading:false, email:null, password:null};

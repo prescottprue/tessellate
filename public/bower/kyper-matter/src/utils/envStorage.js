@@ -1,8 +1,8 @@
 import config from '../config';
 import logger from './logger';
+import _ from 'lodash';
 
 let data = {};
-// TODO: Store objects within local storage.
 let storage = {
 	get localExists() {
 		const testKey = 'test';
@@ -28,7 +28,6 @@ let storage = {
 	 *
 	 */
 	item(itemName, itemValue) {
-		//TODO: Handle itemValue being an object instead of a string
 		return this.setItem(itemName, itemValue);
 	},
 	/**
@@ -40,10 +39,12 @@ let storage = {
 	 *
 	 */
 	setItem(itemName, itemValue) {
-		//TODO: Handle itemValue being an object instead of a string
-		// this.item(itemName) = itemValue;
 		data[itemName] = itemValue;
 		if (this.localExists) {
+			//Convert object to string
+			if (_.isObject(itemValue)) {
+				itemValue = JSON.stringify(itemValue);
+			}
 			window.sessionStorage.setItem(itemName, itemValue);
 		}
 	},
@@ -61,7 +62,25 @@ let storage = {
 		if (data[itemName]) {
 			return data[itemName];
 		} else if (this.localExists) {
-			return window.sessionStorage.getItem(itemName);
+			let itemStr = window.sessionStorage.getItem(itemName);
+			//Check that str is not null before parsing
+			if (itemStr) {
+				let isObj = false;
+				let itemObj = null;
+				//Try parsing to object
+				try {
+					itemObj = JSON.parse(itemStr);
+					isObj = true;
+				} catch (err) {
+					// logger.log({message: 'String could not be parsed.', error: err, func: 'getItem', obj: 'storage'});
+					//Parsing failed, this must just be a string
+					isObj = false;
+				}
+				if (isObj) {
+					return itemObj;
+				}
+			}
+			return itemStr;
 		} else {
 			return null;
 		}

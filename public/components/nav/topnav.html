@@ -1,17 +1,18 @@
-<md-toolbar class="md-primary shadow-z-2">
+<md-toolbar class="navbar-dark shadow-z-2">
   <div class="md-toolbar-tools">
-    <h2>
-      <a ui-sref="home">
-        <span>
-          <i class="fa fa-cube ion-icon-lg" style="margin-right:5px; font-size:1.5em;"></i>
+    <h2 class="md-display-2">
+        <a href="" class="hc-title" ng-click="clickTitle()">
+          <i class="fa fa-cube ion-icon-lg hc-icon" style=""></i>
           Tessellate
-        </span>
-      </a>
+        </a>
     </h2>
     <span flex></span>
-    <div ng-if="!currentUser">
-      <md-button class="" ui-sref="login" >Login</md-button>
-      <!-- <md-button class="" ui-sref="signup">Signup</md-button> -->
+    <div nf-if="navButtons" class="navbtn-wrapper" layout="row" ng-repeat="btn in navButtons" >
+      <md-button class="nav-buttons outline" ng-click="clickBtn($index)">{{btn.text}}</md-button>
+    </div>
+    <div ng-if="!currentUser" layout="row">
+      <md-button class="nav-buttons outline-green" ui-sref="login" >Login</md-button>
+      <md-button class="nav-buttons outline-blue" ui-sref="signup">Signup</md-button>
     </div>
     <md-select ng-if="currentUser" ng-model="someVal" aria-label="User">
       <md-select-label>
@@ -20,8 +21,9 @@
         {{currentUser.name}}
         &nbsp;
       </md-select-label>
-      <md-option ui-sref="home">Profile</md-option>
+      <md-option ui-sref="account">Profile</md-option>
       <md-option ng-click="logout()">Logout</md-option>
     </md-select>
+      <!-- <md-button class="md-warn" ui-sref="signup" href="#/signup">Login</md-button> -->
   </div>
 </md-toolbar>

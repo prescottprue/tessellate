@@ -16,21 +16,13 @@ module.exports = {
 		'/app-routes.js',
 		'/app.controller.js',
 
-		'/components/auth/auth.module.js',
-		'/components/auth/auth.service.js',
-		'/components/auth/auth.config.js',
-		'/components/auth/auth.directive.js',
-
-		'/components/nav/nav.module.js',
 		'/components/nav/nav.controller.js',
 
 		'/users/users.module.js',
-		'/users/users.service.js',
 		'/users/users.controller.js',
 		'/users/user.controller.js',
 
 		'/applications/applications.module.js',
-		'/applications/applications.service.js',
 		'/applications/applications.controller.js',
 		'/applications/application.controller.js',
 

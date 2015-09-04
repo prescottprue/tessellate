@@ -24,7 +24,6 @@ function setStatus() {
 function login(){
   var username = document.getElementById('login-username').value;
   var password = document.getElementById('login-password').value;
-
   matter.login({username:username, password:password}).then(function(loginInfo){
     console.log('successful login:', loginInfo);
     setStatus();

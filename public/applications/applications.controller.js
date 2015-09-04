@@ -1,11 +1,11 @@
 angular.module('tessellate.applications')
-.controller('ApplicationsCtrl', ['$scope', '$http', '$log', '$mdDialog', 'applicationsService', function($scope, $http, $log, $mdDialog, applicationsService){
+.controller('ApplicationsCtrl', ['$scope', '$http', '$log', '$mdDialog', '$grout', function ($scope, $http, $log, $mdDialog, $grout){
 		$scope.data = {
 			loading:true,
 			error:null
 		};
 		console.log('ApplicationListController');
-		applicationsService.get().then(function (applicationsList){
+		$grout.apps.get().then(function (applicationsList){
 			$log.log('applications list loaded:', applicationsList);
 			$scope.data.loading = false;
 			$scope.applications = applicationsList;
@@ -19,7 +19,7 @@ angular.module('tessellate.applications')
 			var application = $scope.applications[ind];
 			$scope.showConfirm(ev, {title:"Delete", description:"Are you sure you want to delete " + application.name + " ?"}).then(function(){
 				$log.log('calling delete with id:', application._id);
-				applicationsService.del(application.name).then(function(deletedApp){
+				$grout.app(application.name).del().then(function(deletedApp){
 					$log.log('application deleted successfully', deletedApp);
 					$scope.applications.splice(ind, 1);
 				}, function(err){

@@ -1,6 +1,6 @@
 angular.module('tessellate')
 
-  .controller('AppCtrl', ['$scope', '$state', '$mdToast','$mdDialog', 'AuthService',  function ($scope, $state, $mdToast, $mdDialog, AuthService) {
+  .controller('AppCtrl', ['$scope', '$state', '$mdToast','$mdDialog', function ($scope, $state, $mdToast, $mdDialog) {
     $scope.toastPosition = {
       left: false,
       right: true,

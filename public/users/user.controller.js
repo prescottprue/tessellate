@@ -7,7 +7,7 @@ angular.module('tessellate')
 		};
 		if($stateParams.username){
 			$scope.data.loading = true;
-			usersService.get($stateParams.username)
+			$grout.user($stateParams.username).get()
 			.then(function (userData){
 				console.log('User Detail Ctrl: user data loaded:', userData);
 				$scope.user = userData;
@@ -31,7 +31,7 @@ angular.module('tessellate')
 			$scope.data.editing = false;
 			$scope.data.loading = true;
 			var userData = $scope.user;
-			usersService.update($stateParams.username, userData)
+			$grout.user($stateParams.username).update(userData)
 			.then(function (updatedUserData){
 				console.log('User Detail Ctrl: User data loaded:', updatedUserData);
 				// $scope.user = apiRes.data;

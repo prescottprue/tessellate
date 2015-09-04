@@ -17,21 +17,24 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "test"
+    "test",
+    "package.json",
+    ".DS_Store",
+    "**/.DS_Store"
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/KyperTech/matter"
   },
   "homepage": "https://github.com/KyperTech/matter",
-  "version": "0.0.4",
-  "_release": "0.0.4",
+  "version": "0.0.7",
+  "_release": "0.0.7",
   "_resolution": {
     "type": "version",
-    "tag": "v0.0.4",
-    "commit": "e1fabb9a777c9ae53423b535d3f2824fc755fbb1"
+    "tag": "v0.0.7",
+    "commit": "b1a35d2aa67f36346688ccb58801183810e25baa"
   },
   "_source": "git://github.com/KyperTech/matter.git",
-  "_target": "~0.0.4",
+  "_target": "~0.0.7",
   "_originalSource": "kyper-matter"
 }

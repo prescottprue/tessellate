@@ -100,7 +100,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	}
 
 	var data = {};
-	// TODO: Store objects within local storage.
 	var storage = Object.defineProperties({
 		/**
    * @description
@@ -111,7 +110,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    *
    */
 		item: function item(itemName, itemValue) {
-			//TODO: Handle itemValue being an object instead of a string
 			return this.setItem(itemName, itemValue);
 		},
 		/**
@@ -123,10 +121,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    *
    */
 		setItem: function setItem(itemName, itemValue) {
-			//TODO: Handle itemValue being an object instead of a string
-			// this.item(itemName) = itemValue;
 			data[itemName] = itemValue;
 			if (this.localExists) {
+				//Convert object to string
+				if (_.isObject(itemValue)) {
+					itemValue = JSON.stringify(itemValue);
+				}
 				window.sessionStorage.setItem(itemName, itemValue);
 			}
 		},
@@ -144,7 +144,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			if (data[itemName]) {
 				return data[itemName];
 			} else if (this.localExists) {
-				return window.sessionStorage.getItem(itemName);
+				var itemStr = window.sessionStorage.getItem(itemName);
+				//Check that str is not null before parsing
+				if (itemStr) {
+					var isObj = false;
+					var itemObj = null;
+					//Try parsing to object
+					try {
+						itemObj = JSON.parse(itemStr);
+						isObj = true;
+					} catch (err) {
+						// logger.log({message: 'String could not be parsed.', error: err, func: 'getItem', obj: 'storage'});
+						//Parsing failed, this must just be a string
+						isObj = false;
+					}
+					if (isObj) {
+						return itemObj;
+					}
+				}
+				return itemStr;
 			} else {
 				return null;
 			}
@@ -220,7 +238,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				tokenData = jwtDecode(tokenStr);
 			} catch (err) {
 				logger.error({ description: 'Error decoding token.', data: tokenData, error: err, func: 'decodeToken', file: 'token' });
-				throw new Error('Error decoding token.');
+				throw new Error('Invalid token string.');
 			}
 		}
 		return tokenData;
@@ -231,6 +249,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		},
 		'delete': function _delete() {
 			storage.removeItem(config.tokenName);
+			storage.removeItem(config.tokenDataName);
 			logger.log({ description: 'Token was removed.', func: 'delete', obj: 'token' });
 		}
 	}, {
@@ -293,7 +312,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			req = addAuthHeader(req);
 			return handleResponse(req);
 		}
-
 	};
 
 	function handleResponse(req) {
@@ -388,7 +406,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							_this.token.string = response.token;
 						}
 						if (_.has(response, 'account')) {
-							_this.storage.setItem('currentUser');
+							_this.storage.setItem('currentUser', response.account);
 						}
 						return response.account;
 					}
@@ -421,6 +439,124 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 			}
 		}, {
+			key: 'getCurrentUser',
+			value: function getCurrentUser() {
+				var _this3 = this;
+
+				if (this.storage.item('currentUser')) {
+					return Promise.resove(this.storage.item('currentUser'));
+				} else {
+					return request.get(this.endpoint + '/user').then(function (response) {
+						//TODO: Save user information locally
+						logger.log({ description: 'Current User Request responded.', responseData: response.data, func: 'currentUser', obj: 'Matter' });
+						_this3.currentUser = response.data;
+						return response.data;
+					})['catch'](function (errRes) {
+						logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
+						return Promise.reject(errRes);
+					});
+				}
+			}
+		}, {
+			key: 'updateProfile',
+
+			/** updateProfile
+    */
+			value: function updateProfile(updateData) {
+				var _this4 = this;
+
+				if (!this.isLoggedIn) {
+					logger.error({ description: 'No current user profile to update.', func: 'updateProfile', obj: 'Matter' });
+					return Promise.reject({ message: 'Must be logged in to update profile.' });
+				}
+				//Send update request
+				logger.warn({ description: 'Calling update endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'updateProfile', obj: 'Matter' });
+				return request.put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
+					logger.log({ description: 'Update profile request responded.', responseData: response, func: 'updateProfile', obj: 'Matter' });
+					_this4.currentUser = response;
+					return response;
+				})['catch'](function (errRes) {
+					logger.error({ description: 'Error requesting current user.', error: errRes, func: 'updateProfile', obj: 'Matter' });
+					return Promise.reject(errRes);
+				});
+			}
+
+			/** updateProfile
+    */
+		}, {
+			key: 'isInGroup',
+
+			//Check that user is in a single group or in all of a list of groups
+			value: function isInGroup(checkGroups) {
+				var _this5 = this;
+
+				if (!this.isLoggedIn) {
+					logger.log({ description: 'No logged in user to check.', func: 'isInGroup', obj: 'Matter' });
+					return false;
+				}
+				//Check if user is
+				if (checkGroups && _.isString(checkGroups)) {
+					var _ret = (function () {
+						var groupName = checkGroups;
+						//Single role or string list of roles
+						var groupsArray = groupName.split(',');
+						if (groupsArray.length > 1) {
+							//String list of groupts
+							logger.info({ description: 'String list of groups.', list: groupsArray, func: 'isInGroup', obj: 'Matter' });
+							return {
+								v: _this5.isInGroups(groupsArray)
+							};
+						} else {
+							//Single group
+							var groups = _this5.token.data.groups || [];
+							logger.log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this5.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
+							return {
+								v: _.any(groups, function (group) {
+									return groupName == group.name;
+								})
+							};
+						}
+					})();
+
+					if (typeof _ret === 'object') return _ret.v;
+				} else if (checkGroups && _.isArray(checkGroups)) {
+					//Array of roles
+					//Check that user is in every group
+					logger.info({ description: 'Array of groups.', list: checkGroups, func: 'isInGroup', obj: 'Matter' });
+					return this.isInGroups(checkGroups);
+				} else {
+					return false;
+				}
+				//TODO: Handle string and array inputs
+			}
+		}, {
+			key: 'isInGroups',
+			value: function isInGroups(checkGroups) {
+				var _this6 = this;
+
+				//Check if user is in any of the provided groups
+				if (checkGroups && _.isArray(checkGroups)) {
+					return _.map(checkGroups, function (group) {
+						if (_.isString(group)) {
+							//Group is string
+							return _this6.isInGroup(group);
+						} else {
+							//Group is object
+							return _this6.isInGroup(group.name);
+						}
+					});
+				} else if (checkGroups && _.isString(checkGroups)) {
+					//TODO: Handle spaces within string list
+					var groupsArray = checkGroups.split(',');
+					if (groupsArray.length > 1) {
+						return this.isInGroups(groupsArray);
+					}
+					return this.isInGroup(groupsArray[0]);
+				} else {
+					logger.error({ description: 'Invalid groups list.', func: 'isInGroups', obj: 'Matter' });
+				}
+			}
+		}, {
 			key: 'endpoint',
 			get: function get() {
 				var serverUrl = config.serverUrl;
@@ -442,22 +578,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'currentUser',
+			set: function set(userData) {
+				logger.log({ description: 'Current User Request responded.', user: userData, func: 'currentUser', obj: 'Matter' });
+				this.storage.setItem(userData);
+			},
 			get: function get() {
-				var _this3 = this;
-
-				if (this.storage.item('currentUser')) {
-					//TODO: Check to see if this comes back as a string
-					return Promise.resove(this.storage.item('currentUser'));
+				if (this.storage.getItem('currentUser')) {
+					return this.storage.getItem('currentUser');
 				} else {
-					return request.get(this.endpoint + '/user').then(function (response) {
-						//TODO: Save user information locally
-						logger.log({ description: 'Current User Request responded.', responseData: response.data, func: 'currentUser', obj: 'Matter' });
-						_this3.currentUser = response.data;
-						return response.data;
-					})['catch'](function (errRes) {
-						logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
-						return Promise.reject(errRes);
-					});
+					return null;
 				}
 			}
 		}, {
@@ -465,10 +594,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			get: function get() {
 				return storage;
 			}
+
+			/** updateProfile
+    */
 		}, {
 			key: 'token',
 			get: function get() {
 				return token;
+			}
+		}, {
+			key: 'utils',
+			get: function get() {
+				return { logger: logger, request: request, storage: storage };
 			}
 		}, {
 			key: 'isLoggedIn',

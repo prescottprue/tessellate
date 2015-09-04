@@ -15,7 +15,10 @@
     "**/.*",
     "node_modules",
     "bower_components",
-    "test"
+    "test",
+    "package.json",
+    ".DS_Store",
+    "**/.DS_Store"
   ],
   "repository":{
     "type":"git",

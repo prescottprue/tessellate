@@ -47,6 +47,7 @@ let token = {
 	},
 	delete() {
 		storage.removeItem(config.tokenName);
+		storage.removeItem(config.tokenDataName);
 		logger.log({description: 'Token was removed.', func: 'delete', obj: 'token'});
 	}
 };
