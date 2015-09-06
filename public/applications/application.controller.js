@@ -1,5 +1,5 @@
 angular.module('tessellate.applications')
-.controller('ApplicationCtrl', ['$scope', '$http', '$stateParams', '$grout', function($scope, $http, $stateParams, $grout){
+.controller('ApplicationCtrl', ['$scope', '$http', '$stateParams', '$grout', '$log', function ($scope, $http, $stateParams, $grout, $log){
 		$scope.data = {
 			loading:false,
 			error:null,
@@ -11,12 +11,13 @@ angular.module('tessellate.applications')
 			$scope.data.loading = true;
 			$grout.app($stateParams.name).get()
 			.then(function (applicationData){
-				$log.error({description:'Error getting application.', data:applicationData, obj:'ApplicationCtrl'});
+				$log.log({description:'Application loaded successfully.', data:applicationData, obj:'ApplicationCtrl'});
 				$scope.application = applicationData;
+				$scope.data.loading = false;
+				$scope.$apply();
 			}).catch(function (err){
 				$log.error({description:'Error getting application.', name:$stateParams.name, obj:'ApplicationCtrl'});
 				$scope.data.error = err;
-			}).finally(function(){
 				$scope.data.loading = false;
 			});
 		} else {

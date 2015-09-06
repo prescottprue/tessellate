@@ -52,26 +52,19 @@ angular.module('tessellate')
       templateUrl:'applications/application.html',
       controller:'ApplicationCtrl'
     })
-    .state('roles', {
+    .state('groups', {
       parent:'nav',
-      url:'/roles',
+      url:'/groups',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'roles/roles.html',
-      controller:'RolesCtrl'
+      templateUrl:'groups/groups.html',
+      controller:'GroupsCtrl'
     })
-    .state('role', {
+    .state('group', {
       parent:'nav',
-      url:'/roles/:name',
+      url:'/groups/:name',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'roles/role.html',
-      controller:'RoleCtrl'
-    })
-    .state('buckets', {
-      parent:'nav',
-      url:'/buckets',
-      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'buckets/buckets.html',
-      controller:'BucketsCtrl'
+      templateUrl:'groups/group.html',
+      controller:'GroupCtrl'
     })
     .state('signup', {
       parent:'nav',

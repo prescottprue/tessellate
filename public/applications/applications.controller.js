@@ -9,6 +9,8 @@ angular.module('tessellate.applications')
 			$log.log('applications list loaded:', applicationsList);
 			$scope.data.loading = false;
 			$scope.applications = applicationsList;
+			//TODO: Move this to grout service to remove $apply
+			$scope.$apply();
 		}, function (err){
 			$log.error('Error loading applications', err);
 			$scope.data.loading = false;

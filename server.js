@@ -27,7 +27,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
 //Set cors configuration
 app.use(cors());
 //Enable all preflight requests
@@ -42,7 +41,6 @@ app.use(function (err, req, res, next) {
     return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
   }
 });
-
 //Setup routes based on config
 routeBuilder(routes);
 

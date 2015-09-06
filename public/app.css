@@ -11,3 +11,15 @@ body {
 .md-content {
 	background-color: #f2f4f8 !important;
 }
+.hc-btn {
+	font-size:.8em;
+}
+.hc-background {
+	background-color: #f2f4f8;
+}
+.md-content {
+	background-color: #f2f4f8;
+}
+.md-whiteframe-z1,.md-whiteframe-z2 {
+	background-color:white !important;
+}

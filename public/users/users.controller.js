@@ -8,6 +8,7 @@ angular.module('tessellate.users')
 			$scope.data.loading = false;
 			console.log('users list loaded:', usersList);
 			$scope.users = usersList;
+			$scope.$apply();
 		}, function (err){
 			console.error('Error loading users', err);
 			$scope.data.loading = false;
@@ -18,6 +19,8 @@ angular.module('tessellate.users')
 			console.log('calling add with userData:', userData);
 			$grout.users().add(userData).then(function(response){
 				console.log('User added successfull', response);
+				//TODO: Push response not original data
+				$scope.users.push(userData);
 			}, function(err){
 				console.error('Error adding a user', err);
 				$scope.data.loading = false;

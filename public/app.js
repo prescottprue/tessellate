@@ -6,14 +6,13 @@ angular.module('tessellate', [
     'tessellate.account',
     'tessellate.home', 
     'tessellate.users',
-    'tessellate.applications',
-    'tessellate.buckets'
+    'tessellate.applications'
 
   ])
 .config(function ($httpProvider) {
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 })
-.service('$grout', ['$window', '$log', function ($window, $log) {
+.service('$grout', ['$window', '$log', '$q', function ($window, $log, $q) {
   var grout = new $window.Grout();
   $log.info('new grout:', grout);
   return grout;

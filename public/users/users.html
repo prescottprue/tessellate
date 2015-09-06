@@ -1,6 +1,6 @@
-<md-content layout-fill>
+<md-content class="hc-background">
   <div id="table-wrap">
-  <div class="table-responsive-vertical shadow-z-1">
+  <div class="table-responsive-vertical md-whiteframe-z2">
   <!-- Table starts here -->
     <table id="table" class="table table-hover table-mc-light-blue">
       <thead>
@@ -8,16 +8,16 @@
           <th>Username</th>
           <th>Name</th>
           <th>Email</th>
-          <th>Role</th>
+          <th>Groups</th>
           <th>Delete</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="user in users"  ui-sref="user({username:user.username})">
           <td data-title="Username">{{user.username}}</td>
-          <td data-title="Name">{{user.name}}</td>
+          <td data-title="Name">{{user.username}}</td>
           <td data-title="Email">{{user.email}}</td>
-          <td data-title="Role">{{user.role || "No Role"}}</td>
+          <td data-title="Groups">{{user.groups || "No Groups"}}</td>
           <td data-title="Delete" stop-event>      
             <md-button ng-click="delete($index)"
                aria-label="Delete"

@@ -1,13 +1,66 @@
 angular.module('tessellate')
 
-  .controller('AppCtrl', ['$scope', '$state', '$mdToast','$mdDialog', function ($scope, $state, $mdToast, $mdDialog) {
+  .controller('AppCtrl', ['$scope', '$state', '$mdToast','$mdDialog', '$grout', '$rootScope', '$log', function ($scope, $state, $mdToast, $mdDialog, $grout, $rootScope, $log) {
     $scope.toastPosition = {
       left: false,
       right: true,
       bottom: true,
       top: false
     };
-    
+    $scope.loginData = {
+      loading: false,
+      missing:{username:false, password:false}
+    };
+    $scope.isLoggedIn = $grout.isLoggedIn;
+    $grout.getCurrentUser().then(function(currentUser){
+      $scope.currentUser = currentUser;
+      $scope.$apply();
+      console.log('Currentuser:', $scope.currentUser);
+    });
+    $scope.$watch('currentUser', function(newVal, oldVal){
+      if(newVal !== oldVal){
+        console.warn('current user changed states', newVal, oldVal);
+        if(!$scope.$$phase) {
+          //$digest or $apply
+          $scope.currentUser = newVal;
+          $scope.$apply();
+        }
+      }
+    });
+    $scope.login = function() {
+      if(!$scope.loginData.username || $scope.loginData.username.length < 1){
+        $scope.loginData.missing.username = true;
+      } else if(!$scope.loginData.password || $scope.loginData.password.length < 1){
+        $scope.loginData.missing.password = true;
+      } else {
+        $scope.loginData.loading = true;
+        $grout.login($scope.loginData)
+        .then(function (authData){
+          $log.log('Successful login:', authData);
+          $scope.loginData.loading = false;
+          $scope.showToast("Logged in");
+          $scope.currentUser = authData;
+          $scope.$apply();
+          $state.go('apps');
+        }, function (err){
+          $log.error('Login error:', err);
+          $scope.loginData = {loading:false, email:null, password:null};
+        });
+      }
+    };
+    $scope.logout = function () {
+      $grout.logout().then(function () {
+        $scope.showToast("Logout Successful");
+        $scope.currentUser = null;
+        $state.go('home');
+      }, function (err){
+        $log.error('Error logging out:', err);
+        $state.go('home');
+      });
+    };
+    $scope.clickTitle = function() {
+      $state.go('home');
+    };
   	$scope.getToastPosition = function () {
       return Object.keys($scope.toastPosition).filter(function (pos) { return $scope.toastPosition[pos]; }).join(' ');
     };

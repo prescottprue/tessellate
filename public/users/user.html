@@ -1,33 +1,31 @@
-<md-content layout-fill>
-  <div id="table-wrap">
-  <div class="table-responsive-vertical shadow-z-1">
-  <!-- Table starts here -->
-    <table id="table" class="table table-hover table-mc-light-blue">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ng-repeat="user in users"  ui-sref="user({username:user.username})">
-          <td data-title="Username">{{user.username}}</td>
-          <td data-title="Name">{{user.name}}</td>
-          <td data-title="Email">{{user.email}}</td>
-          <td data-title="Role">{{user.role || "No Role"}}</td>
-          <td data-title="Delete" stop-event>      
-            <md-button ng-click="delete($index)"
-               aria-label="Delete"
-               class="md-icon-button" >
-                <i class="fa fa-trash"></i>
-            </md-button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  </div>
+<md-content class="hc-background" layout="row" layout-padding layout-align="center">
+  <md-card flex="55">
+    <md-card-content layout-padding>
+        <div layout="column" layout-sm="column">
+          <md-input-container flex=50>
+            <label>Username</label>
+            <input ng-model="user.username">
+          </md-input-container>
+          <md-input-container flex=50>
+            <label>Name</label>
+            <input ng-model="user.name">
+          </md-input-container>
+          <md-input-container flex=50>
+            <label>Title</label>
+            <input ng-model="user.title">
+          </md-input-container>
+          <md-input-container flex=50>
+            <label>Email</label>
+            <input ng-model="user.email" ng-required="true" type="email">
+          </md-input-container>
+          <md-input-container flex=50>
+            <label>Password</label>
+            <input ng-model="user.password" ng-required="true" type="password">
+          </md-input-container>
+          <section layout="row" layout-sm="column" layout-align="center center">
+            <md-button class="md-raised md-primary" ng-click="update()">Update</md-button>
+          </section>
+        </div>
+    </md-card-content>
+  </md-card>
 </md-content>

@@ -26,10 +26,6 @@ module.exports = {
 		'/applications/applications.controller.js',
 		'/applications/application.controller.js',
 
-		'/buckets/buckets.module.js',
-		'/buckets/buckets.service.js',
-		'/buckets/buckets.controller.js',
-
 		'/account/account.module.js',
 		'/account/account.controller.js',
 

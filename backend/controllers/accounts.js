@@ -31,19 +31,28 @@ var logger = require('../utils/logger');
  *
  */
 exports.get = function(req, res, next){
-	var isList = true;
+
+	console.log({message:'Account(s) get called.', func:'get', obj:'AccountCtrl'})
 	var query = Account.find({}, {username:1, email:1});
-	if(_.has(req.params, "username")){ //Get data for a specific account
-		console.log('account request with username:', req.params.username);
+	if(_.has(req, 'params') && _.has(req.params, "username")){ //Get data for a specific account
+		console.log({message:'Get account called with username.', username:req.params.username, func:'get', obj:'AccountCtrl'})
 		query = Account.findOne({username:req.params.username}, {password:0, __v:0});
-		isList = false;
 	}
-	w.runQuery(query).then(function(accountData){
-		//Remove sensitiveaccount data from account
+	query.exec(function(err, accountData){
+		if(err){
+			console.error({message:'Error finding account data.', error:err, func:'get', obj:'AccountCtrl'})
+			return res.status(500).send('Error getting account.');
+		} 
+		if(!accountData){
+			console.log({message:'No account data', func:'get', obj:'AccountCtrl'})
+			return res.send(400).send('Account not found.');
+		} 
 		res.send(accountData);
-	}, function(err){
-		res.status(500).send('Error getting account:', err);
 	});
+	// w.runQuery(query).then(function(accountData){
+	// 	//Remove sensitiveaccount data from account
+	// }, function(err){
+	// });
 };
 /**
  * @api {post} /accounts Add Account

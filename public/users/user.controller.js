@@ -1,5 +1,5 @@
 angular.module('tessellate')
-.controller('UserCtrl', ['$scope', '$http', '$stateParams', 'usersService', '$grout', function ($scope, $http, $stateParams, usersService, $grout){
+.controller('UserCtrl', ['$scope', '$http', '$stateParams','$grout', function ($scope, $http, $stateParams, $grout){
 		$scope.data = {
 			loading:false,
 			error:null,
@@ -11,10 +11,11 @@ angular.module('tessellate')
 			.then(function (userData){
 				console.log('User Detail Ctrl: user data loaded:', userData);
 				$scope.user = userData;
+				$scope.$apply();
+				$scope.data.loading = false;
 			}).catch(function (err){
 				console.error('User Detail Ctrl: Error loading user with username:' + $stateParams.username, err);
 				$scope.data.error = err;
-			}).finally(function(){
 				$scope.data.loading = false;
 			});
 		} else {
