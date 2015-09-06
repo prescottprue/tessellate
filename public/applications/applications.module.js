@@ -1,1 +1,1 @@
-angular.module('tessellate.applications', ['tessellate.users'])
+angular.module('tessellate.applications', ['ngMaterial', 'tessellate.users'])

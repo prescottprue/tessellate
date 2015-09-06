@@ -8,6 +8,9 @@ md-sidenav.md-closed.md-locked-open-add-active {
 .navbar-dark {
   background-color: #616161 !important;
 }
+.navbar-dark-label {
+  color: white  !important;
+}
 .md-select-placeholder span {
   color:white !important;
 }

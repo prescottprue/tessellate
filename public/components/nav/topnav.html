@@ -10,18 +10,13 @@
     <div nf-if="navButtons" class="navbtn-wrapper" layout="row" ng-repeat="btn in navButtons" >
       <md-button class="nav-buttons outline" ng-click="clickBtn($index)">{{btn.text}}</md-button>
     </div>
-      <div ng-if="!currentUser" layout="row">
-        <md-button class="nav-buttons outline-green" ui-sref="login" >Login</md-button>
-        <md-button class="nav-buttons outline-blue" ui-sref="signup">Signup</md-button>
-      </div>
-      <md-select ng-if="currentUser" placeholder="{{currentUser.username || 'Account'}}"  ng-model="someVal" aria-label="User" class="username-dropdown">
-        <md-option ui-sref="account">Profile</md-option>
-        <md-option ng-click="logout()">Logout</md-option>
-      </md-select>
-<!--       <md-select placeholder="{{currentUser.username || 'Account'}}" ng-if="currentUser" ng-model="someVal" aria-label="User" class="username-dropdown">
-        <md-option ui-sref="account">Profile</md-option>
-        <md-option ng-click="logout()">Logout</md-option>
-      </md-select> -->
-      <!-- <md-button class="md-warn" ui-sref="signup" href="#/signup">Login</md-button> -->
+    <div ng-if="!currentUser" layout="row">
+      <md-button class="nav-buttons outline-green" ui-sref="login" >Login</md-button>
+      <md-button class="nav-buttons outline-blue" ui-sref="signup">Signup</md-button>
+    </div>
+    <md-select ng-if="currentUser" placeholder="{{currentUser.username || 'Account'}}"  ng-model="someVal" aria-label="User" class="username-dropdown">
+      <md-option ui-sref="account">Profile</md-option>
+      <md-option ng-click="logout()">Logout</md-option>
+    </md-select>
   </div>
 </md-toolbar>

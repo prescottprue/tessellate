@@ -1,0 +1,81 @@
+<md-dialog aria-label="New Application" flex="60" flex-sm="80">
+  <form>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>New Application</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="answer('not applicable')">
+          <i class="fa fa-close" aria-label="Close dialog" ng-click="cancel()" style="font-size:1.5em;"></i>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content layout="row" layout-align="center center" layout-fill >
+        <div layout="column" layout-align="center center" flex="80">
+          <div layout="column" layout-align="start start" layout-fill>
+          <label style="font-size:.7em; margin-bottom:20px; margin-top:30px;">Project Name</label>
+          <md-input-container layout-fill layout-padding md-no-float="true" style="font-size:.7em">
+            <!-- <label>Application Name</label> -->
+            <input ng-model="appData.name" placeholder="exampleApp">
+          </md-input-container>
+          </div>
+          <div layout="column" layout-align="start start" layout-fill>
+            <label style="font-size:.7em; margin-bottom:20px; margin-top:40px;">Project Template (default used if none selected)</label>
+<!--             <md-autocomplete
+                md-selected-item="data.selectedItem"
+                md-search-text-change="searchTemplates(data.searchText)"
+                md-search-text="data.searchText"
+                md-selected-item-change="selectedItemChange(item)"
+                md-items="template in querySearch(data.searchText)"
+                md-item-text="template.name"
+                md-min-length="data.minLength"
+                placeholder="Search Templates" style="" layout-fill>
+              <md-item-template>
+                <span md-highlight-text="data.searchText" md-highlight-flags="^i">{{template.name}}</span>
+              </md-item-template>
+              <md-not-found>
+                No matches found for "{{data.searchText}}".
+              </md-not-found>
+            </md-autocomplete> -->
+          </div>
+          <div layout="column" layout-align="start start" layout-fill>
+            <label style="font-size:.7em; margin-top:40px;">Collaborators</label>
+            <!-- <md-autocomplete
+                md-selected-item="data.selectedItem"
+                md-search-text-change="searchTemplates(data.searchText)"
+                md-search-text="data.searchText"
+                md-selected-item-change="selectedItemChange(item)"
+                md-items="template in querySearch(data.searchText)"
+                md-item-text="template.name"
+                md-min-length="0"
+                placeholder="Search Users" style="" layout-fill disabled>
+              <md-item-template>
+                <span md-highlight-text="data.searchText" md-highlight-flags="^i">{{template.name}}</span>
+              </md-item-template>
+              <md-not-found>
+                No matches found for "{{data.searchText}}".
+              </md-not-found>
+            </md-autocomplete> -->
+          <md-input-container layout-fill style="margin-top:10px; font-size:.6em" md-no-float="true">
+            <input ng-model="appData.collaborators" disabled placeholder="Search Collaborators (coming soon)">
+          </md-input-container>
+          </div>
+          <div  layout-align="start start" layout-fill>
+            <label style="font-size:.7em; margin-top:40px;">Sharing</label>
+            <md-switch ng-disabled="true" aria-label="Disabled active switch" ng-model="appData.public" style="font-size:.7em;">
+              Private (coming soon)
+            </md-switch> 
+          </div>
+            
+        </div>
+    </md-dialog-content>
+  <div class="md-actions" layout="row">
+    <span flex></span>
+    <md-button ng-click="cancel()" class="md-warn">
+     Cancel
+    </md-button>
+    <md-button ng-click="create(appData)" class="md-primary">
+      Create
+    </md-button>
+  </div>
+  </form>
+</md-dialog>

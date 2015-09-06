@@ -14,6 +14,19 @@ angular.module('tessellate')
           controller:'NavCtrl'
         },
         'main':{
+          template:'<div ui-view></div>'
+        }
+      }
+    })
+    .state('side-nav', {
+      parent:'layout',
+      abstract:true,
+      views:{
+        'topnav':{
+          templateUrl:'components/nav/topnav.html',
+          controller:'NavCtrl'
+        },
+        'main':{
           templateUrl:'components/nav/sidenav-layout.html'
         }
       }
@@ -25,7 +38,7 @@ angular.module('tessellate')
       controller:'HomeCtrl'
     })
     .state('users', {
-      parent:'nav',
+      parent:'side-nav',
       url:'/users',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
       templateUrl:'users/users.html',
@@ -53,7 +66,7 @@ angular.module('tessellate')
       controller:'ApplicationCtrl'
     })
     .state('groups', {
-      parent:'nav',
+      parent:'side-nav',
       url:'/groups',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
       templateUrl:'groups/groups.html',
@@ -65,6 +78,26 @@ angular.module('tessellate')
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
       templateUrl:'groups/group.html',
       controller:'GroupCtrl'
+    })
+    .state('directories', {
+      parent:'side-nav',
+      url:'/directories',
+      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
+      templateUrl:'directories/directories.html',
+      controller:'DirectoriesCtrl'
+    })
+    .state('directory', {
+      parent:'nav',
+      url:'/directories/:name',
+      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
+      templateUrl:'directories/directory.html',
+      controller:'DirectoryCtrl'
+    })
+    .state('account', {
+      parent:'nav',
+      url:'/account',
+      templateUrl:'account/account-index.html',
+      controller:'AccountCtrl'
     })
     .state('signup', {
       parent:'nav',

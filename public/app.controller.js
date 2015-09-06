@@ -4,8 +4,8 @@ angular.module('tessellate')
     $scope.toastPosition = {
       left: false,
       right: true,
-      bottom: true,
-      top: false
+      bottom: false,
+      top: true
     };
     $scope.loginData = {
       loading: false,

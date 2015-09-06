@@ -8,6 +8,7 @@ body {
   background-color: transparent;
   -webkit-font-smoothing: antialiased;
 }
+
 .md-content {
 	background-color: #f2f4f8 !important;
 }
@@ -22,4 +23,13 @@ body {
 }
 .md-whiteframe-z1,.md-whiteframe-z2 {
 	background-color:white !important;
+}
+.main-content {
+  padding-bottom:40px !important;
+}
+.main-footer {
+  height:40px !important; 
+  margin-top:-40px !important; 
+  z-index:10000 !important; 
+  position:relative !important;
 }

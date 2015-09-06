@@ -1,29 +1,28 @@
-<md-content class="hc-background">
-  <div id="table-wrap">
-  <div class="table-responsive-vertical shadow-z-1">
-  <!-- Table starts here -->
-    <table id="table" class="table table-hover table-mc-light-blue">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Owner</th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr ng-repeat="app in applications"  ui-sref="app({name:app.name})">
-          <td data-title="Name">{{app.name}}</td>
-          <td data-title="Owner">{{app.owner.username || "No Owner"}}</td>
-          <td data-title="Delete" stop-event>      
-            <md-button ng-click="delete($index)"
-               aria-label="Delete"
-               class="md-icon-button" >
-                <i class="fa fa-trash"></i>
-            </md-button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  </div>
-</md-content>
+  <md-content layout-padding class="hc-background" style="position:relative;">
+    <md-grid-list md-cols-gt-md="8" md-cols-sm="2" md-cols-md="4" md-row-height-md="1.4:1"
+    md-row-height-lg="1.5:1" md-row-height-gt-lg="1.9:1" md-row-height-sm="1:1.5"
+    md-gutter-gt-md="25px" md-gutter-gt-sm="40px" md-gutter="4px" style="margin-top:25px;">
+      <!-- App Tiles -->
+      <md-grid-tile class="md-whiteframe-z1 apps-tile" ng-repeat="app in applications" md-colspan="2" md-rowspan-sm="1" md-rowspan-md="2" md-rowspan-gt-md="3" ui-sref="app({name:app.name})" >
+        <md-card layout-fill layout-padding>
+          <md-card-content layout-fill style="overflow:hidden; text-overflow:ellipsis;  white-space:nowrap;" >
+            <h3 class="md-display-3 title ">{{app.name}}</h3>
+            <p class="details">
+              <i class="fa fa-user"></i> &nbsp;&nbsp;<span>{{app.owner.username}}</span>
+            </p>
+            <p class="details">
+              <i class="fa fa-users"></i> &nbsp;&nbsp;<span>{{app.owner.collaborators || "0"}}</span>
+            </p>
+          </md-card-content>
+        </md-card>
+      </md-grid-tile>
+      <!-- New app Tile -->
+      <md-grid-tile class="new-app-tile" md-colspan="2" md-rowspan-sm="1" md-rowspan-md="2" md-rowspan-gt-md="3"  ng-click="startNew()">
+        <div layout="column" layout-align="center center">
+          <md-card-content class="new-app-tile-content">
+            <h4 class="title">Create New<br>Application</h4>
+          </md-card-content>
+        </div>
+      </md-grid-tile>
+    </md-grid-list>
+  </md-content>

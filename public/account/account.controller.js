@@ -16,7 +16,6 @@ angular.module('tessellate.account')
 		$grout.logout().then(function(){
 			$log.log('logout successful');
       // $scope.showToast('Successfully Logged Out');
-			//TODO: Refresh page after logout
 			$state.go('home');
 		}, function(err){
 			$log.error('Error logging out');
@@ -25,8 +24,18 @@ angular.module('tessellate.account')
 	$scope.signup = function(){
 		$grout.signup($scope.signupForm).then(function(){
 			$log.log('Signup successful');
-			//TODO: Refresh page after logout
-      // $scope.showToast('Successfully signed up');
+      $scope.showToast('Welcome!');
+			$state.go('users');
+		}, function(err){
+			$log.error('error siging up:', err);
+		});
+	};
+	$scope.userData = angular.copy($scope.currentUser);
+	$scope.update = function() {
+		//TODO: Compare and only send data that was modified
+		$grout.updateProfile($scope.userData).then(function(){
+			$log.log('Profile update successful.');
+      $scope.showToast('Successfully signed up');
 			$state.go('users');
 		}, function(err){
 			$log.error('error siging up:', err);
