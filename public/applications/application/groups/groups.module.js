@@ -1,0 +1,1 @@
+angular.module('tessellate.application.groups', []);

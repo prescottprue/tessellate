@@ -152,6 +152,11 @@ module.exports =  {
 			controller:templateCtrls.get
 		},
 		{
+			type:'GET',
+			endpoint: '/templates/search/:searchQuery',
+			controller:templateCtrls.search
+		},
+		{
 			type:'POST',
 			endpoint: '/templates',
 			controller:templateCtrls.add

@@ -4,8 +4,8 @@
 var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('lodash');
+var q = require('q');
 var w = require('../utils/mongoPromise');
-var url = require('url');
 var Account = require('../models/account').Account;
 var logger = require('../utils/logger');
 /**
@@ -31,28 +31,23 @@ var logger = require('../utils/logger');
  *
  */
 exports.get = function(req, res, next){
-
 	console.log({message:'Account(s) get called.', func:'get', obj:'AccountCtrl'})
 	var query = Account.find({}, {username:1, email:1});
 	if(_.has(req, 'params') && _.has(req.params, "username")){ //Get data for a specific account
 		console.log({message:'Get account called with username.', username:req.params.username, func:'get', obj:'AccountCtrl'})
 		query = Account.findOne({username:req.params.username}, {password:0, __v:0});
 	}
-	query.exec(function(err, accountData){
+	return query.exec(function(err, accountData){
 		if(err){
 			console.error({message:'Error finding account data.', error:err, func:'get', obj:'AccountCtrl'})
 			return res.status(500).send('Error getting account.');
-		} 
-		if(!accountData){
+		} else if(!accountData){
 			console.log({message:'No account data', func:'get', obj:'AccountCtrl'})
 			return res.send(400).send('Account not found.');
-		} 
-		res.send(accountData);
+		} else {
+			res.send(accountData);
+		}
 	});
-	// w.runQuery(query).then(function(accountData){
-	// 	//Remove sensitiveaccount data from account
-	// }, function(err){
-	// });
 };
 /**
  * @api {post} /accounts Add Account
@@ -198,7 +193,7 @@ exports.delete = function(req, res, next){
 	}
 };
 /**
- * @api {delete} /account/:id Search Accounts
+ * @api {get} /account/:id Search Accounts
  * @apiDescription Search Accounts.
  * @apiName SearchAccount
  * @apiGroup Account
@@ -241,18 +236,12 @@ exports.search = function(req, res, next){
 	});
 };
 /**
- * Escape special characters
- */
-function escapeRegExp(str) {
-    return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-}
-/**
  * Create a account query based on provided key and value
  */
 function createAccountQuery(key, val){
-	var queryArr = _.map(val.split(' '), function (q) {
+	var queryArr = _.map(val.split(' '), function (qr) {
     var queryObj = {};
-    queryObj[key] = new RegExp(escapeRegExp(q), 'i');
+    queryObj[key] = new RegExp(_.escapeRegExp(qr), 'i');
     return queryObj;
   });
   var find = {$or: queryArr};

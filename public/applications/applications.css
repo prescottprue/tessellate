@@ -55,6 +55,7 @@
 	font-size:1.2em;
 	font-weight:400;
 }
+
 .new-app-tile:hover .title {
 	color:rgb(33,150,243);
 	margin-top:.45em;
@@ -64,3 +65,10 @@
 .new-app-tile:hover .title.top {
 }
 
+.new-app-dialog .search-label {
+	font-size:.7em; 
+	margin-bottom:5px; 
+	margin-top:20px;
+	margin-bottom:10px;
+
+}

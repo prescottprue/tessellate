@@ -1,19 +1,11 @@
-angular.module('tessellate.users')
-.controller('UsersCtrl', ['$scope', '$grout', function ($scope, $grout){
+angular.module('tessellate.application.users')
+.controller('UsersCtrl', ['$scope', '$grout', 'application', function ($scope, $grout, application){
 		$scope.data = {
 			loading:true,
 			error:null
 		};
-		$grout.users.get().then(function (usersList){
-			$scope.data.loading = false;
-			console.log('users list loaded:', usersList);
-			$scope.users = usersList;
-			$scope.$apply();
-		}, function (err){
-			console.error('Error loading users', err);
-			$scope.data.loading = false;
-			$scope.data.error = err;
-		});
+		$scope.users = application.accounts;
+		console.warn('users set:', $scope.users);
 		$scope.add = function(userData){
 			$scope.data.loading = true;
 			console.log('calling add with userData:', userData);

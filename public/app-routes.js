@@ -37,20 +37,7 @@ angular.module('tessellate')
       templateUrl:'home/home.html',
       controller:'HomeCtrl'
     })
-    .state('users', {
-      parent:'side-nav',
-      url:'/users',
-      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'users/users.html',
-      controller:'UsersCtrl'
-    })
-    .state('user', {
-      parent:'nav',
-      url:'/user/:username',
-      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'users/user.html',
-      controller:'UserCtrl'
-    })
+
     .state('apps', {
       parent:'nav',
       url:'/apps',
@@ -60,38 +47,100 @@ angular.module('tessellate')
     })
     .state('app', {
       parent:'nav',
+      abstract:true,
       url:'/apps/:name',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'applications/application.html',
-      controller:'ApplicationCtrl'
+      templateUrl:'applications/application/application.html',
+      controller:'ApplicationCtrl',
+      resolve:{
+        applications:function($grout, $q, $log){
+          return $q(function(resolve, reject){
+            $grout.apps.get().then(function (applicationList){
+              // $log.log('[app.resolve] Application data loaded:', applicationList);
+              resolve(applicationList);
+            }, function (err){
+              reject(err);
+            });
+          });
+        },
+        application:function($grout, $q, $stateParams, $log){
+          return $q(function(resolve, reject){
+            $grout.app($stateParams.name).get().then(function (applicationData){
+              $log.log('application Detail Ctrl: application data loaded:', applicationData);
+              resolve(applicationData);
+            }, function (err){
+              reject(err);
+            });
+          });
+        }
+      }
     })
-    .state('groups', {
-      parent:'side-nav',
+    .state('app.configure', {
+      url:'/configure',
+      templateUrl:'applications/application/configure/configure.html',
+      controller:'ConfigureCtrl'
+    })
+    .state('app.build', {
+      url:'/build',
+      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
+      templateUrl:'applications/application/build/build.html',
+      controller:'BuildCtrl'
+    })
+    .state('app.manage', {
+      url:'/manage',
+      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
+      templateUrl:'applications/application/manage/manage.html',
+      controller:'ManageCtrl'
+    })
+    .state('app.users', {
+      url:'/users',
+      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
+      templateUrl:'applications/application/users/users.html',
+      controller:'UserCtrl'
+    })
+    .state('app.user', {
+      url:'/users/:username',
+      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
+      templateUrl:'applications/application/users/user.html',
+      controller:'UserCtrl'
+    })
+    .state('app.groups', {
       url:'/groups',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'groups/groups.html',
+      templateUrl:'applications/application/groups/groups.html',
       controller:'GroupsCtrl'
     })
-    .state('group', {
-      parent:'nav',
-      url:'/groups/:name',
+    .state('app.group', {
+      url:'/groups/:groupName',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'groups/group.html',
+      templateUrl:'applications/application/groups/group.html',
       controller:'GroupCtrl'
     })
-    .state('directories', {
-      parent:'side-nav',
+    .state('app.directories', {
       url:'/directories',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'directories/directories.html',
+      templateUrl:'applications/application/directories/directories.html',
       controller:'DirectoriesCtrl'
     })
-    .state('directory', {
-      parent:'nav',
-      url:'/directories/:name',
+    .state('app.directory', {
+      url:'applications/application/directories/:name',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
       templateUrl:'directories/directory.html',
       controller:'DirectoryCtrl'
+    })
+    .state('templates', {
+      parent:'side-nav',
+      url:'/templates',
+      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
+      templateUrl:'templates/templates.html',
+      controller:'TemplatesCtrl'
+    })
+    .state('template', {
+      parent:'nav',
+      url:'/templates/:name',
+      authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
+      templateUrl:'templates/template.html',
+      controller:'TemplateCtrl'
     })
     .state('account', {
       parent:'nav',

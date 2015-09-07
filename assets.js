@@ -18,13 +18,35 @@ module.exports = {
 
 		'/components/nav/nav.controller.js',
 
-		'/users/users.module.js',
-		'/users/users.controller.js',
-		'/users/user.controller.js',
-
 		'/applications/applications.module.js',
 		'/applications/applications.controller.js',
-		'/applications/application.controller.js',
+		'/applications/application/application.module.js',
+		'/applications/application/application.controller.js',
+
+		'/applications/application/manage/manage.module.js',
+		'/applications/application/manage/manage.controller.js',
+		
+		'/applications/application/configure/configure.module.js',
+		'/applications/application/configure/configure.controller.js',
+
+		'/applications/application/build/build.module.js',
+		'/applications/application/build/build.controller.js',
+
+		'/applications/application/users/users.module.js',
+		'/applications/application/users/users.controller.js',
+		'/applications/application/users/user.controller.js',
+		
+		'/applications/application/groups/groups.module.js',
+		'/applications/application/groups/groups.controller.js',
+		'/applications/application/groups/group.controller.js',
+
+		'/applications/application/directories/directories.module.js',
+		'/applications/application/directories/directories.controller.js',
+		'/applications/application/directories/directory.controller.js',
+
+		'/templates/templates.module.js',
+		'/templates/templates.controller.js',
+		'/templates/template.controller.js',
 
 		'/account/account.module.js',
 		'/account/account.controller.js',

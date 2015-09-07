@@ -2,7 +2,9 @@ angular.module('tessellate.applications')
 .controller('ApplicationsCtrl', ['$scope', '$http', '$log', '$mdDialog', '$grout', '$state', function ($scope, $http, $log, $mdDialog, $grout, $state){
 		$scope.data = {
 			loading:true,
-			error:null
+			error:null,
+			selectedUsers:[],
+			selectedUser:null
 		};
 		console.log('ApplicationListController');
 		$grout.apps.get().then(function (applicationsList){
@@ -20,30 +22,55 @@ angular.module('tessellate.applications')
 			// $scope.mdDialogData = dataToPass  
 			console.log('dialog controller');
 		};
-		$scope.startNew = function(){
-			console.log("start new called");
+		$scope.startNew = function(ev){
 			$mdDialog.show({
-				locals:{dataToPass: $scope.createApp},
-				clickOutsideToClose:true,
-				controllerAs:'ctrl',
-				controller: mdDialogCtrl,
-	      templateUrl: '/applications/applications-new.html',
+				controller: function($scope, $mdDialog, $grout, $q){
+					$scope.data = {
+						minLength:1,  //Hide search dropdown initially
+						loading:true,
+						error:null,
+						selectedUsers:[],
+						selectedUser:null
+					};
+					//Answer with newAppData
+					$scope.create = function(newAppData){
+						//Make collaborators array from selectedUsers ids
+						newAppData.collaborators = _.pluck(selectedUsers, 'id');
+						$mdDialog.answer(newAppData);
+					};
+					//Cancel dialog
+					$scope.cancel = function(){
+						$mdDialog.cancel();
+					};
+					//Search templates based on input
+					$scope.templateSearch = function(searchText){
+						return $grout.templates.search(searchText);
+					};
+					//Search users based on input
+					$scope.collabSearch = function(searchText){
+						return $grout.users.search(searchText);
+					};
+				},
+	      templateUrl: 'applications/applications-new.html',
+	      parent: angular.element(document.body),
+	      targetEvent: ev,
 			}).then(function(answer) {
 				$log.info('Create answered:', answer);
 	      $scope.createApp(answer);
 	    }, function() {
-	    	$log.log('New Dialog was canceled');
+	    	// $log.log('New Dialog was canceled');
 	    });
 		};
 
 		$scope.createApp = function(appData){
 			$scope.data.loading = true;
+			$log.log({description: 'Create app called.', appData: appData, func: 'createApp', obj: 'ApplicationsCtrl'});
 			$grout.apps.add(appData).then(function (newApp){
 				$scope.data.loading = false;
-				$log.log('Application created successfully:', newApp);
+				$log.log({description: 'App created successfully.', app: newApp, func: 'createApp', obj: 'ApplicationsCtrl'});
 				$state.go('app.settings', {name:newApp.name});
-			}, function(err){
-				$log.error('[ApplicationsCtrl.create()] Error creating application:', err);
+			}, function (err){
+				$log.error({description: 'Error creating application.', error: err, func: 'createApp', obj: 'ApplicationsCtrl'});
 				$scope.data.loading = false;
 				$scope.data.error = err;
 				$scope.showToast('Error: ' + err.message || err);

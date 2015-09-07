@@ -5,16 +5,16 @@ angular.module('tessellate', [
 
     'tessellate.account',
     'tessellate.home', 
-    'tessellate.users',
-    'tessellate.applications'
+    'tessellate.applications',
+    'tessellate.templates'
 
   ])
 .config(function ($httpProvider) {
-    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+  delete $httpProvider.defaults.headers.common['X-Requested-With'];
 })
 .service('$grout', ['$window', '$log', '$q', function ($window, $log, $q) {
   var grout = new $window.Grout();
-  $log.info('new grout:', grout);
+  // $log.info('new grout:', grout);
   return grout;
 }])
 //Stop route changes that are not authorized and emit auth events

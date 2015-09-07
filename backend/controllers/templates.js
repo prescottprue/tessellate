@@ -1,11 +1,14 @@
 /**
  * @description Template Controller
  */
-var Template = require('../models/template').Template;
 var mongoose = require('mongoose');
 var url = require('url');
-var _ = require('underscore');
+var _ = require('lodash');
 var q = require('q');
+var w = require('../utils/mongoPromise');
+var Template = require('../models/template').Template;
+var logger = require('../utils/logger');
+
 /**
  * @api {get} /templates Get Template(s)
  * @apiDescription Get a list of the templates or get a specific template.
@@ -209,3 +212,60 @@ exports.delete = function(req, res, next){
 		});
 	}
 };
+/**
+ * @api {get} /account/:id Search Accounts
+ * @apiDescription Search Accounts.
+ * @apiName SearchAccount
+ * @apiGroup Account
+ *
+ * @apiParam {String} searchQuery String to search through accounts with
+ *
+ * @apiSuccess {Object} accountData Object containing deleted accounts data.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "id":"189B7NV89374N4839"
+ *       "name": "John",
+ *       "title": "Doe",
+ *       "role":"account",
+ *     }
+ *
+ */
+exports.search = function(req, res, next){
+	// var urlParams = url.parse(req.url, true).query;
+	var nameQuery = createTemplateQuery('name', req.params.searchQuery);
+	// var emailQuery = createAccountQuery('email', req.params.searchQuery);
+	//Search templates by name
+	w.runQuery(nameQuery).then(function(nameResults){
+		if(_.isArray(nameResults) && nameResults.length == 0){
+			res.json(nameResults);
+			//TODO: Search tags
+			// w.runQuery(emailQuery).then(function (emailResults){
+			// 	console.log('Template search by tags resulted:', emailResults);
+			// 	res.json(emailResults);
+			// }, function (err){
+			// 	res.status(500).send({message:'Template cound not be found'});
+			// });
+		} else {
+			logger.log({description: 'Template search by name returned.', results: nameResults, func: 'search', obj: 'TemplateCtrl'});
+			res.json(nameResults);
+		}
+	}, function (err){
+		logger.error({description: 'Template could not be found.', error: err, func: 'search', obj: 'TemplateCtrl'});
+		//TODO: Handle other errors here
+		res.status(400).send({message:'Template cound not be found.'});
+	});
+};
+/**
+ * Create a account query based on provided key and value
+ */
+function createTemplateQuery(key, val){
+	var queryArr = _.map(val.split(' '), function (qr) {
+    var queryObj = {};
+    queryObj[key] = new RegExp(_.escapeRegExp(qr), 'i');
+    return queryObj;
+  });
+  var find = {$or: queryArr};
+	return Template.find(find, {email:1, name:1, username:1}); // find and delete using id field
+}

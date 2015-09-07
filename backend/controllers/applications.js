@@ -72,7 +72,10 @@ exports.get = function(req, res, next){
 	var query = Application.find({}).populate({path:'owner', select:'username name title email'});
 	if(req.params.name){ //Get data for a specific application
 		console.log('application request with id:', req.params.name);
-		query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
+		query = Application.findOne({name:req.params.name})
+		.populate({path:'owner', select:'username name title email'})
+		.populate({path:'groups', select:'name accounts'})
+		.populate({path:'directories', select:'name accounts groups'});
 		isList = false;
 	}
 	query.exec(function (err, result){

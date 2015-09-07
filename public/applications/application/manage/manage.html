@@ -1,0 +1,101 @@
+<md-content class="hc-background">
+  <div layout="row" layout-sm="column">
+    <div id="table-wrap">
+    <h2 class="md-title">Directories</h2>
+    <div ng-if="!directories || !directories.length">
+      <md-button>Add Directory</md-button>
+    </div>
+    <div class="table-responsive-vertical shadow-z-1" ng-if="directories.length">
+  <!-- Table starts here -->
+    <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Groups</th>
+          <th># of Accounts</th>
+          <!-- <th>Description</th> -->
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="directory in directories"  ui-sref="app.directory({name:directory.name})">
+          <td data-title="Name">{{directory.name}}</td>
+          <td data-title="Accounts">{{directory.accounts.length || "No Accounts"}}</td>
+          <!-- <td data-title="Description">{{directory.description || "No Description"}}</td> -->
+          <td data-title="Delete" stop-event>      
+            <md-button ng-click="delete($index)"
+               aria-label="Delete"
+               class="md-icon-button" >
+                <i class="fa fa-trash"></i>
+            </md-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+  <div id="table-wrap">
+    <h2 class="md-title">Groups</h2>
+    <div class="table-responsive-vertical shadow-z-1">
+  <!-- Table starts here -->
+    <table id="table" class="table table-hover table-mc-light-blue">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th># of Accounts</th>
+          <!-- <th>Description</th> -->
+          <th>Delete</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="group in groups"  ui-sref="app.group({groupName:group.name})">
+          <td data-title="Name">{{group.name}}</td>
+          <td data-title="Accounts">{{group.accounts.length || "No Accounts"}}</td>
+          <!-- <td data-title="Description">{{group.description || "No Description"}}</td> -->
+          <td data-title="Delete" stop-event>      
+            <md-button ng-click="deleteGroup($index)"
+               aria-label="Delete"
+               class="md-icon-button" >
+                <i class="fa fa-trash"></i>
+            </md-button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+  </div>
+  <div id="table-wrap">
+    <h2 class="md-title">Users</h2>
+    <div class="table-responsive-vertical md-whiteframe-z2">
+    <!-- Table starts here -->
+      <table id="table" class="table table-hover table-mc-light-blue">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Groups</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="user in users"  ui-sref="app.user({username:user.username})">
+            <td data-title="Username">{{user.username}}</td>
+            <td data-title="Name">{{user.username}}</td>
+            <td data-title="Email">{{user.email}}</td>
+            <td data-title="Groups">{{user.groups || "No Groups"}}</td>
+            <td data-title="Delete" stop-event>      
+              <md-button ng-click="delete($index)"
+                 aria-label="Delete"
+                 class="md-icon-button" >
+                  <i class="fa fa-trash"></i>
+              </md-button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</md-content>

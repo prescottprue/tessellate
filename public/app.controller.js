@@ -15,7 +15,8 @@ angular.module('tessellate')
     $grout.getCurrentUser().then(function(currentUser){
       $scope.currentUser = currentUser;
       $scope.$apply();
-      console.log('Currentuser:', $scope.currentUser);
+      //If current user exists default to apps page
+      // $state.go('apps');
     });
     $scope.$watch('currentUser', function(newVal, oldVal){
       if(newVal !== oldVal){
@@ -59,7 +60,11 @@ angular.module('tessellate')
       });
     };
     $scope.clickTitle = function() {
-      $state.go('home');
+      if($grout.isLoggedIn){
+        $state.go('apps');
+      } else {
+        $state.go('home');
+      }
     };
   	$scope.getToastPosition = function () {
       return Object.keys($scope.toastPosition).filter(function (pos) { return $scope.toastPosition[pos]; }).join(' ');

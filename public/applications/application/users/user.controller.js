@@ -1,5 +1,5 @@
-angular.module('tessellate')
-.controller('UserCtrl', ['$scope', '$http', '$stateParams','$grout', function ($scope, $http, $stateParams, $grout){
+angular.module('tessellate.application.users')
+.controller('UserCtrl', ['$scope', '$stateParams', '$state', '$grout', 'application',function ($scope, $stateParams, $state, $grout, application){
 		$scope.data = {
 			loading:false,
 			error:null,
@@ -21,6 +21,7 @@ angular.module('tessellate')
 		} else {
 			console.error('User Detail Ctrl: Invalid user id state param');
 			$scope.data.error = 'User Id is required to load user data';
+			$state.go('app.users', {name: application.name});
 		}
 
 		// $scope.getRoles = function(){
