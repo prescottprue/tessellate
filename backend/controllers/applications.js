@@ -17,11 +17,14 @@
  *       "error": "AccountNameTooShort"
  *     }
  */
-var Application = require('../models/application').Application;
+
+
 var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('underscore');
 var q = require('q');
+var logger = require('../utils/logger');
+var Application = require('../models/application').Application;
 
 /**
  * @api {get} /applications Get Application(s)
@@ -41,13 +44,13 @@ var q = require('q');
  *      {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *      },
  *       name: "testApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-testApp", provider:"Amazon", siteUrl:"hypercube-testApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-testApp", provider:"Amazon", siteUrl:"tessellate-testApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *      }
@@ -57,7 +60,7 @@ var q = require('q');
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *     }
@@ -107,7 +110,7 @@ exports.get = function(req, res, next){
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *     }
@@ -124,49 +127,51 @@ exports.add = function(req, res, next){
 	if(!_.has(req.body, "name")){
 		res.status(400).send("Name is required to create a new app");
 	} else {
-		console.log('add request with name: ' + req.body.name + ' with body:', req.body);
+		console.log({description:'Applications add called with name.', name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'});
 		var appData = _.extend({}, req.body);
+		var appName = req.body.name;
 		if(!_.has(appData, 'owner')){
-			console.log('No owner provided. Using account', req.user);
+			console.log('No owner data provided. Using account.', req.user);
 			if(_.has(req, 'userId')){
 				appData.owner = req.userId;
 			} else if (_.has(req, 'id')) {
 				appData.owner = req.userId;
 			}
 		}
-		var query = Application.findOne({"name":req.body.name}); // find using name field
-		query.exec(function (qErr, qResult){
-			if(qErr){
-				console.error('[ApplicationsCtrl.add()] Error getting application:', JSON.stringify(qErr));
-				return res.status(500).send('Error Adding Application.');
-			}
-			if(qResult){
-				console.error('[ApplicationsCtrl.add()] Application already exists:', qResult);
-				return res.status(400).send('Application with this name already exists.');
-			}
+		findApplication(appName).then(function (foundApp){
+			console.log('Application does not already exist.', foundApp);
 			//application does not already exist
 			var application = new Application(appData);
 			// console.log('about to call create with storage:', appData);
 			//Create with template if one is provided
 			if(_.has(req.body,'template')){
+				//Template name was provided
 				application.createWithTemplate(req.body.template).then(function (newApp){
 					console.log('Application created with template:', newApp);
 					res.json(newApp);
-				}, function(err){
+				}, function (err){
 					console.log('Error creating new application:', err);
 					//TODO: Handle different errors here
 					res.status(400).json(err);
 				});
 			} else {
+				//Template name was not provided
 				application.createWithStorage().then(function (newApp){
 					console.log('Application created with storage:', newApp);
 					res.json(newApp);
-				}, function(err){
+				}, function (err){
 					console.log('Error creating new application:', err);
 					//TODO: Handle different errors here
 					res.status(400).json(err);
 				});
 			}
+		}, function (err){
+			console.log('Error creating new application:', err);
+			//TODO: Handle different errors here
+			// if(err && err.status == 'EXISTS'){
+			// 	res.status(400).send('Application with this name already exists.');
+			// }
+			res.status(500).send('Error creating application.');
 		});
 	}
 };
@@ -188,7 +193,7 @@ exports.add = function(req, res, next){
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *     }
@@ -236,7 +241,7 @@ exports.update = function(req, res, next){
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *     }
@@ -255,8 +260,8 @@ exports.delete = function(req, res, next){
 			console.error('[ApplicationsCtrl.delete()] Error getting application:', JSON.stringify(err));
 			return res.status(500).send('Error deleting Application.');
 		}
-		if(!foundApp){
-			console.error('[ApplicationsCtrl.delete()] Error finding application');
+		if(!result){
+			console.error('[ApplicationsCtrl.delete()] Error deleting application');
 			return res.status(400).send('Application could not be found.');
 		}
 		var app = new Application(result);
@@ -285,7 +290,7 @@ exports.delete = function(req, res, next){
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *     }
@@ -340,7 +345,7 @@ exports.files = function(req, res, next){
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *     }
@@ -398,7 +403,7 @@ exports.publishFile = function(req, res, next){
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *     }
@@ -453,7 +458,7 @@ exports.applyTemplate = function(req, res, next){
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
  *     }
@@ -508,7 +513,7 @@ exports.addStorage = function(req, res, next){
  *     {
  *       name: "exampleApp",
  *       owner: {username:"hackerguy1", email:"test@test.com", name:"John Doe"},
- *       frontend:{bucketName:"hypercube-exampleApp", provider:"Amazon", siteUrl:"hypercube-exampleApp.s3website.com"},
+ *       frontend:{bucketName:"tessellate-exampleApp", provider:"Amazon", siteUrl:"tessellate-exampleApp.s3website.com"},
  *       collaborators:[],
  *       createdAt:1438737438578,
  *       updatedAt:1438737438578
@@ -574,25 +579,22 @@ exports.addCollaborators = function(req, res, next){
 exports.login = function(req, res, next){
 	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name && req.body && _.has(req.body, 'username') && _.has(req.body, 'password')){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'}).populate({path:'directories', select:'name'});
-		query.exec(function (err, foundApp){
-			if(err) {
-				console.error('[ApplicationCtrl.login] Login error:', err);
-				return res.status(500).send('Error logging in.');
-			}
-			if(!foundApp){
-				console.error('[ApplicationCtrl.login] Account not found');
-				return res.status(409).send('Application does not exist');
-			}
-			foundApp.login({username:req.body.username, password:req.body.password}).then(function (loginRes){
-				// console.log('[ApplicationCtrl.login] Login Successful. Token:', token);
+		var loginData = {username:req.body.username, password:req.body.password};
+		findApplication(req.params.name).then(function (foundApp){
+			console.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
+			foundApp.login(loginData).then(function (loginRes){
+				console.log('[ApplicationCtrl.login] Login Successful.', loginRes);
 				res.send(loginRes);
 			}, function (err){
 				//TODO: Handle wrong password
 				console.error('[ApplicationCtrl.login] Error logging in:', err);
 				res.status(400).send('Login Error.');
 			});
+		}, function (err){
+			console.error('Error:', err);
+			res.status(400).send('Application not found.');
 		});
+
 	} else {
 		res.status(400).send('Application name and accounts array are required to add collaborators.');
 	}
@@ -622,25 +624,18 @@ exports.login = function(req, res, next){
 exports.logout = function(req, res, next){
 	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name && req.body){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
-		query.exec(function (err, foundApp){
-			if(err) {
-				console.error('[ApplicationCtrl.logout] Login error:', err);
-				return res.status(500).send('Error logging in.');
-			}
-			if(!foundApp){
-				console.error('[ApplicationCtrl.logout] Account not found');
-				return res.status(401).send('Invalid Authentication Credentials');
-			}
-			console.log('before logout call:', req.user);
-
+		findApplication(req.params.name).then(function (foundApp){
+			console.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
 			foundApp.logout(req.user).then(function (){
-				// console.log('[ApplicationCtrl.logout] Login Successful. Token:', token);
+				console.log({description: 'Logout successful.', func: 'logout', obj: 'ApplicationCtrl'});
 				res.send('Logout successful.');
 			}, function (err){
-				//TODO: Handle wrong password
-				res.status(400).send('[ApplicationCtrl.logout] Login Error:', err);
+				console.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
+				res.status(400).send('Error logging out.');
 			});
+		}, function (err){
+			console.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
+			res.status(400).send('Application not found.');
 		});
 	} else {
 		res.status(400).send('Application name and accounts array are required to add collaborators.');
@@ -671,25 +666,381 @@ exports.logout = function(req, res, next){
 exports.signup = function(req, res, next){
 	console.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name && req.body){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
-		query.exec(function (err, foundApp){
-			if(err) {
-				console.error('[ApplicationCtrl.signup] Login error:', err);
-				return res.status(500).send('Error logging in.');
-			}
-			if(!foundApp){
-				console.error('[ApplicationCtrl.signup] Account not found');
-				return res.status(401).send('Invalid Authentication Credentials');
-			}
+		findApplication(req.params.name).then(function (foundApp){
 			foundApp.signup(req.body.password).then(function (token){
-				// console.log('[ApplicationCtrl.signup] Login Successful. Token:', token);
+				console.log('[ApplicationCtrl.signup] Login Successful. Token:', token);
 				res.send({token:token, account:foundApp.strip()});
 			}, function (err){
 				//TODO: Handle wrong password
-				res.status(400).send('[ApplicationCtrl.signup] Login Error:', err);
+				console.error('[ApplicationCtrl.signup] Error signing up:', err);
+				res.status(400).send('Error signing up.');
 			});
+		}, function (err){
+			console.error('[ApplicationCtrl.signup] Error finding application:', err);
+			res.status(400).send('Error finding application.');
 		});
 	} else {
 		res.status(400).send('Application name is required.');
 	}
 };
+/**
+ * @api {get} /applications/:appName/groups/:groupName Group(s)
+ * @apiDescription Get an applications group(s)
+ * @apiName groups
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       name:"admins", 
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *     }]
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Group does not exist."
+ *     }
+ *
+ *
+ */
+exports.groups = function(req, res, next){
+	logger.log({description: 'App get group(s) request called.', appName: req.params.name, body: req.body, func: 'groups'});
+	if(req.params.name && req.body){ //Get data for a specific application
+		findApplication(req.params.name).then(function (foundApp){
+			if(!req.params.groupName){
+				logger.info({description: "Application's groups found.", foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+				res.send(foundApp.groups);
+			} else {
+				var group = _.findWhere(foundApp.groups, {name: req.params.groupName});
+				logger.info({description: "Application's group found.", group: group, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+				res.send(group);
+			}
+		}, function (err){
+			logger.error({description: 'Error finding application.', error: err, func: 'groups', obj: 'ApplicationsCtrl'});
+			res.status(400).send('Error finding application.');
+		});
+	} else {
+		logger.log({description: 'Application name is required to get application.', error: err, func: 'groups', obj: 'ApplicationsCtrl'});
+		res.status(400).send('Application name is required.');
+	}
+};
+/**
+ * @api {post} /applications/:name/groups  addGroup
+ * @apiDescription Add group
+ * @apiName addGroup
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       name:"admins", 
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *     }]
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Group already exists"
+ *     }
+ *
+ *
+ */
+exports.addGroup = function(req, res, next){
+	console.log('App add group request with app name: ' + req.params.name + ' with body:', req.body);
+	if(req.params.name && req.body){ //Get data for a specific application
+		findApplication(req.params.name).then(function (foundApp){
+			foundApp.addGroup(req.body.password).then(function (newGroup){
+				console.log('[ApplicationCtrl.addGroup] Group added to application successfully.', newGroup);
+				res.send(newGroup);
+			}, function (err){
+				//TODO: Handle wrong password
+				console.error('[ApplicationCtrl.addGroup] Error signing up:', err);
+				res.status(400).send('Error adding group.');
+			});
+		}, function (err){
+			console.error('[ApplicationCtrl.addGroup] Error finding application:', err);
+			//TODO: Handle other errors
+			res.status(400).send('Error finding application.');
+		});
+	} else {
+		res.status(400).send('Application name is required.');
+	}
+};
+/**
+ * @api {put} /applications/:name/groups  updateGroup
+ * @apiDescription Update a group
+ * @apiName updateGroup
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       name:"admins", 
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *     }]
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Error updating group."
+ *     }
+ *
+ *
+ */
+exports.updateGroup = function(req, res, next){
+	logger.log({description: "Update application's group called.", appName: req.params.name, body: req.body, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+	if(req.params.name && req.body){ //Get data for a specific application
+		findApplication(req.params.name).then(function (foundApp){
+			foundApp.updateGroup(req.body.password).then(function (updatedGroup){
+				logger.info({description: 'Application group updated successfully.', updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+				res.send(updatedGroup);
+			}, function (err){
+				//TODO: Handle wrong password
+				logger.error({description: 'Error updating application group.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+				res.status(400).send("Error updating application's group.");
+			});
+		}, function (err){
+			logger.error({description: 'Error finding application.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+			res.status(400).send('Error finding application.');
+		});
+	} else {
+		logger.log({description: 'Application name is required to update group.', func: 'updateGroup', obj: 'ApplicationsCtrl'});
+		res.status(400).send('Application name is required to update application group.');
+	}
+};
+/**
+ * @api {put} /applications/:name/groups  deleteGroup
+ * @apiDescription Update a group
+ * @apiName deleteGroup
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       username:"hackerguy1", 
+ *       email:"test@test.com", 
+ *       name:"John Doe"
+ *     }
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Account already exists."
+ *     }
+ *
+ *
+ */
+exports.deleteGroup = function(req, res, next){
+	console.log('App add group request with app name: ' + req.params.name + ' with body:', req.body);
+	if(req.params.name && req.body){ //Get data for a specific application
+		findApplication(req.params.name).then(function (foundApp){
+			foundApp.deleteGroup(req.body.password).then(function (){
+				logger.info({description: 'Group deleted successfully.', func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+				//TODO: Return something other than this message
+				res.send('Group deleted successfully.');
+			}, function (err){
+				//TODO: Handle wrong password
+				logger.error({description: 'Error deleting group.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+				res.status(400).send('Error deleting group.');
+			});
+		}, function (err){
+			logger.error({description: 'Error finding application.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+			res.status(400).send('Error finding application.');
+		});
+	} else {
+		logger.log({description: 'Application name is required to delete application group.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+		res.status(400).send('Application name is required to delete application group.');
+	}
+};
+/**
+ * @api {get} /applications/:appName/directories/:groupName Directory/Directories
+ * @apiDescription Get an applications directory/directories
+ * @apiName directories
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       name:"admins", 
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *     }]
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Group does not exist."
+ *     }
+ *
+ *
+ */
+exports.directories = function(req, res, next){
+	if(req.params.name){ //Get data for a specific application
+		logger.log({description: 'App get application directory/directories request called.', appName: req.params.name, body: req.body, func: 'directories', obj: 'ApplicationsCtrl'});
+		findApplication(req.params.name).then(function (foundApp){
+			if(!req.params.directoryName){
+				logger.info({description: "Application's directories found.", foundApp: foundApp, func: 'directories', obj: 'ApplicationsCtrl'});
+				res.send(foundApp.directories);
+			} else {
+				var directory = _.findWhere(foundApp.directories, {name: req.params.directoryName});
+				logger.info({description: "Application's directory found.", directory: directory, foundApp: foundApp, func: 'directories', obj: 'ApplicationsCtrl'});
+				res.send(directory);
+			}
+		}, function (err){
+			logger.error({description: 'Error finding application.', error: err, func: 'directories', obj: 'ApplicationsCtrl'});
+			res.status(400).send('Error finding application.');
+		});
+	} else {
+		logger.log({description: 'Application name is required to get application.', error: err, func: 'directories', obj: 'ApplicationsCtrl'});
+		res.status(400).send('Application name is required.');
+	}
+};
+/**
+ * @api {post} /applications/:name/directories  addGroup
+ * @apiDescription Add group
+ * @apiName addGroup
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       name:"admins", 
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *     }]
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Group already exists"
+ *     }
+ *
+ *
+ */
+exports.addDirectory = function(req, res, next){
+	logger.log({description: 'Add directory to application called.', appName: req.params.name, body: req.body, func: 'addDirectory', obj: 'ApplicationsCtrl'});
+	if(req.params.name && req.body){ //Get data for a specific application
+		findApplication(req.params.name).then(function (foundApp){
+			foundApp.addGroup(req.body.password).then(function (newGroup){
+				logger.info({description: 'Directory added to application successfully.', newDirectory: newDirectory, func: 'addDirectory', obj: 'ApplicationsCtrl'});
+				res.send(newGroup);
+			}, function (err){
+				//TODO: Handle wrong password
+				logger.error({description: 'Error adding directory to application.', error: err, func: 'addDirectory', obj: 'ApplicationsCtrl'});
+				res.status(400).send('Error adding directory to application.');
+			});
+		}, function (err){
+			logger.error({description: 'Error finding application.', error: err, func: 'addDirectory', obj: 'ApplicationsCtrl'});
+			//TODO: Handle other errors
+			res.status(400).send('Error finding application.');
+		});
+	} else {
+		logger.log({description: 'Application name is requred to add directory.', body: req.body, func: 'addDirectory', obj: 'ApplicationsCtrl'});
+		res.status(400).send('Application name is required.');
+	}
+};
+/**
+ * @api {put} /applications/:name/directories  updateDirectory
+ * @apiDescription Update a directory
+ * @apiName updateDirectory
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *       name:"admins", 
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *     }]
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Error updating group."
+ *     }
+ *
+ *
+ */
+exports.updateDirectory = function(req, res, next){
+	if(req.params.name && req.body){ //Get data for a specific application
+		logger.log({description: "Update application's directory called.", appName: req.params.name, body: req.body, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
+		findApplication(req.params.name).then(function (foundApp){
+			foundApp.updateDirectory(req.body.password).then(function (updatedDirectory){
+				logger.info({description: 'Application directory updated successfully.', updatedDirectory: updatedDirectory, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
+				res.send(updatedDirectory);
+			}, function (err){
+				//TODO: Handle wrong password
+				logger.error({description: 'Error updating application directory.', error: err, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
+				res.status(400).send("Error updating application's directory.");
+			});
+		}, function (err){
+			logger.error({description: 'Error finding application.', error: err, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
+			res.status(400).send('Error finding application.');
+		});
+	} else {
+		logger.log({description: 'Application name is required to update directory.', func: 'updateDirectory', obj: 'ApplicationsCtrl'});
+		res.status(400).send('Application name is required to update application directory.');
+	}
+};
+/**
+ * @api {put} /applications/:name/directories  deleteGroup
+ * @apiDescription Update a group
+ * @apiName deleteGroup
+ * @apiGroup Application
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       username:"hackerguy1", 
+ *       email:"test@test.com", 
+ *       name:"John Doe"
+ *     }
+ * @apiErrorExample  Error-Response (Exists):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "message":"Account already exists."
+ *     }
+ *
+ *
+ */
+exports.deleteDirectory = function(req, res, next){
+	if(req.params.name && req.body){ //Get data for a specific application
+		logger.info({description: 'Application directory delete requested.', appName: req.params.name, body: req.body, func: 'deleteDirectory', obj: 'ApplicationsCtrl'});
+		findApplication(req.params.name).then(function (foundApp){
+			foundApp.deleteGroup(req.body.password).then(function (){
+				logger.info({description: 'Directory deleted successfully.', func: 'deleteDirectory', obj: 'ApplicationsCtrl'});
+				//TODO: Return something other than this message
+				res.send('Directory deleted successfully.');
+			}, function (err){
+				//TODO: Handle wrong password
+				logger.error({description: 'Error deleting group.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+				res.status(400).send('Error deleting group.');
+			});
+		}, function (err){
+			logger.error({description: 'Error finding application.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+			res.status(400).send('Error finding application.');
+		});
+	} else {
+		logger.log({description: 'Application name is required to delete application group.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+		res.status(400).send('Application name is required to delete application group.');
+	}
+};
+// Utility functions
+//Wrap finding application in a promise that handles errors
+//TODO: Allow choosing populate settings
+function findApplication(appName){
+	var d = q.defer();
+	if(!appName){
+		console.error('Application name is required to find application.');
+		d.reject({message: 'Application name required to find application.'});
+	} else {
+		var query = Application.findOne({name:appName})
+		.populate({path:'owner', select:'username name title email'})
+		.populate({path:'groups', select:'name accounts'})
+		.populate({path:'directories', select:'name accounts groups'})
+		query.exec(function (err, foundApp){
+			if(err) {
+				console.error('Error finding application:', err);
+				d.reject({message: 'Error finding application.'});
+			} else if(!foundApp){
+				console.error('Application not found');
+				d.reject({message: 'Application not found'});
+			} else {
+				console.log('Application found:', foundApp);
+				d.resolve(foundApp);
+			}
+		});
+	}
+	return d.promise;
+}

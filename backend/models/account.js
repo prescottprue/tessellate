@@ -1,18 +1,18 @@
-var db = require('./../utils/db');
-var mongoose = require('mongoose');
-var _ = require('underscore');
-var Session = require('./session').Session;
-var Group = require('./group').Group;
+//Internal Config/Utils/Classes
+var conf  = require('../config/default').config,
+logger = require('../utils/logger'),
+db = require('./../utils/db'),
+Session = require('./session').Session,
+Group = require('./group').Group;
 
-var q = require('q');
-var jwt = require('jsonwebtoken');
-var bcrypt = require('bcrypt');
-var config = require('../config/default').config;
+//External Libs
+var mongoose = require('mongoose'),
+_ = require('lodash'),
+q = require('q'),
+jwt = require('jsonwebtoken'),
+bcrypt = require('bcrypt');
 
-//Schema Object
-//collection name
-//model name
-
+//Account Schema Object
 var AccountSchema = new mongoose.Schema(
 	{
 		username:{type:String, index:true, unique:true},
@@ -202,6 +202,7 @@ AccountSchema.methods = {
 	},
 	createWithPass:function(password){
 		//Save new account with password
+		//TODO: Add to default directory if none specified
 		var d = q.defer();
 		var self = this;
 		var query = this.model('Account').findOne({username:self.username});
@@ -216,12 +217,12 @@ AccountSchema.methods = {
 			}
 			self.hashPassword(password).then(function (hashedPass){
 				self.password = hashedPass;
-				self.saveNew().then(function(newAccount){
+				self.saveNew().then(function (newAccount){
 					d.resolve(newAccount);
-				}, function(err){
+				}, function (err){
 					d.reject(err);
 				});
-			}, function(err){
+			}, function (err){
 				d.reject(err);
 			});
 		});

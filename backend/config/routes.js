@@ -110,6 +110,11 @@ module.exports =  {
 			controller:appCtrls.update
 		},
 		{
+			type:'DELETE',
+			endpoint: '/apps/:name',
+			controller:appCtrls['delete']
+		},
+		{
 			type:'PUT',
 			endpoint: '/apps/:name/storage',
 			controller:appCtrls.addStorage
@@ -135,9 +140,54 @@ module.exports =  {
 			controller: appCtrls.signup
 		},
 		{
+			type:'GET',
+			endpoint: '/apps/:name/groups',
+			controller:appCtrls.groups
+		},
+		{
+			type:'GET',
+			endpoint: '/apps/:name/groups/:groupName',
+			controller:appCtrls.groups
+		},
+		{
+			type:'POST',
+			endpoint: '/apps/:name/groups',
+			controller:appCtrls.addGroup
+		},
+		{
+			type:'PUT',
+			endpoint: '/apps/:name/groups/:groupName',
+			controller:appCtrls.updateGroup
+		},
+		{
 			type:'DELETE',
-			endpoint: '/apps/:name',
-			controller:appCtrls['delete']
+			endpoint: '/apps/:name/groups/:groupName',
+			controller:appCtrls.deleteGroup
+		},
+		{
+			type:'GET',
+			endpoint: '/apps/:name/directories',
+			controller:appCtrls.directories
+		},
+		{
+			type:'GET',
+			endpoint: '/apps/:name/directories/:directoryName',
+			controller:appCtrls.directories
+		},
+		{
+			type:'POST',
+			endpoint: '/apps/:name/directories',
+			controller:appCtrls.addDirectory
+		},
+		{
+			type:'PUT',
+			endpoint: '/apps/:name/directories/:directoryName',
+			controller:appCtrls.updateDirectory
+		},
+		{
+			type:'DELETE',
+			endpoint: '/apps/:name/directories/:directoryName',
+			controller:appCtrls.deleteDirectory
 		}
 	],
 	templates:[

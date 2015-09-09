@@ -12,7 +12,7 @@ module.exports = function(grunt){
 		},
 		watch:{
 			server:{
-				files:['Gruntfile.js', 'config/**', serverFolder + 'lib/**', serverFolder + 'controllers/**'],
+				files:['Gruntfile.js', serverFolder + 'config/**', serverFolder + 'lib/**', serverFolder + 'controllers/**'],
 				tasks:['nodemon']
 			},
 			docs:{
@@ -23,7 +23,7 @@ module.exports = function(grunt){
 		nodemon:{
 			local:{
 				script: 'server.js',
-				ignore:['node_modules/**', '.elasticbeanstalk'],
+				ignore:['node_modules/**', '.elasticbeanstalk', 'public/bower/**'],
 				options: {
           nodeArgs: ['--debug'],
 	        env:{
