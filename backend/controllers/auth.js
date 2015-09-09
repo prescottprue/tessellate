@@ -4,7 +4,7 @@
 var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('underscore');
-
+var logger = require('../utils/logger');
 var Account = require('../models/account').Account;
 var Session = require('../models/session').Session;
 
@@ -115,6 +115,7 @@ exports.login = function(req, res, next){
 			}
 			currentAccount.login(req.body.password).then(function(token){
 				// console.log('[AuthCtrl.login] Login Successful. Token:', token);
+				
 				res.send({token:token, account:currentAccount.strip()});
 			}, function(err){
 				//TODO: Handle wrong password

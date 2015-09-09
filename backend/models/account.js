@@ -66,11 +66,13 @@ AccountSchema.virtual('id')
 AccountSchema.methods = {
 	//Remove values that should not be sent
 	strip: function(){
-		return _.omit(this.toJSON(), ["password", "__v", "_id", '$$hashKey']);
+		var strippedAccount = _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
+		logger.log({description: 'Strip called.', account: this, strippedAccount: strippedAccount, func: 'strip', obj: 'Account'});
+		return _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
 	},
 	tokenData: function(){
 		var data = _.pick(this.toJSON(), ["username", "groups", "sessionId", "groupNames"]);
-		console.log('[Account.tokenData()] Token data selected:', data);
+		logger.log({description: 'Token data selected.', tokenData: data, func: 'tokenData', obj: 'Account'});
 		data.accountId = this.toJSON().id;
 		return data;
 	},
@@ -79,18 +81,22 @@ AccountSchema.methods = {
 		var d = q.defer();
 		var self = this;
 		//Check password
-		console.log('login called with:', passwordAttempt);
+		logger.log({description: 'Login called.', attempt: passwordAttempt, func: 'login', obj: 'Account'});
 		self.comparePassword(passwordAttempt).then(function(){
+			logger.log({description: 'Provided password matches.', func: 'login', obj: 'Account'});
 			//Start new session
-			self.startSession().then(function(sessionInfo){
+			self.startSession().then(function (sessionInfo){
+				logger.info({description: 'Session started successfully.', func: 'login', obj: 'Account'});
 				//Create Token
 				self.sessionId = sessionInfo._id;
 				var token = self.generateToken(sessionInfo);
 				d.resolve(token);
-			}, function(err){
+			}, function (err){
+				logger.error({description: 'Error logging in.', func: 'login', obj: 'Account'});
 				d.reject(err);
 			});
-		}, function(err){
+		}, function (err){
+			logger.error({description: 'Error comparing password.', func: 'login', obj: 'Account'});
 			d.reject(err);
 		});
 		return d.promise;
@@ -99,11 +105,13 @@ AccountSchema.methods = {
 		var d = q.defer();
 		//TODO: Invalidate token?
 		//End session
+		logger.log({description: 'Logout called.', func: 'logout', obj: 'Account'});
 		this.endSession().then(function(){
-			d.resolve();
+			logger.log({description: 'Logout successful.', func: 'logout', obj: 'Account'});
+			d.resolve({message: 'Logout successful.'});
 		}, function (err){
-			console.error('[Account.logout()] Error ending session:', err);
-			d.resolve();
+			logger.error({description: 'Error ending session.', error: err, func: 'logout', obj: 'Account'});
+			d.resolve({message: 'Logout successful.'});
 			// d.reject(err);
 		});
 		return d.promise;
@@ -111,19 +119,28 @@ AccountSchema.methods = {
 	comparePassword: function(passwordAttempt){
 		var self = this;
 		var d = q.defer();
-		bcrypt.compare(passwordAttempt, self.password, function(err, passwordsMatch){
-			if(err){d.reject(err);}
-			if(!passwordsMatch){
-				d.reject(new Error('Invalid authentication credentials'));
+		logger.log({description: 'Compare password called.', func: 'comparePassword', obj: 'Account'});
+		bcrypt.compare(passwordAttempt, self.password, function (err, passwordsMatch){
+			if(err){
+				logger.error({description: 'Error comparing password.', func: 'comparePassword', obj: 'Account'});
+				d.reject(err);
+			} else if(!passwordsMatch){
+				logger.log({description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'});
+				d.reject({message:'Invalid authentication credentials'}));
+			} else {
+				logger.log({description: 'Passwords match.', func: 'comparePassword', obj: 'Account'});
+				d.resolve(true);
 			}
-			d.resolve(true);
 		});
 		return d.promise;
 	},
 	generateToken: function(session){
 		//Encode a JWT with account info
+		logger.log({description: 'Generate token called.', func: 'generateToken', obj: 'Account'});
 		var tokenData = this.tokenData();
-		return jwt.sign(tokenData, config.jwtSecret);
+		var token = jwt.sign(tokenData, conf.jwtSecret);
+		logger.log({description: 'Token generated.', token: token, func: 'generateToken', obj: 'Account'});
+		return token;
 	},
 	//Wrap query in promise
 	saveNew:function(){
