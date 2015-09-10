@@ -787,16 +787,45 @@ exports.addGroup = function(req, res, next){
  */
 exports.updateGroup = function(req, res, next){
 	logger.log({description: "Update application's group called.", appName: req.params.name, body: req.body, func: 'updateGroup', obj: 'ApplicationsCtrl'});
-	if(req.params.name && req.body){ //Get data for a specific application
+	if(req.params.name){ //Get data for a specific application
 		findApplication(req.params.name).then(function (foundApp){
-			foundApp.updateGroup(req.body.password).then(function (updatedGroup){
-				logger.info({description: 'Application group updated successfully.', updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ApplicationsCtrl'});
-				res.send(updatedGroup);
-			}, function (err){
-				//TODO: Handle wrong password
-				logger.error({description: 'Error updating application group.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
-				res.status(400).send("Error updating application's group.");
-			});
+			//Update is called with null or empty value
+			logger.log({description: 'Application found.', foundApp: foundApp, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+			if(!_.keys(req.body) || _.keys(req.body).length < 1 || req.body == {} || req.body == null || !req.body){
+				logger.log({description: 'Update group with null, will be handled as delete.', func: 'updateGroup', obj: 'ApplicationsCtrl'});
+				//Delete group
+				foundApp.deleteGroup({name: req.params.groupName}).then(function (updatedGroup){
+					logger.info({description: 'Application group deleted successfully.', updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+					res.send(updatedGroup);
+				}, function (err){
+					//TODO: Handle wrong password
+					logger.error({description: 'Error deleting application group.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+					if(err && err.status && err.status == 'NOT_FOUND'){
+						res.status(400).send(err.message || 'Error deleting group.');
+					} else {
+						res.status(500).send('Error deleting group.');
+					}
+				});
+			} else {
+				logger.log({description: 'Provided data is valid. Updating application group.', foundApp: foundApp, updateData: req.body, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+				var updateData = _.extend({}, req.body);
+				updateData.name = req.params.groupName;
+				if(_.has(updateData, 'accounts')){
+					//TODO: Compare to foundApps current accounts
+					//TODO: Handle account usernames array
+					
+				}
+				//Update group
+				foundApp.updateGroup(updateData).then(function (updatedGroup){
+					logger.info({description: 'Application group updated successfully.', updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+					res.send(updatedGroup);
+				}, function (err){
+					//TODO: Handle wrong password
+					logger.error({description: 'Error updating application group.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
+					res.status(400).send("Error updating application's group.");
+				});
+			}
+			
 		}, function (err){
 			logger.error({description: 'Error finding application.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
@@ -914,7 +943,7 @@ exports.addDirectory = function(req, res, next){
 	logger.log({description: 'Add directory to application called.', appName: req.params.name, body: req.body, func: 'addDirectory', obj: 'ApplicationsCtrl'});
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then(function (foundApp){
-			foundApp.addGroup(req.body.password).then(function (newGroup){
+			foundApp.addDirectory(req.body.password).then(function (newGroup){
 				logger.info({description: 'Directory added to application successfully.', newDirectory: newDirectory, func: 'addDirectory', obj: 'ApplicationsCtrl'});
 				res.send(newGroup);
 			}, function (err){
@@ -998,22 +1027,22 @@ exports.deleteDirectory = function(req, res, next){
 	if(req.params.name && req.body){ //Get data for a specific application
 		logger.info({description: 'Application directory delete requested.', appName: req.params.name, body: req.body, func: 'deleteDirectory', obj: 'ApplicationsCtrl'});
 		findApplication(req.params.name).then(function (foundApp){
-			foundApp.deleteGroup(req.body.password).then(function (){
+			foundApp.deleteDirectory(req.body.password).then(function (){
 				logger.info({description: 'Directory deleted successfully.', func: 'deleteDirectory', obj: 'ApplicationsCtrl'});
 				//TODO: Return something other than this message
 				res.send('Directory deleted successfully.');
 			}, function (err){
 				//TODO: Handle wrong password
-				logger.error({description: 'Error deleting group.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
-				res.status(400).send('Error deleting group.');
+				logger.error({description: 'Error deleting directory from application.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+				res.status(400).send('Error deleting directory from application.');
 			});
 		}, function (err){
 			logger.error({description: 'Error finding application.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
 		});
 	} else {
-		logger.log({description: 'Application name is required to delete application group.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
-		res.status(400).send('Application name is required to delete application group.');
+		logger.log({description: 'Application name is required to delete application directory.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
+		res.status(400).send('Application name is required to delete application directory.');
 	}
 };
 // Utility functions

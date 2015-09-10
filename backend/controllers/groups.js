@@ -1,8 +1,10 @@
 var Group = require('../models/group').Group;
 var mongoose = require('mongoose');
 var url = require('url');
-var _ = require('underscore');
+var _ = require('lodash');
 var mp = require('../utils/mongoPromise');
+var logger = require('../utils/logger');
+var q = require('q');
 
 /**
  * @description Group controller functions
@@ -73,17 +75,34 @@ exports.add = function(req, res, next){
  * @params {String} title - Title of Group
  */
 exports.update = function(req, res, next){
-	Group.update({_id:req.id}, req.body, {upsert:true}, function (err, numberAffected, result) {
-		if(err) {
-			console.error('[GroupCtrl.update()] Error updating group:', err);
-			return res.status(500).send('Error updating group.');
-		}
-		if(!result){
-			console.error('[GroupCtrl.update()] Group not updated.');
-			return res.status(500).send('Group could not be updated.');
-		}
-		res.json(result);
-	});
+	logger.log({description: 'Update called.', body: req.body, func: 'update', obj: 'GroupsCtrl'});
+	if(!req.body || JSON.stringify(req.body) == "{}"){
+		logger.log({description: 'Body is invalid/null. Deleting group.', func: 'update', obj: 'GroupsCtrl'});
+		deleteGroup(req.params).then(function (result){
+			logger.info({description: 'Group deleted successfully.', result: result, func: 'update', obj: 'GroupsCtrl'});
+			res.send(result);
+		}, function (err){
+			logger.error({description: 'Error deleting group.', error: err, func: 'update', obj: 'GroupsCtrl'});
+			if(err && err.status && err.status == 'NOT_FOUND'){
+				res.status(400).send(err.message || 'Error deleting group.');
+			} else {
+				res.status(500).send('Error deleting group.');
+			}
+		});
+	} else {
+		Group.update({_id:req.id}, req.body, {upsert:true}, function (err, numberAffected, result) {
+			if(err) {
+				console.error('[GroupCtrl.update()] Error updating group:', err);
+				return res.status(500).send('Error updating group.');
+			} else if(!result){
+				console.error('[GroupCtrl.update()] Group not updated.');
+				return res.status(500).send('Group could not be updated.');
+			} else {
+				res.send(result);
+			}
+		});
+	}
+
 };
 /** Delete Ctrl
  * @description Delete a Group
@@ -91,17 +110,38 @@ exports.update = function(req, res, next){
  */
 exports.delete = function(req, res, next){
 	var urlParams = url.parse(req.url, true).query;
-	var query = Group.findOneAndRemove({'_id':req.params.id}); // find and delete using id field
-	query.exec(function (err, result){
-		if(err) {
-			console.error('[GroupCtrl.delete()] Error deleting group:', err);
-			return res.status(500).send('Error deleting group.');
-		}
-		if(!result){
-			console.error('[GroupCtrl.delete()] Group not deleted.');
-			return res.status(500).send('Group could not be deleted.');
-		}
-		res.json(result);
+	deleteGroup(req.params).then(function (result){
+		logger.log({description: 'Group deleted successfully', func: 'delete', obj: 'GroupsCtrl'});
+		res.send(result);
+	}, function (err){
+		logger.error({description: 'Error deleting group.', error: err, func: 'delete', obj: 'GroupsCtrl'});
+		res.status(500).send(err.message || 'Error deleting group.');
 	});
 };
-
+function deleteGroup(params){
+	var d = q.defer();
+	logger.log({description: 'Delete group called.', params: params, func: 'deleteGroup', file: 'GroupsCtrl'});
+	var findObj = {};
+	if(_.has(params, 'id')){
+		findObj.id = params.id;
+	} else if(_.has(params, 'name')){
+		findObj.name = params.name;
+	} else {
+		findObj = params;
+	}
+	logger.log({description: 'Delete group find object created.', findObj: findObj, func: 'deleteGroup', file: 'GroupsCtrl'});
+	var query = Group.findOneAndRemove(findObj); // find and delete using id field
+	query.exec(function (err, result){
+		if(err) {
+			logger.error({description: 'Error deleting group.', error: err, func: 'deleteGroup', file: 'GroupsCtrl'});
+			d.reject(err);
+		} else if(!result){
+			logger.error({description: 'Group not found.', func: 'deleteGroup', file: 'GroupsCtrl'});
+			d.reject({message: 'Group not found.', status: 'NOT_FOUND'});
+		} else {
+			logger.info({description: 'Group deleted successfully.', result: result, func: 'deleteGroup', file: 'GroupsCtrl'});
+			d.resolve(result);
+		}
+	});
+	return d.promise;
+}

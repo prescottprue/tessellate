@@ -448,20 +448,41 @@ ApplicationSchema.methods = {
 		// 	console.error('This group already exists application');
 		// 	return;
 		// }
+		var findObj = {application: self._id};
 		logger.log({description:'Add group to Application called.', func:'addGroup', obj: 'Application'});
-		var self = this;
-		var query = this.model('Group').findOne({application: self._id, name: groupData.name});
 		var d = q.defer();
+		var self = this;
+		if(_.isString(groupData)){
+			//Data is a string (name)
+			findObj.name = groupData;
+		} else if(_.isObject(groupData) && _.has(groupData, 'name')){
+			//Data is an object with a name
+			findObj.name =  groupData.name
+		} else {
+			logger.error({description:'Incorrectly formatted group data.', groupData: groupData, func:'addGroup', obj: 'Application'});
+			return d.reject({message: 'Group could not be added: Incorrectly formatted Group data.'});
+		}
+		var query = this.model('Group').findOne(findObj);
+		logger.log({description:'Find object constructed.', find: findObj, func:'addGroup', obj: 'Application'});
 		query.exec(function (err, group){
 			if(err){
 				logger.error({description:'Error adding group to Application.', error: err, func:'addGroup', obj: 'Application'});
 				d.reject(err);
 			} else if(!group){
 				logger.error({description:'Unable to add Group to Application.', func:'addGroup', obj: 'Application'});
+				//Group does not already exist, create it then add
 				d.reject({message: 'Unable to add Group to Application.'});
 			} else {
-				logger.info({description:'Group added to application successfully.', group: group, func:'addGroup', obj: 'Application'});
-				d.resolve(group);
+				//Group already exists, add it to applicaiton
+				logger.log({description:'Group already exists. Adding to application.', group: group, func:'addGroup', obj: 'Application'});
+				self.groups.push(group._id);
+				self.saveNew().then(function (savedApp){
+					logger.info({description:'Group successfully added to application.', group: group, savedApp: savedApp, func:'addGroup', obj: 'Application'});
+					d.resolve(group);
+				}, function (err){
+					logger.error({description:'Error saving Group to application.', error: err, group: group, func:'addGroup', obj: 'Application'});
+					d.reject(err);
+				});
 			}
 		});
 		return d.promise;
@@ -488,22 +509,46 @@ ApplicationSchema.methods = {
 	},
 	//Delete group from application
 	deleteGroup:function(groupData){
-		logger.log({description:'Delete group called.', groupData: groupData, func:'deleteGroup', obj: 'Application'});
+		logger.log({description:'Delete group called.', groupData: groupData, app: this, func:'deleteGroup', obj: 'Application'});
 		var self = this;
-		var query = this.model('Group').findOneAndRemove({application: self._id, name: groupData.name});
 		var d = q.defer();
-		query.exec(function(err, group){
-			if(err){
-				logger.error({description:'', func:'deleteGroup', obj: 'Application'});
-				d.reject(err);
-			} else if(!group){
-				logger.error({description:'', func:'deleteGroup', obj: 'Application'});
-				d.reject({message: 'Unable delete group.'});
-			} else {
-				logger.info({description:'', func:'deleteGroup', obj: 'Application'});
-				d.resolve(group);
-			}
-		});
+		var groupInApp = _.findWhere(this.groups, {name: groupData.name});
+		//TODO: Check groups before to make sure that group by that name exists
+		if(!groupInApp){
+			logger.log({description:'Group with provided name does not exist within application.', groupData: groupData, app: this, func:'deleteGroup', obj: 'Application'});
+			d.reject({message: 'Group with that name does not exist within application.', status: 'NOT_FOUND'});
+		} else {
+			var query = this.model('Group').findOneAndRemove({name: groupData.name});
+			query.exec(function (err, group){
+				if(err){
+					logger.error({description:'Error deleting group.', func:'deleteGroup', obj: 'Application'});
+					d.reject(err);
+				} else if(!group){
+					logger.error({description:'Unable to find group to delete.', func:'deleteGroup', obj: 'Application'});
+					d.reject({message: 'Unable delete group.', status: 'NOT_FOUND'});
+				} else {
+					logger.info({description:'Group deleted successfully. Removing from application.', returnedData: group, func:'deleteGroup', obj: 'Application'});
+					//Remove group from application's groups
+					_.remove(self.groups, function(currentGroup){
+						//Handle currentGroups being list of IDs
+						if(_.isObject(currentGroup) && _.has(currentGroup, '_id') && currentGroup._id == group._id){
+							logger.info({description:'Removed group by object with id param.', returnedData: group, func:'deleteGroup', obj: 'Application'});
+							return true;
+						} else if(_.isString(currentGroup) && currentGroup == group._id) {
+							//String containing group id
+							logger.info({description:'Removed group by string id.', currentGroup: currentGroup, returnedData: group, func:'deleteGroup', obj: 'Application'});
+							return true;
+						} else {
+							logger.error({description:'Could not find group within application.', returnedData: group, func:'deleteGroup', obj: 'Application'});
+							return false;
+						}
+					});
+					//Resolve application's groups without group
+					d.resolve(self.groups);
+				}
+			});
+		}
+
 		return d.promise;
 	},	
 	//Upload file to bucket

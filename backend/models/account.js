@@ -126,7 +126,7 @@ AccountSchema.methods = {
 				d.reject(err);
 			} else if(!passwordsMatch){
 				logger.log({description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'});
-				d.reject({message:'Invalid authentication credentials'}));
+				d.reject({message:'Invalid authentication credentials'});
 			} else {
 				logger.log({description: 'Passwords match.', func: 'comparePassword', obj: 'Account'});
 				d.resolve(true);
