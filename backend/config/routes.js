@@ -163,7 +163,7 @@ module.exports =  {
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name/user/:username',
+			endpoint: '/apps/:name/account/:username',
 			controller:accountCtrls.update
 		},
 		{

@@ -2,7 +2,7 @@
   "name": "kyper-tessellate",
   "dependencies": {
     "angular": "~1.3.0",
-    "angular-material": "~0.10.1",
+    "angular-material": "~0.11.0",
     "angular-messages": "~1.4.1",
     "kyper-matter": "~0.0.7",
     "kyper-grout": "~0.0.4",

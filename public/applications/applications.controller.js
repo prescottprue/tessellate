@@ -3,11 +3,11 @@ angular.module('tessellate.applications')
 		$scope.data = {
 			loading:true,
 			error:null,
-			selectedUsers:[],
-			selectedUser:null
+			selectedAccounts:[],
+			selectedAccount:null
 		};
 		console.log('ApplicationListController');
-		$grout.apps.get().then(function (applicationsList){
+		$grout.Apps.get().then(function (applicationsList){
 			$log.log('applications list loaded:', applicationsList);
 			$scope.data.loading = false;
 			$scope.applications = applicationsList;
@@ -29,13 +29,13 @@ angular.module('tessellate.applications')
 						minLength:1,  //Hide search dropdown initially
 						loading:true,
 						error:null,
-						selectedUsers:[],
-						selectedUser:null
+						selectedAccounts:[],
+						selectedAccount:null
 					};
 					//Answer with newAppData
 					$scope.create = function(newAppData){
-						//Make collaborators array from selectedUsers ids
-						newAppData.collaborators = _.pluck(selectedUsers, 'id');
+						//Make collaborators array from selectedAccounts ids
+						newAppData.collaborators = _.pluck(selectedAccounts, 'id');
 						$mdDialog.answer(newAppData);
 					};
 					//Cancel dialog
@@ -44,11 +44,11 @@ angular.module('tessellate.applications')
 					};
 					//Search templates based on input
 					$scope.templateSearch = function(searchText){
-						return $grout.templates.search(searchText);
+						return $grout.Templates.search(searchText);
 					};
 					//Search users based on input
 					$scope.collabSearch = function(searchText){
-						return $grout.users.search(searchText);
+						return $grout.Accounts.search(searchText);
 					};
 				},
 	      templateUrl: 'applications/applications-new.html',
@@ -65,7 +65,7 @@ angular.module('tessellate.applications')
 		$scope.createApp = function(appData){
 			$scope.data.loading = true;
 			$log.log({description: 'Create app called.', appData: appData, func: 'createApp', obj: 'ApplicationsCtrl'});
-			$grout.apps.add(appData).then(function (newApp){
+			$grout.Apps.add(appData).then(function (newApp){
 				$scope.data.loading = false;
 				$log.log({description: 'App created successfully.', app: newApp, func: 'createApp', obj: 'ApplicationsCtrl'});
 				$state.go('app.settings', {name:newApp.name});
@@ -81,7 +81,7 @@ angular.module('tessellate.applications')
 			var application = $scope.applications[ind];
 			$scope.showConfirm(ev, {title:"Delete", description:"Are you sure you want to delete " + application.name + " ?"}).then(function(){
 				$log.log('calling delete with id:', application._id);
-				$grout.app(application.name).del().then(function(deletedApp){
+				$grout.App(application.name).del().then(function(deletedApp){
 					$log.log('application deleted successfully', deletedApp);
 					$scope.applications.splice(ind, 1);
 				}, function(err){

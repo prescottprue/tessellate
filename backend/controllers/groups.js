@@ -16,10 +16,12 @@ var q = require('q');
  */
 exports.get = function(req, res, next){
 	var isList = true;
-	var query = Group.find({});
+	var query = Group.find({}).populate({path:'accounts', select: 'name username email'});
 	if(req.params.name){ //Get data for a specific Group
 		console.log('Group request:', req.params.name);
-		query = Group.findOne({name:req.params.name}).populate({path:'accounts', select:'name title role'});
+		query = Group.findOne({name:req.params.name})
+		.populate({path:'directories', select:'name accounts groups'})
+		.populate({path:'accounts', select:'name username email'});
 		isList = false;
 	}
 	query.exec(function (err, result){

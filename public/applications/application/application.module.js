@@ -3,7 +3,7 @@ angular.module('tessellate.application', [
 	'tessellate.application.build',
 	'tessellate.application.manage',
 	
-	'tessellate.application.users',
+	'tessellate.application.accounts',
 	'tessellate.application.groups',
 	'tessellate.application.directories',
 	])

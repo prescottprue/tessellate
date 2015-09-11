@@ -7,7 +7,6 @@ angular.module('tessellate', [
     'tessellate.home', 
     'tessellate.applications',
     'tessellate.templates'
-
   ])
 .config(function ($httpProvider) {
   delete $httpProvider.defaults.headers.common['X-Requested-With'];

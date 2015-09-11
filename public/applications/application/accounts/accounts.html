@@ -13,11 +13,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng-repeat="user in users"  ui-sref="user({username:user.username})">
-          <td data-title="Username">{{user.username}}</td>
-          <td data-title="Name">{{user.username}}</td>
-          <td data-title="Email">{{user.email}}</td>
-          <td data-title="Groups">{{user.groups || "No Groups"}}</td>
+        <tr ng-repeat="account in accounts"  ui-sref="account({username:account.username})">
+          <td data-title="Username">{{account.username}}</td>
+          <td data-title="Name">{{account.name}}</td>
+          <td data-title="Email">{{account.email}}</td>
+          <td data-title="Groups">{{account.groups || "No Groups"}}</td>
           <td data-title="Delete" stop-event>      
             <md-button ng-click="delete($index)"
                aria-label="Delete"

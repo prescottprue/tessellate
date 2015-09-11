@@ -17,12 +17,10 @@
         </md-card>
       </md-grid-tile>
       <!-- New app Tile -->
-      <md-grid-tile class="new-app-tile" md-colspan="2" md-rowspan-sm="1" md-rowspan-md="2" md-rowspan-gt-md="3"  ng-click="startNew()">
-        <div layout="column" layout-align="center center">
-          <md-card-content class="new-app-tile-content">
+      <md-grid-tile class="new-app-tile" md-colspan="2" md-rowspan-sm="1" md-rowspan-md="2" md-rowspan-gt-md="3"  ng-click="startNew($event)" layout-fill layout-align="center center">
+          <md-card-content>
             <h4 class="title">Create New<br>Application</h4>
           </md-card-content>
-        </div>
       </md-grid-tile>
     </md-grid-list>
   </md-content>

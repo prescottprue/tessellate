@@ -8,8 +8,8 @@
       </md-button>
     </div>
   </md-toolbar>
-    <md-dialog-content>
-      <form layout-fill layout="row" layout-align="center center">
+  <md-dialog-content>
+    <form layout-fill layout="row" layout-align="center center">
       <div layout="column" layout-align="center center" flex="75">
         <div layout="column" layout-align="start start" layout-fill>
         <label class="search-label">Project Name</label>
@@ -39,18 +39,18 @@
         </div>
         <div layout="column" layout-align="start start" layout-fill>
           <label class="search-label">Collaborators</label>
-         <md-chips ng-model="appData.selectedUsers" md-autocomplete-snap md-require-match>
+         <md-chips ng-model="data.selectedAccounts" md-autocomplete-snap md-require-match>
             <md-autocomplete
-              md-selected-item="data.selectedUser"
+              md-selected-item="data.selectedAccount"
               md-search-text-change="searchUsers(data.collabQueryText)"
               md-search-text="data.collabQueryText"
-              md-selected-item-change="selectedUserChange(item)"
-              md-items="user in collabSearch(data.collabQueryText)"
-              md-item-text="user.name"
+              md-selected-item-change="selectedAccountChange(item)"
+              md-items="account in collabSearch(data.collabQueryText)"
+              md-item-text="account.name"
               md-min-length="0"
-              placeholder="Search Users" style="" layout-fill>
+              placeholder="Search Accounts" style="" layout-fill>
             <md-item-template>
-              <span md-highlight-text="data.collabQueryText" md-highlight-flags="^i">{{user.name}}</span>
+              <span md-highlight-text="data.collabQueryText" md-highlight-flags="^i">{{account.name}}</span>
             </md-item-template>
             <md-not-found>
               No matches found for "{{data.collabQueryText}}".
@@ -73,17 +73,15 @@
             </md-chip-template>
           </md-chips>
         </div>
-        <div  layout-align="start start" layout-fill>
-          <label class="search-label">Sharing</label>
-          <md-switch ng-disabled="true" aria-label="Disabled active switch" ng-model="appData.public" style="font-size:.7em;">
+        <div layout-align="start start" class="search-label" layout-fill layout-margin>
+          <label >Sharing</label>
+          <md-switch ng-disabled="true" aria-label="Disabled active switch" ng-model="appData.public">
             Private (coming soon)
           </md-switch> 
         </div>
       </div>
-</md-dialog>
-  </form>
-
-    </md-dialog-content>
+    </form>
+  </md-dialog-content>
   <div class="md-actions" layout="row">
     <span flex></span>
     <md-button ng-click="cancel()" class="md-warn">
@@ -93,3 +91,4 @@
       Create
     </md-button>
   </div>
+</md-dialog>

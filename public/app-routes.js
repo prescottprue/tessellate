@@ -55,7 +55,7 @@ angular.module('tessellate')
       resolve:{
         applications:function($grout, $q, $log){
           return $q(function(resolve, reject){
-            $grout.apps.get().then(function (applicationList){
+            $grout.Apps.get().then(function (applicationList){
               // $log.log('[app.resolve] Application data loaded:', applicationList);
               resolve(applicationList);
             }, function (err){
@@ -65,7 +65,7 @@ angular.module('tessellate')
         },
         application:function($grout, $q, $stateParams, $log){
           return $q(function(resolve, reject){
-            $grout.app($stateParams.name).get().then(function (applicationData){
+            $grout.App($stateParams.name).get().then(function (applicationData){
               $log.log('application Detail Ctrl: application data loaded:', applicationData);
               resolve(applicationData);
             }, function (err){
@@ -92,17 +92,17 @@ angular.module('tessellate')
       templateUrl:'applications/application/manage/manage.html',
       controller:'ManageCtrl'
     })
-    .state('app.users', {
-      url:'/users',
+    .state('app.accounts', {
+      url:'/accounts',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'applications/application/users/users.html',
-      controller:'UserCtrl'
+      templateUrl:'applications/application/accounts/accounts.html',
+      controller:'AccountsCtrl'
     })
-    .state('app.user', {
-      url:'/users/:username',
+    .state('app.account', {
+      url:'/accounts/:username',
       authorizedRoles:[USER_ROLES.admin, USER_ROLES.editor, USER_ROLES.user],
-      templateUrl:'applications/application/users/user.html',
-      controller:'UserCtrl'
+      templateUrl:'applications/application/accounts/account.html',
+      controller:'AccountCtrl'
     })
     .state('app.groups', {
       url:'/groups',

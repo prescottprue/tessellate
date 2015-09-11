@@ -1,5 +1,5 @@
-angular.module('tessellate.application.users')
-.controller('UserCtrl', ['$scope', '$stateParams', '$state', '$grout', 'application',function ($scope, $stateParams, $state, $grout, application){
+angular.module('tessellate.application.accounts')
+.controller('AccountCtrl', ['$log', '$scope', '$stateParams', '$state', '$grout', 'application', function ($log, $scope, $stateParams, $state, $grout, application){
 		$scope.data = {
 			loading:false,
 			error:null,
@@ -7,21 +7,21 @@ angular.module('tessellate.application.users')
 		};
 		if($stateParams.username){
 			$scope.data.loading = true;
-			$grout.user($stateParams.username).get()
-			.then(function (userData){
-				console.log('User Detail Ctrl: user data loaded:', userData);
-				$scope.user = userData;
+			$grout.Account($stateParams.username).get()
+			.then(function (accountData){
+				$log.log({description: 'Account data loaded into scope.', accountData: accountData});
+				$scope.account = accountData;
 				$scope.$apply();
 				$scope.data.loading = false;
 			}).catch(function (err){
-				console.error('User Detail Ctrl: Error loading user with username:' + $stateParams.username, err);
+				$log.error('User Detail Ctrl: Error loading account with username:' + $stateParams.username, err);
 				$scope.data.error = err;
 				$scope.data.loading = false;
 			});
 		} else {
-			console.error('User Detail Ctrl: Invalid user id state param');
+			$log.error('User Detail Ctrl: Invalid user id state param');
 			$scope.data.error = 'User Id is required to load user data';
-			$state.go('app.users', {name: application.name});
+			$state.go('app.accounts', {name: application.name});
 		}
 
 		// $scope.getRoles = function(){
@@ -32,11 +32,11 @@ angular.module('tessellate.application.users')
 		$scope.update = function(){
 			$scope.data.editing = false;
 			$scope.data.loading = true;
-			var userData = $scope.user;
-			$grout.user($stateParams.username).update(userData)
+			var accountData = $scope.account;
+			$grout.Account($stateParams.username).update(accountData)
 			.then(function (updatedUserData){
 				console.log('User Detail Ctrl: User data loaded:', updatedUserData);
-				// $scope.user = apiRes.data;
+				// $scope.account = apiRes.data;
 			}).catch(function (err){
 				console.error('Error loading users', err);
 				$scope.data.error = err;

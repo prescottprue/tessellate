@@ -25,6 +25,8 @@ var _ = require('underscore');
 var q = require('q');
 var logger = require('../utils/logger');
 var Application = require('../models/application').Application;
+var Group = require('../models/group').Group;
+
 
 /**
  * @api {get} /applications Get Application(s)
@@ -707,13 +709,36 @@ exports.groups = function(req, res, next){
 	logger.log({description: 'App get group(s) request called.', appName: req.params.name, body: req.body, func: 'groups'});
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then(function (foundApp){
+			//Check application's groups
 			if(!req.params.groupName){
 				logger.info({description: "Application's groups found.", foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
 				res.send(foundApp.groups);
 			} else {
 				var group = _.findWhere(foundApp.groups, {name: req.params.groupName});
-				logger.info({description: "Application's group found.", group: group, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
-				res.send(group);
+				if(group){
+					logger.info({description: "Application group found.", group: group, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+					res.send(group);
+				} else {
+					//Group has not been added to application
+					var query = Group.findOne({name: req.params.groupName, application: foundApp._id});
+					query.exec(function (err, groupWithoutApp){
+						if(err){
+							logger.error({description: 'Error finding group.', error: err, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+							res.status(500).send('Error finding group.');
+						} else if(!groupWithoutApp){
+							logger.error({description: 'Group not found.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+							res.status(400).send('Group not found.');
+						} else {
+							logger.log({description: 'Group found, but not within application. Adding to application.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+							foundApp.addGroup(groupWithoutApp).then(function (newGroup){
+								logger.info({description: 'Existing group added to applicaiton.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+								res.send(groupWithoutApp);
+							}, function(err){
+								res.status(500).send('Error adding existing group to application.');
+							});
+						}
+					});
+				}
 			}
 		}, function (err){
 			logger.error({description: 'Error finding application.', error: err, func: 'groups', obj: 'ApplicationsCtrl'});
@@ -745,19 +770,20 @@ exports.groups = function(req, res, next){
  *
  */
 exports.addGroup = function(req, res, next){
-	console.log('App add group request with app name: ' + req.params.name + ' with body:', req.body);
+	logger.log({description: 'App add group request.', name: req.params.name, body: req.body, func: 'addGroup', obj: 'ApplicationsCtrls'});
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then(function (foundApp){
-			foundApp.addGroup(req.body.password).then(function (newGroup){
-				console.log('[ApplicationCtrl.addGroup] Group added to application successfully.', newGroup);
+			logger.log({description: 'Application found. Adding group.', app: foundApp, func: 'addGroup', obj: 'ApplicationsCtrls'});
+			foundApp.addGroup(req.body).then(function (newGroup){
+				logger.info({description: 'Group added to applicaiton successfully.', newGroup: newGroup, func: 'addGroup', obj: 'ApplicationsCtrls'});
 				res.send(newGroup);
 			}, function (err){
 				//TODO: Handle wrong password
-				console.error('[ApplicationCtrl.addGroup] Error signing up:', err);
+				logger.error({description: 'Error adding group to application.', error: err, func: 'addGroup', obj: 'ApplicationsCtrls'});
 				res.status(400).send('Error adding group.');
 			});
 		}, function (err){
-			console.error('[ApplicationCtrl.addGroup] Error finding application:', err);
+			logger.error({description: 'Error find application.', error: err, func: 'addGroup', obj: 'ApplicationsCtrls'});
 			//TODO: Handle other errors
 			res.status(400).send('Error finding application.');
 		});
@@ -860,7 +886,7 @@ exports.deleteGroup = function(req, res, next){
 	console.log('App add group request with app name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then(function (foundApp){
-			foundApp.deleteGroup(req.body.password).then(function (){
+			foundApp.deleteGroup(req.body).then(function (){
 				logger.info({description: 'Group deleted successfully.', func: 'deleteGroup', obj: 'ApplicationsCtrl'});
 				//TODO: Return something other than this message
 				res.send('Group deleted successfully.');
@@ -943,7 +969,7 @@ exports.addDirectory = function(req, res, next){
 	logger.log({description: 'Add directory to application called.', appName: req.params.name, body: req.body, func: 'addDirectory', obj: 'ApplicationsCtrl'});
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then(function (foundApp){
-			foundApp.addDirectory(req.body.password).then(function (newGroup){
+			foundApp.addDirectory(req.body).then(function (newGroup){
 				logger.info({description: 'Directory added to application successfully.', newDirectory: newDirectory, func: 'addDirectory', obj: 'ApplicationsCtrl'});
 				res.send(newGroup);
 			}, function (err){
@@ -985,7 +1011,7 @@ exports.updateDirectory = function(req, res, next){
 	if(req.params.name && req.body){ //Get data for a specific application
 		logger.log({description: "Update application's directory called.", appName: req.params.name, body: req.body, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
 		findApplication(req.params.name).then(function (foundApp){
-			foundApp.updateDirectory(req.body.password).then(function (updatedDirectory){
+			foundApp.updateDirectory(req.body).then(function (updatedDirectory){
 				logger.info({description: 'Application directory updated successfully.', updatedDirectory: updatedDirectory, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
 				res.send(updatedDirectory);
 			}, function (err){
@@ -1055,7 +1081,7 @@ function findApplication(appName){
 		d.reject({message: 'Application name required to find application.'});
 	} else {
 		var query = Application.findOne({name:appName})
-		.populate({path:'owner', select:'username name title email'})
+		.populate({path:'owner', select:'username name email'})
 		.populate({path:'groups', select:'name accounts'})
 		.populate({path:'directories', select:'name accounts groups'})
 		query.exec(function (err, foundApp){

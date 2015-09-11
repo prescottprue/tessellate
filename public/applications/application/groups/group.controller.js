@@ -5,7 +5,7 @@ angular.module('tessellate.application.groups')
 		$log.log('GroupCtrl loaded group:', $scope.group);
 
 		//TODO: Load from server if not available
-		// $grout.group($stateParams.name).get().then(function (group){
+		// $grout.Group($stateParams.name).get().then(function (group){
 		// 	$scope.group = group;
 		// });
 }]);

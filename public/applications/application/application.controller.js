@@ -12,7 +12,7 @@ angular.module('tessellate.application')
 		$scope.application = application;
 		//TODO: Make owner select an input that searches instead of a dropdown
 		$scope.searchUsers = function(query){
-			return $grout.users.search(query).then(function(usersList){
+			return $grout.Accounts.search(query).then(function(usersList){
 				$scope.usersList = usersList;
 			});
 		};
@@ -20,7 +20,7 @@ angular.module('tessellate.application')
 			$scope.data.editing = false;
 			$scope.data.loading = true;
 			//TODO: Only compare against original to only send update
-			$grout.app($stateParams.name).update($scope.application)
+			$grout.App($stateParams.name).update($scope.application)
 			.then(function (appData){
 				$scope.application = appData;
 				$log.log({description:'Application updated successfully.', data:appData, func:'update', obj:'ApplicationCtrl'});

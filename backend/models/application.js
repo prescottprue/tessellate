@@ -2,8 +2,10 @@
 var conf  = require('../config/default').config,
 logger = require('../utils/logger'),
 db = require('../utils/db'),
-fileStorage = require('../utils/fileStorage'),
-Directory = require('./directory').Directory;
+fileStorage = require('../utils/fileStorage');
+var Directory = require('./directory');
+var Group = require('./group');
+var Account = require('./account');
 
 //External Libs
 var mongoose = require('mongoose'),
@@ -254,6 +256,7 @@ ApplicationSchema.methods = {
 			}
 			//Account is not in directories
 			logger.log({description: 'Account does not already exist in directories', func: 'signup', obj: 'Application'});
+			var Account = self.model('Account');
 			var account = new Account(_.omit(signupData, 'password'));
 			logger.log({description: 'New account object created.', account: account, func: 'signup', obj: 'Application'});
 			account.createWithPass(signupData.password).then(function (newAccount){
@@ -448,43 +451,77 @@ ApplicationSchema.methods = {
 		// 	console.error('This group already exists application');
 		// 	return;
 		// }
-		var findObj = {application: self._id};
+		var self = this;
+		//Add application id to group
+		groupData.application = this._id;
+		//Add applicaiton id to search
+		var findObj = {application: this._id};
 		logger.log({description:'Add group to Application called.', func:'addGroup', obj: 'Application'});
 		var d = q.defer();
-		var self = this;
 		if(_.isString(groupData)){
 			//Data is a string (name)
 			findObj.name = groupData;
-		} else if(_.isObject(groupData) && _.has(groupData, 'name')){
+		} else if(_.has(groupData, 'name')){
 			//Data is an object with a name
 			findObj.name =  groupData.name
 		} else {
 			logger.error({description:'Incorrectly formatted group data.', groupData: groupData, func:'addGroup', obj: 'Application'});
-			return d.reject({message: 'Group could not be added: Incorrectly formatted Group data.'});
+			d.reject({message: 'Group could not be added: Incorrectly formatted Group data.'});
 		}
-		var query = this.model('Group').findOne(findObj);
-		logger.log({description:'Find object constructed.', find: findObj, func:'addGroup', obj: 'Application'});
-		query.exec(function (err, group){
-			if(err){
-				logger.error({description:'Error adding group to Application.', error: err, func:'addGroup', obj: 'Application'});
+		//Do not search for group if a group object was passed
+		if(_.has(groupData, '_id') || groupData instanceof self.model('Group')){
+			logger.log({description:'Group instance was passed, adding it to application.', groupData: groupData, instance: groupData instanceof self.model('Group'), func:'addGroup', obj: 'Application'});
+			self.groups.push(groupData._id);
+			self.saveNew().then(function (savedApp){
+				logger.info({description:'Group successfully added to application.', func:'addGroup', obj: 'Application'});
+				d.resolve(groupData);
+			}, function (err){
+				logger.error({description:'Error saving new group to application.', error: err, func:'addGroup', obj: 'Application'});
 				d.reject(err);
-			} else if(!group){
-				logger.error({description:'Unable to add Group to Application.', func:'addGroup', obj: 'Application'});
-				//Group does not already exist, create it then add
-				d.reject({message: 'Unable to add Group to Application.'});
-			} else {
-				//Group already exists, add it to applicaiton
-				logger.log({description:'Group already exists. Adding to application.', group: group, func:'addGroup', obj: 'Application'});
-				self.groups.push(group._id);
-				self.saveNew().then(function (savedApp){
-					logger.info({description:'Group successfully added to application.', group: group, savedApp: savedApp, func:'addGroup', obj: 'Application'});
-					d.resolve(group);
-				}, function (err){
-					logger.error({description:'Error saving Group to application.', error: err, group: group, func:'addGroup', obj: 'Application'});
+			});
+		} else {
+			var query = this.model('Group').findOne(findObj);
+			logger.log({description:'Find object constructed.', find: findObj, func:'addGroup', obj: 'Application'});
+			query.exec(function (err, group){
+				if(err){
+					logger.error({description:'Error adding group to Application.', error: err, func:'addGroup', obj: 'Application'});
 					d.reject(err);
-				});
-			}
-		});
+				} else if(!group){
+					logger.info({description:'Group does not already exist.', func:'addGroup', obj: 'Application'});
+					//Group does not already exist, create it
+					var Group = self.model('Group');
+					var group = new Group(groupData);
+					group.saveNew().then(function (newGroup){
+						logger.info({description:'Group created successfully. Adding to application.', func:'addGroup', obj: 'Application'});
+						//Add group to application
+						self.groups.push(newGroup._id);
+						self.saveNew().then(function (savedApp){
+							logger.info({description:'Group successfully added to application.', func:'addGroup', obj: 'Application'});
+							d.resolve(newGroup);
+						}, function (err){
+							logger.error({description:'Error saving new group to application.', error: err, func:'addGroup', obj: 'Application'});
+							d.reject(err);
+						});
+					}, function (err){
+						logger.error({description:'Error creating group.', error: err, func:'addGroup', obj: 'Application'});
+						d.reject(err);
+					});
+				} else {
+					//TODO: Decide if this should happen?
+					//Group already exists, add it to applicaiton
+					logger.log({description:'Group already exists. Adding to application.', group: group, func:'addGroup', obj: 'Application'});
+					self.groups.push(group._id);
+					self.saveNew().then(function (savedApp){
+						logger.info({description:'Group successfully added to application.', group: group, savedApp: savedApp, func:'addGroup', obj: 'Application'});
+						d.resolve(group);
+					}, function (err){
+						logger.error({description:'Error saving Group to application.', error: err, group: group, func:'addGroup', obj: 'Application'});
+						d.reject(err);
+					});
+				}
+			});
+		}
+
 		return d.promise;
 	},
 	//Update group within application

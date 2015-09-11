@@ -32,9 +32,9 @@ module.exports = {
 		'/applications/application/build/build.module.js',
 		'/applications/application/build/build.controller.js',
 
-		'/applications/application/users/users.module.js',
-		'/applications/application/users/users.controller.js',
-		'/applications/application/users/user.controller.js',
+		'/applications/application/accounts/accounts.module.js',
+		'/applications/application/accounts/accounts.controller.js',
+		'/applications/application/accounts/account.controller.js',
 		
 		'/applications/application/groups/groups.module.js',
 		'/applications/application/groups/groups.controller.js',
