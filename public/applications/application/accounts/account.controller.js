@@ -1,5 +1,5 @@
 angular.module('tessellate.application.accounts')
-.controller('AccountCtrl', ['$log', '$scope', '$stateParams', '$state', '$grout', 'application', function ($log, $scope, $stateParams, $state, $grout, application){
+.controller('AccountCtrl', ['$log', '$scope', '$stateParams', '$state', '$grout', function ($log, $scope, $stateParams, $state, $grout){
 		$scope.data = {
 			loading:false,
 			error:null,
@@ -18,12 +18,7 @@ angular.module('tessellate.application.accounts')
 				$scope.data.error = err;
 				$scope.data.loading = false;
 			});
-		} else {
-			$log.error('User Detail Ctrl: Invalid user id state param');
-			$scope.data.error = 'User Id is required to load user data';
-			$state.go('app.accounts', {name: application.name});
 		}
-
 		// $scope.getRoles = function(){
 		// 	return rolesService.get().then(function(rolesList){
 		// 		$scope.rolesList = rolesList;

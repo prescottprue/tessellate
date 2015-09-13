@@ -29,7 +29,7 @@ The connection between these two parts is created when NodeJS renders the `views
 
 ### Docs
 
-Documentation pages, located in `./public/docs`, are automatically generated with a grunt task that uses [grunt-apidoc](). The placement within the public folder makes the main page for the backend REST docs available on the server by navigating to `/docs/index.html`.
+API Documentation pages, located in `./public/docs`, are automatically generated with a grunt task that uses [grunt-apidoc](). The placement within the public folder makes the main page for the backend REST docs available on the server by navigating to `/docs/index.html`.
 
 ### Routes
 
@@ -41,7 +41,7 @@ Controllers contain route functions such as `get()`, `update()`, and `delete()` 
 
 ### Models
 
-Models organize data and how it will be saved in the database as well as apply methods to objects like the `saveNew()` method on the `User` object.
+Models organize data and how it will be saved in the database as well as apply methods to objects like the `saveNew()` method on the `Account` model.
 
 ## Frontend
 
@@ -67,10 +67,11 @@ List and detail views/controllers for applications
 
 Login and Signup pages.
 
-## TODO
-* Change Password route
-<<<<<<< HEAD
-* App specific presense (login/signup)
-=======
-* App Name Middleware to handle app specific requests
->>>>>>> Initial commit. Code adapted from hypercube-server repo to setup application management service under the new name.
+## Project Information
+[API Docs](http://tessellate.kyper.io/docs)
+[Project Wiki](https://github.com/KyperTech/tessellate/wiki)
+
+[Pivotal Tracker](https://www.pivotaltracker.com/n/projects/1427432)
+
+## Thoughts
+* App Name Middleware to handle app specific requests instead of seperate routes?

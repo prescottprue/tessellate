@@ -20,7 +20,6 @@ angular.module('tessellate')
     });
     $scope.$watch('currentUser', function(newVal, oldVal){
       if(newVal !== oldVal){
-        console.warn('current user changed states', newVal, oldVal);
         if(!$scope.$$phase) {
           //$digest or $apply
           $scope.currentUser = newVal;

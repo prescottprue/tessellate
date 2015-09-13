@@ -33,6 +33,7 @@ var ApplicationSchema = new mongoose.Schema({
 		provider:{type:String},
 		appName:{type:String}
 	},
+	providers:[{name:String, clientId:String}],
 	groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
 	collaborators:[{type: mongoose.Schema.Types.ObjectId, ref:'Account'}],
 	directories:[{type: mongoose.Schema.Types.ObjectId, ref:'Directory'}],

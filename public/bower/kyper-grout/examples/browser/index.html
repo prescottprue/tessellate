@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <title>Grout Example</title>
+  <script src='../../dist/grout.bundle.js'></script>
+  <!-- Replace above script tag with this: -->
+  <!-- <script src='http://cdn.kyper.io/js/grout/0.0.4/grout.bundle.js'></script> -->
+  <script src='app.js'></script>
+
+</head>
+<body>
+  <div style="text-align:center;">
+    <h2>Grout Library Browser Example</h2>
+     <h3 class="status-label">Logged In: <span id="status">False</span></h3>
+      <button onclick="logout()" id="logout-btn">Logout</button>
+    <div>
+      <div>
+        <h3>Login</h3>
+        <div class="inputBoxes">
+          <input type="text" name="username" placeholder="username" id="login-username"><br>
+          <input type="password" name="password" placeholder="password" id="login-password"><br>
+        </div>
+        <button onclick="login()">Login</button>
+      </div>
+      <div>
+        <h3>Signup</h3>
+          <div class="inputBoxes">
+            <input type="text" name="username" placeholder="username" id="signup-username"><br>
+            <input type="text" name="name" placeholder="name" id="signup-name"><br>
+            <input type="text" name="email" placeholder="email" id="signup-email"><br>
+            <input type="password" name="password" placeholder="password" id="signup-password"><br>
+          </div>
+          <button onclick="signup()">Signup</button>
+      </div>
+      <div>
+        <h3>Search</h3>
+        <input type="text" name="search" placeholder="search" id="search"><br>
+        <button onclick="searchUsers()">Search Users</button>
+        <p>
+          <span id="search-output"></span>
+        </p>
+      </div>
+      <div>
+        <h3>App(s) Actions</h3>
+        <button onclick="getApps()">Get Apps</button>
+        <button onclick="getStructure()">Get Structure</button>
+        <p>
+          <span id="output"></span>
+        </p>
+      </div>
+      <div>
+        <h3>User(s) Actions</h3>
+        <button onclick="getUsers()">Get Users</button>
+        <button onclick="getUser()">Get Structure</button>
+        <p>
+          <span id="output"></span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
