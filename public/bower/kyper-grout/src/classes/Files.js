@@ -57,18 +57,21 @@ class Files {
 	del() {
 		//TODO: Delete a file from files list
 	}
-	get structure() {
-		logger.debug({description: 'Structure called.', func: 'getStructure', obj: 'Application'});
+	buildStructure() {
+		logger.debug({description: 'Build Structure called.', func: 'buildStructure', obj: 'Application'});
 		return this.get().then((filesArray) => {
 			const childStruct = childrenStructureFromArray(filesArray);
-			logger.log({description: 'Child struct from array.', childStructure: childStruct, func: 'getStructure', obj: 'Application'});
+			logger.log({description: 'Child struct from array.', childStructure: childStruct, func: 'buildStructure', obj: 'Application'});
 			return childStruct;
 		}, (err) => {
-			logger.error({description: 'Error getting application files.', error: err, func: 'getStructure', obj: 'Application'});
+			logger.error({description: 'Error getting application files.', error: err, func: 'buildStructure', obj: 'Application'});
 			return Promise.reject({message: 'Error getting files.', error: err});
 		});
 	}
-
+	//ALIAS FOR buildStructure
+	get structure() {
+		return this.buildStructure();
+	}
 }
 export default Files;
 //------------------ Utility Functions ------------------//

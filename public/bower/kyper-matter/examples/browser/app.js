@@ -1,4 +1,4 @@
-var matter = new Matter('tessellate', {localServer:true});
+var matter = new Matter('cloudbrain', {localServer:true});
 console.log('matter:', matter);
 //Set logged in status when dom is loaded
 document.addEventListener("DOMContentLoaded", function(event) { 
@@ -21,10 +21,13 @@ function setStatus() {
   }
 }
 
-function login(){
-  var username = document.getElementById('login-username').value;
-  var password = document.getElementById('login-password').value;
-  matter.login({username:username, password:password}).then(function(loginInfo){
+function login(loginData){
+  if(!loginData){
+    var loginData = {};
+    loginData.username = document.getElementById('login-username').value;
+    loginData.password = document.getElementById('login-password').value;
+  }
+  matter.login(loginData).then(function(loginInfo){
     console.log('successful login:', loginInfo);
     setStatus();
   }, function(err){
@@ -39,16 +42,19 @@ function logout(){
     console.error('logout() : Error logging out:', err);
   });   
 }
-function signup(){
-  var name = document.getElementById('signup-name').value;
-  var username = document.getElementById('signup-username').value;
-  var email = document.getElementById('signup-email').value;
-  var password = document.getElementById('signup-password').value;
-
-  matter.signup().then(function(){
+function signup(signupData){
+  if(!signupData){
+    var signupData = {};
+    emailSignupData.name = document.getElementById('signup-name').value;
+    emailSignupData.username = document.getElementById('signup-username').value;
+    emailSignupData.email = document.getElementById('signup-email').value;
+    emailSignupData.password = document.getElementById('signup-password').value;
+  }
+  matter.signup(signupData).then(function(){
     console.log('successful logout');
     setStatus();
   }, function(err){
-    console.error('logout() : Error logging out:', err);
-  });   
+    console.error('logout() : Error signing up:', err);
+  });
+ 
 }

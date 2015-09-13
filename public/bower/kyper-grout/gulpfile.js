@@ -14,6 +14,7 @@ const rollup = require('rollup');
 const browserify = require('browserify');
 const runSequence = require('run-sequence');
 const source = require('vinyl-source-stream');
+const awspublish = require('gulp-awspublish');
 
 // Gather the library data from `package.json`
 const manifest = require('./package.json');
@@ -21,6 +22,8 @@ const config = manifest.babelBoilerplateOptions;
 const mainFile = manifest.main;
 const destinationFolder = path.dirname(mainFile);
 const exportFileName = path.basename(mainFile, path.extname(mainFile));
+const conf = require('./config.json');
+
 // Remove the built files
 gulp.task('clean', function(cb) {
   del([destinationFolder], cb);
@@ -228,7 +231,38 @@ gulp.task('connect', function() {
     livereload: true
   });
 });
-
+gulp.task('upload', function() {
+  var s3Config = {
+    accessKeyId:process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY,
+    params:{
+      Bucket:conf.cdn.bucketName
+    }
+  };
+  var publisher = awspublish.create(s3Config);
+  return gulp.src('./' + conf.distFolder + '/**')
+    .pipe($.rename(function (path) {
+      path.dirname = conf.cdn.path + '/' + manifest.version + '/' + path.dirname;
+    }))
+    .pipe(publisher.publish())
+    .pipe(awspublish.reporter());
+});
+gulp.task('upload-latest', function() {
+  var s3Config = {
+    accessKeyId:process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY,
+    params:{
+      Bucket:conf.cdn.bucketName
+    }
+  };
+  var publisher = awspublish.create(s3Config);
+  return gulp.src('./' + conf.distFolder + '/**')
+    .pipe($.rename(function (path) {
+      path.dirname = conf.cdn.path + '/latest/' + path.dirname;
+    }))
+    .pipe(publisher.publish())
+    .pipe(awspublish.reporter());
+});
 // gulp.task('docs', function(){
 //   gulp.src(['src/*.js'])
 //   .pipe(jsdoc('./docs'))

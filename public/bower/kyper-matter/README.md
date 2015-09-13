@@ -72,6 +72,7 @@ matter.login({username:"test", password:"test"}).then(function(user){
     console.log('User logged into exampleApp:', user);
 });
 ```
+
 ## Docs
 
 ### [API Documentation](https://github.com/KyperTech/matter/wiki/API-Documentation)
@@ -80,6 +81,12 @@ matter.login({username:"test", password:"test"}).then(function(user){
 
 ## More Information
 For more details please visit the [Matter Wiki](https://github.com/KyperTech/matter/wiki).
+
+## Testing
+
+Tests are locaed in test folder and can be run via `gulp test` or `gulp coverage` commanges.
+
+`index.html` has been added as a bare bones test page similar to browser example (`/examples/browser/index.html).
 
 ## TODO
 * 3rd Party provider logins (keys set on tessellate)

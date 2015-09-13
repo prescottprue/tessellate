@@ -1,12 +1,11 @@
 import config from './config';
 import logger from './utils/logger';
+import dom from './utils/dom';
 import request from './utils/request';
 import token from './utils/token';
 import envStorage from './utils/envStorage';
 import _ from 'lodash';
-
-let user;
-let endpoints;
+import ProviderAuth from './utils/providerAuth';
 
 class Matter {
 	/* Constructor
@@ -39,8 +38,8 @@ class Matter {
 				logger.info({description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter'});
 			}
 		} else {
-			serverUrl = config.serverUrl + '/apps/' + this.name;
-			logger.info({description: 'Server url set.', url: serverUrl, func: 'endpoint', obj: 'Matter'});
+			serverUrl = serverUrl + '/apps/' + this.name;
+			logger.log({description: 'Server url set.', url: serverUrl, func: 'endpoint', obj: 'Matter'});
 		}
 		return serverUrl;
 	}
@@ -48,89 +47,122 @@ class Matter {
 	 *
 	 */
 	signup(signupData) {
-		return request.post(this.endpoint + '/signup', signupData)
-		.then((response) => {
-			logger.log({description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter'});
-			if (_.has(response, 'account')) {
-				return response.account;
-			} else {
-				logger.warn({description: 'Account was not contained in signup response.', signupData: signupData, response: response, func: 'signup', obj: 'Matter'});
-				return response;
-			}
-		})
-		['catch']((errRes) => {
-			logger.error({description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter'});
-			return Promise.reject(errRes);
-		});
+		if (_.isObject(signupData)) {
+			return request.post(this.endpoint + '/signup', signupData)
+			.then((response) => {
+				logger.log({description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter'});
+				if (_.has(response, 'account')) {
+					return response.account;
+				} else {
+					logger.warn({description: 'Account was not contained in signup response.', signupData: signupData, response: response, func: 'signup', obj: 'Matter'});
+					return response;
+				}
+			})
+			['catch']((errRes) => {
+				logger.error({description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter'});
+				return Promise.reject(errRes);
+			});
+		} else {
+			//Handle 3rd Party signups
+			let auth = new ProviderAuth({provider: signupData, app: this});
+			return auth.signup().then((res) => {
+				logger.info({description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter'});
+				return Promise.resolve(res);
+			});
+		}
+
 	}
 	/** Login
 	 *
 	 */
 	login(loginData) {
-		if (!loginData || !loginData.password || !loginData.username) {
+		if (!loginData) {
 			logger.error({description: 'Username/Email and Password are required to login', func: 'login', obj: 'Matter'});
-			return Promise.reject({message: 'Username/Email and Password are required to login'});
+			return Promise.reject({message: 'Login data is required to login.'});
 		}
-		return request.put(this.endpoint + '/login', loginData)
-		.then((response) => {
-			if (_.has(response, 'data') && _.has(response.data, 'status') && response.data.status == 409) {
-				logger.warn({description: 'Account not found.', response: response, func: 'login', obj: 'Matter'});
-				return Promise.reject(response.data);
-			} else {
-				logger.log({description: 'Successful login.', response: response, func: 'login', obj: 'Matter'});
-				if (_.has(response, 'token')) {
-					this.token.string = response.token;
-				}
-				if (_.has(response, 'account')) {
-					this.storage.setItem('currentUser', response.account);
-				}
-				return response.account;
+		if (_.isObject(loginData)) {
+			if (!loginData.password || !loginData.username) {
+				return Promise.reject({message: 'Username/Email and Password are required to login'});
 			}
-		})['catch']((errRes) => {
-			logger.error({description: 'Error requesting login.', error: errRes, status: errRes.status,  func: 'login', obj: 'Matter'});
-			if (errRes.status == 409 || errRes.status == 400) {
-				errRes = errRes.response.text;
-			}
-			return Promise.reject(errRes);
-		});
+			//Username/Email Login
+			return request.put(this.endpoint + '/login', loginData)
+			.then((response) => {
+				if (_.has(response, 'data') && _.has(response.data, 'status') && response.data.status == 409) {
+					logger.warn({description: 'Account not found.', response: response, func: 'login', obj: 'Matter'});
+					return Promise.reject(response.data);
+				} else {
+					logger.log({description: 'Successful login.', response: response, func: 'login', obj: 'Matter'});
+					if (_.has(response, 'token')) {
+						this.token.string = response.token;
+					}
+					if (_.has(response, 'account')) {
+						this.storage.setItem(config.tokenUserDataName, response.account);
+					}
+					return response.account;
+				}
+			})['catch']((errRes) => {
+				logger.error({description: 'Error requesting login.', error: errRes, status: errRes.status,  func: 'login', obj: 'Matter'});
+				if (errRes.status == 409 || errRes.status == 400) {
+					errRes = errRes.response.text;
+				}
+				return Promise.reject(errRes);
+			});
+		} else {
+			//Provider login
+			let auth = new ProviderAuth({provider: loginData, app: this});
+			return auth.login().then((res) => {
+				logger.info({description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter'});
+				return Promise.resolve(res);
+			});
+		}
 	}
 	/** Logout
 	 */
 	logout() {
+		//TODO: Handle logging out of providers
 		return request.put(this.endpoint + '/logout').then((response) => {
 			logger.log({description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter'});
-			this.storage.removeItem('currentUser');
+			this.currentUser = null;
 			this.token.delete();
 			return response;
 		})['catch']((errRes) => {
 			logger.error({description: 'Error requesting log out: ', error: errRes, func: 'logout', obj: 'Matter'});
-			this.storage.removeItem('currentUser');
+			this.storage.removeItem(config.tokenUserDataName);
 			this.token.delete();
 			return Promise.reject(errRes);
 		});
 	}
 	getCurrentUser() {
-		if (this.storage.item('currentUser')) {
-			return Promise.resove(this.storage.item('currentUser'));
+		if (this.storage.item(config.tokenUserDataName)) {
+			return Promise.resove(this.storage.getItem(config.tokenUserDataName));
 		} else {
-			return request.get(this.endpoint + '/user').then((response) => {
-				//TODO: Save user information locally
-				logger.log({description: 'Current User Request responded.', responseData: response.data, func: 'currentUser', obj: 'Matter'});
-				this.currentUser = response.data;
-				return response.data;
-			})['catch']((errRes) => {
-				logger.error({description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter'});
-				return Promise.reject(errRes);
-			});
+			if (this.isLoggedIn) {
+				return request.get(this.endpoint + '/user').then((response) => {
+					//TODO: Save user information locally
+					logger.log({description: 'Current User Request responded.', responseData: response, func: 'currentUser', obj: 'Matter'});
+					this.currentUser = response;
+					return response;
+				})['catch']((errRes) => {
+					if (err.status == 401) {
+						logger.warn({description: 'Called for current user without token.', error: errRes, func: 'currentUser', obj: 'Matter'});
+						return Promise.resolve(null);
+					} else {
+						logger.error({description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter'});
+						return Promise.reject(errRes);
+					}
+				});
+			} else {
+				return Promise.resolve(null);
+			}
 		}
 	}
 	set currentUser(userData) {
-		logger.log({description: 'Current User Request responded.', user: userData, func: 'currentUser', obj: 'Matter'});
-		this.storage.setItem(userData);
+		logger.log({description: 'Current User set.', user: userData, func: 'currentUser', obj: 'Matter'});
+		this.storage.setItem(config.tokenUserDataName, userData);
 	}
 	get currentUser() {
-		if (this.storage.getItem('currentUser')) {
-			return this.storage.getItem('currentUser');
+		if (this.storage.getItem(config.tokenUserDataName)) {
+			return this.storage.getItem(config.tokenUserDataName);
 		} else {
 			return null;
 		}
@@ -164,7 +196,7 @@ class Matter {
 		return token;
 	}
 	get utils() {
-		return {logger: logger, request: request, storage: envStorage};
+		return {logger: logger, request: request, storage: envStorage, dom: dom};
 	}
 	get isLoggedIn() {
 		return this.token.string ? true : false;

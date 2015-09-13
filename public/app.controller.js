@@ -15,8 +15,6 @@ angular.module('tessellate')
     $grout.getCurrentUser().then(function(currentUser){
       $scope.currentUser = currentUser;
       $scope.$apply();
-      //If current user exists default to apps page
-      // $state.go('apps');
     });
     $scope.$watch('currentUser', function(newVal, oldVal){
       if(newVal !== oldVal){

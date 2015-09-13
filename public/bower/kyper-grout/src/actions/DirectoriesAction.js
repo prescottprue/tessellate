@@ -21,7 +21,7 @@ class DirectoriesAction {
 		let endpointArray = [matter.endpoint, 'directories'];
 		//Check for app groups action
 		if (_.has(this, 'app') && _.has(this.app, 'name')) {
-			endpointArray = endpointArray.splice(1, 0, 'apps', this.app.name);
+			endpointArray.splice(1, 0, 'apps', this.app.name);
 		}
 		//Create string from endpointArray
 		let endpointStr = endpointArray.join('/');

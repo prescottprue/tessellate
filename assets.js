@@ -16,8 +16,6 @@ module.exports = {
 		'/app-routes.js',
 		'/app.controller.js',
 
-		'/components/nav/nav.controller.js',
-
 		'/applications/applications.module.js',
 		'/applications/applications.controller.js',
 		'/applications/application/application.module.js',

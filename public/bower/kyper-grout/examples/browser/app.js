@@ -61,7 +61,7 @@
     //Get list of applications
     function getApps(){
       console.log('getApps called');
-      grout.apps.get().then(function(appsList){
+      grout.Apps.get().then(function(appsList){
         console.log('apps list loaded:', appsList);
         var outHtml = '<h2>No app data</h2>';
         if (appsList) {
@@ -77,7 +77,7 @@
     //Get File/Folder structure for application
     function getStructure(){
       console.log('getStructure called');
-      grout.app('exampleApp').getStructure().then(function(app){
+      grout.App('exampleApp').Files.buildStructure().then(function(app){
         console.log('apps list loaded:', app);
         document.getElementById("output").innerHTML = JSON.stringify(app);
       });
@@ -85,7 +85,7 @@
     //Get list of users
     function getUsers(){
       console.log('getUsers called');
-      grout.users.get().then(function(app){
+      grout.Users.get().then(function(app){
         console.log('apps list loaded:', app);
         document.getElementById("output").innerHTML = JSON.stringify(app);
       }, function(err){
@@ -98,7 +98,7 @@
       if(!searchStr){
         searchStr = document.getElementById('search').value;
       }
-      grout.users.search(searchStr).then(function(users){
+      grout.Users.search(searchStr).then(function(users){
         console.log('search users loaded:', users);
         document.getElementById("search-output").innerHTML = JSON.stringify(users);
       });

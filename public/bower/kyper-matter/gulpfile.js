@@ -257,5 +257,16 @@ gulp.task('upload-latest', function() {
     .pipe(publisher.publish())
     .pipe(awspublish.reporter());
 });
+var browserSync = require('browser-sync').create();
+
+// Static server
+gulp.task('browser-sync', function() {
+  browserSync.init({
+    server: {
+      baseDir: "./"
+    }
+  });
+});
+
 // An alias of test
 gulp.task('default', ['coverage', 'build-bundle']);

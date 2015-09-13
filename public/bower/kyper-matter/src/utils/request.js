@@ -40,7 +40,7 @@ function handleResponse(req) {
 				return resolve(res.body);
 			} else {
 				if (err.status == 401) {
-					logger.warn('Unauthorized. You must be signed into make this request.');
+					console.warn('Unauthorized. You must be signed into make this request.');
 				}
 				return reject(err);
 			}
@@ -50,7 +50,7 @@ function handleResponse(req) {
 function addAuthHeader(req) {
 	if (token.string) {
 		req = req.set('Authorization', 'Bearer ' + token.string);
-		logger.info({message: 'Set auth header', func: 'addAuthHeader', file: 'request'});
+		console.info({message: 'Set auth header', func: 'addAuthHeader', file: 'request'});
 	}
 	return req;
 }

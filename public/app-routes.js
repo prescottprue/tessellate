@@ -1,5 +1,5 @@
 angular.module('tessellate')
-.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, USER_ROLES) {
+.config(function ($stateProvider, $urlRouterProvider, $mdThemingProvider, USER_ROLES) {
   $stateProvider
     .state('layout', {
       abstract:true,
@@ -10,8 +10,7 @@ angular.module('tessellate')
       abstract:true,
       views:{
         'topnav':{
-          templateUrl:'components/nav/topnav.html',
-          controller:'NavCtrl'
+          templateUrl:'components/nav/topnav.html'
         },
         'main':{
           template:'<div ui-view></div>'

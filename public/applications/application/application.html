@@ -1,10 +1,13 @@
+<!-- Application Navbar -->
 <md-toolbar class="md-primary shadow-z-2" layout-align="center center">
   <div class="md-toolbar-tools" layout-align="center center" layout="row">
+    <!-- Application Selector -->
     <div flex="20" layout-margin>
       <md-select ng-if="currentUser" placeholder="{{application.name}}" ng-model="someVal" aria-label="User" style="padding-right:20px;" layout-padding>
         <md-option ng-repeat="app in applications" ui-sref="app.editor({name:app.name})" >{{app.name}}</md-option>
       </md-select>
     </div>
+    <!-- Application Nav Buttons -->
     <div flex="80" layout-margin layout-align="center center" style="height:100%;">
       <md-tabs md-selected="currentTabInd" md-stretch-tabs="always" class="md-primary hc-btn" flex="50" style="min-height:0px;">
         <md-tab id="tab1" aria-controls="Editor" ui-sref="app.build" >
@@ -17,16 +20,8 @@
           <md-tab-label>Configure</md-tab-label>
         </md-tab>
       </md-tabs>
-<!--         <div flex>
-          <md-button class="page-button" ui-sref="app.editor" ng-class="{'md-warn':stateName == 'app.editor'}"><i class="fa fa-code page-icon"></i>  Editor</md-button>
-        </div>
-        <div flex>
-          <md-button class="page-button" ui-sref="app.preview" ng-class="{'md-warn':stateName == 'app.preview'}"><i class="fa fa-mobile page-icon"></i>  Preview</md-button>
-        </div>
-        <div flex>
-          <md-button class="page-button" ui-sref="app.settings" ng-class="{'md-warn':stateName == 'app.settings'}"><i class="fa fa-cogs page-icon"></i>  Settings</md-button>
-        </div> -->
     </div>
   </div>
 </md-toolbar>
+<!-- View that content is loaded into -->
 <div ui-view></div>

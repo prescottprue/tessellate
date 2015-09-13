@@ -21,62 +21,64 @@ class Grout extends Matter {
 		super(config.appName, config.matterOptions);
 	}
 	//Start a new Apps Action
-	get apps() {
-		this.utils.logger.debug({description: 'Apps Action called.', action: new AppsAction(), func: 'apps', obj: 'Grout'});
+	get Apps() {
+		this.utils.logger.debug({description: 'Apps Action called.', action: new AppsAction(), func: 'Apps', obj: 'Grout'});
 		return new AppsAction();
 	}
 	//Start a new App action
-	app(appName) {
-		this.utils.logger.debug({description: 'Templates Action called.', appName: appName, template: new App(appName), func: 'app', obj: 'Grout'});
+	App(appName) {
+		this.utils.logger.debug({description: 'Templates Action called.', appName: appName, template: new App(appName), func: 'App', obj: 'Grout'});
 		return new App(appName);
 	}
 	//Start a new Apps Action
-	get templates() {
-		this.utils.logger.debug({description: 'Templates Action called.', action: new TemplatesAction(), func: 'templates', obj: 'Grout'});
+	get Templates() {
+		this.utils.logger.debug({description: 'Templates Action called.', action: new TemplatesAction(), func: 'Templates', obj: 'Grout'});
 		return new TemplatesAction();
 	}
 	//Start a new App action
-	template(templateData) {
-		this.utils.logger.debug({description: 'Template Action called.', templateData: templateData, template: new Template(templateData), func: 'template', obj: 'Grout'});
+	Template(templateData) {
+		this.utils.logger.debug({description: 'Template Action called.', templateData: templateData, template: new Template(templateData), func: 'Template', obj: 'Grout'});
 		return new Template(templateData);
 	}
 	//Start a new Accounts action
-	get accounts() {
+	get Accounts() {
 		this.utils.logger.debug({description: 'Account Action called.', action: new AccountsAction(), func: 'users', obj: 'Grout'});
 		return new AccountsAction();
 	}
 	//Start a new Account action
-	account(userData) {
+	Account(userData) {
 		this.utils.logger.debug({description: 'Account Action called.', userData: userData, user: new Account(userData), func: 'user', obj: 'Grout'});
 		return new Account(userData);
 	}
+	//ALIAS OF ACCOUNTS
 	//Start a new Accounts action
-	get users() {
-		this.utils.logger.debug({description: 'Accounts Action called.', action: new AccountsAction(), func: 'users', obj: 'Grout'});
+	get Users() {
+		this.utils.logger.debug({description: 'Accounts Action called.', action: new AccountsAction(), func: 'Users', obj: 'Grout'});
 		return new AccountsAction();
 	}
+	//ALIAS OF ACCOUNT
 	//Start a new Account action
-	user(userData) {
+	User(userData) {
 		this.utils.logger.debug({description: 'Account Action called.', userData: userData, user: new Account(userData), func: 'user', obj: 'Grout'});
 		return new Account(userData);
 	}
 	//Start a new Groups action
-	get groups() {
+	get Groups() {
 		this.utils.logger.debug({description: 'Groups Action called.', action: new GroupsAction(), func: 'groups', obj: 'Grout'});
 		return new GroupsAction();
 	}
 	//Start a new Group action
-	group(groupData) {
+	Group(groupData) {
 		this.utils.logger.debug({description: 'Group Action called.', groupData: groupData, action: new Group({app: this, groupData: groupData}), func: 'group', obj: 'Grout'});
 		return new Group(groupData);
 	}
 	//Start a new Directories action
-	get directories() {
+	get Directories() {
 		this.utils.logger.debug({description: 'Directories Action called.', action: new DirectoriesAction(), func: 'directories', obj: 'Grout'});
 		return new DirectoriesAction();
 	}
 	//Start a new Group action
-	directory(directoryData) {
+	Directory(directoryData) {
 		this.utils.logger.debug({description: 'Directory Action called.', directoryData: directoryData, action: new Directory(directoryData), func: 'directory', obj: 'Grout'});
 		return new Directory(directoryData);
 	}

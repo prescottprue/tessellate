@@ -3,7 +3,9 @@
     <div id="table-wrap">
       <h2 class="md-title" style=" display:inline;">Directories</h2>
       <div class="pull-right">
-        <md-button class="md-raised md-fab md-mini" style="margin-top:0px;" ng-click="startNew('directory', $event)"><i class="fa fa-plus"></i></md-button>
+        <md-button class="md-raised md-fab md-mini" aria-label="Add Directory" ng-click="startNew('directory', $event)">
+          <i class="fa fa-plus"></i>
+        </md-button>
       </div>
       <div class="null-list-message" ng-if="!app.groups.length" ng-click="startNew('directory', $event)">
         <p>No Directories. Click to add.</p>
@@ -43,7 +45,9 @@
       <h2 class="md-title">Groups</h2>
       <div flex></div>
       <div style="padding-top:20px;">
-        <md-button class="md-raised md-fab md-mini md-primary"  ng-click="startNew('group', $event)"><i class="fa fa-plus"></i></md-button>
+        <md-button class="md-raised md-fab md-mini md-primary" aria-label="Add Directory" ng-click="startNew('group', $event)">
+          <i class="fa fa-plus"></i>
+        </md-button>
       </div>
     </div>
     <div class="null-list-message" ng-if="!groups.length"  ng-click="startNew('group', $event)">

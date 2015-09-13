@@ -27,12 +27,12 @@
     "url": "git://github.com/KyperTech/grout"
   },
   "homepage": "https://github.com/KyperTech/grout",
-  "version": "0.0.4",
-  "_release": "0.0.4",
+  "version": "0.0.5",
+  "_release": "0.0.5",
   "_resolution": {
     "type": "version",
-    "tag": "v0.0.4",
-    "commit": "2081fd9c3e86826037c40832e0ca68f0445dae9b"
+    "tag": "v0.0.5",
+    "commit": "a8124f2591cea16a6e69714295120be183d87822"
   },
   "_source": "git://github.com/KyperTech/grout.git",
   "_target": "~0.0.4",
