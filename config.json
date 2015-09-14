@@ -1,5 +1,10 @@
 {
-	"port":4000,
-	"serverFolder":"backend",
-	"clientFolder": "public"
+	"server":{
+		"port":4000,
+		"folder":"backend"
+	},
+	"client":{
+		"port":4001,
+		"folder": "public"
+	}
 }

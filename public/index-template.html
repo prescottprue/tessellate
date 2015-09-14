@@ -9,6 +9,7 @@
 		<link rel="stylesheet" href="bower/angular-resizable/angular-resizable.min.css">
 		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 		<title>Tessellate</title>
+		<%= styles %>
 	</head>
 	<body ng-app="tessellate" ng-controller="AppCtrl" class="hc-background" layout-align="center end">
 		<div ui-view class="main-content" layout-fill>
@@ -18,8 +19,6 @@
 				Questions? <md-button href="mailto:sprue.dev@gmail.com" style="display:inline;">Email Us</md-button>
 			</span>
 		</div>
-		<script>document.write('<script src="http://localhost:4000:35729/livereload.js?snipver=1"></' + 'script>')</script>
-		<%- scriptTags('vendor') %>
-		<%- scriptTags('app') %>
+		<%= scripts %>
 	</body>
 </html>

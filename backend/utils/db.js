@@ -6,7 +6,6 @@ var dbUrl = conf.config.db.url;
 if(conf.config.db.name){
 	dbUrl += "/" + conf.config.db.name
 }
-console.log('dburl:', dbUrl);
 // console.log('Connecting to mongo url:', dbUrl);
 var tessellate = mongoose.createConnection(dbUrl);
 

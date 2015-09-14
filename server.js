@@ -10,7 +10,7 @@ config = require('./backend/config/default').config,
 cors = require('cors');
 systemUtils = require('./lib/systemUtils');
 
-
+var confFile = require('./config.json');
 var app = express();
 
 var routes = require('./backend/config/routes');
@@ -26,7 +26,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 //Set cors configuration
 app.use(cors());
 //Enable all preflight requests
@@ -88,7 +88,7 @@ app.use(function (err, req, res, next) {
  * Get port from environment and store in Express.
  */
 
-var port = systemUtils.normalizePort(process.env.PORT || '3000');
+var port = systemUtils.normalizePort(process.env.PORT || confFile.server.port || 4000);
 console.log('localhost port:', port);
 app.set('port', port);
 

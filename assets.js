@@ -7,7 +7,8 @@ module.exports = {
 		'/bower/ui-router/release/angular-ui-router.min.js',
 		'/bower/angular-material/angular-material.min.js',
 		'/bower/angular-messages/angular-messages.min.js',
-		'/bower/lodash/lodash.js'
+		'/bower/angular-resizable/angular-resizable.min.js',
+		'/bower/lodash/lodash.js',
 
 	],
 	app:[
