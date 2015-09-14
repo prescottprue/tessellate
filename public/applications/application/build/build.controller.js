@@ -3,7 +3,12 @@ angular.module('tessellate.application.build')
   //Copy application data into scope
   console.log('application loaded:', $scope.application);
   $scope.application = _.extend({},application);
-  
+  $scope.structure = [{name: 'index.html', type:'file'}, {name: 'testfolder', type:'folder', children:[{name:'infolder.js', type:'file'}]}]
+  $scope.aceLoaded = function(_editor) {
+    // Editor.setAce(_editor);
+  };
+  $scope.aceChanged = function(e) {
+  };
   $scope.getPossibleUsers = function(query){
     $log.info('getPossibleUsers called with', query);
     return $grout.Accounts.search(query).then(function (usersList){

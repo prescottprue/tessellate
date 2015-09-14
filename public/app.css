@@ -19,10 +19,13 @@ md-tabs-content-wrapper {
 	background-color: #f2f4f8 !important;
 }
 .hc-btn {
-	font-size:.8em;
+	font-size:1em;
 }
 .hc-background {
 	background-color: #f2f4f8;
+}
+.hc-whiteframe {
+  background-color: white !important;
 }
 .md-content {
 	background-color: #f2f4f8;

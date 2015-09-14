@@ -1,5 +1,19 @@
 module.exports = {
+	styles: [
+		'bower/angular-material/angular-material.css',
+		'bower/angular-resizable/angular-resizable.min.css',
+		'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css',
+		'bower/devices.css/assets/devices.min.css',
+		
+		'app.css',
+		'components/nav/nav.css',
+		'applications/applications.css',
+		'applications/application/accounts/account.css',
+		'applications/application/build/build.css'
+
+	],
 	vendor:[
+		'/bower/ace-builds/src-min-noconflict/ace.js',
 		'/bower/kyper-grout/dist/grout.bundle.js',
 		'/bower/angular/angular.js',
 		'/bower/angular-animate/angular-animate.min.js',
@@ -9,6 +23,9 @@ module.exports = {
 		'/bower/angular-messages/angular-messages.min.js',
 		'/bower/angular-resizable/angular-resizable.min.js',
 		'/bower/lodash/lodash.js',
+		'/bower/angular-ui-ace/ui-ace.js',
+		'bower/angular-tree-control/angular-tree-control.js',
+		'bower/ng-file-upload/ng-file-upload-all.min.js'
 
 	],
 	app:[

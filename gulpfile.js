@@ -60,15 +60,14 @@ gulp.task('assetTags:dev', function () {
     .pipe(gulp.dest(conf.client.folder))
     .pipe(notify({message: 'Asset Tags Built'}));
 });
-
-gulp.task('client', function() {
+gulp.task('client', ['assetTags:dev'], function() {
   browserSync.init({
     port: conf.client.port,
     server: {
       baseDir: "./"+conf.client.folder+"/"
     }
   });
-  gulp.watch([conf.client.folder+'/**'], reload);
+  gulp.watch([conf.client.folder + '/**', 'assets.js'], reload);
 });
 
 gulp.task('default', [ 'assetTags:dev', 'serve', 'client']);
