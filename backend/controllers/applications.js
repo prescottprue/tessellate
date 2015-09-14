@@ -93,6 +93,42 @@ exports.get = function(req, res, next){
 		res.send(result);
 	});
 };
+/**
+ * @api {get} /applications Get Application's provider data
+ * @apiDescription Get a specific application's data or a list of applications.
+ * @apiName GetApplication
+ * @apiGroup Application
+ *
+ * @apiParam {String} [name] Name of Application.
+ *
+ * @apiSuccess {object} applicationData Object containing applications data if <code>name</code> param is provided
+ * @apiSuccess {array} applications Array of applications if <code>name</code> is not provided.
+ *
+ */
+exports.getProviders = function(req, res, next){
+	// var query = Application.find({}).populate({path:'owner', select:'username name title email'});
+	if(req.params.name){ //Get data for a specific application
+		console.log('application request with id:', req.params.name);
+		var query = Application.findOne({name:req.params.name})
+		query.exec(function (err, result){
+			if(err){
+				console.error('[ApplicationsCtrl.get()] Error getting application(s):', JSON.stringify(err));
+				return res.status(500).send('Error getting Application(s).');
+			}
+			if(!result){
+				console.error('[ApplicationsCtrl.get()] Error finding application(s).');
+				return res.status(400).send('Application(s) could not be found.');
+			}
+			var providerData = {};
+			_.each(result.providers, function(provider){
+				providerData[provider.name] = provider.clientId;
+			});
+			console.log('returning provider data:', JSON.stringify(providerData));
+			res.send(providerData);
+		});
+	}
+
+};
 
 /**
  * @api {post} /applications Add Application
