@@ -67,7 +67,7 @@ gulp.task('client', ['assetTags:dev'], function() {
       baseDir: "./"+conf.client.folder+"/"
     }
   });
-  gulp.watch([conf.client.folder + '/**', 'assets.js'], reload);
+  gulp.watch([conf.client.folder + '/**', 'assets.js', '!' + conf.client.folder + '/bower/**'], reload);
 });
 
 gulp.task('default', [ 'assetTags:dev', 'serve', 'client']);
