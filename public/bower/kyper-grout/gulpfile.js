@@ -54,7 +54,7 @@ function createLintTask(taskName, files) {
 }
 
 // Lint our source code
-createLintTask('lint-src', ['src/**/*.js', '!src/lib/*.js']);
+createLintTask('lint-src', ['src/**/*.js']);
 
 // Lint our test code
 createLintTask('lint-test', ['test/**/*.js']);
@@ -83,11 +83,6 @@ gulp.task('build', ['lint-src', 'clean'], function(done) {
       .pipe($.uglify())
       .pipe($.sourcemaps.write('./'))
       .pipe(gulp.dest(destinationFolder))
-      .on('error', function(e) {
-        console.log('>>> ERROR', e);
-        // emit here
-        this.emit('end');
-      })
       .on('end', done);
   })
   .catch(done);
@@ -106,31 +101,7 @@ function bundleTest(bundler) {
     .pipe($.livereload());
 }
 
-function getBundler() {
-  // Our browserify bundle is made up of our unit tests, which
-  // should individually load up pieces of our application.
-  // We also include the browserify setup file.
-  var testFiles = glob.sync('./test/unit/**/*');
-  var allFiles = ['./test/setup/browserify.js'].concat(testFiles);
 
-  // Create our bundler, passing in the arguments required for watchify
-  var bundler = browserify(allFiles, watchify.args);
-
-  // Watch the bundler, and re-bundle it whenever files change
-  bundler = watchify(bundler);
-  bundler.on('update', function() {
-    bundle(bundler);
-  });
-
-  // Set up Babelify so that ES6 works in the tests
-  bundler.transform(babelify.configure({
-    sourceMapRelative: __dirname + '/src',
-    optional: ["es7.asyncFunctions"],
-    stage:2
-  }));
-
-  return bundler;
-};
 function bundle(bundler) {
   return bundler.bundle()
     .on('error', function(err) {
@@ -138,7 +109,7 @@ function bundle(bundler) {
       this.emit('end');
     })
     .pipe($.plumber())
-    .pipe(source('./tmp/__matter.bundle.js'))
+    .pipe(source('./tmp/__grout.bundle.js'))
     .pipe(buffer())
     .pipe($.rename(exportFileName + '.bundle.js'))
     .pipe(gulp.dest(destinationFolder))
@@ -166,16 +137,42 @@ function addExternalModules(code) {
   }));
   return bundler;
 };
+function getTestBundler() {
+  // Our browserify bundle is made up of our unit tests, which
+  // should individually load up pieces of our application.
+  // We also include the browserify setup file.
+  var testFiles = glob.sync('./test/unit/**/*');
+  var allFiles = ['./test/setup/browserify.js'].concat(testFiles);
+
+  // Create our bundler, passing in the arguments required for watchify
+  var bundler = browserify(allFiles, watchify.args);
+
+  // Watch the bundler, and re-bundle it whenever files change
+  bundler = watchify(bundler);
+  bundler.on('update', function() {
+    bundle(bundler);
+  });
+
+  // Set up Babelify so that ES6 works in the tests
+  bundler.transform(babelify.configure({
+    sourceMapRelative: __dirname + '/src',
+    optional: ["es7.asyncFunctions"],
+    stage:2
+  }));
+
+  return bundler;
+};
 gulp.task('addExternals', function() {
   return bundle(addExternalModules());
 });
 gulp.task('build-bundle', function(callback) {
-  runSequence(['build'], 'addExternals', 'watch', callback);
+  runSequence(['build'], 'addExternals', callback);
 });
 // Build the unit test suite for running tests
 // in the browser
+
 gulp.task('browserify', function() {
-  return bundleTest(getBundler());
+  return bundleTest(getTestBundler());
 });
 
 function test() {
@@ -185,7 +182,7 @@ function test() {
 
 gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
   require('babel-core/register');
-  gulp.src(['src/**/*.js', '!gulpfile.js', '!dist/**/*.js'])
+  gulp.src(['src/**/*.js', '!gulpfile.js', '!dist/**/*.js', '!examples/**', '!node_modules/**'])
     .pipe($.istanbul({ instrumenter: isparta.Instrumenter }))
     .pipe($.istanbul.hookRequire())
     .on('finish', function() {
@@ -231,7 +228,7 @@ gulp.task('connect', function() {
     livereload: true
   });
 });
-gulp.task('upload', function() {
+gulp.task('upload:cdn', function() {
   var s3Config = {
     accessKeyId:process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY,
@@ -247,7 +244,7 @@ gulp.task('upload', function() {
     .pipe(publisher.publish())
     .pipe(awspublish.reporter());
 });
-gulp.task('upload-latest', function() {
+gulp.task('upload:latest', function() {
   var s3Config = {
     accessKeyId:process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY,
@@ -263,6 +260,7 @@ gulp.task('upload-latest', function() {
     .pipe(publisher.publish())
     .pipe(awspublish.reporter());
 });
+gulp.task('upload', ['upload:cdn', 'upload:latest']);
 // gulp.task('docs', function(){
 //   gulp.src(['src/*.js'])
 //   .pipe(jsdoc('./docs'))

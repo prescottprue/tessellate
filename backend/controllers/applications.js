@@ -6,7 +6,7 @@
 // ------------------------------------------------------------------------------------------
 /**
  * @apiDefine CreateAccountError
- * @apiVersion 0.2.0
+ * @apiVersion 0.0.1
  *
  * @apiError NoAccessRight Only authenticated Admins can access the data.
  * @apiError AccountNameTooShort Minimum of 5 characters required.
@@ -18,7 +18,6 @@
  *     }
  */
 
-
 var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('underscore');
@@ -26,7 +25,6 @@ var q = require('q');
 var logger = require('../utils/logger');
 var Application = require('../models/application').Application;
 var Group = require('../models/group').Group;
-
 
 /**
  * @api {get} /applications Get Application(s)

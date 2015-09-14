@@ -1,10 +1,10 @@
 let config = {
 	serverUrl: 'http://tessellate.elasticbeanstalk.com',
 	tokenName: 'grout',
-	fbUrl: 'https://pruvit.firebaseio.com/',
+	fbUrl: 'https://kyper-tech.firebaseio.com/tessellate',
 	appName: 'tessellate',
 	matterOptions: {
-		localServer: true
+		localServer: false
 	},
 	aws: {
 		region: 'us-east-1',

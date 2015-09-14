@@ -29490,6 +29490,960 @@ U.prototype.We=function(a,b){x("Firebase.resetPassword",2,2,arguments.length);fg
 module.exports = Firebase;
 
 },{}],232:[function(require,module,exports){
+var Base64 = require('Base64');
+
+module.exports = function(str) {
+  var output = str.replace(/-/g, "+").replace(/_/g, "/");
+  switch (output.length % 4) {
+    case 0:
+      break;
+    case 2:
+      output += "==";
+      break;
+    case 3:
+      output += "=";
+      break;
+    default:
+      throw "Illegal base64url string!";
+  }
+
+  var result = Base64.atob(output);
+
+  try{
+    return decodeURIComponent(escape(result));
+  } catch (err) {
+    return result;
+  }
+};
+
+},{"Base64":235}],233:[function(require,module,exports){
+'use strict';
+
+var base64_url_decode = require('./base64_url_decode');
+var json_parse = require('./json_parse');
+
+module.exports = function (token) {
+  if (!token) {
+    throw new Error('Invalid token specified');
+  }
+  
+  return json_parse(base64_url_decode(token.split('.')[1]));
+};
+
+},{"./base64_url_decode":232,"./json_parse":234}],234:[function(require,module,exports){
+module.exports = function (str) {
+  var parsed;
+  if (typeof JSON === 'object') {
+    parsed = JSON.parse(str);
+  } else {
+    parsed = eval('(' + str + ')');
+  }
+  return parsed;
+};
+
+},{}],235:[function(require,module,exports){
+;(function () {
+
+  var
+    object = typeof exports != 'undefined' ? exports : this, // #8: web workers
+    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
+    INVALID_CHARACTER_ERR = (function () {
+      // fabricate a suitable error object
+      try { document.createElement('$'); }
+      catch (error) { return error; }}());
+
+  // encoder
+  // [https://gist.github.com/999166] by [https://github.com/nignag]
+  object.btoa || (
+  object.btoa = function (input) {
+    for (
+      // initialize result and counter
+      var block, charCode, idx = 0, map = chars, output = '';
+      // if the next input index does not exist:
+      //   change the mapping table to "="
+      //   check if d has no fractional digits
+      input.charAt(idx | 0) || (map = '=', idx % 1);
+      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+    ) {
+      charCode = input.charCodeAt(idx += 3/4);
+      if (charCode > 0xFF) throw INVALID_CHARACTER_ERR;
+      block = block << 8 | charCode;
+    }
+    return output;
+  });
+
+  // decoder
+  // [https://gist.github.com/1020396] by [https://github.com/atk]
+  object.atob || (
+  object.atob = function (input) {
+    input = input.replace(/=+$/, '')
+    if (input.length % 4 == 1) throw INVALID_CHARACTER_ERR;
+    for (
+      // initialize result and counters
+      var bc = 0, bs, buffer, idx = 0, output = '';
+      // get next character
+      buffer = input.charAt(idx++);
+      // character found in table? initialize bit storage and add its ascii value;
+      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+        // and if not first of each 4 characters,
+        // convert the first 8 bits to one ascii character
+        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+    ) {
+      // try to find character in table (0-63, not found => -1)
+      buffer = chars.indexOf(buffer);
+    }
+    return output;
+  });
+
+}());
+
+},{}],236:[function(require,module,exports){
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('lodash'), require('jwt-decode'), require('superagent')) : typeof define === 'function' && define.amd ? define(['lodash', 'jwt-decode', 'superagent'], factory) : global.Matter = factory(global._, global.jwtDecode, global.superagent);
+})(this, function (_, jwtDecode, superagent) {
+	'use strict';
+
+	_ = 'default' in _ ? _['default'] : _;
+	jwtDecode = 'default' in jwtDecode ? jwtDecode['default'] : jwtDecode;
+	superagent = 'default' in superagent ? superagent['default'] : superagent;
+
+	var config = {
+		serverUrl: 'http://tessellate.elasticbeanstalk.com',
+		tokenName: 'tessellate',
+		tokenDataName: 'tessellate-tokenData',
+		tokenUserDataName: 'tessellate-currentUser'
+	};
+
+	//Set default log level to debug
+	var logLevel = 'debug';
+	//Set log level from config
+	if (config.logLevel) {
+		logLevel = config.logLevel;
+	}
+
+	var logger = {
+		log: function log(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				runConsoleMethod('log', msgArgs);
+			} else {
+				runConsoleMethod('log', msgArgs);
+			}
+		},
+		info: function info(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				runConsoleMethod('info', msgArgs);
+			} else {
+				runConsoleMethod('info', msgArgs);
+			}
+		},
+		warn: function warn(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				runConsoleMethod('warn', msgArgs);
+			} else {
+				runConsoleMethod('warn', msgArgs);
+			}
+		},
+		debug: function debug(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				// runConsoleMethod('debug', msgArgs);
+				//Do not display console debugs in production
+			} else {
+					runConsoleMethod('debug', msgArgs);
+				}
+		},
+		error: function error(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				//TODO: Log to external logger
+				runConsoleMethod('error', msgArgs);
+			} else {
+				runConsoleMethod('error', msgArgs);
+			}
+		}
+	};
+
+	function runConsoleMethod(methodName, methodData) {
+		//Safley run console methods or use console log
+		if (methodName && console[methodName]) {
+			return console[methodName].apply(console, methodData);
+		} else {
+			return console.log.apply(console, methodData);
+		}
+	}
+	function buildMessageArgs(logData) {
+		var msgStr = '';
+		var msgObj = {};
+		//TODO: Attach time stamp
+		//Attach location information to the beginning of message
+		if (_.isObject(logData)) {
+			if (logLevel == 'debug') {
+				if (_.has(logData, 'func')) {
+					if (_.has(logData, 'obj')) {
+						//Object and function provided
+						msgStr += '[' + logData.obj + '.' + logData.func + '()]\n ';
+					} else if (_.has(logData, 'file')) {
+						msgStr += '[' + logData.file + ' > ' + logData.func + '()]\n ';
+					} else {
+						msgStr += '[' + logData.func + '()]\n ';
+					}
+				}
+			}
+			//Print each key and its value other than obj and func
+			_.each(_.omit(_.keys(logData)), function (key, ind, list) {
+				if (key != 'func' && key != 'obj') {
+					if (key == 'description' || key == 'message') {
+						msgStr += logData[key];
+					} else if (_.isString(logData[key])) {
+						// msgStr += key + ': ' + logData[key] + ', ';
+						msgObj[key] = logData[key];
+					} else {
+						//Print objects differently
+						// msgStr += key + ': ' + logData[key] + ', ';
+						msgObj[key] = logData[key];
+					}
+				}
+			});
+			msgStr += '\n';
+		} else if (_.isString(logData)) {
+			msgStr = logData;
+		}
+		var msg = [msgStr, msgObj];
+
+		return msg;
+	}
+
+	var domUtil = {
+		/**
+   * @description
+   * Appends given css source to DOM head.
+   *
+   * @param {String} src - url src for css to append
+   *
+   */
+		loadCss: function loadCss(src) {
+			if (!document) {
+				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
+				throw new Error('Document object is required to load assets.');
+			} else {
+				var css = document.createElement('link');
+				css.rel = 'stylesheet';
+				css.type = 'text/css';
+				css.href = src;
+				document.getElementsByTagName('head')[0].insertBefore(css, document.getElementsByTagName('head')[0].firstChild);
+				logger.log({ description: 'CSS was loaded into document.', element: css, func: 'loadCss', obj: 'dom' });
+				return css; //Return link element
+			}
+		},
+		/**
+   * @description
+   * Appends given javascript source to DOM head.
+   *
+   * @param {String} src - url src for javascript to append
+   *
+   */
+		loadJs: function loadJs(src) {
+			if (window && !_.has(window, 'document')) {
+				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
+				throw new Error('Document object is required to load assets.');
+			} else {
+				var js = window.document.createElement('script');
+				js.src = src;
+				js.type = 'text/javascript';
+				window.document.getElementsByTagName('head')[0].appendChild(js);
+				logger.log({ description: 'JS was loaded into document.', element: js, func: 'loadCss', obj: 'dom' });
+				return js; //Return script element
+			}
+		},
+		/**
+   * @description
+   * Appends given javascript source to DOM head.
+   *
+   * @param {String} src - url src for javascript to append
+   *
+   */
+		asyncLoadJs: function asyncLoadJs(src) {
+			if (!_.has(window, 'document')) {
+				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
+				throw new Error('Document object is required to load assets.');
+			} else {
+				var js = window.document.createElement('script');
+				js.src = src;
+				js.type = 'text/javascript';
+				window.document.getElementsByTagName('head')[0].appendChild(js);
+				logger.log({ description: 'JS was loaded into document.', element: js, func: 'loadCss', obj: 'dom' });
+				return new Promise(function (resolve, reject) {
+					window.setTimeout(resolve, 30);
+				});
+			}
+		}
+	};
+
+	var data = {};
+	var storage = Object.defineProperties({
+		/**
+   * @description
+   * Safley sets item to session storage.
+   *
+   * @param {String} itemName The items name
+   * @param {String} itemValue The items value
+   *
+   */
+		item: function item(itemName, itemValue) {
+			return this.setItem(itemName, itemValue);
+		},
+		/**
+   * @description
+   * Safley sets item to session storage. Alias: item()
+   *
+   * @param {String} itemName The items name
+   * @param {String} itemValue The items value
+   *
+   */
+		setItem: function setItem(itemName, itemValue) {
+			data[itemName] = itemValue;
+			if (this.localExists) {
+				//Convert object to string
+				if (_.isObject(itemValue)) {
+					itemValue = JSON.stringify(itemValue);
+				}
+				window.sessionStorage.setItem(itemName, itemValue);
+			}
+		},
+
+		/**
+   * @description
+   * Safley gets an item from session storage. Alias: item()
+   *
+   * @param {String} itemName The items name
+   *
+   * @return {String}
+   *
+   */
+		getItem: function getItem(itemName) {
+			if (data[itemName]) {
+				return data[itemName];
+			} else if (this.localExists) {
+				var itemStr = window.sessionStorage.getItem(itemName);
+				//Check that str is not null before parsing
+				if (itemStr) {
+					var isObj = false;
+					var itemObj = null;
+					//Try parsing to object
+					try {
+						itemObj = JSON.parse(itemStr);
+						isObj = true;
+					} catch (err) {
+						// logger.log({message: 'String could not be parsed.', error: err, func: 'getItem', obj: 'storage'});
+						//Parsing failed, this must just be a string
+						isObj = false;
+					}
+					if (isObj) {
+						return itemObj;
+					}
+				}
+				return itemStr;
+			} else {
+				return null;
+			}
+		},
+		/**
+   * @description
+   * Safley removes item from session storage.
+   *
+   * @param {String} itemName - The items name
+   *
+   */
+		removeItem: function removeItem(itemName) {
+			//TODO: Only remove used items
+			if (data[itemName]) {
+				data[itemName] = null;
+			}
+			if (this.localExists) {
+				try {
+					//Clear session storage
+					window.sessionStorage.removeItem(itemName);
+				} catch (err) {
+					logger.error({ description: 'Error removing item from session storage', error: err, obj: 'storage', func: 'removeItem' });
+				}
+			}
+		},
+		/**
+   * @description
+   * Safley removes item from session storage.
+   *
+   * @param {String} itemName the items name
+   * @param {String} itemValue the items value
+   *
+   */
+		clear: function clear() {
+			//TODO: Only remove used items
+			data = {};
+			if (this.localExists) {
+				try {
+					//Clear session storage
+					window.sessionStorage.clear();
+				} catch (err) {
+					logger.warn('Session storage could not be cleared.', err);
+				}
+			}
+		}
+
+	}, {
+		localExists: {
+			get: function get() {
+				var testKey = 'test';
+				if (typeof window != 'undefined' && typeof window.sessionStorage != 'undefined') {
+					try {
+						window.sessionStorage.setItem(testKey, '1');
+						window.sessionStorage.removeItem(testKey);
+						return true;
+					} catch (err) {
+						logger.error({ description: 'Error saving to session storage', error: err, obj: 'storage', func: 'localExists' });
+						return false;
+					}
+				} else {
+					return false;
+				}
+			},
+			configurable: true,
+			enumerable: true
+		}
+	});
+
+	function decodeToken(tokenStr) {
+		var tokenData = undefined;
+		if (tokenStr && tokenStr != '') {
+			try {
+				tokenData = jwtDecode(tokenStr);
+			} catch (err) {
+				logger.error({ description: 'Error decoding token.', data: tokenData, error: err, func: 'decodeToken', file: 'token' });
+				throw new Error('Invalid token string.');
+			}
+		}
+		return tokenData;
+	}
+	var token = Object.defineProperties({
+		save: function save(tokenStr) {
+			this.string = tokenStr;
+		},
+		'delete': function _delete() {
+			storage.removeItem(config.tokenName);
+			storage.removeItem(config.tokenDataName);
+			logger.log({ description: 'Token was removed.', func: 'delete', obj: 'token' });
+		}
+	}, {
+		string: {
+			get: function get() {
+				return storage.getItem(config.tokenName);
+			},
+			set: function set(tokenStr) {
+				logger.log({ description: 'Token was set.', token: tokenStr, func: 'string', obj: 'token' });
+				this.data = jwtDecode(tokenStr);
+				storage.setItem(config.tokenName, tokenStr);
+			},
+			configurable: true,
+			enumerable: true
+		},
+		data: {
+			get: function get() {
+				if (storage.getItem(config.tokenDataName)) {
+					return storage.getItem(config.tokenDataName);
+				} else {
+					return decodeToken(this.string);
+				}
+			},
+			set: function set(tokenData) {
+				if (_.isString(tokenData)) {
+					var tokenStr = tokenData;
+					tokenData = decodeToken(tokenStr);
+					logger.info({ description: 'Token data was set as string. Decoding token.', token: tokenStr, tokenData: tokenData, func: 'data', obj: 'token' });
+				} else {
+					logger.log({ description: 'Token data was set.', data: tokenData, func: 'data', obj: 'token' });
+					storage.setItem(config.tokenDataName, tokenData);
+				}
+			},
+			configurable: true,
+			enumerable: true
+		}
+	});
+
+	var request = {
+		get: function get(endpoint, queryData) {
+			var req = superagent.get(endpoint);
+			if (queryData) {
+				req.query(queryData);
+			}
+			req = addAuthHeader(req);
+			return handleResponse(req);
+		},
+		post: function post(endpoint, data) {
+			var req = superagent.post(endpoint).send(data);
+			req = addAuthHeader(req);
+			return handleResponse(req);
+		},
+		put: function put(endpoint, data) {
+			var req = superagent.put(endpoint).send(data);
+			req = addAuthHeader(req);
+			return handleResponse(req);
+		},
+		del: function del(endpoint, data) {
+			var req = superagent.put(endpoint).send(data);
+			req = addAuthHeader(req);
+			return handleResponse(req);
+		}
+	};
+
+	function handleResponse(req) {
+		return new Promise(function (resolve, reject) {
+			req.end(function (err, res) {
+				if (!err) {
+					// logger.log({description: 'Response:', response:res, func:'handleResponse', file: 'request'});
+					return resolve(res.body);
+				} else {
+					if (err.status == 401) {
+						console.warn('Unauthorized. You must be signed into make this request.');
+					}
+					return reject(err);
+				}
+			});
+		});
+	}
+	function addAuthHeader(req) {
+		if (token.string) {
+			req = req.set('Authorization', 'Bearer ' + token.string);
+			console.info({ message: 'Set auth header', func: 'addAuthHeader', file: 'request' });
+		}
+		return req;
+	}
+
+	// import hello from 'hellojs'; //After es version of module is created
+	//Private object containing clientIds
+	var clientIds = {};
+
+	var ProviderAuth = (function () {
+		function ProviderAuth(actionData) {
+			_classCallCheck(this, ProviderAuth);
+
+			this.app = actionData.app ? actionData.app : null;
+			this.redirectUri = actionData.redirectUri ? actionData.redirectUri : 'redirect.html';
+			this.provider = actionData.provider ? actionData.provider : null;
+		}
+
+		_createClass(ProviderAuth, [{
+			key: 'login',
+			value: function login() {
+				var _this = this;
+
+				//Initalize Hello
+				return this.initHello.then(function () {
+					if (window) {
+						return window.hello.login(_this.provider);
+					}
+				});
+			}
+		}, {
+			key: 'signup',
+			value: function signup() {
+				var _this2 = this;
+
+				//Initalize Hello
+				if (!_.has(clientIds, this.provider)) {
+					logger.error({ description: this.provider + ' is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.', provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
+					return Promise.reject();
+				}
+				return this.initHello.then(function () {
+					if (window) {
+						return window.hello.login(_this2.provider);
+					}
+				});
+			}
+		}, {
+			key: 'loadHello',
+			get: function get() {
+				//Load hellojs script
+				//TODO: Replace this with es6ified version
+				if (window && !window.hello) {
+					return domUtil.asyncLoadJs('https://s3.amazonaws.com/kyper-cdn/js/hello.js');
+				} else {
+					return Promise.resolve();
+				}
+			}
+		}, {
+			key: 'helloLoginListener',
+			get: function get() {
+				//Login Listener
+				window.hello.on('auth.login', function (auth) {
+					logger.info({ description: 'User logged in to google.', func: 'loadHello', obj: 'Google' });
+					// Call user information, for the given network
+					window.hello(auth.network).api('/me').then(function (r) {
+						// Inject it into the container
+						//TODO:Send account informaiton to server
+						var userData = r;
+						userData.provider = auth.network;
+						//Login or Signup endpoint
+						return request.post(this.endpoint + '/provider', userData).then(function (response) {
+							logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'GoogleUtil' });
+							return response;
+						})['catch'](function (errRes) {
+							logger.error({ description: 'Error requesting login.', error: errRes, func: 'signup', obj: 'Matter' });
+							return Promise.reject(errRes);
+						});
+					});
+				});
+			}
+		}, {
+			key: 'initHello',
+			get: function get() {
+				var _this3 = this;
+
+				return this.loadHello.then(function () {
+					return request.get(_this3.app.endpoint).then(function (response) {
+						logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'ProviderAuth' });
+						var provider = _.findWhere(response.providers, { name: _this3.provider });
+						logger.warn({ description: 'Provider found', findWhere: provider, func: 'login', obj: 'ProviderAuth' });
+						if (!provider) {
+							logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this3.provider, provider: _this3.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
+							return Promise.reject({ message: 'Provider is not setup.' });
+						}
+						var providersConfig = {};
+						providersConfig[provider.name] = provider.clientId;
+						logger.warn({ description: 'Providers config built', providersConfig: providersConfig, func: 'login', obj: 'ProviderAuth' });
+						return window.hello.init(providersConfig, { redirect_uri: _this3.redirectUri });
+					})['catch'](function (errRes) {
+						logger.error({ description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter' });
+						return Promise.reject(errRes);
+					});
+				});
+			}
+		}]);
+
+		return ProviderAuth;
+	})();
+
+	var Matter = (function () {
+		/* Constructor
+   * @param {string} appName Name of application
+   */
+
+		function Matter(appName, opts) {
+			_classCallCheck(this, Matter);
+
+			if (!appName) {
+				logger.error({ description: 'Application name requires to use Matter.', func: 'constructor', obj: 'Matter' });
+				throw new Error('Application name is required to use Matter');
+			} else {
+				this.name = appName;
+			}
+			if (opts) {
+				this.options = opts;
+			}
+		}
+
+		/* Endpoint getter
+   *
+   */
+
+		_createClass(Matter, [{
+			key: 'signup',
+
+			/* Signup
+    *
+    */
+			value: function signup(signupData) {
+				if (_.isObject(signupData)) {
+					return request.post(this.endpoint + '/signup', signupData).then(function (response) {
+						logger.log({ description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
+						if (_.has(response, 'account')) {
+							return response.account;
+						} else {
+							logger.warn({ description: 'Account was not contained in signup response.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
+							return response;
+						}
+					})['catch'](function (errRes) {
+						logger.error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
+						return Promise.reject(errRes);
+					});
+				} else {
+					//Handle 3rd Party signups
+					var auth = new ProviderAuth({ provider: signupData, app: this });
+					return auth.signup().then(function (res) {
+						logger.info({ description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter' });
+						return Promise.resolve(res);
+					});
+				}
+			}
+
+			/** Login
+    *
+    */
+		}, {
+			key: 'login',
+			value: function login(loginData) {
+				var _this4 = this;
+
+				if (!loginData) {
+					logger.error({ description: 'Username/Email and Password are required to login', func: 'login', obj: 'Matter' });
+					return Promise.reject({ message: 'Login data is required to login.' });
+				}
+				if (_.isObject(loginData)) {
+					if (!loginData.password || !loginData.username) {
+						return Promise.reject({ message: 'Username/Email and Password are required to login' });
+					}
+					//Username/Email Login
+					return request.put(this.endpoint + '/login', loginData).then(function (response) {
+						if (_.has(response, 'data') && _.has(response.data, 'status') && response.data.status == 409) {
+							logger.warn({ description: 'Account not found.', response: response, func: 'login', obj: 'Matter' });
+							return Promise.reject(response.data);
+						} else {
+							logger.log({ description: 'Successful login.', response: response, func: 'login', obj: 'Matter' });
+							if (_.has(response, 'token')) {
+								_this4.token.string = response.token;
+							}
+							if (_.has(response, 'account')) {
+								_this4.storage.setItem(config.tokenUserDataName, response.account);
+							}
+							return response.account;
+						}
+					})['catch'](function (errRes) {
+						logger.error({ description: 'Error requesting login.', error: errRes, status: errRes.status, func: 'login', obj: 'Matter' });
+						if (errRes.status == 409 || errRes.status == 400) {
+							errRes = errRes.response.text;
+						}
+						return Promise.reject(errRes);
+					});
+				} else {
+					//Provider login
+					var auth = new ProviderAuth({ provider: loginData, app: this });
+					return auth.login().then(function (res) {
+						logger.info({ description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter' });
+						return Promise.resolve(res);
+					});
+				}
+			}
+
+			/** Logout
+    */
+		}, {
+			key: 'logout',
+			value: function logout() {
+				var _this5 = this;
+
+				//TODO: Handle logging out of providers
+				return request.put(this.endpoint + '/logout').then(function (response) {
+					logger.log({ description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter' });
+					_this5.currentUser = null;
+					_this5.token['delete']();
+					return response;
+				})['catch'](function (errRes) {
+					logger.error({ description: 'Error requesting log out: ', error: errRes, func: 'logout', obj: 'Matter' });
+					_this5.storage.removeItem(config.tokenUserDataName);
+					_this5.token['delete']();
+					return Promise.reject(errRes);
+				});
+			}
+		}, {
+			key: 'getCurrentUser',
+			value: function getCurrentUser() {
+				var _this6 = this;
+
+				if (this.storage.item(config.tokenUserDataName)) {
+					return Promise.resove(this.storage.getItem(config.tokenUserDataName));
+				} else {
+					if (this.isLoggedIn) {
+						return request.get(this.endpoint + '/user').then(function (response) {
+							//TODO: Save user information locally
+							logger.log({ description: 'Current User Request responded.', responseData: response, func: 'currentUser', obj: 'Matter' });
+							_this6.currentUser = response;
+							return response;
+						})['catch'](function (errRes) {
+							if (err.status == 401) {
+								logger.warn({ description: 'Called for current user without token.', error: errRes, func: 'currentUser', obj: 'Matter' });
+								return Promise.resolve(null);
+							} else {
+								logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
+								return Promise.reject(errRes);
+							}
+						});
+					} else {
+						return Promise.resolve(null);
+					}
+				}
+			}
+		}, {
+			key: 'updateProfile',
+
+			/** updateProfile
+    */
+			value: function updateProfile(updateData) {
+				var _this7 = this;
+
+				if (!this.isLoggedIn) {
+					logger.error({ description: 'No current user profile to update.', func: 'updateProfile', obj: 'Matter' });
+					return Promise.reject({ message: 'Must be logged in to update profile.' });
+				}
+				//Send update request
+				logger.warn({ description: 'Calling update endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'updateProfile', obj: 'Matter' });
+				return request.put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
+					logger.log({ description: 'Update profile request responded.', responseData: response, func: 'updateProfile', obj: 'Matter' });
+					_this7.currentUser = response;
+					return response;
+				})['catch'](function (errRes) {
+					logger.error({ description: 'Error requesting current user.', error: errRes, func: 'updateProfile', obj: 'Matter' });
+					return Promise.reject(errRes);
+				});
+			}
+
+			/** updateProfile
+    */
+		}, {
+			key: 'isInGroup',
+
+			//Check that user is in a single group or in all of a list of groups
+			value: function isInGroup(checkGroups) {
+				var _this8 = this;
+
+				if (!this.isLoggedIn) {
+					logger.log({ description: 'No logged in user to check.', func: 'isInGroup', obj: 'Matter' });
+					return false;
+				}
+				//Check if user is
+				if (checkGroups && _.isString(checkGroups)) {
+					var _ret = (function () {
+						var groupName = checkGroups;
+						//Single role or string list of roles
+						var groupsArray = groupName.split(',');
+						if (groupsArray.length > 1) {
+							//String list of groupts
+							logger.info({ description: 'String list of groups.', list: groupsArray, func: 'isInGroup', obj: 'Matter' });
+							return {
+								v: _this8.isInGroups(groupsArray)
+							};
+						} else {
+							//Single group
+							var groups = _this8.token.data.groups || [];
+							logger.log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this8.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
+							return {
+								v: _.any(groups, function (group) {
+									return groupName == group.name;
+								})
+							};
+						}
+					})();
+
+					if (typeof _ret === 'object') return _ret.v;
+				} else if (checkGroups && _.isArray(checkGroups)) {
+					//Array of roles
+					//Check that user is in every group
+					logger.info({ description: 'Array of groups.', list: checkGroups, func: 'isInGroup', obj: 'Matter' });
+					return this.isInGroups(checkGroups);
+				} else {
+					return false;
+				}
+				//TODO: Handle string and array inputs
+			}
+		}, {
+			key: 'isInGroups',
+			value: function isInGroups(checkGroups) {
+				var _this9 = this;
+
+				//Check if user is in any of the provided groups
+				if (checkGroups && _.isArray(checkGroups)) {
+					return _.map(checkGroups, function (group) {
+						if (_.isString(group)) {
+							//Group is string
+							return _this9.isInGroup(group);
+						} else {
+							//Group is object
+							return _this9.isInGroup(group.name);
+						}
+					});
+				} else if (checkGroups && _.isString(checkGroups)) {
+					//TODO: Handle spaces within string list
+					var groupsArray = checkGroups.split(',');
+					if (groupsArray.length > 1) {
+						return this.isInGroups(groupsArray);
+					}
+					return this.isInGroup(groupsArray[0]);
+				} else {
+					logger.error({ description: 'Invalid groups list.', func: 'isInGroups', obj: 'Matter' });
+				}
+			}
+		}, {
+			key: 'endpoint',
+			get: function get() {
+				var serverUrl = config.serverUrl;
+				if (_.has(this, 'options') && this.options.localServer) {
+					serverUrl = 'http://localhost:4000';
+					logger.info({ description: 'LocalServer option was set to true. Now server url is local server.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+				}
+				if (this.name == 'tessellate') {
+					//Remove url if host is server
+					if (window && _.has(window, 'location') && window.location.host == serverUrl) {
+						serverUrl = '';
+						logger.info({ description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+					}
+				} else {
+					serverUrl = serverUrl + '/apps/' + this.name;
+					logger.log({ description: 'Server url set.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+				}
+				return serverUrl;
+			}
+		}, {
+			key: 'currentUser',
+			set: function set(userData) {
+				logger.log({ description: 'Current User set.', user: userData, func: 'currentUser', obj: 'Matter' });
+				this.storage.setItem(config.tokenUserDataName, userData);
+			},
+			get: function get() {
+				if (this.storage.getItem(config.tokenUserDataName)) {
+					return this.storage.getItem(config.tokenUserDataName);
+				} else {
+					return null;
+				}
+			}
+		}, {
+			key: 'storage',
+			get: function get() {
+				return storage;
+			}
+
+			/** updateProfile
+    */
+		}, {
+			key: 'token',
+			get: function get() {
+				return token;
+			}
+		}, {
+			key: 'utils',
+			get: function get() {
+				return { logger: logger, request: request, storage: storage, dom: domUtil };
+			}
+		}, {
+			key: 'isLoggedIn',
+			get: function get() {
+				return this.token.string ? true : false;
+			}
+		}]);
+
+		return Matter;
+	})();
+
+	;
+
+	return Matter;
+});
+
+},{"jwt-decode":233,"lodash":237,"superagent":238}],237:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -41844,2801 +42798,7 @@ module.exports = Firebase;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],233:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var _classesAccount = require('../classes/Account');
-
-var _classesAccount2 = _interopRequireDefault(_classesAccount);
-
-var logger = _classesMatter2['default'].utils.logger;
-//Actions for accounts list
-
-var AccountsAction = (function () {
-	function AccountsAction(actionData) {
-		_classCallCheck(this, AccountsAction);
-
-		//Check to see if action is for a specific app
-		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
-			this.app = actionData.app;
-			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			this.app = { name: actionData };
-			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
-		}
-		logger.info({ description: 'New Accounts action.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
-	}
-
-	_createClass(AccountsAction, [{
-		key: 'get',
-
-		//Get accounts or single application
-		value: function get() {
-			logger.log({ description: 'Accounts get called.', func: 'get', obj: 'AccountsAction' });
-			return _classesMatter2['default'].utils.request.get(this.accountsEndpoint).then(function (response) {
-				logger.info({ description: 'Accounts loaded successfully.', func: 'get', obj: 'AccountsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.info({ description: 'Error getting accounts.', error: errRes, func: 'get', obj: 'AccountsAction' });
-				return Promise.reject(errRes.message || 'Error getting accounts.');
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(accountData) {
-			logger.info({ description: 'Account add called.', accountData: accountData, func: 'add', obj: 'AccountsAction' });
-			return this.utils.request.post(this.accountsEndpoint, accountData).then(function (response) {
-				logger.info({ description: 'Account added successfully.', response: response, newAccount: new _classesAccount2['default'](response), func: 'add', obj: 'AccountsAction' });
-				return new _classesAccount2['default'](response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Account add called.', error: errRes, accountData: accountData, func: 'add', obj: 'AccountsAction' });
-				return Promise.reject(errRes.message || 'Error adding account.');
-			});
-		}
-
-		//Search with partial of accountname
-	}, {
-		key: 'search',
-		value: function search(query) {
-			logger.log({ description: 'Accounts search called.', query: query, func: 'search', obj: 'AccountsAction' });
-			var searchEndpoint = this.accountsEndpoint + '/search/';
-			if (query && _lodash2['default'].isString(query)) {
-				searchEndpoint += query;
-			}
-			if (!query || query == '') {
-				logger.log({ description: 'Null query, returning empty array.', func: 'search', obj: 'AccountsAction' });
-				return Promise.resolve([]);
-			}
-			return _classesMatter2['default'].utils.request.get(searchEndpoint).then(function (response) {
-				logger.log({ description: 'Accounts search responded.', response: response, query: query, func: 'search', obj: 'AccountsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error searching Accounts.', error: errRes, query: query, func: 'search', obj: 'AccountsAction' });
-				return Promise.reject(errRes.message || 'Error searching accounts.');
-			});
-		}
-	}, {
-		key: 'accountsEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'accounts'];
-			//Check for app account action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				//Splice apps, appName into index 1
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Accounts Endpoint built.', endpoint: endpointStr, func: 'accountsEndpoint', obj: 'AccountsAction' });
-			return endpointStr;
-		}
-	}]);
-
-	return AccountsAction;
-})();
-
-exports['default'] = AccountsAction;
-module.exports = exports['default'];
-
-},{"../classes/Account":238,"../classes/Matter":244,"../config":246,"lodash":232}],234:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var request = _classesMatter2['default'].utils.request;
-var logger = _classesMatter2['default'].utils.logger;
-
-//Actions for applications list
-
-var AppsAction = (function () {
-	function AppsAction() {
-		_classCallCheck(this, AppsAction);
-	}
-
-	_createClass(AppsAction, [{
-		key: 'get',
-
-		//Get applications or single application
-		value: function get() {
-			logger.debug({ description: 'Apps get called.', action: this, func: 'get', obj: 'AppsAction' });
-			return request.get(this.appsEndpoint).then(function (response) {
-				logger.info({ description: 'Apps data loaded successfully.', response: response, func: 'get', obj: 'AppsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting apps data.', error: errRes, func: 'get', obj: 'AppsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(appData) {
-			logger.debug({ description: 'Application add called.', appData: appData, func: 'add', obj: 'AppsAction' });
-			return _classesMatter2['default'].utils.request.post(this.appsEndpoint, appData).then(function (response) {
-				logger.info({ description: 'Application added successfully.', response: response, func: 'add', obj: 'AppsAction' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding app.', error: errRes, func: 'add', obj: 'AppsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'appsEndpoint',
-
-		//Call matter with name and settings
-		get: function get() {
-			return _classesMatter2['default'].endpoint + '/apps';
-		}
-	}]);
-
-	return AppsAction;
-})();
-
-exports['default'] = AppsAction;
-module.exports = exports['default'];
-
-},{"../classes/Matter":244,"../config":246}],235:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var request = _classesMatter2['default'].utils.request;
-var logger = _classesMatter2['default'].utils.logger;
-
-//Actions for directories list
-
-var DirectoriesAction = (function () {
-	function DirectoriesAction(actionData) {
-		_classCallCheck(this, DirectoriesAction);
-
-		//Check to see if action is for a specific app
-		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
-			this.app = actionData.app;
-			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			this.app = { name: actionData };
-			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
-		}
-		logger.info({ description: 'New directories action.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
-	}
-
-	_createClass(DirectoriesAction, [{
-		key: 'get',
-
-		//Get users or single application
-		value: function get() {
-			logger.debug({ description: 'Directories get called.', action: this, func: 'get', obj: 'DirectoriesAction' });
-			return request.get(this.directoriesEndpoint).then(function (response) {
-				logger.info({ descrption: 'Directories loaded successfully.', response: response, func: 'get', obj: 'DirectoriesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ descrption: 'error getting users', error: errRes, func: 'get', obj: 'DirectoriesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(appData) {
-			logger.debug({ description: 'Add directory called.', action: this, appData: appData, func: 'get', obj: 'DirectoriesAction' });
-			return request.post(this.directoriesEndpoint, appData).then(function (response) {
-				logger.log({ description: 'Application added successfully.', response: response, func: 'add', obj: 'DirectoriesAction' });
-				//TODO: Return list of group objects
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding group.', error: errRes, func: 'add', obj: 'DirectoriesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Search with partial of directory name
-	}, {
-		key: 'search',
-		value: function search(query) {
-			var searchEndpoint = this.directoriesEndpoint + '/search/';
-			if (query && _lodash2['default'].isString(query)) {
-				searchEndpoint += query;
-			}
-			if (!query || query == '') {
-				logger.debug({ description: 'Null query, returning empty array.', func: 'search', obj: 'DirectoriesAction' });
-				return Promise.resolve([]);
-			}
-			return request.get(searchEndpoint).then(function (response) {
-				logger.log({ description: 'Found directories based on search.', response: response, func: 'search', obj: 'DirectoriesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error searching directories.', error: errRes, func: 'search', obj: 'DirectoriesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'directoriesEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'directories'];
-			//Check for app groups action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Directories endpoint built.', endpoint: endpointStr, func: 'directoriesEndpoint', obj: 'DirectoriesAction' });
-			return endpointStr;
-		}
-	}]);
-
-	return DirectoriesAction;
-})();
-
-exports['default'] = DirectoriesAction;
-module.exports = exports['default'];
-
-},{"../classes/Matter":244,"../config":246,"lodash":232}],236:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var request = _classesMatter2['default'].utils.request;
-var logger = _classesMatter2['default'].utils.logger;
-
-//Actions for users list
-
-var GroupsAction = (function () {
-	function GroupsAction(actionData) {
-		_classCallCheck(this, GroupsAction);
-
-		//Check to see if action is for a specific app
-		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
-			this.app = actionData.app;
-			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			this.app = { name: actionData };
-			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
-		}
-		logger.info({ description: 'New Groups action.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
-	}
-
-	_createClass(GroupsAction, [{
-		key: 'get',
-
-		//Get users or single application
-		value: function get() {
-			logger.debug({ description: 'Get group called.', func: 'get', obj: 'GroupsAction' });
-			return request.get(this.groupsEndpoint).then(function (response) {
-				logger.info({ description: 'Groups loaded successfully.', response: response, func: 'get', obj: 'GroupsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.info({ description: 'Error getting groups.', error: errRes, func: 'get', obj: 'GroupsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(groupData) {
-			var newGroupData = groupData;
-			logger.debug({ description: 'Add group called.', groupData: groupData, func: 'add', obj: 'GroupsAction' });
-			if (_lodash2['default'].isString(groupData)) {
-				//Group data is string
-				newGroupData = { name: groupData };
-			}
-			logger.debug({ description: 'Add group called.', newGroupData: newGroupData, func: 'add', obj: 'GroupsAction' });
-			return request.post(this.groupsEndpoint, newGroupData).then(function (response) {
-				logger.log({ description: 'Group added to application successfully.', response: response, func: 'add', obj: 'GroupsAction' });
-				//TODO: Return list of group objects
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding group.', error: errRes, func: 'add', obj: 'GroupsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Search with partial of username
-	}, {
-		key: 'search',
-		value: function search(query) {
-			logger.debug({ description: 'Add group called.', groupData: groupData, func: 'search', obj: 'GroupsAction' });
-			if (!query || query == '' || !_lodash2['default'].isString(query)) {
-				logger.log({ description: 'Null or invalid query, returning empty array.', func: 'search', obj: 'GroupsAction' });
-				return Promise.resolve([]);
-			}
-			var searchEndpoint = this.groupsEndpoint + '/search/' + query;
-			logger.debug({ description: 'Search endpoint created.', endpoint: searchEndpoint, func: 'search', obj: 'GroupsAction' });
-			return request.get(searchEndpoint).then(function (response) {
-				logger.log({ description: 'Found groups based on search.', response: response, func: 'search', obj: 'GroupsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error searching groups.', error: errRes, func: 'search', obj: 'GroupsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'groupsEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'groups'];
-			//Check for app groups action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Groups Endpoint built.', endpoint: endpointStr, func: 'groupsEndpoint', obj: 'GroupsAction' });
-			return endpointStr;
-		}
-	}]);
-
-	return GroupsAction;
-})();
-
-exports['default'] = GroupsAction;
-module.exports = exports['default'];
-
-},{"../classes/Matter":244,"../config":246,"lodash":232}],237:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var logger = _classesMatter2['default'].utils.logger;
-var request = _classesMatter2['default'].utils.request;
-
-//Actions for templates list
-
-var TemplatesAction = (function () {
-	function TemplatesAction() {
-		_classCallCheck(this, TemplatesAction);
-	}
-
-	_createClass(TemplatesAction, [{
-		key: 'get',
-
-		//Get templates or single application
-		value: function get() {
-			logger.log({ description: 'Get template called.', func: 'get', obj: 'TemplatesAction' });
-			return request.get(this.templatesEndpoint).then(function (response) {
-				logger.log({ description: 'Templates loaded.', response: response, func: 'get', obj: 'TemplatesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting templates.', error: errRes, func: 'get', obj: 'TemplatesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(appData) {
-			logger.log({ description: 'Add template called.', func: 'add', obj: 'TemplatesAction' });
-			return request.post(this.templatesEndpoint, appData).then(function (response) {
-				logger.log({ description: 'Templates added successfully.', func: 'add', obj: 'TemplatesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding template.', error: errRes, func: 'add', obj: 'TemplatesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Search with partial of username
-	}, {
-		key: 'search',
-		value: function search(query) {
-			logger.log({ description: 'Search template called.', query: query, func: 'search', obj: 'TemplatesAction' });
-			var searchEndpoint = this.templatesEndpoint + '/search/';
-			if (query && _lodash2['default'].isString(query)) {
-				searchEndpoint += query;
-			}
-			logger.log({ description: 'Search endpoint created.', endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
-			return request.get(searchEndpoint).then(function (response) {
-				logger.log({ description: 'Template(s) found successfully.', response: response, endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.log({ description: 'Error searching for templates.', query: query, error: errRes, endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'templatesEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'templates'];
-			//Check for app groups action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				// endpointArray.splice(1, 0, 'apps', this.app.name);
-				logger.log({ description: 'Templates action is not currently supported for a specific application.', func: 'accountsEndpoint', obj: 'AccountsAction' });
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Templates endpoint built.', endpoint: endpointStr, func: 'templatesEndpoint', obj: 'TemplatesAction' });
-			return endpointStr;
-		}
-	}]);
-
-	return TemplatesAction;
-})();
-
-exports['default'] = TemplatesAction;
-module.exports = exports['default'];
-
-},{"../classes/Matter":244,"../config":246,"lodash":232}],238:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var request = _classesMatter2['default'].utils.request;
-var logger = _classesMatter2['default'].utils.logger;
-
-//Actions for specific user
-
-var Account = (function () {
-	function Account(accountData) {
-		_classCallCheck(this, Account);
-
-		//Call matter with name and settings
-		if (accountData && _lodash2['default'].isObject(accountData) && _lodash2['default'].has(accountData, 'username')) {
-			_lodash2['default'].extend(this, accountData);
-		} else if (accountData && _lodash2['default'].isString(accountData)) {
-			this.username = accountData;
-		} else {
-			logger.error({ description: 'AccountData is required to start an AccountAction', func: 'constructor', obj: 'Account' });
-			throw new Error('username is required to start an AccountAction');
-		}
-	}
-
-	//Build endpoint based on accountData
-
-	_createClass(Account, [{
-		key: 'get',
-
-		//Get a user
-		value: function get() {
-			logger.debug({ description: 'Account data loaded successfully.', func: 'get', obj: 'Account' });
-			return request.get(this.accountEndpoint).then(function (response) {
-				logger.info({ description: 'Account data loaded successfully.', response: response, func: 'get', obj: 'Account' });
-				return new Account(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting user.', error: errRes, func: 'get', obj: 'Account' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Update a Account
-	}, {
-		key: 'update',
-		value: function update(accountData) {
-			logger.debug({ description: 'Update user called.', accountData: accountData, func: 'update', obj: 'Account' });
-			return request.put(this.accountEndpoint, accountData).then(function (response) {
-				logger.info({ description: 'Account updated successfully.', func: 'update', obj: 'Account' });
-				//TODO: Extend this with current info before returning
-				return new Account(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating user.', func: 'update', obj: 'Account' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Delete a Account
-	}, {
-		key: 'del',
-		value: function del(accountData) {
-			logger.debug({ description: 'Delete user called.', func: 'del', obj: 'Account' });
-			return request['delete'](this.accountEndpoint, accountData).then(function (response) {
-				logger.info({ description: 'Delete user successful.', response: response, func: 'del', obj: 'Account' });
-				return new Account(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error deleting user.', accountData: accountData, error: errRes, func: 'del', obj: 'Account' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'accountEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'users', this.username];
-			//Check for app account action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Account Endpoint built.', endpoint: endpointStr, func: 'accountEndpoint', obj: 'Account' });
-			return endpointStr;
-		}
-	}]);
-
-	return Account;
-})();
-
-exports['default'] = Account;
-module.exports = exports['default'];
-
-},{"../classes/Matter":244,"../config":246,"lodash":232}],239:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-//Internal libs and config
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-//Actions and Classes
-
-var _actionsGroupsAction = require('../actions/GroupsAction');
-
-var _actionsGroupsAction2 = _interopRequireDefault(_actionsGroupsAction);
-
-var _Group2 = require('./Group');
-
-var _Group3 = _interopRequireDefault(_Group2);
-
-var _actionsDirectoriesAction = require('../actions/DirectoriesAction');
-
-var _actionsDirectoriesAction2 = _interopRequireDefault(_actionsDirectoriesAction);
-
-var _Directory2 = require('./Directory');
-
-var _Directory3 = _interopRequireDefault(_Directory2);
-
-var _actionsAccountsAction = require('../actions/AccountsAction');
-
-var _actionsAccountsAction2 = _interopRequireDefault(_actionsAccountsAction);
-
-var _Account2 = require('./Account');
-
-var _Account3 = _interopRequireDefault(_Account2);
-
-var _Files = require('./Files');
-
-var _Files2 = _interopRequireDefault(_Files);
-
-var _File2 = require('./File');
-
-var _File3 = _interopRequireDefault(_File2);
-
-//External Libs
-
-var _firebase = require('firebase');
-
-var _firebase2 = _interopRequireDefault(_firebase);
-
-var _awsSdk = require('aws-sdk');
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-//Convenience vars
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-/**
- * Application class.
- *
- */
-
-var Application = (function () {
-	function Application(appData) {
-		_classCallCheck(this, Application);
-
-		//Setup application data based on input
-		if (appData && _lodash2['default'].isObject(appData)) {
-			_lodash2['default'].extend(this, appData);
-		} else if (appData && _lodash2['default'].isString(appData)) {
-			this.name = appData;
-		}
-		if (_firebase2['default']) {
-			this.fbRef = new _firebase2['default'](_config2['default'].fbUrl + appData.name);
-		}
-		// logger.debug({description: 'Application object created.', application: this, func: 'constructor', obj: 'Application'});
-	}
-
-	_createClass(Application, [{
-		key: 'get',
-
-		//Get applications or single application
-		value: function get() {
-			logger.debug({ description: 'Application get called.', func: 'get', obj: 'Application' });
-			return request.get(this.appEndpoint).then(function (response) {
-				logger.info({ description: 'Application loaded successfully.', response: response, application: new Application(response), func: 'get', obj: 'Application' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting Application.', message: errRes.response.text, error: errRes, func: 'get', obj: 'Application' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Update an application
-	}, {
-		key: 'update',
-		value: function update(appData) {
-			logger.debug({ description: 'Application update called.', func: 'update', obj: 'Application' });
-			return request.put(this.appEndpoint, appData).then(function (response) {
-				logger.info({ description: 'Application updated successfully.', response: response, func: 'update', obj: 'Application' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating application.', error: errRes, func: 'update', obj: 'Application' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-	}, {
-		key: 'addStorage',
-		value: function addStorage() {
-			logger.debug({ description: 'Application add storage called.', application: this, func: 'addStorage', obj: 'Application' });
-			return request.post(this.appEndpoint + '/storage', appData).then(function (response) {
-				logger.info({ description: 'Storage successfully added to application.', response: response, application: new Application(response), func: 'addStorage', obj: 'Application' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding storage to application.', error: errRes, func: 'addStorage', obj: 'Application' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-	}, {
-		key: 'applyTemplate',
-		value: function applyTemplate() {
-			var _this = this;
-
-			logger.error({ description: 'Applying templates to existing applications is not currently supported.', func: 'applyTemplate', obj: 'Application' });
-			return request.post(endpoint, appData).then(function (response) {
-				logger.info({ description: 'Template successfully applied to application.', response: response, application: _this, func: 'applyTemplate', obj: 'Application' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error applying template to application.', error: errRes, application: _this, func: 'applyTemplate', obj: 'Application' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Files object that contains files methods
-	}, {
-		key: 'File',
-		value: function File(fileData) {
-			logger.debug({ description: 'Applications file action called.', fileData: fileData, application: this, func: 'file', obj: 'Application' });
-			return new _File3['default']({ app: this, fileData: fileData });
-		}
-	}, {
-		key: 'User',
-		value: function User(userData) {
-			logger.debug({ description: 'Applications user action called.', userData: userData, application: this, func: 'user', obj: 'Application' });
-			return new _Account3['default']({ app: this, userData: userData });
-		}
-	}, {
-		key: 'Account',
-		value: function Account(userData) {
-			logger.debug({ description: 'Applications account action called.', userData: userData, application: this, func: 'user', obj: 'Application' });
-			return new _Account3['default']({ app: this, userData: userData });
-		}
-	}, {
-		key: 'Group',
-		value: function Group(groupData) {
-			logger.debug({ description: 'Applications group action called.', groupData: groupData, application: this, func: 'group', obj: 'Application' });
-			return new _Group3['default']({ app: this, groupData: groupData });
-		}
-	}, {
-		key: 'Directory',
-		value: function Directory(directoryData) {
-			logger.debug({ description: 'Applications directory action called.', directoryData: directoryData, application: this, func: 'directory', obj: 'Application' });
-			return new _Directory3['default']({ app: this, directoryData: directoryData });
-		}
-	}, {
-		key: 'appEndpoint',
-		get: function get() {
-			return _Matter2['default'].endpoint + '/apps/' + this.name;
-		}
-	}, {
-		key: 'Files',
-		get: function get() {
-			logger.debug({ description: 'Applications files action called.', application: this, func: 'files', obj: 'Application' });
-			return new _Files2['default']({ app: this });
-		}
-	}, {
-		key: 'Users',
-		get: function get() {
-			logger.debug({ description: 'Applications users action called.', application: this, func: 'user', obj: 'Application' });
-			return new _actionsAccountsAction2['default']({ app: this });
-		}
-	}, {
-		key: 'Accounts',
-		get: function get() {
-			logger.debug({ description: 'Applications account action called.', application: this, func: 'user', obj: 'Application' });
-			return new _actionsAccountsAction2['default']({ app: this });
-		}
-	}, {
-		key: 'Groups',
-		get: function get() {
-			logger.debug({ description: 'Applications groups action called.', application: this, func: 'groups', obj: 'Application' });
-			return new _actionsGroupsAction2['default']({ app: this });
-		}
-	}, {
-		key: 'Directories',
-		get: function get() {
-			logger.debug({ description: 'Applications directories action called.', application: this, func: 'directories', obj: 'Application' });
-			return new _actionsDirectoriesAction2['default']({ app: this });
-		}
-	}]);
-
-	return Application;
-})();
-
-exports['default'] = Application;
-module.exports = exports['default'];
-
-},{"../actions/AccountsAction":233,"../actions/DirectoriesAction":235,"../actions/GroupsAction":236,"../config":246,"./Account":238,"./Directory":240,"./File":241,"./Files":242,"./Group":243,"./Matter":244,"aws-sdk":1,"firebase":231,"lodash":232}],240:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-//Actions for specific directory
-
-var Directory = (function () {
-	function Directory(actionData) {
-		_classCallCheck(this, Directory);
-
-		if (actionData && _lodash2['default'].isObject(actionData) && (_lodash2['default'].has(actionData, 'directoryName') || _lodash2['default'].has(actionData, 'name'))) {
-			//Data is object containing directory data
-			this.name = actionData.directoryName || actionData.name;
-			if (_lodash2['default'].has(actionData, 'appName')) {
-				this.appName = actionData.appName;
-			}
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			//Data is string name
-			this.name = actionData;
-		} else {
-			logger.error({ description: 'Action data object with name is required to start a Directory Action.', func: 'constructor', obj: 'Directory' });
-			throw new Error('Directory Data object with name is required to start a Directory action.');
-		}
-	}
-
-	_createClass(Directory, [{
-		key: 'get',
-
-		//Get userlications or single userlication
-		value: function get() {
-			return request.get(this.directoryEndpoint).then(function (response) {
-				logger.info({ description: 'Directory data loaded successfully.', directoryData: directoryData, response: response, func: 'get', obj: 'Directory' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.info({ description: 'Error getting directory.', directoryData: directoryData, error: errRes, func: 'get', obj: 'Directory' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Update an Directory
-	}, {
-		key: 'update',
-		value: function update(directoryData) {
-			logger.debug({ description: 'Directory updated called.', directoryData: directoryData, func: 'update', obj: 'Directory' });
-			return _Matter2['default'].utils.request.put(this.directoryEndpoint, directoryData).then(function (response) {
-				logger.info({ description: 'Directory updated successfully.', directoryData: directoryData, response: response, func: 'update', obj: 'Directory' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating directory.', directoryData: directoryData, error: errRes, func: 'update', obj: 'Directory' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Delete an Directory
-	}, {
-		key: 'del',
-		value: function del(directoryData) {
-			logger.debug({ description: 'Delete directory called.', directoryData: directoryData, func: 'del', obj: 'Directory' });
-			return request['delete'](this.directoryEndpoint, userData).then(function (response) {
-				logger.info({ description: 'Directory deleted successfully.', directoryData: directoryData, func: 'del', obj: 'Directory' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error deleting directory.', directoryData: directoryData, error: errRes, func: 'del', obj: 'Directory' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'directoryEndpoint',
-		get: function get() {
-			var endpointArray = [_Matter2['default'].endpoint, 'directories', this.name];
-			//Check for app account action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Directory endpoint built.', endpoint: endpointStr, func: 'directoryEndpoint', obj: 'Directory' });
-			return endpointStr;
-		}
-	}]);
-
-	return Directory;
-})();
-
-exports['default'] = Directory;
-module.exports = exports['default'];
-
-},{"../config":246,"./Matter":244,"lodash":232}],241:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _awsSdk = require('aws-sdk');
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-//Convenience vars
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-var File = (function () {
-	function File(fileData) {
-		_classCallCheck(this, File);
-
-		if (fileData && _lodash2['default'].isObject(fileData) && _lodash2['default'].has(fileData, ['path', 'app'])) {
-			this.path = fileData.path;
-			this.app = fileData.app;
-			this.pathArray = this.path.split('/');
-			//Get name from data or from pathArray
-			this.name = _lodash2['default'].has(fileData, 'name') ? fileData.name : this.pathArray[this.pathArray.length - 1];
-		} else if (fileData && !_lodash2['default'].isObject(fileData)) {
-			logger.error({ description: 'File data is not an object. File data must be an object that includes path and appName.', func: 'constructor', obj: 'File' });
-			//TODO: Get appName from path data?
-			throw new Error('File data must be an object that includes path and appName.');
-		} else {
-			logger.error({ description: 'File data include path and app is needed to create a File action.', func: 'constructor', obj: 'File' });
-			throw new Error('File data with path and app is needed to create file action.');
-		}
-		this.type = 'file';
-		logger.debug({ description: 'File object constructed.', file: this, func: 'constructor', obj: 'File' });
-	}
-
-	_createClass(File, [{
-		key: 'get',
-		value: function get() {
-			if (!this.app || !this.app.frontend) {
-				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'File' });
-				return Promise.reject({ message: 'Front end data is required to get file.' });
-			} else {
-				var saveParams = {
-					Bucket: this.app.frontend.bucketName,
-					Key: this.path
-				};
-				//Set contentType from fileData to ContentType parameter of new object
-				if (fileData.contentType) {
-					saveParams.ContentType = fileData.contentType;
-				}
-				logger.debug({ description: 'File get params built.', saveParams: saveParams, fileData: fileData, func: 'get', obj: 'File' });
-				return s3.getObject(saveParams, function (err, data) {
-					//[TODO] Add putting object ACL (make public)
-					if (!err) {
-						logger.error({ description: 'File loaded successfully.', fileData: data, func: 'get', obj: 'File' });
-						return data;
-					} else {
-						logger.error({ description: 'Error loading file from S3.', error: err, func: 'get', obj: 'File' });
-						return Promise.reject(err);
-					}
-				});
-			}
-		}
-
-		//Alias for get
-	}, {
-		key: 'open',
-		value: function open() {
-			return this.get;
-		}
-	}, {
-		key: 'publish',
-		value: function publish(fileData) {
-			//TODO: Publish file to application
-			logger.debug({ description: 'File publish called.', file: this, fileData: fileData, func: 'publish', obj: 'File' });
-			if (!this.app.frontend) {
-				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'publish', obj: 'File' });
-				return Promise.reject({ message: 'Front end data is required to publish file.' });
-			} else {
-				if (!_lodash2['default'].has(fileData, ['content', 'path'])) {
-					logger.error({ description: 'File data including path and content required to publish.', func: 'publish', obj: 'File' });
-					return Promise.reject({ message: 'File data including path and content required to publish.' });
-				}
-				var saveParams = {
-					Bucket: this.app.frontend.bucketName,
-					Key: fileData.path,
-					Body: fileData.content,
-					ACL: 'public-read'
-				};
-				//Set contentType from fileData to ContentType parameter of new object
-				if (fileData.contentType) {
-					saveParams.ContentType = fileData.contentType;
-				}
-				//If AWS Credential do not exist, set them
-				if (typeof _awsSdk2['default'].config.credentials == 'undefined' || !_awsSdk2['default'].config.credentials) {
-					logger.debug({ description: 'AWS creds do not exist, so they are being set.', func: 'publish', obj: 'File' });
-					setAWSConfig();
-				}
-				logger.debug({ description: 'File publish params built.', saveParams: saveParams, fileData: fileData, func: 'publish', obj: 'File' });
-				return s3.putObject(saveParams, function (err, data) {
-					//[TODO] Add putting object ACL (make public)
-					if (!err) {
-						logger.error({ description: 'File saved successfully.', fileData: data, func: 'publish', obj: 'File' });
-						return data;
-					} else {
-						logger.error({ description: 'Error saving file to S3.', error: err, func: 'publish', obj: 'File' });
-						return Promise.reject(err);
-					}
-				});
-			}
-		}
-	}, {
-		key: 'getTypes',
-		value: function getTypes() {
-			//Get content type and file type from extension
-		}
-	}, {
-		key: 'openWithFirepad',
-		value: function openWithFirepad(divId) {
-			//TODO:Create new Firepad instance within div
-		}
-	}, {
-		key: 'getDefaultContent',
-		value: function getDefaultContent() {}
-	}, {
-		key: 'ext',
-		get: function get() {
-			var re = /(?:\.([^.]+))?$/;
-			this.ext = re.exec(this.name)[1];
-		}
-	}]);
-
-	return File;
-})();
-
-exports['default'] = File;
-
-//------------------ Utility Functions ------------------//
-
-// AWS Config
-function setAWSConfig() {
-	_awsSdk2['default'].config.update({
-		credentials: new _awsSdk2['default'].CognitoIdentityCredentials({
-			IdentityPoolId: _config2['default'].aws.cognito.poolId
-		}),
-		region: _config2['default'].aws.region
-	});
-}
-module.exports = exports['default'];
-
-},{"../config":246,"./Matter":244,"aws-sdk":1,"lodash":232}],242:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _awsSdk = require('aws-sdk');
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-//Convenience vars
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-var Files = (function () {
-	function Files(filesData) {
-		_classCallCheck(this, Files);
-
-		if (filesData && _lodash2['default'].isObject(filesData) && (_lodash2['default'].has(filesData, 'appName') || _lodash2['default'].has(filesData, 'name'))) {
-			//Data is object containing directory data
-			this.app = filesData.filesData;
-		} else if (filesData && _lodash2['default'].isString(filesData)) {
-			//Data is string name
-			this.app = { name: filesData };
-		} else if (filesData && _lodash2['default'].isArray(filesData)) {
-			//TODO: Handle an array of files being passed as data
-			logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
-			throw new Error('Files Data object with name is required to start a Files action.');
-		} else {
-			logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
-			throw new Error('Files Data object with name is required to start a Files action.');
-		}
-		logger.debug({ description: 'Files object constructed.', func: 'constructor', obj: 'Files' });
-	}
-
-	_createClass(Files, [{
-		key: 'publish',
-		value: function publish() {
-			//TODO: Publish all files
-		}
-	}, {
-		key: 'get',
-		value: function get() {
-			var _this = this;
-
-			if (!this.app || !this.app.frontend || !this.app.frontend.bucketName) {
-				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files' });
-				return Promise.reject({ message: 'Bucket name required to get objects' });
-			} else {
-				var _ret = (function () {
-					//If AWS Credential do not exist, set them
-					if (typeof _awsSdk2['default'].config.credentials == 'undefined' || !_awsSdk2['default'].config.credentials) {
-						// logger.info('AWS creds are being updated to make request');
-						setAWSConfig();
-					}
-					var s3 = new _awsSdk2['default'].S3();
-					var listParams = { Bucket: _this.app.frontend.bucketName };
-					return {
-						v: new Promise(function (resolve, reject) {
-							s3.listObjects(listParams, function (err, data) {
-								if (!err) {
-									logger.info({ description: 'Files list loaded.', filesData: data, func: 'get', obj: 'Files' });
-									return resolve(data.Contents);
-								} else {
-									logger.error({ description: 'Error getting files from S3.', error: err, func: 'get', obj: 'Files' });
-									return reject(err);
-								}
-							});
-						})
-					};
-				})();
-
-				if (typeof _ret === 'object') return _ret.v;
-			}
-		}
-	}, {
-		key: 'add',
-		value: function add() {
-			//TODO: Add a file to files list
-		}
-	}, {
-		key: 'del',
-		value: function del() {
-			//TODO: Delete a file from files list
-		}
-	}, {
-		key: 'buildStructure',
-		value: function buildStructure() {
-			logger.debug({ description: 'Build Structure called.', func: 'buildStructure', obj: 'Application' });
-			return this.get().then(function (filesArray) {
-				var childStruct = childrenStructureFromArray(filesArray);
-				logger.log({ description: 'Child struct from array.', childStructure: childStruct, func: 'buildStructure', obj: 'Application' });
-				return childStruct;
-			}, function (err) {
-				logger.error({ description: 'Error getting application files.', error: err, func: 'buildStructure', obj: 'Application' });
-				return Promise.reject({ message: 'Error getting files.', error: err });
-			});
-		}
-
-		//ALIAS FOR buildStructure
-	}, {
-		key: 'structure',
-		get: function get() {
-			return this.buildStructure();
-		}
-	}]);
-
-	return Files;
-})();
-
-exports['default'] = Files;
-
-//------------------ Utility Functions ------------------//
-
-// AWS Config
-function setAWSConfig() {
-	_awsSdk2['default'].config.update({
-		credentials: new _awsSdk2['default'].CognitoIdentityCredentials({
-			IdentityPoolId: _config2['default'].aws.cognito.poolId
-		}),
-		region: _config2['default'].aws.region
-	});
-}
-//Convert from array file structure (from S3) to 'children' structure used in Editor GUI (angular-tree-control)
-//Examples for two files (index.html and /testFolder/file.js):
-//Array structure: [{path:'index.html'}, {path:'testFolder/file.js'}]
-//Children Structure [{type:'folder', name:'testfolder', children:[{path:'testFolder/file.js', name:'file.js', filetype:'javascript', contentType:'application/javascript'}]}]
-function childrenStructureFromArray(fileArray) {
-	// logger.log('childStructureFromArray called:', fileArray);
-	//Create a object for each file that stores the file in the correct 'children' level
-	var mappedStructure = fileArray.map(function (file) {
-		return buildStructureObject(file);
-	});
-	return combineLikeObjs(mappedStructure);
-}
-//Convert file with key into a folder/file children object
-function buildStructureObject(file) {
-	var pathArray;
-	// console.log('buildStructureObject with:', file);
-	if (_lodash2['default'].has(file, 'path')) {
-		//Coming from files already having path (structure)
-		pathArray = file.path.split('/');
-	} else {
-		//Coming from aws
-		pathArray = file.Key.split('/');
-		// console.log('file before pick:', file);
-		file = _lodash2['default'].pick(file, 'Key');
-		file.path = file.Key;
-		file.name = file.Key;
-	}
-	var currentObj = file;
-	if (pathArray.length == 1) {
-		currentObj.name = pathArray[0];
-		if (!_lodash2['default'].has(currentObj, 'type')) {
-			currentObj.type = 'file';
-		}
-		currentObj.path = pathArray[0];
-		return currentObj;
-	} else {
-		var finalObj = {};
-		_lodash2['default'].each(pathArray, function (loc, ind, list) {
-			if (ind != list.length - 1) {
-				//Not the last loc
-				currentObj.name = loc;
-				currentObj.path = _lodash2['default'].first(list, ind + 1).join('/');
-				currentObj.type = 'folder';
-				currentObj.children = [{}];
-				//TODO: Find out why this works
-				if (ind == 0) {
-					finalObj = currentObj;
-				}
-				currentObj = currentObj.children[0];
-			} else {
-				currentObj.type = 'file';
-				currentObj.name = loc;
-				currentObj.path = pathArray.join('/');
-				if (file.$id) {
-					currentObj.$id = file.$id;
-				}
-			}
-		});
-		return finalObj;
-	}
-}
-//Recursivley combine children of object's that have the same names
-function combineLikeObjs(mappedArray) {
-	var takenNames = [];
-	var finishedArray = [];
-	_lodash2['default'].each(mappedArray, function (obj, ind, list) {
-		if (takenNames.indexOf(obj.name) == -1) {
-			takenNames.push(obj.name);
-			finishedArray.push(obj);
-		} else {
-			var likeObj = _lodash2['default'].findWhere(mappedArray, { name: obj.name });
-			//Combine children of like objects
-			likeObj.children = _lodash2['default'].union(obj.children, likeObj.children);
-			likeObj.children = combineLikeObjs(likeObj.children);
-			// logger.log('extended obj:',likeObj);
-		}
-	});
-	return finishedArray;
-}
-module.exports = exports['default'];
-
-},{"../config":246,"./Matter":244,"aws-sdk":1,"lodash":232}],243:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-//Actions for specific user
-
-var Group = (function () {
-	function Group(actionData) {
-		_classCallCheck(this, Group);
-
-		//Call matter with name and settings
-		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'groupData')) {
-			//Data is object containing group data
-			this.name = _lodash2['default'].isObject(actionData.groupData) ? actionData.groupData.name : actionData.groupData;
-			if (_lodash2['default'].has(actionData, 'app')) {
-				this.app = actionData.app;
-			}
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			//Data is string name
-			this.name = actionData;
-		} else {
-			logger.error({ description: 'Action data is required to start a Group Action.', func: 'constructor', obj: 'Group' });
-			throw new Error('Username is required to start an Group');
-		}
-	}
-
-	_createClass(Group, [{
-		key: 'get',
-
-		//Get userlications or single userlication
-		value: function get() {
-			return request.get(this.groupEndpoint).then(function (response) {
-				logger.info({ description: 'Group data loaded successfully.', response: response, func: 'get', obj: 'Group' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.info({ description: 'Error getting group.', error: errRes, func: 'get', obj: 'Group' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Update an Group
-	}, {
-		key: 'update',
-		value: function update(groupData) {
-			logger.log({ description: 'Group updated called.', groupData: groupData, func: 'update', obj: 'Group' });
-			return _Matter2['default'].utils.request.put(this.groupEndpoint, groupData).then(function (response) {
-				logger.info({ description: 'Group updated successfully.', groupData: groupData, response: response, func: 'update', obj: 'Group' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating group.', groupData: groupData, error: errRes, func: 'update', obj: 'Group' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Delete an Group
-	}, {
-		key: 'del',
-		value: function del(groupData) {
-			logger.log({ description: 'Delete group called.', groupData: groupData, func: 'del', obj: 'Group' });
-			return request.del(this.groupEndpoint, {}).then(function (response) {
-				logger.info({ description: 'Group deleted successfully.', groupData: groupData, func: 'del', obj: 'Group' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error deleting group.', error: errRes, text: errRes.response.text, groupData: groupData, func: 'del', obj: 'Group' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Update an Group
-	}, {
-		key: 'addAccounts',
-		value: function addAccounts(accountsData) {
-			logger.log({ description: 'Group updated called.', accountsData: accountsData, func: 'update', obj: 'Group' });
-			var accountsArray = accountsData;
-			//Handle provided data being a string list
-			if (_lodash2['default'].isString(accountsData)) {
-				accountsArray = accountsData.split(',');
-			}
-			//Check item in array to see if it is a string (username) instead of _id
-			if (_lodash2['default'].isString(accountsArray[0])) {
-				logger.error({ description: 'Accounts array only currently supports account._id not account.username.', accountsData: accountsData, func: 'update', obj: 'Group' });
-				return Promise.reject({ message: 'Accounts array only currently supports account._id not account.username.' });
-			}
-			logger.log({ description: 'Updating group with accounts array.', accountsArray: accountsArray, func: 'update', obj: 'Group' });
-			return this.update({ accounts: accountsArray }).then(function (response) {
-				logger.info({ description: 'Account(s) added to group successfully.', response: response, func: 'addAccounts', obj: 'Group' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error addAccountseting group.', error: errRes, func: 'addAccounts', obj: 'Group' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-	}, {
-		key: 'groupEndpoint',
-		get: function get() {
-			var endpointArray = [_Matter2['default'].endpoint, 'groups', this.name];
-			//Check for app account action
-
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Group Endpoint built.', endpoint: endpointStr, func: 'groupEndpoint', obj: 'Group' });
-			return endpointStr;
-		}
-	}]);
-
-	return Group;
-})();
-
-exports['default'] = Group;
-module.exports = exports['default'];
-
-},{"../config":246,"./Matter":244,"lodash":232}],244:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _kyperMatter = require('kyper-matter');
-
-var _kyperMatter2 = _interopRequireDefault(_kyperMatter);
-
-var matter = new _kyperMatter2['default'](_config2['default'].appName, _config2['default'].matterOptions);
-exports['default'] = matter;
-module.exports = exports['default'];
-
-},{"../config":246,"kyper-matter":248}],245:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-//Actions for specific user
-
-var Template = (function () {
-	function Template(templateData) {
-		_classCallCheck(this, Template);
-
-		//Call matter with name and settings
-		if (templateData && _lodash2['default'].isString(templateData)) {
-			this.name = templateData;
-		} else {
-			logger.error({ description: 'Template data is required to start a Template action.', func: 'construcotr', obj: '' });
-			throw new Error('Template data is required to start a Template action.');
-		}
-	}
-
-	_createClass(Template, [{
-		key: 'get',
-
-		//Get userlications or single userlication
-		value: function get() {
-			logger.log({ description: 'Get template called.', name: this.name, func: 'get', obj: 'Template' });
-			return request.get(this.templateEndpoint).then(function (response) {
-				logger.log({ description: 'Get template responded.', response: response, func: 'get', obj: 'Template' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting template.', error: errRes, func: 'get', obj: 'Template' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Update an userlication
-	}, {
-		key: 'update',
-		value: function update(templateData) {
-			logger.log({ description: 'Update template called.', templateData: templateData, func: 'update', obj: 'Template' });
-			return request.put(this.templateEndpoint, templateData).then(function (response) {
-				logger.log({ description: 'Update template responded.', response: response, templateData: templateData, func: 'update', obj: 'Template' });
-				//TODO: Return template object
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating template.', error: errRes, func: 'update', obj: 'Template' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Delete a template
-	}, {
-		key: 'del',
-		value: function del(templateData) {
-			logger.log({ description: 'Delete template called.', templateData: templateData, func: 'del', obj: 'Template' });
-			return request['delete'](this.endpoint, templateData).then(function (response) {
-				logger.log({ description: 'Template deleted successfully.', response: response, func: 'del', obj: 'Template' });
-				//TODO: Return template object
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error deleting template.', error: errRes, func: 'del', obj: 'Template' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'templateEndpoint',
-		get: function get() {
-			return _Matter2['default'].endpoint + '/templates/' + this.name;
-		}
-	}]);
-
-	return Template;
-})();
-
-exports['default'] = Template;
-module.exports = exports['default'];
-
-},{"../config":246,"./Matter":244,"lodash":232}],246:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-var config = {
-	serverUrl: 'http://tessellate.elasticbeanstalk.com',
-	tokenName: 'grout',
-	fbUrl: 'https://pruvit.firebaseio.com/',
-	appName: 'tessellate',
-	matterOptions: {
-		localServer: true
-	},
-	aws: {
-		region: 'us-east-1',
-		cognito: {
-			poolId: 'us-east-1:72a20ffd-c638-48b0-b234-3312b3e64b2e',
-			params: {
-				AuthRoleArn: 'arn:aws:iam::823322155619:role/Cognito_TessellateUnauth_Role',
-				UnauthRoleArn: 'arn:aws:iam::823322155619:role/Cognito_TessellateAuth_Role'
-			}
-		}
-	}
-};
-//Set server to local server if developing
-// if (typeof window != 'undefined' && (window.location.hostname == '' || window.location.hostname == 'localhost')) {
-// 	config.serverUrl = 'http://localhost:4000';
-// }
-exports['default'] = config;
-module.exports = exports['default'];
-
-},{}],247:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _config = require('./config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _kyperMatter = require('kyper-matter');
-
-var _kyperMatter2 = _interopRequireDefault(_kyperMatter);
-
-var _actionsAppsAction = require('./actions/AppsAction');
-
-var _actionsAppsAction2 = _interopRequireDefault(_actionsAppsAction);
-
-var _classesApplication = require('./classes/Application');
-
-var _classesApplication2 = _interopRequireDefault(_classesApplication);
-
-var _actionsAccountsAction = require('./actions/AccountsAction');
-
-var _actionsAccountsAction2 = _interopRequireDefault(_actionsAccountsAction);
-
-var _classesAccount = require('./classes/Account');
-
-var _classesAccount2 = _interopRequireDefault(_classesAccount);
-
-var _actionsGroupsAction = require('./actions/GroupsAction');
-
-var _actionsGroupsAction2 = _interopRequireDefault(_actionsGroupsAction);
-
-var _classesGroup = require('./classes/Group');
-
-var _classesGroup2 = _interopRequireDefault(_classesGroup);
-
-var _actionsDirectoriesAction = require('./actions/DirectoriesAction');
-
-var _actionsDirectoriesAction2 = _interopRequireDefault(_actionsDirectoriesAction);
-
-var _classesDirectory = require('./classes/Directory');
-
-var _classesDirectory2 = _interopRequireDefault(_classesDirectory);
-
-var _actionsTemplatesAction = require('./actions/TemplatesAction');
-
-var _actionsTemplatesAction2 = _interopRequireDefault(_actionsTemplatesAction);
-
-var _classesTemplate = require('./classes/Template');
-
-var _classesTemplate2 = _interopRequireDefault(_classesTemplate);
-
-/**Grout Client Class
- * @ description Extending matter provides token storage and login/logout/signup capabilities
- */
-
-var Grout = (function (_Matter) {
-	_inherits(Grout, _Matter);
-
-	//TODO: Use getter/setter to make this not a function
-
-	function Grout() {
-		_classCallCheck(this, Grout);
-
-		//Call matter with tessellate
-		_get(Object.getPrototypeOf(Grout.prototype), 'constructor', this).call(this, _config2['default'].appName, _config2['default'].matterOptions);
-	}
-
-	//Start a new Apps Action
-
-	_createClass(Grout, [{
-		key: 'App',
-
-		//Start a new App action
-		value: function App(appName) {
-			this.utils.logger.debug({ description: 'Templates Action called.', appName: appName, template: new _classesApplication2['default'](appName), func: 'App', obj: 'Grout' });
-			return new _classesApplication2['default'](appName);
-		}
-
-		//Start a new Apps Action
-	}, {
-		key: 'Template',
-
-		//Start a new App action
-		value: function Template(templateData) {
-			this.utils.logger.debug({ description: 'Template Action called.', templateData: templateData, template: new _classesTemplate2['default'](templateData), func: 'Template', obj: 'Grout' });
-			return new _classesTemplate2['default'](templateData);
-		}
-
-		//Start a new Accounts action
-	}, {
-		key: 'Account',
-
-		//Start a new Account action
-		value: function Account(userData) {
-			this.utils.logger.debug({ description: 'Account Action called.', userData: userData, user: new _classesAccount2['default'](userData), func: 'user', obj: 'Grout' });
-			return new _classesAccount2['default'](userData);
-		}
-
-		//ALIAS OF ACCOUNTS
-		//Start a new Accounts action
-	}, {
-		key: 'User',
-
-		//ALIAS OF ACCOUNT
-		//Start a new Account action
-		value: function User(userData) {
-			this.utils.logger.debug({ description: 'Account Action called.', userData: userData, user: new _classesAccount2['default'](userData), func: 'user', obj: 'Grout' });
-			return new _classesAccount2['default'](userData);
-		}
-
-		//Start a new Groups action
-	}, {
-		key: 'Group',
-
-		//Start a new Group action
-		value: function Group(groupData) {
-			this.utils.logger.debug({ description: 'Group Action called.', groupData: groupData, action: new _classesGroup2['default']({ app: this, groupData: groupData }), func: 'group', obj: 'Grout' });
-			return new _classesGroup2['default'](groupData);
-		}
-
-		//Start a new Directories action
-	}, {
-		key: 'Directory',
-
-		//Start a new Group action
-		value: function Directory(directoryData) {
-			this.utils.logger.debug({ description: 'Directory Action called.', directoryData: directoryData, action: new _classesDirectory2['default'](directoryData), func: 'directory', obj: 'Grout' });
-			return new _classesDirectory2['default'](directoryData);
-		}
-	}, {
-		key: 'Apps',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Apps Action called.', action: new _actionsAppsAction2['default'](), func: 'Apps', obj: 'Grout' });
-			return new _actionsAppsAction2['default']();
-		}
-	}, {
-		key: 'Templates',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Templates Action called.', action: new _actionsTemplatesAction2['default'](), func: 'Templates', obj: 'Grout' });
-			return new _actionsTemplatesAction2['default']();
-		}
-	}, {
-		key: 'Accounts',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Account Action called.', action: new _actionsAccountsAction2['default'](), func: 'users', obj: 'Grout' });
-			return new _actionsAccountsAction2['default']();
-		}
-	}, {
-		key: 'Users',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Accounts Action called.', action: new _actionsAccountsAction2['default'](), func: 'Users', obj: 'Grout' });
-			return new _actionsAccountsAction2['default']();
-		}
-	}, {
-		key: 'Groups',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Groups Action called.', action: new _actionsGroupsAction2['default'](), func: 'groups', obj: 'Grout' });
-			return new _actionsGroupsAction2['default']();
-		}
-	}, {
-		key: 'Directories',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Directories Action called.', action: new DirectoriesAction(), func: 'directories', obj: 'Grout' });
-			return new DirectoriesAction();
-		}
-	}]);
-
-	return Grout;
-})(_kyperMatter2['default']);
-
-;
-
-exports['default'] = Grout;
-module.exports = exports['default'];
-
-},{"./actions/AccountsAction":233,"./actions/AppsAction":234,"./actions/DirectoriesAction":235,"./actions/GroupsAction":236,"./actions/TemplatesAction":237,"./classes/Account":238,"./classes/Application":239,"./classes/Directory":240,"./classes/Group":243,"./classes/Template":245,"./config":246,"kyper-matter":248}],248:[function(require,module,exports){
-'use strict';
-
-var _createClass = (function () {
-	function defineProperties(target, props) {
-		for (var i = 0; i < props.length; i++) {
-			var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ('value' in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-		}
-	}return function (Constructor, protoProps, staticProps) {
-		if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-	};
-})();
-
-function _classCallCheck(instance, Constructor) {
-	if (!(instance instanceof Constructor)) {
-		throw new TypeError('Cannot call a class as a function');
-	}
-}
-
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('lodash'), require('jwt-decode'), require('superagent')) : typeof define === 'function' && define.amd ? define(['lodash', 'jwt-decode', 'superagent'], factory) : global.Matter = factory(global._, global.jwtDecode, global.superagent);
-})(undefined, function (_, jwtDecode, superagent) {
-	'use strict';
-
-	_ = 'default' in _ ? _['default'] : _;
-	jwtDecode = 'default' in jwtDecode ? jwtDecode['default'] : jwtDecode;
-	superagent = 'default' in superagent ? superagent['default'] : superagent;
-
-	var config = {
-		serverUrl: 'http://tessellate.elasticbeanstalk.com',
-		tokenName: 'tessellate',
-		tokenDataName: 'tessellate-tokenData',
-		tokenUserDataName: 'tessellate-currentUser'
-	};
-
-	//Set default log level to debug
-	var logLevel = 'debug';
-	//Set log level from config
-	if (config.logLevel) {
-		logLevel = config.logLevel;
-	}
-
-	var logger = {
-		log: function log(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				runConsoleMethod('log', msgArgs);
-			} else {
-				runConsoleMethod('log', msgArgs);
-			}
-		},
-		info: function info(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				runConsoleMethod('info', msgArgs);
-			} else {
-				runConsoleMethod('info', msgArgs);
-			}
-		},
-		warn: function warn(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				runConsoleMethod('warn', msgArgs);
-			} else {
-				runConsoleMethod('warn', msgArgs);
-			}
-		},
-		debug: function debug(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				// runConsoleMethod('debug', msgArgs);
-				//Do not display console debugs in production
-			} else {
-					runConsoleMethod('debug', msgArgs);
-				}
-		},
-		error: function error(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				//TODO: Log to external logger
-				runConsoleMethod('error', msgArgs);
-			} else {
-				runConsoleMethod('error', msgArgs);
-			}
-		}
-	};
-
-	function runConsoleMethod(methodName, methodData) {
-		//Safley run console methods or use console log
-		if (methodName && console[methodName]) {
-			return console[methodName].apply(console, methodData);
-		} else {
-			return console.log.apply(console, methodData);
-		}
-	}
-	function buildMessageArgs(logData) {
-		var msgStr = '';
-		var msgObj = {};
-		//TODO: Attach time stamp
-		//Attach location information to the beginning of message
-		if (_.isObject(logData)) {
-			if (logLevel == 'debug') {
-				if (_.has(logData, 'func')) {
-					if (_.has(logData, 'obj')) {
-						//Object and function provided
-						msgStr += '[' + logData.obj + '.' + logData.func + '()]\n ';
-					} else if (_.has(logData, 'file')) {
-						msgStr += '[' + logData.file + ' > ' + logData.func + '()]\n ';
-					} else {
-						msgStr += '[' + logData.func + '()]\n ';
-					}
-				}
-			}
-			//Print each key and its value other than obj and func
-			_.each(_.omit(_.keys(logData)), function (key, ind, list) {
-				if (key != 'func' && key != 'obj') {
-					if (key == 'description' || key == 'message') {
-						msgStr += logData[key];
-					} else if (_.isString(logData[key])) {
-						// msgStr += key + ': ' + logData[key] + ', ';
-						msgObj[key] = logData[key];
-					} else {
-						//Print objects differently
-						// msgStr += key + ': ' + logData[key] + ', ';
-						msgObj[key] = logData[key];
-					}
-				}
-			});
-			msgStr += '\n';
-		} else if (_.isString(logData)) {
-			msgStr = logData;
-		}
-		var msg = [msgStr, msgObj];
-
-		return msg;
-	}
-
-	var domUtil = {
-		/**
-   * @description
-   * Appends given css source to DOM head.
-   *
-   * @param {String} src - url src for css to append
-   *
-   */
-		loadCss: function loadCss(src) {
-			if (!document) {
-				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
-				throw new Error('Document object is required to load assets.');
-			} else {
-				var css = document.createElement('link');
-				css.rel = 'stylesheet';
-				css.type = 'text/css';
-				css.href = src;
-				document.getElementsByTagName('head')[0].insertBefore(css, document.getElementsByTagName('head')[0].firstChild);
-				logger.log({ description: 'CSS was loaded into document.', element: css, func: 'loadCss', obj: 'dom' });
-				return css; //Return link element
-			}
-		},
-		/**
-   * @description
-   * Appends given javascript source to DOM head.
-   *
-   * @param {String} src - url src for javascript to append
-   *
-   */
-		loadJs: function loadJs(src) {
-			if (window && !_.has(window, 'document')) {
-				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
-				throw new Error('Document object is required to load assets.');
-			} else {
-				var js = window.document.createElement('script');
-				js.src = src;
-				js.type = 'text/javascript';
-				window.document.getElementsByTagName('head')[0].appendChild(js);
-				logger.log({ description: 'JS was loaded into document.', element: js, func: 'loadCss', obj: 'dom' });
-				return js; //Return script element
-			}
-		},
-		/**
-   * @description
-   * Appends given javascript source to DOM head.
-   *
-   * @param {String} src - url src for javascript to append
-   *
-   */
-		asyncLoadJs: function asyncLoadJs(src) {
-			if (!_.has(window, 'document')) {
-				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
-				throw new Error('Document object is required to load assets.');
-			} else {
-				var js = window.document.createElement('script');
-				js.src = src;
-				js.type = 'text/javascript';
-				window.document.getElementsByTagName('head')[0].appendChild(js);
-				logger.log({ description: 'JS was loaded into document.', element: js, func: 'loadCss', obj: 'dom' });
-				return new Promise(function (resolve, reject) {
-					window.setTimeout(resolve, 30);
-				});
-			}
-		}
-	};
-
-	var data = {};
-	var storage = Object.defineProperties({
-		/**
-   * @description
-   * Safley sets item to session storage.
-   *
-   * @param {String} itemName The items name
-   * @param {String} itemValue The items value
-   *
-   */
-		item: function item(itemName, itemValue) {
-			return this.setItem(itemName, itemValue);
-		},
-		/**
-   * @description
-   * Safley sets item to session storage. Alias: item()
-   *
-   * @param {String} itemName The items name
-   * @param {String} itemValue The items value
-   *
-   */
-		setItem: function setItem(itemName, itemValue) {
-			data[itemName] = itemValue;
-			if (this.localExists) {
-				//Convert object to string
-				if (_.isObject(itemValue)) {
-					itemValue = JSON.stringify(itemValue);
-				}
-				window.sessionStorage.setItem(itemName, itemValue);
-			}
-		},
-
-		/**
-   * @description
-   * Safley gets an item from session storage. Alias: item()
-   *
-   * @param {String} itemName The items name
-   *
-   * @return {String}
-   *
-   */
-		getItem: function getItem(itemName) {
-			if (data[itemName]) {
-				return data[itemName];
-			} else if (this.localExists) {
-				var itemStr = window.sessionStorage.getItem(itemName);
-				//Check that str is not null before parsing
-				if (itemStr) {
-					var isObj = false;
-					var itemObj = null;
-					//Try parsing to object
-					try {
-						itemObj = JSON.parse(itemStr);
-						isObj = true;
-					} catch (err) {
-						// logger.log({message: 'String could not be parsed.', error: err, func: 'getItem', obj: 'storage'});
-						//Parsing failed, this must just be a string
-						isObj = false;
-					}
-					if (isObj) {
-						return itemObj;
-					}
-				}
-				return itemStr;
-			} else {
-				return null;
-			}
-		},
-		/**
-   * @description
-   * Safley removes item from session storage.
-   *
-   * @param {String} itemName - The items name
-   *
-   */
-		removeItem: function removeItem(itemName) {
-			//TODO: Only remove used items
-			if (data[itemName]) {
-				data[itemName] = null;
-			}
-			if (this.localExists) {
-				try {
-					//Clear session storage
-					window.sessionStorage.removeItem(itemName);
-				} catch (err) {
-					logger.error({ description: 'Error removing item from session storage', error: err, obj: 'storage', func: 'removeItem' });
-				}
-			}
-		},
-		/**
-   * @description
-   * Safley removes item from session storage.
-   *
-   * @param {String} itemName the items name
-   * @param {String} itemValue the items value
-   *
-   */
-		clear: function clear() {
-			//TODO: Only remove used items
-			data = {};
-			if (this.localExists) {
-				try {
-					//Clear session storage
-					window.sessionStorage.clear();
-				} catch (err) {
-					logger.warn('Session storage could not be cleared.', err);
-				}
-			}
-		}
-
-	}, {
-		localExists: {
-			get: function get() {
-				var testKey = 'test';
-				if (typeof window != 'undefined' && typeof window.sessionStorage != 'undefined') {
-					try {
-						window.sessionStorage.setItem(testKey, '1');
-						window.sessionStorage.removeItem(testKey);
-						return true;
-					} catch (err) {
-						logger.error({ description: 'Error saving to session storage', error: err, obj: 'storage', func: 'localExists' });
-						return false;
-					}
-				} else {
-					return false;
-				}
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
-
-	function decodeToken(tokenStr) {
-		var tokenData = undefined;
-		if (tokenStr && tokenStr != '') {
-			try {
-				tokenData = jwtDecode(tokenStr);
-			} catch (err) {
-				logger.error({ description: 'Error decoding token.', data: tokenData, error: err, func: 'decodeToken', file: 'token' });
-				throw new Error('Invalid token string.');
-			}
-		}
-		return tokenData;
-	}
-	var token = Object.defineProperties({
-		save: function save(tokenStr) {
-			this.string = tokenStr;
-		},
-		'delete': function _delete() {
-			storage.removeItem(config.tokenName);
-			storage.removeItem(config.tokenDataName);
-			logger.log({ description: 'Token was removed.', func: 'delete', obj: 'token' });
-		}
-	}, {
-		string: {
-			get: function get() {
-				return storage.getItem(config.tokenName);
-			},
-			set: function set(tokenStr) {
-				logger.log({ description: 'Token was set.', token: tokenStr, func: 'string', obj: 'token' });
-				this.data = jwtDecode(tokenStr);
-				storage.setItem(config.tokenName, tokenStr);
-			},
-			configurable: true,
-			enumerable: true
-		},
-		data: {
-			get: function get() {
-				if (storage.getItem(config.tokenDataName)) {
-					return storage.getItem(config.tokenDataName);
-				} else {
-					return decodeToken(this.string);
-				}
-			},
-			set: function set(tokenData) {
-				if (_.isString(tokenData)) {
-					var tokenStr = tokenData;
-					tokenData = decodeToken(tokenStr);
-					logger.info({ description: 'Token data was set as string. Decoding token.', token: tokenStr, tokenData: tokenData, func: 'data', obj: 'token' });
-				} else {
-					logger.log({ description: 'Token data was set.', data: tokenData, func: 'data', obj: 'token' });
-					storage.setItem(config.tokenDataName, tokenData);
-				}
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
-
-	var request = {
-		get: function get(endpoint, queryData) {
-			var req = superagent.get(endpoint);
-			if (queryData) {
-				req.query(queryData);
-			}
-			req = addAuthHeader(req);
-			return handleResponse(req);
-		},
-		post: function post(endpoint, data) {
-			var req = superagent.post(endpoint).send(data);
-			req = addAuthHeader(req);
-			return handleResponse(req);
-		},
-		put: function put(endpoint, data) {
-			var req = superagent.put(endpoint).send(data);
-			req = addAuthHeader(req);
-			return handleResponse(req);
-		},
-		del: function del(endpoint, data) {
-			var req = superagent.put(endpoint).send(data);
-			req = addAuthHeader(req);
-			return handleResponse(req);
-		}
-	};
-
-	function handleResponse(req) {
-		return new Promise(function (resolve, reject) {
-			req.end(function (err, res) {
-				if (!err) {
-					// logger.log({description: 'Response:', response:res, func:'handleResponse', file: 'request'});
-					return resolve(res.body);
-				} else {
-					if (err.status == 401) {
-						console.warn('Unauthorized. You must be signed into make this request.');
-					}
-					return reject(err);
-				}
-			});
-		});
-	}
-	function addAuthHeader(req) {
-		if (token.string) {
-			req = req.set('Authorization', 'Bearer ' + token.string);
-			console.info({ message: 'Set auth header', func: 'addAuthHeader', file: 'request' });
-		}
-		return req;
-	}
-
-	// import hello from 'hellojs'; //After es version of module is created
-	//Private object containing clientIds
-	var clientIds = {};
-
-	var ProviderAuth = (function () {
-		function ProviderAuth(actionData) {
-			_classCallCheck(this, ProviderAuth);
-
-			this.app = actionData.app ? actionData.app : null;
-			this.redirectUri = actionData.redirectUri ? actionData.redirectUri : 'redirect.html';
-			this.provider = actionData.provider ? actionData.provider : null;
-		}
-
-		_createClass(ProviderAuth, [{
-			key: 'login',
-			value: function login() {
-				var _this = this;
-
-				//Initalize Hello
-				return this.initHello.then(function () {
-					if (window) {
-						return window.hello.login(_this.provider);
-					}
-				});
-			}
-		}, {
-			key: 'signup',
-			value: function signup() {
-				var _this2 = this;
-
-				//Initalize Hello
-				if (!_.has(clientIds, this.provider)) {
-					logger.error({ description: this.provider + ' is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.', provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
-					return Promise.reject();
-				}
-				return this.initHello.then(function () {
-					if (window) {
-						return window.hello.login(_this2.provider);
-					}
-				});
-			}
-		}, {
-			key: 'loadHello',
-			get: function get() {
-				//Load hellojs script
-				//TODO: Replace this with es6ified version
-				if (window && !window.hello) {
-					return domUtil.asyncLoadJs('https://s3.amazonaws.com/kyper-cdn/js/hello.js');
-				} else {
-					return Promise.resolve();
-				}
-			}
-		}, {
-			key: 'helloLoginListener',
-			get: function get() {
-				//Login Listener
-				window.hello.on('auth.login', function (auth) {
-					logger.info({ description: 'User logged in to google.', func: 'loadHello', obj: 'Google' });
-					// Call user information, for the given network
-					window.hello(auth.network).api('/me').then(function (r) {
-						// Inject it into the container
-						//TODO:Send account informaiton to server
-						var userData = r;
-						userData.provider = auth.network;
-						//Login or Signup endpoint
-						return request.post(this.endpoint + '/provider', userData).then(function (response) {
-							logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'GoogleUtil' });
-							return response;
-						})['catch'](function (errRes) {
-							logger.error({ description: 'Error requesting login.', error: errRes, func: 'signup', obj: 'Matter' });
-							return Promise.reject(errRes);
-						});
-					});
-				});
-			}
-		}, {
-			key: 'initHello',
-			get: function get() {
-				var _this3 = this;
-
-				return this.loadHello.then(function () {
-					return request.get(_this3.app.endpoint).then(function (response) {
-						logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'ProviderAuth' });
-						var provider = _.findWhere(response.providers, { name: _this3.provider });
-						logger.warn({ description: 'Provider found', findWhere: provider, func: 'login', obj: 'ProviderAuth' });
-						if (!provider) {
-							logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this3.provider, provider: _this3.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
-							return Promise.reject({ message: 'Provider is not setup.' });
-						}
-						var providersConfig = {};
-						providersConfig[provider.name] = provider.clientId;
-						logger.warn({ description: 'Providers config built', providersConfig: providersConfig, func: 'login', obj: 'ProviderAuth' });
-						return window.hello.init(providersConfig, { redirect_uri: _this3.redirectUri });
-					})['catch'](function (errRes) {
-						logger.error({ description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter' });
-						return Promise.reject(errRes);
-					});
-				});
-			}
-		}]);
-
-		return ProviderAuth;
-	})();
-
-	var Matter = (function () {
-		/* Constructor
-   * @param {string} appName Name of application
-   */
-
-		function Matter(appName, opts) {
-			_classCallCheck(this, Matter);
-
-			if (!appName) {
-				logger.error({ description: 'Application name requires to use Matter.', func: 'constructor', obj: 'Matter' });
-				throw new Error('Application name is required to use Matter');
-			} else {
-				this.name = appName;
-			}
-			if (opts) {
-				this.options = opts;
-			}
-		}
-
-		/* Endpoint getter
-   *
-   */
-
-		_createClass(Matter, [{
-			key: 'signup',
-
-			/* Signup
-    *
-    */
-			value: function signup(signupData) {
-				if (_.isObject(signupData)) {
-					return request.post(this.endpoint + '/signup', signupData).then(function (response) {
-						logger.log({ description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
-						if (_.has(response, 'account')) {
-							return response.account;
-						} else {
-							logger.warn({ description: 'Account was not contained in signup response.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
-							return response;
-						}
-					})['catch'](function (errRes) {
-						logger.error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
-						return Promise.reject(errRes);
-					});
-				} else {
-					//Handle 3rd Party signups
-					var auth = new ProviderAuth({ provider: signupData, app: this });
-					return auth.signup().then(function (res) {
-						logger.info({ description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter' });
-						return Promise.resolve(res);
-					});
-				}
-			}
-
-			/** Login
-    *
-    */
-		}, {
-			key: 'login',
-			value: function login(loginData) {
-				var _this4 = this;
-
-				if (!loginData) {
-					logger.error({ description: 'Username/Email and Password are required to login', func: 'login', obj: 'Matter' });
-					return Promise.reject({ message: 'Login data is required to login.' });
-				}
-				if (_.isObject(loginData)) {
-					if (!loginData.password || !loginData.username) {
-						return Promise.reject({ message: 'Username/Email and Password are required to login' });
-					}
-					//Username/Email Login
-					return request.put(this.endpoint + '/login', loginData).then(function (response) {
-						if (_.has(response, 'data') && _.has(response.data, 'status') && response.data.status == 409) {
-							logger.warn({ description: 'Account not found.', response: response, func: 'login', obj: 'Matter' });
-							return Promise.reject(response.data);
-						} else {
-							logger.log({ description: 'Successful login.', response: response, func: 'login', obj: 'Matter' });
-							if (_.has(response, 'token')) {
-								_this4.token.string = response.token;
-							}
-							if (_.has(response, 'account')) {
-								_this4.storage.setItem(config.tokenUserDataName, response.account);
-							}
-							return response.account;
-						}
-					})['catch'](function (errRes) {
-						logger.error({ description: 'Error requesting login.', error: errRes, status: errRes.status, func: 'login', obj: 'Matter' });
-						if (errRes.status == 409 || errRes.status == 400) {
-							errRes = errRes.response.text;
-						}
-						return Promise.reject(errRes);
-					});
-				} else {
-					//Provider login
-					var auth = new ProviderAuth({ provider: loginData, app: this });
-					return auth.login().then(function (res) {
-						logger.info({ description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter' });
-						return Promise.resolve(res);
-					});
-				}
-			}
-
-			/** Logout
-    */
-		}, {
-			key: 'logout',
-			value: function logout() {
-				var _this5 = this;
-
-				//TODO: Handle logging out of providers
-				return request.put(this.endpoint + '/logout').then(function (response) {
-					logger.log({ description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter' });
-					_this5.currentUser = null;
-					_this5.token['delete']();
-					return response;
-				})['catch'](function (errRes) {
-					logger.error({ description: 'Error requesting log out: ', error: errRes, func: 'logout', obj: 'Matter' });
-					_this5.storage.removeItem(config.tokenUserDataName);
-					_this5.token['delete']();
-					return Promise.reject(errRes);
-				});
-			}
-		}, {
-			key: 'getCurrentUser',
-			value: function getCurrentUser() {
-				var _this6 = this;
-
-				if (this.storage.item(config.tokenUserDataName)) {
-					return Promise.resove(this.storage.getItem(config.tokenUserDataName));
-				} else {
-					if (this.isLoggedIn) {
-						return request.get(this.endpoint + '/user').then(function (response) {
-							//TODO: Save user information locally
-							logger.log({ description: 'Current User Request responded.', responseData: response, func: 'currentUser', obj: 'Matter' });
-							_this6.currentUser = response;
-							return response;
-						})['catch'](function (errRes) {
-							if (err.status == 401) {
-								logger.warn({ description: 'Called for current user without token.', error: errRes, func: 'currentUser', obj: 'Matter' });
-								return Promise.resolve(null);
-							} else {
-								logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
-								return Promise.reject(errRes);
-							}
-						});
-					} else {
-						return Promise.resolve(null);
-					}
-				}
-			}
-		}, {
-			key: 'updateProfile',
-
-			/** updateProfile
-    */
-			value: function updateProfile(updateData) {
-				var _this7 = this;
-
-				if (!this.isLoggedIn) {
-					logger.error({ description: 'No current user profile to update.', func: 'updateProfile', obj: 'Matter' });
-					return Promise.reject({ message: 'Must be logged in to update profile.' });
-				}
-				//Send update request
-				logger.warn({ description: 'Calling update endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'updateProfile', obj: 'Matter' });
-				return request.put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
-					logger.log({ description: 'Update profile request responded.', responseData: response, func: 'updateProfile', obj: 'Matter' });
-					_this7.currentUser = response;
-					return response;
-				})['catch'](function (errRes) {
-					logger.error({ description: 'Error requesting current user.', error: errRes, func: 'updateProfile', obj: 'Matter' });
-					return Promise.reject(errRes);
-				});
-			}
-
-			/** updateProfile
-    */
-		}, {
-			key: 'isInGroup',
-
-			//Check that user is in a single group or in all of a list of groups
-			value: function isInGroup(checkGroups) {
-				var _this8 = this;
-
-				if (!this.isLoggedIn) {
-					logger.log({ description: 'No logged in user to check.', func: 'isInGroup', obj: 'Matter' });
-					return false;
-				}
-				//Check if user is
-				if (checkGroups && _.isString(checkGroups)) {
-					var _ret = (function () {
-						var groupName = checkGroups;
-						//Single role or string list of roles
-						var groupsArray = groupName.split(',');
-						if (groupsArray.length > 1) {
-							//String list of groupts
-							logger.info({ description: 'String list of groups.', list: groupsArray, func: 'isInGroup', obj: 'Matter' });
-							return {
-								v: _this8.isInGroups(groupsArray)
-							};
-						} else {
-							//Single group
-							var groups = _this8.token.data.groups || [];
-							logger.log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this8.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
-							return {
-								v: _.any(groups, function (group) {
-									return groupName == group.name;
-								})
-							};
-						}
-					})();
-
-					if (typeof _ret === 'object') return _ret.v;
-				} else if (checkGroups && _.isArray(checkGroups)) {
-					//Array of roles
-					//Check that user is in every group
-					logger.info({ description: 'Array of groups.', list: checkGroups, func: 'isInGroup', obj: 'Matter' });
-					return this.isInGroups(checkGroups);
-				} else {
-					return false;
-				}
-				//TODO: Handle string and array inputs
-			}
-		}, {
-			key: 'isInGroups',
-			value: function isInGroups(checkGroups) {
-				var _this9 = this;
-
-				//Check if user is in any of the provided groups
-				if (checkGroups && _.isArray(checkGroups)) {
-					return _.map(checkGroups, function (group) {
-						if (_.isString(group)) {
-							//Group is string
-							return _this9.isInGroup(group);
-						} else {
-							//Group is object
-							return _this9.isInGroup(group.name);
-						}
-					});
-				} else if (checkGroups && _.isString(checkGroups)) {
-					//TODO: Handle spaces within string list
-					var groupsArray = checkGroups.split(',');
-					if (groupsArray.length > 1) {
-						return this.isInGroups(groupsArray);
-					}
-					return this.isInGroup(groupsArray[0]);
-				} else {
-					logger.error({ description: 'Invalid groups list.', func: 'isInGroups', obj: 'Matter' });
-				}
-			}
-		}, {
-			key: 'endpoint',
-			get: function get() {
-				var serverUrl = config.serverUrl;
-				if (_.has(this, 'options') && this.options.localServer) {
-					serverUrl = 'http://localhost:4000';
-					logger.info({ description: 'LocalServer option was set to true. Now server url is local server.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
-				}
-				if (this.name == 'tessellate') {
-					//Remove url if host is server
-					if (window && _.has(window, 'location') && window.location.host == serverUrl) {
-						serverUrl = '';
-						logger.info({ description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
-					}
-				} else {
-					serverUrl = serverUrl + '/apps/' + this.name;
-					logger.log({ description: 'Server url set.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
-				}
-				return serverUrl;
-			}
-		}, {
-			key: 'currentUser',
-			set: function set(userData) {
-				logger.log({ description: 'Current User set.', user: userData, func: 'currentUser', obj: 'Matter' });
-				this.storage.setItem(config.tokenUserDataName, userData);
-			},
-			get: function get() {
-				if (this.storage.getItem(config.tokenUserDataName)) {
-					return this.storage.getItem(config.tokenUserDataName);
-				} else {
-					return null;
-				}
-			}
-		}, {
-			key: 'storage',
-			get: function get() {
-				return storage;
-			}
-
-			/** updateProfile
-    */
-		}, {
-			key: 'token',
-			get: function get() {
-				return token;
-			}
-		}, {
-			key: 'utils',
-			get: function get() {
-				return { logger: logger, request: request, storage: storage, dom: domUtil };
-			}
-		}, {
-			key: 'isLoggedIn',
-			get: function get() {
-				return this.token.string ? true : false;
-			}
-		}]);
-
-		return Matter;
-	})();
-
-	;
-
-	return Matter;
-});
-
-
-},{"jwt-decode":250,"lodash":253,"superagent":254}],249:[function(require,module,exports){
-var Base64 = require('Base64');
-
-module.exports = function(str) {
-  var output = str.replace(/-/g, "+").replace(/_/g, "/");
-  switch (output.length % 4) {
-    case 0:
-      break;
-    case 2:
-      output += "==";
-      break;
-    case 3:
-      output += "=";
-      break;
-    default:
-      throw "Illegal base64url string!";
-  }
-
-  var result = Base64.atob(output);
-
-  try{
-    return decodeURIComponent(escape(result));
-  } catch (err) {
-    return result;
-  }
-};
-
-},{"Base64":252}],250:[function(require,module,exports){
-'use strict';
-
-var base64_url_decode = require('./base64_url_decode');
-var json_parse = require('./json_parse');
-
-module.exports = function (token) {
-  if (!token) {
-    throw new Error('Invalid token specified');
-  }
-  
-  return json_parse(base64_url_decode(token.split('.')[1]));
-};
-
-},{"./base64_url_decode":249,"./json_parse":251}],251:[function(require,module,exports){
-module.exports = function (str) {
-  var parsed;
-  if (typeof JSON === 'object') {
-    parsed = JSON.parse(str);
-  } else {
-    parsed = eval('(' + str + ')');
-  }
-  return parsed;
-};
-
-},{}],252:[function(require,module,exports){
-;(function () {
-
-  var
-    object = typeof exports != 'undefined' ? exports : this, // #8: web workers
-    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
-    INVALID_CHARACTER_ERR = (function () {
-      // fabricate a suitable error object
-      try { document.createElement('$'); }
-      catch (error) { return error; }}());
-
-  // encoder
-  // [https://gist.github.com/999166] by [https://github.com/nignag]
-  object.btoa || (
-  object.btoa = function (input) {
-    for (
-      // initialize result and counter
-      var block, charCode, idx = 0, map = chars, output = '';
-      // if the next input index does not exist:
-      //   change the mapping table to "="
-      //   check if d has no fractional digits
-      input.charAt(idx | 0) || (map = '=', idx % 1);
-      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-    ) {
-      charCode = input.charCodeAt(idx += 3/4);
-      if (charCode > 0xFF) throw INVALID_CHARACTER_ERR;
-      block = block << 8 | charCode;
-    }
-    return output;
-  });
-
-  // decoder
-  // [https://gist.github.com/1020396] by [https://github.com/atk]
-  object.atob || (
-  object.atob = function (input) {
-    input = input.replace(/=+$/, '')
-    if (input.length % 4 == 1) throw INVALID_CHARACTER_ERR;
-    for (
-      // initialize result and counters
-      var bc = 0, bs, buffer, idx = 0, output = '';
-      // get next character
-      buffer = input.charAt(idx++);
-      // character found in table? initialize bit storage and add its ascii value;
-      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-        // and if not first of each 4 characters,
-        // convert the first 8 bits to one ascii character
-        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-    ) {
-      // try to find character in table (0-63, not found => -1)
-      buffer = chars.indexOf(buffer);
-    }
-    return output;
-  });
-
-}());
-
-},{}],253:[function(require,module,exports){
-arguments[4][232][0].apply(exports,arguments)
-},{"dup":232}],254:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -45778,7 +43938,7 @@ request.put = function(url, data, fn){
 
 module.exports = request;
 
-},{"emitter":255,"reduce":256}],255:[function(require,module,exports){
+},{"emitter":239,"reduce":240}],239:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -45944,7 +44104,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],256:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 
 /**
  * Reduce `arr` with `fn`.
@@ -45969,5 +44129,1828 @@ module.exports = function(arr, fn, initial){
   
   return curr;
 };
-},{}]},{},[247])(247)
+},{}],241:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var _classesAccount = require('../classes/Account');
+
+var _classesAccount2 = _interopRequireDefault(_classesAccount);
+
+var logger = _classesMatter2['default'].utils.logger;
+//Actions for accounts list
+
+var AccountsAction = (function () {
+	function AccountsAction(actionData) {
+		_classCallCheck(this, AccountsAction);
+
+		//Check to see if action is for a specific app
+		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
+			this.app = actionData.app;
+			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			this.app = { name: actionData };
+			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
+		}
+		logger.info({ description: 'New Accounts action.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
+	}
+
+	_createClass(AccountsAction, [{
+		key: 'get',
+
+		//Get accounts or single application
+		value: function get() {
+			logger.log({ description: 'Accounts get called.', func: 'get', obj: 'AccountsAction' });
+			return _classesMatter2['default'].utils.request.get(this.accountsEndpoint).then(function (response) {
+				logger.info({ description: 'Accounts loaded successfully.', func: 'get', obj: 'AccountsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.info({ description: 'Error getting accounts.', error: errRes, func: 'get', obj: 'AccountsAction' });
+				return Promise.reject(errRes.message || 'Error getting accounts.');
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(accountData) {
+			logger.info({ description: 'Account add called.', accountData: accountData, func: 'add', obj: 'AccountsAction' });
+			return this.utils.request.post(this.accountsEndpoint, accountData).then(function (response) {
+				logger.info({ description: 'Account added successfully.', response: response, newAccount: new _classesAccount2['default'](response), func: 'add', obj: 'AccountsAction' });
+				return new _classesAccount2['default'](response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Account add called.', error: errRes, accountData: accountData, func: 'add', obj: 'AccountsAction' });
+				return Promise.reject(errRes.message || 'Error adding account.');
+			});
+		}
+
+		//Search with partial of accountname
+	}, {
+		key: 'search',
+		value: function search(query) {
+			logger.log({ description: 'Accounts search called.', query: query, func: 'search', obj: 'AccountsAction' });
+			var searchEndpoint = this.accountsEndpoint + '/search/';
+			if (query && _lodash2['default'].isString(query)) {
+				searchEndpoint += query;
+			}
+			if (!query || query == '') {
+				logger.log({ description: 'Null query, returning empty array.', func: 'search', obj: 'AccountsAction' });
+				return Promise.resolve([]);
+			}
+			return _classesMatter2['default'].utils.request.get(searchEndpoint).then(function (response) {
+				logger.log({ description: 'Accounts search responded.', response: response, query: query, func: 'search', obj: 'AccountsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error searching Accounts.', error: errRes, query: query, func: 'search', obj: 'AccountsAction' });
+				return Promise.reject(errRes.message || 'Error searching accounts.');
+			});
+		}
+	}, {
+		key: 'accountsEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'accounts'];
+			//Check for app account action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				//Splice apps, appName into index 1
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Accounts Endpoint built.', endpoint: endpointStr, func: 'accountsEndpoint', obj: 'AccountsAction' });
+			return endpointStr;
+		}
+	}]);
+
+	return AccountsAction;
+})();
+
+exports['default'] = AccountsAction;
+module.exports = exports['default'];
+
+},{"../classes/Account":246,"../classes/Matter":252,"../config":254,"lodash":237}],242:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var request = _classesMatter2['default'].utils.request;
+var logger = _classesMatter2['default'].utils.logger;
+
+//Actions for applications list
+
+var AppsAction = (function () {
+	function AppsAction() {
+		_classCallCheck(this, AppsAction);
+	}
+
+	_createClass(AppsAction, [{
+		key: 'get',
+
+		//Get applications or single application
+		value: function get() {
+			logger.debug({ description: 'Apps get called.', action: this, func: 'get', obj: 'AppsAction' });
+			return request.get(this.appsEndpoint).then(function (response) {
+				logger.info({ description: 'Apps data loaded successfully.', response: response, func: 'get', obj: 'AppsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting apps data.', error: errRes, func: 'get', obj: 'AppsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(appData) {
+			logger.debug({ description: 'Application add called.', appData: appData, func: 'add', obj: 'AppsAction' });
+			return _classesMatter2['default'].utils.request.post(this.appsEndpoint, appData).then(function (response) {
+				logger.info({ description: 'Application added successfully.', response: response, func: 'add', obj: 'AppsAction' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding app.', error: errRes, func: 'add', obj: 'AppsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'appsEndpoint',
+
+		//Call matter with name and settings
+		get: function get() {
+			return _classesMatter2['default'].endpoint + '/apps';
+		}
+	}]);
+
+	return AppsAction;
+})();
+
+exports['default'] = AppsAction;
+module.exports = exports['default'];
+
+},{"../classes/Matter":252,"../config":254}],243:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var request = _classesMatter2['default'].utils.request;
+var logger = _classesMatter2['default'].utils.logger;
+
+//Actions for directories list
+
+var DirectoriesAction = (function () {
+	function DirectoriesAction(actionData) {
+		_classCallCheck(this, DirectoriesAction);
+
+		//Check to see if action is for a specific app
+		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
+			this.app = actionData.app;
+			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			this.app = { name: actionData };
+			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
+		}
+		logger.info({ description: 'New directories action.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
+	}
+
+	_createClass(DirectoriesAction, [{
+		key: 'get',
+
+		//Get users or single application
+		value: function get() {
+			logger.debug({ description: 'Directories get called.', action: this, func: 'get', obj: 'DirectoriesAction' });
+			return request.get(this.directoriesEndpoint).then(function (response) {
+				logger.info({ descrption: 'Directories loaded successfully.', response: response, func: 'get', obj: 'DirectoriesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ descrption: 'error getting users', error: errRes, func: 'get', obj: 'DirectoriesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(appData) {
+			logger.debug({ description: 'Add directory called.', action: this, appData: appData, func: 'get', obj: 'DirectoriesAction' });
+			return request.post(this.directoriesEndpoint, appData).then(function (response) {
+				logger.log({ description: 'Application added successfully.', response: response, func: 'add', obj: 'DirectoriesAction' });
+				//TODO: Return list of group objects
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding group.', error: errRes, func: 'add', obj: 'DirectoriesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Search with partial of directory name
+	}, {
+		key: 'search',
+		value: function search(query) {
+			var searchEndpoint = this.directoriesEndpoint + '/search/';
+			if (query && _lodash2['default'].isString(query)) {
+				searchEndpoint += query;
+			}
+			if (!query || query == '') {
+				logger.debug({ description: 'Null query, returning empty array.', func: 'search', obj: 'DirectoriesAction' });
+				return Promise.resolve([]);
+			}
+			return request.get(searchEndpoint).then(function (response) {
+				logger.log({ description: 'Found directories based on search.', response: response, func: 'search', obj: 'DirectoriesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error searching directories.', error: errRes, func: 'search', obj: 'DirectoriesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'directoriesEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'directories'];
+			//Check for app groups action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Directories endpoint built.', endpoint: endpointStr, func: 'directoriesEndpoint', obj: 'DirectoriesAction' });
+			return endpointStr;
+		}
+	}]);
+
+	return DirectoriesAction;
+})();
+
+exports['default'] = DirectoriesAction;
+module.exports = exports['default'];
+
+},{"../classes/Matter":252,"../config":254,"lodash":237}],244:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var request = _classesMatter2['default'].utils.request;
+var logger = _classesMatter2['default'].utils.logger;
+
+//Actions for users list
+
+var GroupsAction = (function () {
+	function GroupsAction(actionData) {
+		_classCallCheck(this, GroupsAction);
+
+		//Check to see if action is for a specific app
+		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
+			this.app = actionData.app;
+			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			this.app = { name: actionData };
+			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
+		}
+		logger.info({ description: 'New Groups action.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
+	}
+
+	_createClass(GroupsAction, [{
+		key: 'get',
+
+		//Get users or single application
+		value: function get() {
+			logger.debug({ description: 'Get group called.', func: 'get', obj: 'GroupsAction' });
+			return request.get(this.groupsEndpoint).then(function (response) {
+				logger.info({ description: 'Groups loaded successfully.', response: response, func: 'get', obj: 'GroupsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.info({ description: 'Error getting groups.', error: errRes, func: 'get', obj: 'GroupsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(groupData) {
+			var newGroupData = groupData;
+			logger.debug({ description: 'Add group called.', groupData: groupData, func: 'add', obj: 'GroupsAction' });
+			if (_lodash2['default'].isString(groupData)) {
+				//Group data is string
+				newGroupData = { name: groupData };
+			}
+			logger.debug({ description: 'Add group called.', newGroupData: newGroupData, func: 'add', obj: 'GroupsAction' });
+			return request.post(this.groupsEndpoint, newGroupData).then(function (response) {
+				logger.log({ description: 'Group added to application successfully.', response: response, func: 'add', obj: 'GroupsAction' });
+				//TODO: Return list of group objects
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding group.', error: errRes, func: 'add', obj: 'GroupsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Search with partial of username
+	}, {
+		key: 'search',
+		value: function search(query) {
+			logger.debug({ description: 'Add group called.', groupData: groupData, func: 'search', obj: 'GroupsAction' });
+			if (!query || query == '' || !_lodash2['default'].isString(query)) {
+				logger.log({ description: 'Null or invalid query, returning empty array.', func: 'search', obj: 'GroupsAction' });
+				return Promise.resolve([]);
+			}
+			var searchEndpoint = this.groupsEndpoint + '/search/' + query;
+			logger.debug({ description: 'Search endpoint created.', endpoint: searchEndpoint, func: 'search', obj: 'GroupsAction' });
+			return request.get(searchEndpoint).then(function (response) {
+				logger.log({ description: 'Found groups based on search.', response: response, func: 'search', obj: 'GroupsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error searching groups.', error: errRes, func: 'search', obj: 'GroupsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'groupsEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'groups'];
+			//Check for app groups action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Groups Endpoint built.', endpoint: endpointStr, func: 'groupsEndpoint', obj: 'GroupsAction' });
+			return endpointStr;
+		}
+	}]);
+
+	return GroupsAction;
+})();
+
+exports['default'] = GroupsAction;
+module.exports = exports['default'];
+
+},{"../classes/Matter":252,"../config":254,"lodash":237}],245:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var logger = _classesMatter2['default'].utils.logger;
+var request = _classesMatter2['default'].utils.request;
+
+//Actions for templates list
+
+var TemplatesAction = (function () {
+	function TemplatesAction() {
+		_classCallCheck(this, TemplatesAction);
+	}
+
+	_createClass(TemplatesAction, [{
+		key: 'get',
+
+		//Get templates or single application
+		value: function get() {
+			logger.log({ description: 'Get template called.', func: 'get', obj: 'TemplatesAction' });
+			return request.get(this.templatesEndpoint).then(function (response) {
+				logger.log({ description: 'Templates loaded.', response: response, func: 'get', obj: 'TemplatesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting templates.', error: errRes, func: 'get', obj: 'TemplatesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(appData) {
+			logger.log({ description: 'Add template called.', func: 'add', obj: 'TemplatesAction' });
+			return request.post(this.templatesEndpoint, appData).then(function (response) {
+				logger.log({ description: 'Templates added successfully.', func: 'add', obj: 'TemplatesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding template.', error: errRes, func: 'add', obj: 'TemplatesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Search with partial of username
+	}, {
+		key: 'search',
+		value: function search(query) {
+			logger.log({ description: 'Search template called.', query: query, func: 'search', obj: 'TemplatesAction' });
+			var searchEndpoint = this.templatesEndpoint + '/search/';
+			if (query && _lodash2['default'].isString(query)) {
+				searchEndpoint += query;
+			}
+			logger.log({ description: 'Search endpoint created.', endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
+			return request.get(searchEndpoint).then(function (response) {
+				logger.log({ description: 'Template(s) found successfully.', response: response, endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.log({ description: 'Error searching for templates.', query: query, error: errRes, endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'templatesEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'templates'];
+			//Check for app groups action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				// endpointArray.splice(1, 0, 'apps', this.app.name);
+				logger.log({ description: 'Templates action is not currently supported for a specific application.', func: 'accountsEndpoint', obj: 'AccountsAction' });
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Templates endpoint built.', endpoint: endpointStr, func: 'templatesEndpoint', obj: 'TemplatesAction' });
+			return endpointStr;
+		}
+	}]);
+
+	return TemplatesAction;
+})();
+
+exports['default'] = TemplatesAction;
+module.exports = exports['default'];
+
+},{"../classes/Matter":252,"../config":254,"lodash":237}],246:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var request = _classesMatter2['default'].utils.request;
+var logger = _classesMatter2['default'].utils.logger;
+
+//Actions for specific user
+
+var Account = (function () {
+	function Account(accountData) {
+		_classCallCheck(this, Account);
+
+		//Call matter with name and settings
+		if (accountData && _lodash2['default'].isObject(accountData) && _lodash2['default'].has(accountData, 'username')) {
+			_lodash2['default'].extend(this, accountData);
+		} else if (accountData && _lodash2['default'].isString(accountData)) {
+			this.username = accountData;
+		} else {
+			logger.error({ description: 'AccountData is required to start an AccountAction', func: 'constructor', obj: 'Account' });
+			throw new Error('username is required to start an AccountAction');
+		}
+	}
+
+	//Build endpoint based on accountData
+
+	_createClass(Account, [{
+		key: 'get',
+
+		//Get a user
+		value: function get() {
+			logger.debug({ description: 'Account data loaded successfully.', func: 'get', obj: 'Account' });
+			return request.get(this.accountEndpoint).then(function (response) {
+				logger.info({ description: 'Account data loaded successfully.', response: response, func: 'get', obj: 'Account' });
+				return new Account(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting user.', error: errRes, func: 'get', obj: 'Account' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Update a Account
+	}, {
+		key: 'update',
+		value: function update(accountData) {
+			logger.debug({ description: 'Update user called.', accountData: accountData, func: 'update', obj: 'Account' });
+			return request.put(this.accountEndpoint, accountData).then(function (response) {
+				logger.info({ description: 'Account updated successfully.', func: 'update', obj: 'Account' });
+				//TODO: Extend this with current info before returning
+				return new Account(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating user.', func: 'update', obj: 'Account' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Delete a Account
+	}, {
+		key: 'del',
+		value: function del(accountData) {
+			logger.debug({ description: 'Delete user called.', func: 'del', obj: 'Account' });
+			return request['delete'](this.accountEndpoint, accountData).then(function (response) {
+				logger.info({ description: 'Delete user successful.', response: response, func: 'del', obj: 'Account' });
+				return new Account(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error deleting user.', accountData: accountData, error: errRes, func: 'del', obj: 'Account' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'accountEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'users', this.username];
+			//Check for app account action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Account Endpoint built.', endpoint: endpointStr, func: 'accountEndpoint', obj: 'Account' });
+			return endpointStr;
+		}
+	}]);
+
+	return Account;
+})();
+
+exports['default'] = Account;
+module.exports = exports['default'];
+
+},{"../classes/Matter":252,"../config":254,"lodash":237}],247:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+//Internal libs and config
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+//Actions and Classes
+
+var _actionsGroupsAction = require('../actions/GroupsAction');
+
+var _actionsGroupsAction2 = _interopRequireDefault(_actionsGroupsAction);
+
+var _Group2 = require('./Group');
+
+var _Group3 = _interopRequireDefault(_Group2);
+
+var _actionsDirectoriesAction = require('../actions/DirectoriesAction');
+
+var _actionsDirectoriesAction2 = _interopRequireDefault(_actionsDirectoriesAction);
+
+var _Directory2 = require('./Directory');
+
+var _Directory3 = _interopRequireDefault(_Directory2);
+
+var _actionsAccountsAction = require('../actions/AccountsAction');
+
+var _actionsAccountsAction2 = _interopRequireDefault(_actionsAccountsAction);
+
+var _Account2 = require('./Account');
+
+var _Account3 = _interopRequireDefault(_Account2);
+
+var _Files = require('./Files');
+
+var _Files2 = _interopRequireDefault(_Files);
+
+var _File2 = require('./File');
+
+var _File3 = _interopRequireDefault(_File2);
+
+//External Libs
+
+var _firebase = require('firebase');
+
+var _firebase2 = _interopRequireDefault(_firebase);
+
+var _awsSdk = require('aws-sdk');
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
+//Convenience vars
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+/**
+ * Application class.
+ *
+ */
+
+var Application = (function () {
+	function Application(appData) {
+		_classCallCheck(this, Application);
+
+		//Setup application data based on input
+		if (appData && _lodash2['default'].isObject(appData)) {
+			_lodash2['default'].extend(this, appData);
+		} else if (appData && _lodash2['default'].isString(appData)) {
+			this.name = appData;
+		}
+		if (_firebase2['default'] && _lodash2['default'].has(_config2['default'], 'fbUrl') && _lodash2['default'].has(this, 'name')) {
+			this.fbRef = new _firebase2['default'](_config2['default'].fbUrl + this.name);
+		}
+		// logger.debug({description: 'Application object created.', application: this, func: 'constructor', obj: 'Application'});
+	}
+
+	_createClass(Application, [{
+		key: 'get',
+
+		//Get applications or single application
+		value: function get() {
+			logger.debug({ description: 'Application get called.', func: 'get', obj: 'Application' });
+			return request.get(this.appEndpoint).then(function (response) {
+				logger.info({ description: 'Application loaded successfully.', response: response, application: new Application(response), func: 'get', obj: 'Application' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting Application.', message: errRes.response.text, error: errRes, func: 'get', obj: 'Application' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Update an application
+	}, {
+		key: 'update',
+		value: function update(appData) {
+			logger.debug({ description: 'Application update called.', func: 'update', obj: 'Application' });
+			return request.put(this.appEndpoint, appData).then(function (response) {
+				logger.info({ description: 'Application updated successfully.', response: response, func: 'update', obj: 'Application' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating application.', error: errRes, func: 'update', obj: 'Application' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+	}, {
+		key: 'addStorage',
+		value: function addStorage() {
+			logger.debug({ description: 'Application add storage called.', application: this, func: 'addStorage', obj: 'Application' });
+			return request.post(this.appEndpoint + '/storage', appData).then(function (response) {
+				logger.info({ description: 'Storage successfully added to application.', response: response, application: new Application(response), func: 'addStorage', obj: 'Application' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding storage to application.', error: errRes, func: 'addStorage', obj: 'Application' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+	}, {
+		key: 'applyTemplate',
+		value: function applyTemplate() {
+			var _this = this;
+
+			logger.error({ description: 'Applying templates to existing applications is not currently supported.', func: 'applyTemplate', obj: 'Application' });
+			return request.post(this.appEndpoint, appData).then(function (response) {
+				logger.info({ description: 'Template successfully applied to application.', response: response, application: _this, func: 'applyTemplate', obj: 'Application' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error applying template to application.', error: errRes, application: _this, func: 'applyTemplate', obj: 'Application' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Files object that contains files methods
+	}, {
+		key: 'File',
+		value: function File(fileData) {
+			logger.debug({ description: 'Applications file action called.', fileData: fileData, application: this, func: 'file', obj: 'Application' });
+			return new _File3['default']({ app: this, fileData: fileData });
+		}
+	}, {
+		key: 'User',
+		value: function User(userData) {
+			logger.debug({ description: 'Applications user action called.', userData: userData, application: this, func: 'user', obj: 'Application' });
+			return new _Account3['default']({ app: this, userData: userData });
+		}
+	}, {
+		key: 'Account',
+		value: function Account(userData) {
+			logger.debug({ description: 'Applications account action called.', userData: userData, application: this, func: 'user', obj: 'Application' });
+			return new _Account3['default']({ app: this, userData: userData });
+		}
+	}, {
+		key: 'Group',
+		value: function Group(groupData) {
+			logger.debug({ description: 'Applications group action called.', groupData: groupData, application: this, func: 'group', obj: 'Application' });
+			return new _Group3['default']({ app: this, groupData: groupData });
+		}
+	}, {
+		key: 'Directory',
+		value: function Directory(directoryData) {
+			logger.debug({ description: 'Applications directory action called.', directoryData: directoryData, application: this, func: 'directory', obj: 'Application' });
+			return new _Directory3['default']({ app: this, directoryData: directoryData });
+		}
+	}, {
+		key: 'appEndpoint',
+		get: function get() {
+			return _Matter2['default'].endpoint + '/apps/' + this.name;
+		}
+	}, {
+		key: 'Files',
+		get: function get() {
+			logger.debug({ description: 'Applications files action called.', application: this, func: 'files', obj: 'Application' });
+			return new _Files2['default']({ app: this });
+		}
+	}, {
+		key: 'Users',
+		get: function get() {
+			logger.debug({ description: 'Applications users action called.', application: this, func: 'user', obj: 'Application' });
+			return new _actionsAccountsAction2['default']({ app: this });
+		}
+	}, {
+		key: 'Accounts',
+		get: function get() {
+			logger.debug({ description: 'Applications account action called.', application: this, func: 'user', obj: 'Application' });
+			return new _actionsAccountsAction2['default']({ app: this });
+		}
+	}, {
+		key: 'Groups',
+		get: function get() {
+			logger.debug({ description: 'Applications groups action called.', application: this, func: 'groups', obj: 'Application' });
+			return new _actionsGroupsAction2['default']({ app: this });
+		}
+	}, {
+		key: 'Directories',
+		get: function get() {
+			logger.debug({ description: 'Applications directories action called.', application: this, func: 'directories', obj: 'Application' });
+			return new _actionsDirectoriesAction2['default']({ app: this });
+		}
+	}]);
+
+	return Application;
+})();
+
+exports['default'] = Application;
+module.exports = exports['default'];
+
+},{"../actions/AccountsAction":241,"../actions/DirectoriesAction":243,"../actions/GroupsAction":244,"../config":254,"./Account":246,"./Directory":248,"./File":249,"./Files":250,"./Group":251,"./Matter":252,"aws-sdk":1,"firebase":231,"lodash":237}],248:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+//Actions for specific directory
+
+var Directory = (function () {
+	function Directory(actionData) {
+		_classCallCheck(this, Directory);
+
+		if (actionData && _lodash2['default'].isObject(actionData) && (_lodash2['default'].has(actionData, 'directoryName') || _lodash2['default'].has(actionData, 'name'))) {
+			//Data is object containing directory data
+			this.name = actionData.directoryName || actionData.name;
+			if (_lodash2['default'].has(actionData, 'appName')) {
+				this.appName = actionData.appName;
+			}
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			//Data is string name
+			this.name = actionData;
+		} else {
+			logger.error({ description: 'Action data object with name is required to start a Directory Action.', func: 'constructor', obj: 'Directory' });
+			throw new Error('Directory Data object with name is required to start a Directory action.');
+		}
+	}
+
+	_createClass(Directory, [{
+		key: 'get',
+
+		//Get userlications or single userlication
+		value: function get() {
+			return request.get(this.directoryEndpoint).then(function (response) {
+				logger.info({ description: 'Directory data loaded successfully.', directoryData: directoryData, response: response, func: 'get', obj: 'Directory' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.info({ description: 'Error getting directory.', directoryData: directoryData, error: errRes, func: 'get', obj: 'Directory' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Update an Directory
+	}, {
+		key: 'update',
+		value: function update(directoryData) {
+			logger.debug({ description: 'Directory updated called.', directoryData: directoryData, func: 'update', obj: 'Directory' });
+			return _Matter2['default'].utils.request.put(this.directoryEndpoint, directoryData).then(function (response) {
+				logger.info({ description: 'Directory updated successfully.', directoryData: directoryData, response: response, func: 'update', obj: 'Directory' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating directory.', directoryData: directoryData, error: errRes, func: 'update', obj: 'Directory' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Delete an Directory
+	}, {
+		key: 'del',
+		value: function del(directoryData) {
+			logger.debug({ description: 'Delete directory called.', directoryData: directoryData, func: 'del', obj: 'Directory' });
+			return request['delete'](this.directoryEndpoint, userData).then(function (response) {
+				logger.info({ description: 'Directory deleted successfully.', directoryData: directoryData, func: 'del', obj: 'Directory' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error deleting directory.', directoryData: directoryData, error: errRes, func: 'del', obj: 'Directory' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'directoryEndpoint',
+		get: function get() {
+			var endpointArray = [_Matter2['default'].endpoint, 'directories', this.name];
+			//Check for app account action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Directory endpoint built.', endpoint: endpointStr, func: 'directoryEndpoint', obj: 'Directory' });
+			return endpointStr;
+		}
+	}]);
+
+	return Directory;
+})();
+
+exports['default'] = Directory;
+module.exports = exports['default'];
+
+},{"../config":254,"./Matter":252,"lodash":237}],249:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _awsSdk = require('aws-sdk');
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
+//Convenience vars
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+var File = (function () {
+	function File(fileData) {
+		_classCallCheck(this, File);
+
+		if (fileData && _lodash2['default'].isObject(fileData) && _lodash2['default'].has(fileData, ['path', 'app'])) {
+			this.path = fileData.path;
+			this.app = fileData.app;
+			this.pathArray = this.path.split('/');
+			//Get name from data or from pathArray
+			this.name = _lodash2['default'].has(fileData, 'name') ? fileData.name : this.pathArray[this.pathArray.length - 1];
+		} else if (fileData && !_lodash2['default'].isObject(fileData)) {
+			logger.error({ description: 'File data is not an object. File data must be an object that includes path and appName.', func: 'constructor', obj: 'File' });
+			//TODO: Get appName from path data?
+			throw new Error('File data must be an object that includes path and appName.');
+		} else {
+			logger.error({ description: 'File data include path and app is needed to create a File action.', func: 'constructor', obj: 'File' });
+			throw new Error('File data with path and app is needed to create file action.');
+		}
+		this.type = 'file';
+		logger.debug({ description: 'File object constructed.', file: this, func: 'constructor', obj: 'File' });
+	}
+
+	_createClass(File, [{
+		key: 'get',
+		value: function get() {
+			if (!this.app || !this.app.frontend) {
+				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'File' });
+				return Promise.reject({ message: 'Front end data is required to get file.' });
+			} else {
+				var saveParams = {
+					Bucket: this.app.frontend.bucketName,
+					Key: this.path
+				};
+				//Set contentType from fileData to ContentType parameter of new object
+				if (fileData.contentType) {
+					saveParams.ContentType = fileData.contentType;
+				}
+				logger.debug({ description: 'File get params built.', saveParams: saveParams, fileData: fileData, func: 'get', obj: 'File' });
+				return s3.getObject(saveParams, function (err, data) {
+					//[TODO] Add putting object ACL (make public)
+					if (!err) {
+						logger.error({ description: 'File loaded successfully.', fileData: data, func: 'get', obj: 'File' });
+						return data;
+					} else {
+						logger.error({ description: 'Error loading file from S3.', error: err, func: 'get', obj: 'File' });
+						return Promise.reject(err);
+					}
+				});
+			}
+		}
+
+		//Alias for get
+	}, {
+		key: 'open',
+		value: function open() {
+			return this.get;
+		}
+	}, {
+		key: 'publish',
+		value: function publish(fileData) {
+			//TODO: Publish file to application
+			logger.debug({ description: 'File publish called.', file: this, fileData: fileData, func: 'publish', obj: 'File' });
+			if (!this.app.frontend) {
+				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'publish', obj: 'File' });
+				return Promise.reject({ message: 'Front end data is required to publish file.' });
+			} else {
+				if (!_lodash2['default'].has(fileData, ['content', 'path'])) {
+					logger.error({ description: 'File data including path and content required to publish.', func: 'publish', obj: 'File' });
+					return Promise.reject({ message: 'File data including path and content required to publish.' });
+				}
+				var saveParams = {
+					Bucket: this.app.frontend.bucketName,
+					Key: fileData.path,
+					Body: fileData.content,
+					ACL: 'public-read'
+				};
+				//Set contentType from fileData to ContentType parameter of new object
+				if (fileData.contentType) {
+					saveParams.ContentType = fileData.contentType;
+				}
+				//If AWS Credential do not exist, set them
+				if (typeof _awsSdk2['default'].config.credentials == 'undefined' || !_awsSdk2['default'].config.credentials) {
+					logger.debug({ description: 'AWS creds do not exist, so they are being set.', func: 'publish', obj: 'File' });
+					setAWSConfig();
+				}
+				logger.debug({ description: 'File publish params built.', saveParams: saveParams, fileData: fileData, func: 'publish', obj: 'File' });
+				return s3.putObject(saveParams, function (err, data) {
+					//[TODO] Add putting object ACL (make public)
+					if (!err) {
+						logger.error({ description: 'File saved successfully.', fileData: data, func: 'publish', obj: 'File' });
+						return data;
+					} else {
+						logger.error({ description: 'Error saving file to S3.', error: err, func: 'publish', obj: 'File' });
+						return Promise.reject(err);
+					}
+				});
+			}
+		}
+	}, {
+		key: 'getTypes',
+		value: function getTypes() {
+			//Get content type and file type from extension
+		}
+	}, {
+		key: 'openWithFirepad',
+		value: function openWithFirepad(divId) {
+			//TODO:Create new Firepad instance within div
+		}
+	}, {
+		key: 'getDefaultContent',
+		value: function getDefaultContent() {}
+	}, {
+		key: 'ext',
+		get: function get() {
+			var re = /(?:\.([^.]+))?$/;
+			this.ext = re.exec(this.name)[1];
+		}
+	}]);
+
+	return File;
+})();
+
+exports['default'] = File;
+
+//------------------ Utility Functions ------------------//
+
+// AWS Config
+function setAWSConfig() {
+	_awsSdk2['default'].config.update({
+		credentials: new _awsSdk2['default'].CognitoIdentityCredentials({
+			IdentityPoolId: _config2['default'].aws.cognito.poolId
+		}),
+		region: _config2['default'].aws.region
+	});
+}
+module.exports = exports['default'];
+
+},{"../config":254,"./Matter":252,"aws-sdk":1,"lodash":237}],250:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _awsSdk = require('aws-sdk');
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
+//Convenience vars
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+var Files = (function () {
+	function Files(filesData) {
+		_classCallCheck(this, Files);
+
+		if (filesData && _lodash2['default'].isObject(filesData) && (_lodash2['default'].has(filesData, 'appName') || _lodash2['default'].has(filesData, 'name'))) {
+			//Data is object containing directory data
+			this.app = filesData.filesData;
+		} else if (filesData && _lodash2['default'].isString(filesData)) {
+			//Data is string name
+			this.app = { name: filesData };
+		} else if (filesData && _lodash2['default'].isArray(filesData)) {
+			//TODO: Handle an array of files being passed as data
+			logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
+			throw new Error('Files Data object with name is required to start a Files action.');
+		} else {
+			logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
+			throw new Error('Files Data object with name is required to start a Files action.');
+		}
+		logger.debug({ description: 'Files object constructed.', func: 'constructor', obj: 'Files' });
+	}
+
+	_createClass(Files, [{
+		key: 'publish',
+		value: function publish() {
+			//TODO: Publish all files
+		}
+	}, {
+		key: 'get',
+		value: function get() {
+			var _this = this;
+
+			if (!this.app || !this.app.frontend || !this.app.frontend.bucketName) {
+				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files' });
+				return Promise.reject({ message: 'Bucket name required to get objects' });
+			} else {
+				var _ret = (function () {
+					//If AWS Credential do not exist, set them
+					if (typeof _awsSdk2['default'].config.credentials == 'undefined' || !_awsSdk2['default'].config.credentials) {
+						// logger.info('AWS creds are being updated to make request');
+						setAWSConfig();
+					}
+					var s3 = new _awsSdk2['default'].S3();
+					var listParams = { Bucket: _this.app.frontend.bucketName };
+					return {
+						v: new Promise(function (resolve, reject) {
+							s3.listObjects(listParams, function (err, data) {
+								if (!err) {
+									logger.info({ description: 'Files list loaded.', filesData: data, func: 'get', obj: 'Files' });
+									return resolve(data.Contents);
+								} else {
+									logger.error({ description: 'Error getting files from S3.', error: err, func: 'get', obj: 'Files' });
+									return reject(err);
+								}
+							});
+						})
+					};
+				})();
+
+				if (typeof _ret === 'object') return _ret.v;
+			}
+		}
+	}, {
+		key: 'add',
+		value: function add() {
+			//TODO: Add a file to files list
+		}
+	}, {
+		key: 'del',
+		value: function del() {
+			//TODO: Delete a file from files list
+		}
+	}, {
+		key: 'buildStructure',
+		value: function buildStructure() {
+			logger.debug({ description: 'Build Structure called.', func: 'buildStructure', obj: 'Application' });
+			return this.get().then(function (filesArray) {
+				var childStruct = childrenStructureFromArray(filesArray);
+				logger.log({ description: 'Child struct from array.', childStructure: childStruct, func: 'buildStructure', obj: 'Application' });
+				return childStruct;
+			}, function (err) {
+				logger.error({ description: 'Error getting application files.', error: err, func: 'buildStructure', obj: 'Application' });
+				return Promise.reject({ message: 'Error getting files.', error: err });
+			});
+		}
+
+		//ALIAS FOR buildStructure
+	}, {
+		key: 'structure',
+		get: function get() {
+			return this.buildStructure();
+		}
+	}]);
+
+	return Files;
+})();
+
+exports['default'] = Files;
+
+//------------------ Utility Functions ------------------//
+
+// AWS Config
+function setAWSConfig() {
+	_awsSdk2['default'].config.update({
+		credentials: new _awsSdk2['default'].CognitoIdentityCredentials({
+			IdentityPoolId: _config2['default'].aws.cognito.poolId
+		}),
+		region: _config2['default'].aws.region
+	});
+}
+//Convert from array file structure (from S3) to 'children' structure used in Editor GUI (angular-tree-control)
+//Examples for two files (index.html and /testFolder/file.js):
+//Array structure: [{path:'index.html'}, {path:'testFolder/file.js'}]
+//Children Structure [{type:'folder', name:'testfolder', children:[{path:'testFolder/file.js', name:'file.js', filetype:'javascript', contentType:'application/javascript'}]}]
+function childrenStructureFromArray(fileArray) {
+	// logger.log('childStructureFromArray called:', fileArray);
+	//Create a object for each file that stores the file in the correct 'children' level
+	var mappedStructure = fileArray.map(function (file) {
+		return buildStructureObject(file);
+	});
+	return combineLikeObjs(mappedStructure);
+}
+//Convert file with key into a folder/file children object
+function buildStructureObject(file) {
+	var pathArray;
+	// console.log('buildStructureObject with:', file);
+	if (_lodash2['default'].has(file, 'path')) {
+		//Coming from files already having path (structure)
+		pathArray = file.path.split('/');
+	} else {
+		//Coming from aws
+		pathArray = file.Key.split('/');
+		// console.log('file before pick:', file);
+		file = _lodash2['default'].pick(file, 'Key');
+		file.path = file.Key;
+		file.name = file.Key;
+	}
+	var currentObj = file;
+	if (pathArray.length == 1) {
+		currentObj.name = pathArray[0];
+		if (!_lodash2['default'].has(currentObj, 'type')) {
+			currentObj.type = 'file';
+		}
+		currentObj.path = pathArray[0];
+		return currentObj;
+	} else {
+		var finalObj = {};
+		_lodash2['default'].each(pathArray, function (loc, ind, list) {
+			if (ind != list.length - 1) {
+				//Not the last loc
+				currentObj.name = loc;
+				currentObj.path = _lodash2['default'].first(list, ind + 1).join('/');
+				currentObj.type = 'folder';
+				currentObj.children = [{}];
+				//TODO: Find out why this works
+				if (ind == 0) {
+					finalObj = currentObj;
+				}
+				currentObj = currentObj.children[0];
+			} else {
+				currentObj.type = 'file';
+				currentObj.name = loc;
+				currentObj.path = pathArray.join('/');
+				if (file.$id) {
+					currentObj.$id = file.$id;
+				}
+			}
+		});
+		return finalObj;
+	}
+}
+//Recursivley combine children of object's that have the same names
+function combineLikeObjs(mappedArray) {
+	var takenNames = [];
+	var finishedArray = [];
+	_lodash2['default'].each(mappedArray, function (obj, ind, list) {
+		if (takenNames.indexOf(obj.name) == -1) {
+			takenNames.push(obj.name);
+			finishedArray.push(obj);
+		} else {
+			var likeObj = _lodash2['default'].findWhere(mappedArray, { name: obj.name });
+			//Combine children of like objects
+			likeObj.children = _lodash2['default'].union(obj.children, likeObj.children);
+			likeObj.children = combineLikeObjs(likeObj.children);
+			// logger.log('extended obj:',likeObj);
+		}
+	});
+	return finishedArray;
+}
+module.exports = exports['default'];
+
+},{"../config":254,"./Matter":252,"aws-sdk":1,"lodash":237}],251:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+//Actions for specific user
+
+var Group = (function () {
+	function Group(actionData) {
+		_classCallCheck(this, Group);
+
+		//Call matter with name and settings
+		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'groupData')) {
+			//Data is object containing group data
+			this.name = _lodash2['default'].isObject(actionData.groupData) ? actionData.groupData.name : actionData.groupData;
+			if (_lodash2['default'].has(actionData, 'app')) {
+				this.app = actionData.app;
+			}
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			//Data is string name
+			this.name = actionData;
+		} else {
+			logger.error({ description: 'Action data is required to start a Group Action.', func: 'constructor', obj: 'Group' });
+			throw new Error('Username is required to start an Group');
+		}
+	}
+
+	_createClass(Group, [{
+		key: 'get',
+
+		//Get userlications or single userlication
+		value: function get() {
+			return request.get(this.groupEndpoint).then(function (response) {
+				logger.info({ description: 'Group data loaded successfully.', response: response, func: 'get', obj: 'Group' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.info({ description: 'Error getting group.', error: errRes, func: 'get', obj: 'Group' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Update an Group
+	}, {
+		key: 'update',
+		value: function update(groupData) {
+			logger.log({ description: 'Group updated called.', groupData: groupData, func: 'update', obj: 'Group' });
+			return _Matter2['default'].utils.request.put(this.groupEndpoint, groupData).then(function (response) {
+				logger.info({ description: 'Group updated successfully.', groupData: groupData, response: response, func: 'update', obj: 'Group' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating group.', groupData: groupData, error: errRes, func: 'update', obj: 'Group' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Delete an Group
+	}, {
+		key: 'del',
+		value: function del(groupData) {
+			logger.log({ description: 'Delete group called.', groupData: groupData, func: 'del', obj: 'Group' });
+			return request.del(this.groupEndpoint, {}).then(function (response) {
+				logger.info({ description: 'Group deleted successfully.', groupData: groupData, func: 'del', obj: 'Group' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error deleting group.', error: errRes, text: errRes.response.text, groupData: groupData, func: 'del', obj: 'Group' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Update an Group
+	}, {
+		key: 'addAccounts',
+		value: function addAccounts(accountsData) {
+			logger.log({ description: 'Group updated called.', accountsData: accountsData, func: 'update', obj: 'Group' });
+			var accountsArray = accountsData;
+			//Handle provided data being a string list
+			if (_lodash2['default'].isString(accountsData)) {
+				accountsArray = accountsData.split(',');
+			}
+			//Check item in array to see if it is a string (username) instead of _id
+			if (_lodash2['default'].isString(accountsArray[0])) {
+				logger.error({ description: 'Accounts array only currently supports account._id not account.username.', accountsData: accountsData, func: 'update', obj: 'Group' });
+				return Promise.reject({ message: 'Accounts array only currently supports account._id not account.username.' });
+			}
+			logger.log({ description: 'Updating group with accounts array.', accountsArray: accountsArray, func: 'update', obj: 'Group' });
+			return this.update({ accounts: accountsArray }).then(function (response) {
+				logger.info({ description: 'Account(s) added to group successfully.', response: response, func: 'addAccounts', obj: 'Group' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error addAccountseting group.', error: errRes, func: 'addAccounts', obj: 'Group' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+	}, {
+		key: 'groupEndpoint',
+		get: function get() {
+			var endpointArray = [_Matter2['default'].endpoint, 'groups', this.name];
+			//Check for app account action
+
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Group Endpoint built.', endpoint: endpointStr, func: 'groupEndpoint', obj: 'Group' });
+			return endpointStr;
+		}
+	}]);
+
+	return Group;
+})();
+
+exports['default'] = Group;
+module.exports = exports['default'];
+
+},{"../config":254,"./Matter":252,"lodash":237}],252:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _kyperMatter = require('kyper-matter');
+
+var _kyperMatter2 = _interopRequireDefault(_kyperMatter);
+
+var matter = new _kyperMatter2['default'](_config2['default'].appName, _config2['default'].matterOptions);
+exports['default'] = matter;
+module.exports = exports['default'];
+
+},{"../config":254,"kyper-matter":236}],253:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+//Actions for specific user
+
+var Template = (function () {
+	function Template(templateData) {
+		_classCallCheck(this, Template);
+
+		//Call matter with name and settings
+		if (templateData && _lodash2['default'].isString(templateData)) {
+			this.name = templateData;
+		} else {
+			logger.error({ description: 'Template data is required to start a Template action.', func: 'construcotr', obj: '' });
+			throw new Error('Template data is required to start a Template action.');
+		}
+	}
+
+	_createClass(Template, [{
+		key: 'get',
+
+		//Get userlications or single userlication
+		value: function get() {
+			logger.log({ description: 'Get template called.', name: this.name, func: 'get', obj: 'Template' });
+			return request.get(this.templateEndpoint).then(function (response) {
+				logger.log({ description: 'Get template responded.', response: response, func: 'get', obj: 'Template' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting template.', error: errRes, func: 'get', obj: 'Template' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Update an userlication
+	}, {
+		key: 'update',
+		value: function update(templateData) {
+			logger.log({ description: 'Update template called.', templateData: templateData, func: 'update', obj: 'Template' });
+			return request.put(this.templateEndpoint, templateData).then(function (response) {
+				logger.log({ description: 'Update template responded.', response: response, templateData: templateData, func: 'update', obj: 'Template' });
+				//TODO: Return template object
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating template.', error: errRes, func: 'update', obj: 'Template' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Delete a template
+	}, {
+		key: 'del',
+		value: function del(templateData) {
+			logger.log({ description: 'Delete template called.', templateData: templateData, func: 'del', obj: 'Template' });
+			return request['delete'](this.endpoint, templateData).then(function (response) {
+				logger.log({ description: 'Template deleted successfully.', response: response, func: 'del', obj: 'Template' });
+				//TODO: Return template object
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error deleting template.', error: errRes, func: 'del', obj: 'Template' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'templateEndpoint',
+		get: function get() {
+			return _Matter2['default'].endpoint + '/templates/' + this.name;
+		}
+	}]);
+
+	return Template;
+})();
+
+exports['default'] = Template;
+module.exports = exports['default'];
+
+},{"../config":254,"./Matter":252,"lodash":237}],254:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+var config = {
+	serverUrl: 'http://tessellate.elasticbeanstalk.com',
+	tokenName: 'grout',
+	fbUrl: 'https://kyper-tech.firebaseio.com/tessellate',
+	appName: 'tessellate',
+	matterOptions: {
+		localServer: false
+	},
+	aws: {
+		region: 'us-east-1',
+		cognito: {
+			poolId: 'us-east-1:72a20ffd-c638-48b0-b234-3312b3e64b2e',
+			params: {
+				AuthRoleArn: 'arn:aws:iam::823322155619:role/Cognito_TessellateUnauth_Role',
+				UnauthRoleArn: 'arn:aws:iam::823322155619:role/Cognito_TessellateAuth_Role'
+			}
+		}
+	}
+};
+//Set server to local server if developing
+// if (typeof window != 'undefined' && (window.location.hostname == '' || window.location.hostname == 'localhost')) {
+// 	config.serverUrl = 'http://localhost:4000';
+// }
+exports['default'] = config;
+module.exports = exports['default'];
+
+},{}],255:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _config = require('./config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _kyperMatter = require('kyper-matter');
+
+var _kyperMatter2 = _interopRequireDefault(_kyperMatter);
+
+var _actionsAppsAction = require('./actions/AppsAction');
+
+var _actionsAppsAction2 = _interopRequireDefault(_actionsAppsAction);
+
+var _classesApplication = require('./classes/Application');
+
+var _classesApplication2 = _interopRequireDefault(_classesApplication);
+
+var _actionsAccountsAction = require('./actions/AccountsAction');
+
+var _actionsAccountsAction2 = _interopRequireDefault(_actionsAccountsAction);
+
+var _classesAccount = require('./classes/Account');
+
+var _classesAccount2 = _interopRequireDefault(_classesAccount);
+
+var _actionsGroupsAction = require('./actions/GroupsAction');
+
+var _actionsGroupsAction2 = _interopRequireDefault(_actionsGroupsAction);
+
+var _classesGroup = require('./classes/Group');
+
+var _classesGroup2 = _interopRequireDefault(_classesGroup);
+
+var _actionsDirectoriesAction = require('./actions/DirectoriesAction');
+
+var _actionsDirectoriesAction2 = _interopRequireDefault(_actionsDirectoriesAction);
+
+var _classesDirectory = require('./classes/Directory');
+
+var _classesDirectory2 = _interopRequireDefault(_classesDirectory);
+
+var _actionsTemplatesAction = require('./actions/TemplatesAction');
+
+var _actionsTemplatesAction2 = _interopRequireDefault(_actionsTemplatesAction);
+
+var _classesTemplate = require('./classes/Template');
+
+var _classesTemplate2 = _interopRequireDefault(_classesTemplate);
+
+/**Grout Client Class
+ * @ description Extending matter provides token storage and login/logout/signup capabilities
+ */
+
+var Grout = (function (_Matter) {
+	_inherits(Grout, _Matter);
+
+	//TODO: Use getter/setter to make this not a function
+
+	function Grout() {
+		_classCallCheck(this, Grout);
+
+		//Call matter with tessellate
+		_get(Object.getPrototypeOf(Grout.prototype), 'constructor', this).call(this, _config2['default'].appName, _config2['default'].matterOptions);
+	}
+
+	//Start a new Apps Action
+
+	_createClass(Grout, [{
+		key: 'App',
+
+		//Start a new App action
+		value: function App(appName) {
+			this.utils.logger.debug({ description: 'Templates Action called.', appName: appName, template: new _classesApplication2['default'](appName), func: 'App', obj: 'Grout' });
+			return new _classesApplication2['default'](appName);
+		}
+
+		//Start a new Apps Action
+	}, {
+		key: 'Template',
+
+		//Start a new App action
+		value: function Template(templateData) {
+			this.utils.logger.debug({ description: 'Template Action called.', templateData: templateData, template: new _classesTemplate2['default'](templateData), func: 'Template', obj: 'Grout' });
+			return new _classesTemplate2['default'](templateData);
+		}
+
+		//Start a new Accounts action
+	}, {
+		key: 'Account',
+
+		//Start a new Account action
+		value: function Account(userData) {
+			this.utils.logger.debug({ description: 'Account Action called.', userData: userData, user: new _classesAccount2['default'](userData), func: 'user', obj: 'Grout' });
+			return new _classesAccount2['default'](userData);
+		}
+
+		//ALIAS OF ACCOUNTS
+		//Start a new Accounts action
+	}, {
+		key: 'User',
+
+		//ALIAS OF ACCOUNT
+		//Start a new Account action
+		value: function User(userData) {
+			this.utils.logger.debug({ description: 'Account Action called.', userData: userData, user: new _classesAccount2['default'](userData), func: 'user', obj: 'Grout' });
+			return new _classesAccount2['default'](userData);
+		}
+
+		//Start a new Groups action
+	}, {
+		key: 'Group',
+
+		//Start a new Group action
+		value: function Group(groupData) {
+			this.utils.logger.debug({ description: 'Group Action called.', groupData: groupData, action: new _classesGroup2['default']({ app: this, groupData: groupData }), func: 'group', obj: 'Grout' });
+			return new _classesGroup2['default'](groupData);
+		}
+
+		//Start a new Directories action
+	}, {
+		key: 'Directory',
+
+		//Start a new Group action
+		value: function Directory(directoryData) {
+			this.utils.logger.debug({ description: 'Directory Action called.', directoryData: directoryData, action: new _classesDirectory2['default'](directoryData), func: 'directory', obj: 'Grout' });
+			return new _classesDirectory2['default'](directoryData);
+		}
+	}, {
+		key: 'Apps',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Apps Action called.', action: new _actionsAppsAction2['default'](), func: 'Apps', obj: 'Grout' });
+			return new _actionsAppsAction2['default']();
+		}
+	}, {
+		key: 'Templates',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Templates Action called.', action: new _actionsTemplatesAction2['default'](), func: 'Templates', obj: 'Grout' });
+			return new _actionsTemplatesAction2['default']();
+		}
+	}, {
+		key: 'Accounts',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Account Action called.', action: new _actionsAccountsAction2['default'](), func: 'users', obj: 'Grout' });
+			return new _actionsAccountsAction2['default']();
+		}
+	}, {
+		key: 'Users',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Accounts Action called.', action: new _actionsAccountsAction2['default'](), func: 'Users', obj: 'Grout' });
+			return new _actionsAccountsAction2['default']();
+		}
+	}, {
+		key: 'Groups',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Groups Action called.', action: new _actionsGroupsAction2['default'](), func: 'groups', obj: 'Grout' });
+			return new _actionsGroupsAction2['default']();
+		}
+	}, {
+		key: 'Directories',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Directories Action called.', action: new _actionsDirectoriesAction2['default'](), func: 'directories', obj: 'Grout' });
+			return new _actionsDirectoriesAction2['default']();
+		}
+	}]);
+
+	return Grout;
+})(_kyperMatter2['default']);
+
+;
+
+exports['default'] = Grout;
+module.exports = exports['default'];
+
+},{"./actions/AccountsAction":241,"./actions/AppsAction":242,"./actions/DirectoriesAction":243,"./actions/GroupsAction":244,"./actions/TemplatesAction":245,"./classes/Account":246,"./classes/Application":247,"./classes/Directory":248,"./classes/Group":251,"./classes/Template":253,"./config":254,"kyper-matter":236}]},{},[255])(255)
 });

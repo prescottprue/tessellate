@@ -6,7 +6,7 @@ import AccountsAction from './actions/AccountsAction';
 import Account from './classes/Account';
 import GroupsAction from './actions/GroupsAction';
 import Group from './classes/Group';
-import Directories from './actions/DirectoriesAction';
+import DirectoriesAction from './actions/DirectoriesAction';
 import Directory from './classes/Directory';
 import TemplatesAction from './actions/TemplatesAction';
 import Template from './classes/Template';

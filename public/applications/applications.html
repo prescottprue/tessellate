@@ -1,7 +1,7 @@
   <md-content layout-padding class="hc-background">
     <md-grid-list md-cols-gt-md="8" md-cols-sm="2" md-cols-md="4" md-row-height-md="1.4:1"
     md-row-height-lg="1.5:1" md-row-height-gt-lg="1.9:1" md-row-height-sm="1:1.5"
-    md-gutter-gt-md="25px" md-gutter-gt-sm="40px" md-gutter="4px" style="margin-top:25px;">
+    md-gutter-gt-md="25px" md-gutter-gt-sm="40px" md-gutter="4px" layout-margin layout-padding>
       <!-- App Tiles -->
       <md-grid-tile class="md-whiteframe-z1 apps-tile" ng-repeat="app in applications" md-colspan="2" md-rowspan-sm="1" md-rowspan-md="2" md-rowspan-gt-md="3" ui-sref="app.configure({name:app.name})" >
         <md-card layout-fill layout-padding>
@@ -17,8 +17,8 @@
         </md-card>
       </md-grid-tile>
       <!-- New app Tile -->
-      <md-grid-tile class="new-app-tile" md-colspan="2" md-rowspan-sm="1" md-rowspan-md="2" md-rowspan-gt-md="3"  ng-click="startNew($event)" layout-fill layout-align="center center">
-          <md-card-content>
+      <md-grid-tile class="new-app-tile" md-colspan="2" md-rowspan-sm="1" md-rowspan-md="2" md-rowspan-gt-md="3"  ng-click="startNew($event)" layout-align="center center">
+          <md-card-content class="new-app-tile-content">
             <h4 class="title">Create New<br>Application</h4>
           </md-card-content>
       </md-grid-tile>

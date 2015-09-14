@@ -33,8 +33,8 @@ class Application {
 		} else if (appData && _.isString(appData)) {
 			this.name = appData;
 		}
-		if (Firebase) {
-			this.fbRef = new Firebase(config.fbUrl + appData.name);
+		if (Firebase && _.has(config, 'fbUrl') && _.has(this, 'name')) {
+			this.fbRef = new Firebase(config.fbUrl + this.name);
 		}
 		// logger.debug({description: 'Application object created.', application: this, func: 'constructor', obj: 'Application'});
 	}
@@ -76,7 +76,7 @@ class Application {
 	}
 	applyTemplate() {
 		logger.error({description: 'Applying templates to existing applications is not currently supported.', func: 'applyTemplate', obj: 'Application'});
-		return request.post(endpoint, appData).then((response) => {
+		return request.post(this.appEndpoint, appData).then((response) => {
 			logger.info({description: 'Template successfully applied to application.', response: response, application: this, func: 'applyTemplate', obj: 'Application'});
 			return new Application(response);
 		})['catch']((errRes) => {
