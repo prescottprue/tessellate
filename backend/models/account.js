@@ -76,6 +76,14 @@ AccountSchema.methods = {
 		data.accountId = this.toJSON().id;
 		return data;
 	},
+	generateToken: function(session){
+		//Encode a JWT with account info
+		logger.log({description: 'Generate token called.', func: 'generateToken', obj: 'Account'});
+		var tokenData = this.tokenData();
+		var token = jwt.sign(tokenData, conf.jwtSecret);
+		logger.log({description: 'Token generated.', token: token, func: 'generateToken', obj: 'Account'});
+		return token;
+	},
 	//Log account in
 	login:function(passwordAttempt){
 		var d = q.defer();
@@ -134,14 +142,7 @@ AccountSchema.methods = {
 		});
 		return d.promise;
 	},
-	generateToken: function(session){
-		//Encode a JWT with account info
-		logger.log({description: 'Generate token called.', func: 'generateToken', obj: 'Account'});
-		var tokenData = this.tokenData();
-		var token = jwt.sign(tokenData, conf.jwtSecret);
-		logger.log({description: 'Token generated.', token: token, func: 'generateToken', obj: 'Account'});
-		return token;
-	},
+
 	//Wrap query in promise
 	saveNew:function(){
 		var d = q.defer();
@@ -229,7 +230,7 @@ AccountSchema.methods = {
 				return d.reject(err);
 			}
 			if(result){
-				console.log('A user with this username already exists');
+				logger.log({description: 'A user with this username already exists', user: result, func: 'createWithPass', obj: 'Account'});
 				return d.reject({message:'A user with this username already exists', status:'EXISTS'});
 			}
 			self.hashPassword(password).then(function (hashedPass){

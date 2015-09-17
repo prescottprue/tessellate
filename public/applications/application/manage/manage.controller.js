@@ -6,7 +6,8 @@ angular.module('tessellate.application.manage')
       error:null,
     };
     $scope.groups = application.groups;
-    console.warn('groups:', $scope.groups);
+    $scope.directories = application.directories;
+    console.warn('groups:', $scope.groups, $scope.directories);
     //TODO: Check to see if application has groups before calling
     $grout.Accounts.get().then(function (usersList){
       $scope.data.loading = false;

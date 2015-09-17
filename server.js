@@ -33,7 +33,7 @@ app.use(cors());
 app.options('*', cors()); // include before other routes
 
 //Protect all routes except allowedPaths by requiring Authorization header
-var allowedPaths = ['/','/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/signup)/];
+var allowedPaths = ['/','/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
 app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));
 //Handle unauthorized errors
 app.use(function (err, req, res, next) {

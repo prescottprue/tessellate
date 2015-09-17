@@ -5,7 +5,7 @@ angular.module('tessellate.application.build')
   $scope.application = _.extend({},application);
   // $scope.structure = [{name: 'index.html', type:'file'}, {name: 'testfolder', type:'folder', children:[{name:'infolder.js', type:'file'}]}]
   $scope.previewData = {device:'iphone5', url:$sce.trustAsResourceUrl("http://" + $scope.application.frontend.siteUrl)};
-  $grout.App(application.name).Files.getStructure.then(function (fileStructure){
+  $grout.App(application.name).Files.buildStructure().then(function (fileStructure){
       $log.log('structure loaded:', fileStructure);
       $scope.structure = fileStructure;
       $scope.$apply();
