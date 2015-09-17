@@ -252,48 +252,54 @@ ApplicationSchema.methods = {
 			d.reject({message:'Account already exists in application.'});
 		}, function (err){
 			//TODO: Handle other errors
-			if(err){
-				logger.error({description: 'Error finding account in application.', func: 'signup', obj: 'Application'});
-			}
-			//Account is not in directories
-			logger.log({description: 'Account does not already exist in directories', func: 'signup', obj: 'Application'});
-			var Account = self.model('Account');
-			var account = new Account(_.omit(signupData, 'password'));
-			logger.log({description: 'New account object created.', account: account, func: 'signup', obj: 'Application'});
-			account.createWithPass(signupData.password).then(function (newAccount){
-				//Account did not yet exist, so it was created
-				logger.info({description: 'New account created successfully.', newAccount: newAccount, func: 'signup', obj: 'Application'});
-				//TODO: Add to default directory if none specified
-				// newAccount.addToGroup();
-				d.resolve(newAccount);
-			}, function (err){
-				if(err && err.status == 'EXISTS'){
-					//Add to account to directory
-					logger.log('[Application.signup()] looking for directory with id:', self.directories[0]._id)
-					var dQuery = self.models('Directory').findOne({_id:self.directories[0]._id});
-					dQuery.exec(function(err, result){
-						if(err){
-							logger.error({description: 'Error finding directory.', error: err, func: 'signup', obj: 'Application'});
-							return d.reject(err);
-						}
-						if(!result){
-							logger.error({description: 'Directory not found.', func: 'signup', obj: 'Application'});
-							return d.reject({message: 'Directory not found.'});
-						}
-						//TODO: Make sure account does not already exist in directory before adding.
-						result.addAccount(account).then(function(dirWithAccount){
-							logger.log('[Application.signup()] Directory with account:', dirWithAccount);
-							d.resolve(dirWithAccount);
-						}, function (err){
-							logger.error('[Application.signup()] Error adding account to directory:', err);
-							d.reject(err);
+			if(err && err.status == 'NOT_FOUND'){
+				//Account does not already exists
+				logger.log({description: 'Account does not already exist in directories', func: 'signup', obj: 'Application'});
+				var Account = self.model('Account');
+				var account = new Account(_.omit(signupData, 'password'));
+				logger.log({description: 'New account object created.', account: account, func: 'signup', obj: 'Application'});
+				account.createWithPass(signupData.password).then(function (newAccount){
+					//Account did not yet exist, so it was created
+					logger.info({description: 'New account created successfully.', newAccount: newAccount, func: 'signup', obj: 'Application'});
+					//TODO: Add to default directory if none specified
+					// newAccount.addToGroup();
+					d.resolve(newAccount);
+				}, function (err){
+					//Handle username already existing
+					if(err && err.status == 'EXISTS'){
+						//Add to account to directory
+						//TODO: Make this work with not just the first directory
+						logger.log({description: 'User already exists. Adding to application directory.', id: self.directories[0]._id, func: 'signup', obj: 'Application'});
+						var dQuery = self.model('Directory').findOne({_id:self.directories[0]._id});
+						dQuery.exec(function(err, result){
+							if(err){
+								logger.error({description: 'Error finding directory.', error: err, func: 'signup', obj: 'Application'});
+								return d.reject(err);
+							}
+							if(!result){
+								logger.error({description: 'Directory not found.', func: 'signup', obj: 'Application'});
+								return d.reject({message: 'Directory not found.'});
+							}
+							logger.log({description: 'Directory found. Adding account.', directory: result, func: 'signup', obj: 'Application'});
+							//TODO: Make sure account does not already exist in directory before adding.
+							result.addAccount(account).then(function(dirWithAccount){
+								logger.log('[Application.signup()] Directory with account:', dirWithAccount);
+								d.resolve(dirWithAccount);
+							}, function (err){
+								logger.error('[Application.signup()] Error adding account to directory:', err);
+								d.reject(err);
+							});
 						});
-					});
-				} else {
-					logger.error('[Application.signup()] Error creating new account.', err);
-					d.reject(err);
-				}
-			});
+					} else {
+						logger.error('[Application.signup()] Error creating new account.', err);
+						d.reject(err);
+					}
+				});
+			} else {
+				//Error other than account not found				
+				logger.error({description: 'Error finding account.', error: JSON.stringify(err), func: 'signup', obj: 'Application'});
+				d.reject(err);
+			}
 		});
 		return d.promise;
 	},
@@ -339,17 +345,18 @@ ApplicationSchema.methods = {
 			}
 			if(!account){
 				logger.info({message:'Account not found.', obj:'Application', func:'findAccount'});
-				return d.reject({message:'Account not found'});
+				return d.reject({message:'Account not found', status:'NOT_FOUND'});
 			}
 			if(self.directories.length < 1 && self.groups.length < 1) {
 				logger.info({message:'Application does not have any groups or directories. Login Not possible. This application does not have any user groups or directories.', obj:'Application', func:'findAccount'});
-				return d.reject({message:'Login Not possible. This application does not have any user groups or directories.'});
+				return d.reject({message:'Application does not have any user groups or directories.'});
 			}
 			logger.log({message:'Account found, looking for it in application.', application:self, account:account, obj:'Application', func:'findAccount'})
 			self.accountExistsInApp(account).then(function(){
 				logger.log({message:'Account exists in application.', application:self, account:account, obj:'Application', func:'findAccount'})
 				d.resolve(account);
 			}, function (err){
+				logger.error({message: 'Error looking for account in app', application:self, account:account, error: err, obj:'Application', func:'findAccount'})
 				d.reject(err);
 			});
 		});
@@ -360,7 +367,9 @@ ApplicationSchema.methods = {
 	accountExistsInApp:function(account){
 		var self = this;
 		var d = q.defer();
-		var query = self.model('Application').findById(self._id).populate({path:'directories', select:'accounts groups'}).populate({path:'groups', select:'accounts'});
+		var query = self.model('Application').findById(self._id)
+		.populate({path:'directories', select:'accounts groups'})
+		.populate({path:'groups', select:'accounts'});
 		query.exec(function(err, selfData){
 			var existsInDirectories = _.any(selfData.directories, function(directory){
 				//TODO: Check groups in directories as well

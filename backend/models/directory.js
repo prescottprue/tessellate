@@ -1,4 +1,6 @@
 var db = require('./../utils/db');
+var logger = require('./../utils/logger');
+
 var mongoose = require('mongoose');
 var _ = require('underscore');
 var q = require('q');
@@ -128,8 +130,18 @@ DirectorySchema.methods = {
 		return this.saveNew();
 	},
 	addAccount:function(account){
-		this.accounts.push(account._id);
-		return this.saveNew();
+		logger.log({description: 'addAccount called.', account: account, func: 'addAccount', obj: 'Directory'});
+		var d = q.defer();
+		var self = this;
+		self.accounts.push(account._id);
+		return self.saveNew().then(function(){
+			logger.log({description: 'Account successfully added to directory.', directory: self, account: account, func: 'addAccount', obj: 'Directory'});
+			d.resolve(self);
+		}, function(err){
+			logger.log({description: 'Error adding account do directory.', account: account, error: err, func: 'addAccount', obj: 'Directory'});
+			d.reject(err);
+		})
+		return d.promise;
 	}
 };
 /*

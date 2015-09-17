@@ -229,7 +229,7 @@ AccountSchema.methods = {
 				return d.reject(err);
 			}
 			if(result){
-				console.log('A user with this username already exists');
+				logger.log({description: 'A user with this username already exists', func: 'createWithPass', obj: 'Account'});
 				return d.reject({message:'A user with this username already exists', status:'EXISTS'});
 			}
 			self.hashPassword(password).then(function (hashedPass){
