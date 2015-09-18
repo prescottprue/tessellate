@@ -42,18 +42,18 @@ AccountSchema.set('collection', 'accounts');
 // 	var self = this;
 // 	var namesArray = _.map(self.groups, function(group){
 // 		if(_.isString(group)){
-// 			console.log('was a string');
+// 			logger.log('was a string');
 // 			group = JSON.parse(group);
 // 		}
-// 		console.log('group:', group);
+// 		logger.log('group:', group);
 // 		if(_.has(group, 'name')){
 // 			return group.name;
 // 		} else {
-// 			console.log('but it does not exist');
+// 			logger.log('but it does not exist');
 // 			return group;
 // 		}
 // 	});
-// 	console.log('names array:', namesArray);
+// 	logger.log('names array:', namesArray);
 // 	return namesArray;
 // });
 AccountSchema.virtual('id')
@@ -70,14 +70,15 @@ AccountSchema.methods = {
 		logger.log({description: 'Strip called.', account: this, strippedAccount: strippedAccount, func: 'strip', obj: 'Account'});
 		return _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
 	},
+	//Get data used within token
 	tokenData: function(){
 		var data = _.pick(this.toJSON(), ["username", "groups", "sessionId", "groupNames"]);
 		logger.log({description: 'Token data selected.', tokenData: data, func: 'tokenData', obj: 'Account'});
 		data.accountId = this.toJSON().id;
 		return data;
 	},
+	//Encode a JWT with account info
 	generateToken: function(session){
-		//Encode a JWT with account info
 		logger.log({description: 'Generate token called.', func: 'generateToken', obj: 'Account'});
 		var tokenData = this.tokenData();
 		var token = jwt.sign(tokenData, conf.jwtSecret);
@@ -109,6 +110,7 @@ AccountSchema.methods = {
 		});
 		return d.promise;
 	},
+	//Log account out (end session and invalidate token)
 	logout:function(){
 		var d = q.defer();
 		//TODO: Invalidate token?
@@ -126,14 +128,14 @@ AccountSchema.methods = {
 	},
 	comparePassword: function(passwordAttempt){
 		var self = this;
-		var d = q.defer();
 		logger.log({description: 'Compare password called.', func: 'comparePassword', obj: 'Account'});
+		var d = q.defer();
 		bcrypt.compare(passwordAttempt, self.password, function (err, passwordsMatch){
 			if(err){
 				logger.error({description: 'Error comparing password.', func: 'comparePassword', obj: 'Account'});
 				d.reject(err);
 			} else if(!passwordsMatch){
-				logger.log({description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'});
+				logger.warn({description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'});
 				d.reject({message:'Invalid authentication credentials'});
 			} else {
 				logger.log({description: 'Passwords match.', func: 'comparePassword', obj: 'Account'});
@@ -142,17 +144,21 @@ AccountSchema.methods = {
 		});
 		return d.promise;
 	},
-
 	//Wrap query in promise
 	saveNew:function(){
 		var d = q.defer();
 		var self = this;
-		this.save(function (err, result){
-			if(err) { d.reject(err);}
-			if(!result){
-				d.reject(new Error('New Account could not be saved'));
+		this.save(function (err, account){
+			if(err) {
+				logger.error({description: 'Error saving Account.', account: self, func: 'saveNew', obj: 'Account'});
+				d.reject(err);
+			} else if(!account){
+				logger.error({description: 'Account can not be saved.', account: self, error: err, func: 'saveNew', obj: 'Account'});
+				d.reject({message: 'Account cannot be saved.'});
+			} else {
+				logger.log({description: 'Account saved successfully.', savedAccount: account, func: 'saveNew', obj: 'Account'});
+				d.resolve(account);
 			}
-			d.resolve(result);
 		});
 		return d.promise;
 	},
@@ -164,53 +170,62 @@ AccountSchema.methods = {
 		 * @params {String} email - Email of Session
 		 */
 		//Session does not already exist
-		var deferred = q.defer();
+		logger.log({description: 'Start session called.', func: 'startSession', obj: 'Account'});
+		var d = q.defer();
 		var session = new Session({accountId:this._id});
-		session.save(function (err, result) {
-			if (err) { deferred.reject(err); }
-			if (!result) {
-				deferred.reject(new Error('Session could not be added.'));
+		session.save(function (err, newSession) {
+			if (err) {
+				logger.error({description: 'Error creating new session.', error: err, func: 'startSession', obj: 'Account'});
+				d.reject(err); 
+			} else if (!newSession) {
+				logger.error({description: 'New session was not created.', func: 'startSession', obj: 'Account'});
+				d.reject({message: 'Session could not be started.'});
+			} else {
+				logger.log({description: 'Session started successfully.', newSession: newSession, func: 'startSession', obj: 'Account'});
+				d.resolve(newSession);
 			}
-			deferred.resolve(result);
 		});
-		return deferred.promise;
+		return d.promise;
 	},
+	/** End Session Function
+	 * @description Create a new session and return a promise
+	 * @params {String} email - Email of Session
+	 */
 	endSession: function(){
 		//Find current session and mark it as ended
 		//Set active to false
-		console.log('[Account.endSession()] Ending session with id:', this.sessionId);
-		/** End Session Function
-		 * @description Create a new session and return a promise
-		 * @params {String} email - Email of Session
-		 */
-		var deferred = q.defer();
+		logger.log({description: 'End session called.', func: 'endSession', obj: 'Account'});
+		var d = q.defer();
 		//Find session by accountId and update with active false
 		Session.update({_id:this.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, function (err, affect, result) {
-			console.log('[Account.endSession()] Session update:', err, affect, result);
-			if (err) { deferred.reject(err); }
-			if (!affect && affect.nModified == 0) {
-				console.log('Error finding session to end.');
-				deferred.reject(new Error('Session could not be added.'));
+			if (!err && affect.nModified > 0) {
+				logger.info({description: 'Session ended successfully.', session: result, affect: affect, func: 'endSession', obj: 'Account'});
+				if(affect.nModified != 1){
+					logger.error({description: 'More than one session modified.', session: result, affect: affect, func: 'endSession', obj: 'Account'});
+				}
+				d.resolve(result);
+			} else if (err) {
+				logger.error({description: 'Error ending session.', error: err, func: 'endSession', obj: 'Account'});
+				d.reject({message: 'Error ending session.'}); 
+			} else {
+				logger.error({description: 'Session could not be ended.', func: 'endSession', obj: 'Account'});
+				d.reject({message: 'Session could not be ended.'});
 			}
-			if(affect.nModified != 1){
-				console.log('[Account.endSession()] Multiple sessions were ended', affect);
-			}
-			deferred.resolve(result);
 		});
-		return deferred.promise;
+		return d.promise;
 	},
 	hashPassword:function(password){
 		var d = q.defer();
-		console.log('[Account.hashPassword()] Hashing password');
+		logger.log('[Account.hashPassword()] Hashing password');
 		bcrypt.genSalt(10, function(err, salt) {
 			if(err){
-				console.log('[Account.hashPassword()] Error generating salt:', err);
+				logger.log('[Account.hashPassword()] Error generating salt:', err);
 				d.reject(err);
 			}
 		  bcrypt.hash(password, salt, function(err, hash) {
 				//Add hash to accountData
 				if(err){
-					console.log('[Account.hashPassword()] Error Hashing password:', err);
+					logger.log('[Account.hashPassword()] Error Hashing password:', err);
 					d.reject(err);
 				}
 				d.resolve(hash);
@@ -218,31 +233,34 @@ AccountSchema.methods = {
 		});
 		return d.promise;
 	},
+	//Save new account with password
 	createWithPass:function(password){
-		//Save new account with password
-		//TODO: Add to default directory if none specified
 		var d = q.defer();
 		var self = this;
 		var query = this.model('Account').findOne({username:self.username});
 		query.exec(function(err, result){
-			if(err){
-				console.log('Error querying accounts:', err);
-				return d.reject(err);
-			}
-			if(result){
-				logger.log({description: 'A user with this username already exists', user: result, func: 'createWithPass', obj: 'Account'});
-				return d.reject({message:'A user with this username already exists', status:'EXISTS'});
-			}
-			self.hashPassword(password).then(function (hashedPass){
-				self.password = hashedPass;
-				self.saveNew().then(function (newAccount){
-					d.resolve(newAccount);
+			if(!err && !result){
+				logger.log({description: 'User created successfully.', func: 'createWithPass', obj: 'Account'});
+				self.hashPassword(password).then(function (hashedPass){
+					self.password = hashedPass;
+					self.saveNew().then(function (newAccount){
+						logger.log({description: 'New account created successfully.', newAccount: newAccount, func: 'createWithPass', obj: 'Account'});
+						d.resolve(newAccount);
+					}, function (err){
+						logger.error({description: 'Error creating new account.', error: err, func: 'createWithPass', obj: 'Account'});
+						d.reject(err);
+					});
 				}, function (err){
+					logger.error({description: 'Error hashing password.', error: err, func: 'createWithPass', obj: 'Account'});
 					d.reject(err);
 				});
-			}, function (err){
-				d.reject(err);
-			});
+			} else if (result) {
+				logger.warn({description: 'A user with this username already exists', user: result, func: 'createWithPass', obj: 'Account'});
+				d.reject({message:'A user with this username already exists', status:'EXISTS'});
+			} else {
+				logger.error({description: 'Error searching for matching account.', error: err, func: 'createWithPass', obj: 'Account'});
+				d.reject({message: 'Account could not be created.'});
+			}
 		});
 		return d.promise;
 	}

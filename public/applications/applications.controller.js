@@ -35,8 +35,8 @@ angular.module('tessellate.applications')
 					//Answer with newAppData
 					$scope.create = function(newAppData){
 						//Make collaborators array from selectedAccounts ids
-						newAppData.collaborators = _.pluck(selectedAccounts, 'id');
-						$mdDialog.answer(newAppData);
+						newAppData.collaborators = _.pluck($scope.data.selectedAccounts, 'id');
+						$mdDialog.hide(newAppData);
 					};
 					//Cancel dialog
 					$scope.cancel = function(){

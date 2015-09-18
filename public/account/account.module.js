@@ -1,1 +1,1 @@
-angular.module('tessellate.account', ['ui.router', 'ngMessages'])
+angular.module('tessellate.account', ['ui.router', 'ngMessages', 'ngMaterial'])

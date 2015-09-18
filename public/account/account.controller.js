@@ -1,8 +1,8 @@
 angular.module('tessellate.account')
 .controller('AccountCtrl', ['$scope', '$state', '$log', '$grout', function($scope, $state, $log, $grout){
-	
+	console.log('account ctrl');
 	// set-up loading state
-	$scope.signupData = {
+	$scope.signupForm = {
 		loading: false,
 		missing:{username:false, password:false}
 	};
@@ -15,19 +15,21 @@ angular.module('tessellate.account')
 	$scope.logout = function(){
 		$grout.logout().then(function(){
 			$log.log('logout successful');
-      // $scope.showToast('Successfully Logged Out');
+      $scope.showToast('Successfully Logged Out');
 			$state.go('home');
 		}, function(err){
 			$log.error('Error logging out');
 		});
 	};
 	$scope.signup = function(){
-		$grout.signup($scope.signupForm).then(function(){
-			$log.log('Signup successful');
+		$log.log('Signup called', $scope.signupForm);
+		$grout.signup($scope.signupForm).then(function(signupRes){
+			$log.log('Signup successful', signupRes);
       $scope.showToast('Welcome!');
 			$state.go('users');
 		}, function(err){
 			$log.error('error siging up:', err);
+			$scope.showToast('Error signing up.');
 		});
 	};
 	$scope.userData = angular.copy($scope.currentUser);

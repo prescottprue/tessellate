@@ -2,7 +2,7 @@ module.exports = {
 	styles: [
 		'bower/angular-material/angular-material.css',
 		'bower/angular-resizable/angular-resizable.min.css',
-		'//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css',
+		'bower/fontawesome/css/font-awesome.min.css',
 		'bower/devices.css/assets/devices.min.css',
 		
 		'app.css',

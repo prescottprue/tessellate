@@ -161,13 +161,14 @@ exports.getProviders = function(req, res, next){
 exports.add = function(req, res, next){
 	//Query for existing application with same _id
 	if(!_.has(req.body, "name")){
+		logger.error({description:'Application name required to create a new app.', name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'});
 		res.status(400).send("Name is required to create a new app");
 	} else {
 		logger.log({description:'Applications add called with name.', name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'});
 		var appData = _.extend({}, req.body);
 		var appName = req.body.name;
 		if(!_.has(appData, 'owner')){
-			logger.log('No owner data provided. Using account.', req.user);
+			logger.log({description: 'No owner data provided. Using account.', account: req.user, func: 'add', obj: 'ApplicationsCtrl'});
 			if(_.has(req, 'userId')){
 				appData.owner = req.userId;
 			} else if (_.has(req, 'id')) {
@@ -175,39 +176,38 @@ exports.add = function(req, res, next){
 			}
 		}
 		findApplication(appName).then(function (foundApp){
-			logger.log('Application does not already exist.', foundApp);
-			//application does not already exist
-			var application = new Application(appData);
-			// logger.log('about to call create with storage:', appData);
-			//Create with template if one is provided
-			if(_.has(req.body,'template')){
-				//Template name was provided
-				application.createWithTemplate(req.body.template).then(function (newApp){
-					logger.log('Application created with template:', newApp);
-					res.json(newApp);
-				}, function (err){
-					logger.log('Error creating new application:', err);
-					//TODO: Handle different errors here
-					res.status(400).json(err);
-				});
-			} else {
-				//Template name was not provided
-				application.createWithStorage().then(function (newApp){
-					logger.log('Application created with storage:', newApp);
-					res.json(newApp);
-				}, function (err){
-					logger.log('Error creating new application:', err);
-					//TODO: Handle different errors here
-					res.status(400).json(err);
-				});
-			}
+			logger.error({description: 'Application with this name already exists.', foundApp: foundApp, func: 'add', obj: 'ApplicationsCtrl'});
+			res.status(400).send('Application with this name already exists.');
 		}, function (err){
-			logger.log('Error creating new application:', err);
-			//TODO: Handle different errors here
-			// if(err && err.status == 'EXISTS'){
-			// 	res.status(400).send('Application with this name already exists.');
-			// }
-			res.status(500).send('Error creating application.');
+			if(err && err.status == 'EXISTS'){
+				return res.status(400).send('Application with this name already exists.');
+			} else {
+				logger.log({description: 'Application does not already exist.', func: 'add', obj: 'Application'});
+				//application does not already exist
+				var application = new Application(appData);
+				logger.log({description: 'Calling create with storage.', appData: appData, func: 'add', obj: 'Application'});
+				//Create with template if one is provided
+				if(_.has(req.body,'template')){
+					//Template name was provided
+					application.createWithTemplate(req.body.template).then(function (newApp){
+						logger.log({description: 'Application created with template.', newApp: newApp, func: 'add', obj: 'Application'});
+						res.json(newApp);
+					}, function (err){
+						logger.error({description: 'Error creating application.', error: err, func: 'add', obj: 'Application'});
+						res.status(400).send('Error creating application.');
+					});
+				} else {
+					//Template parameter was not provided
+					application.createWithStorage(req.body).then(function (newApp){
+						logger.log({description: 'Application created with storage.', newApp: newApp, func: 'add', obj: 'Application'});
+						res.json(newApp);
+					}, function (err){
+						logger.error({description: 'Error creating new application with storage.', error: err, func: 'add', obj: 'ApplicationsCtrl'});
+						//TODO: Handle different errors here
+						res.status(400).json('Error creating application.');
+					});
+				}
+			}
 		});
 	}
 };

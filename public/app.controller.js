@@ -11,6 +11,10 @@ angular.module('tessellate')
       loading: false,
       missing:{username:false, password:false}
     };
+    $scope.signupForm = {
+      loading: false,
+      missing:{username:false, password:false}
+    };
     $scope.isLoggedIn = $grout.isLoggedIn;
     $grout.getCurrentUser().then(function(currentUser){
       $scope.currentUser = currentUser;
@@ -41,10 +45,25 @@ angular.module('tessellate')
           $scope.$apply();
           $state.go('apps');
         }, function (err){
-          $log.error('Login error:', err);
           $scope.loginData = {loading:false, email:null, password:null};
+          if(err){
+            $log.error('Login error:', err);
+            $scope.showToast('Error: ' + err);
+          }
+          $scope.$apply();
         });
       }
+    };
+    $scope.signup = function(){
+      $log.log('Signup called', $scope.signupForm);
+      $grout.signup($scope.signupForm).then(function(signupRes){
+        $log.log('Signup successful', signupRes);
+        $scope.showToast('Welcome!');
+        $state.go('apps');
+      }, function(err){
+        $log.error('error siging up:', err);
+        $scope.showToast('Error signing up.');
+      });
     };
     $scope.logout = function () {
       $grout.logout().then(function () {
