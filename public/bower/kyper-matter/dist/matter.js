@@ -335,7 +335,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.string = tokenStr;
 		},
 		'delete': function _delete() {
+			//Remove string token
 			storage.removeItem(config.tokenName);
+			//Remove user data
 			storage.removeItem(config.tokenDataName);
 			logger.log({ description: 'Token was removed.', func: 'delete', obj: 'token' });
 		}
@@ -424,6 +426,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return req;
 	}
 
+	// import hello from 'hellojs'; //Modifies objects to have id parameter?
+
 	// import hello from 'hellojs'; //After es version of module is created
 	//Private object containing clientIds
 	var clientIds = {};
@@ -438,36 +442,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(ProviderAuth, [{
-			key: 'login',
-			value: function login() {
-				var _this = this;
-
-				//Initalize Hello
-				return this.initHello.then(function () {
-					if (window) {
-						return window.hello.login(_this.provider);
-					}
-				});
-			}
-		}, {
-			key: 'signup',
-			value: function signup() {
-				var _this2 = this;
-
-				//Initalize Hello
-				if (!_.has(clientIds, this.provider)) {
-					logger.error({ description: this.provider + ' is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.', provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
-					return Promise.reject();
-				}
-				return this.initHello.then(function () {
-					if (window) {
-						return window.hello.login(_this2.provider);
-					}
-				});
-			}
-		}, {
 			key: 'loadHello',
-			get: function get() {
+			value: function loadHello() {
 				//Load hellojs script
 				//TODO: Replace this with es6ified version
 				if (window && !window.hello) {
@@ -478,7 +454,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'helloLoginListener',
-			get: function get() {
+			value: function helloLoginListener() {
 				//Login Listener
 				window.hello.on('auth.login', function (auth) {
 					logger.info({ description: 'User logged in to google.', func: 'loadHello', obj: 'Google' });
@@ -501,26 +477,52 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'initHello',
-			get: function get() {
-				var _this3 = this;
+			value: function initHello() {
+				var _this = this;
 
-				return this.loadHello.then(function () {
-					return request.get(_this3.app.endpoint).then(function (response) {
+				return this.loadHello().then(function () {
+					return request.get(_this.app.endpoint + '/providers').then(function (response) {
 						logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'ProviderAuth' });
-						var provider = _.findWhere(response.providers, { name: _this3.provider });
-						logger.warn({ description: 'Provider found', findWhere: provider, func: 'login', obj: 'ProviderAuth' });
+						var provider = response[_this.provider];
+						logger.warn({ description: 'Provider found', provider: provider, func: 'login', obj: 'ProviderAuth' });
 						if (!provider) {
-							logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this3.provider, provider: _this3.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
+							logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this.provider, provider: _this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
 							return Promise.reject({ message: 'Provider is not setup.' });
 						}
-						var providersConfig = {};
-						providersConfig[provider.name] = provider.clientId;
-						logger.warn({ description: 'Providers config built', providersConfig: providersConfig, func: 'login', obj: 'ProviderAuth' });
-						return window.hello.init(providersConfig, { redirect_uri: _this3.redirectUri });
+						logger.warn({ description: 'Providers config built', providersConfig: response, func: 'login', obj: 'ProviderAuth' });
+						return window.hello.init(response, { redirect_uri: 'redirect.html' });
 					})['catch'](function (errRes) {
 						logger.error({ description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter' });
 						return Promise.reject(errRes);
 					});
+				});
+			}
+		}, {
+			key: 'login',
+			value: function login() {
+				var _this2 = this;
+
+				//Initalize Hello
+				return this.initHello().then(function () {
+					return window.hello.login(_this2.provider);
+				});
+			}
+		}, {
+			key: 'signup',
+			value: function signup() {
+				var _this3 = this;
+
+				//Initalize Hello
+				// if (!_.has(clientIds, this.provider)) {
+				// 	logger.error({description: `${this.provider} is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.`, provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth'});
+				// 	return Promise.reject();
+				// }
+				//TODO: send info to server
+				return this.initHello().then(function () {
+					return window.hello.login(_this3.provider);
+				}, function (errRes) {
+					logger.error({ description: 'Error signing up.', error: errRes, func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Error signing up.' });
 				});
 			}
 		}]);
@@ -558,6 +560,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     *
     */
 			value: function signup(signupData) {
+				logger.log({ description: 'Signup called.', signupData: signupData, func: 'signup', obj: 'Matter' });
+				if (!signupData) {
+					logger.error({ description: 'Signup information is required to signup.', func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Login data is required to login.' });
+				}
 				if (_.isObject(signupData)) {
 					return request.post(this.endpoint + '/signup', signupData).then(function (response) {
 						logger.log({ description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
@@ -571,13 +578,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						logger.error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
 						return Promise.reject(errRes);
 					});
-				} else {
+				} else if (_.isString(signupData)) {
 					//Handle 3rd Party signups
 					var auth = new ProviderAuth({ provider: signupData, app: this });
-					return auth.signup().then(function (res) {
+					return auth.signup(signupData).then(function (res) {
 						logger.info({ description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter' });
 						return Promise.resolve(res);
 					});
+				} else {
+					logger.error({ description: 'Incorrectly formatted signup information.', signupData: signupData, func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Signup requires an object or a string.' });
 				}
 			}
 
@@ -619,13 +629,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						return Promise.reject(errRes);
 					});
-				} else {
+				} else if (_.isString(loginData)) {
 					//Provider login
 					var auth = new ProviderAuth({ provider: loginData, app: this });
 					return auth.login().then(function (res) {
 						logger.info({ description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter' });
 						return Promise.resolve(res);
 					});
+				} else {
+					logger.error({ description: 'Incorrectly fomatted login information.', signupData: signupData, func: 'login', obj: 'Matter' });
+					return Promise.reject({ message: 'Login requires an object or a string.' });
 				}
 			}
 
@@ -637,6 +650,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _this5 = this;
 
 				//TODO: Handle logging out of providers
+				if (!this.isLoggedIn) {
+					logger.warn({ description: 'No logged in account to log out.', func: 'logout', obj: 'Matter' });
+					return Promise.reject({ message: 'No logged in account to log out.' });
+				}
 				return request.put(this.endpoint + '/logout').then(function (response) {
 					logger.log({ description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter' });
 					_this5.currentUser = null;
@@ -664,8 +681,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							_this6.currentUser = response;
 							return response;
 						})['catch'](function (errRes) {
-							if (err.status == 401) {
+							if (errRes.status == 401) {
 								logger.warn({ description: 'Called for current user without token.', error: errRes, func: 'currentUser', obj: 'Matter' });
+								token['delete']();
 								return Promise.resolve(null);
 							} else {
 								logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
@@ -786,7 +804,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				if (this.name == 'tessellate') {
 					//Remove url if host is server
-					if (window && _.has(window, 'location') && window.location.host == serverUrl) {
+					if (typeof window !== 'undefined' && _.has(window, 'location') && window.location.host === serverUrl) {
 						serverUrl = '';
 						logger.info({ description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
 					}

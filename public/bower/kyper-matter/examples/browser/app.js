@@ -1,4 +1,4 @@
-var matter = new Matter('cloudbrain', {localServer:true});
+var matter = new Matter('exampleApp', {localServer:true});
 console.log('matter:', matter);
 //Set logged in status when dom is loaded
 document.addEventListener("DOMContentLoaded", function(event) { 
@@ -45,13 +45,13 @@ function logout(){
 function signup(signupData){
   if(!signupData){
     var signupData = {};
-    emailSignupData.name = document.getElementById('signup-name').value;
-    emailSignupData.username = document.getElementById('signup-username').value;
-    emailSignupData.email = document.getElementById('signup-email').value;
-    emailSignupData.password = document.getElementById('signup-password').value;
+    signupData.name = document.getElementById('signup-name').value;
+    signupData.username = document.getElementById('signup-username').value;
+    signupData.email = document.getElementById('signup-email').value;
+    signupData.password = document.getElementById('signup-password').value;
   }
-  matter.signup(signupData).then(function(){
-    console.log('successful logout');
+  matter.signup(signupData).then(function(signupRes){
+    console.log('successful signup', signupRes);
     setStatus();
   }, function(err){
     console.error('logout() : Error signing up:', err);

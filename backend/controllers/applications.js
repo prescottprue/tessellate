@@ -707,9 +707,13 @@ exports.signup = function(req, res, next){
 				logger.log({description: 'Signup to application successful.', res: signupRes, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
 				res.send(signupRes);
 			}, function (err){
-				//TODO: Handle wrong password
-				logger.error({description: 'Error signing up to application.', error: err, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
-				res.status(400).send('Error signing up.');
+				if(err && err.status == 'EXISTS'){
+					res.status(400).send('Account with this username already exists in application.');
+				} else {
+					//TODO: Handle wrong password
+					logger.error({description: 'Error signing up to application.', error: err, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
+					res.status(400).send('Error signing up.');
+				}
 			});
 		}, function (err){
 			logger.error({description: 'Error finding application.', error: err, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});

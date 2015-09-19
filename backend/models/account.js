@@ -99,7 +99,7 @@ AccountSchema.methods = {
 				//Create Token
 				self.sessionId = sessionInfo._id;
 				var token = self.generateToken(sessionInfo);
-				d.resolve(token);
+				d.resolve({token: token, account: self});
 			}, function (err){
 				logger.error({description: 'Error logging in.', func: 'login', obj: 'Account'});
 				d.reject(err);
@@ -198,15 +198,15 @@ AccountSchema.methods = {
 		var d = q.defer();
 		//Find session by accountId and update with active false
 		Session.update({_id:this.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, function (err, affect, result) {
-			if (!err && affect.nModified > 0) {
+			if(err){
+				return d.reject({message: 'Error ending session.'});
+			}
+			if (affect.nModified > 0) {
 				logger.info({description: 'Session ended successfully.', session: result, affect: affect, func: 'endSession', obj: 'Account'});
 				if(affect.nModified != 1){
 					logger.error({description: 'More than one session modified.', session: result, affect: affect, func: 'endSession', obj: 'Account'});
 				}
 				d.resolve(result);
-			} else if (err) {
-				logger.error({description: 'Error ending session.', error: err, func: 'endSession', obj: 'Account'});
-				d.reject({message: 'Error ending session.'}); 
 			} else {
 				logger.error({description: 'Session could not be ended.', func: 'endSession', obj: 'Account'});
 				d.reject({message: 'Session could not be ended.'});
@@ -219,14 +219,14 @@ AccountSchema.methods = {
 		logger.log('[Account.hashPassword()] Hashing password');
 		bcrypt.genSalt(10, function(err, salt) {
 			if(err){
-				logger.log('[Account.hashPassword()] Error generating salt:', err);
-				d.reject(err);
+				logger.log({description: 'Error generating salt', error: err, func: 'hashPassword', obj: 'Account'});
+				return d.reject(err);
 			}
 		  bcrypt.hash(password, salt, function(err, hash) {
 				//Add hash to accountData
 				if(err){
-					logger.log('[Account.hashPassword()] Error Hashing password:', err);
-					d.reject(err);
+					logger.log({description: 'Error Hashing password.', error: err, func: 'hashPassword', obj: 'Account'});
+					return d.reject(err);
 				}
 				d.resolve(hash);
 			});
@@ -239,28 +239,28 @@ AccountSchema.methods = {
 		var self = this;
 		var query = this.model('Account').findOne({username:self.username});
 		query.exec(function(err, result){
-			if(!err && !result){
-				logger.log({description: 'User created successfully.', func: 'createWithPass', obj: 'Account'});
-				self.hashPassword(password).then(function (hashedPass){
-					self.password = hashedPass;
-					self.saveNew().then(function (newAccount){
-						logger.log({description: 'New account created successfully.', newAccount: newAccount, func: 'createWithPass', obj: 'Account'});
-						d.resolve(newAccount);
-					}, function (err){
-						logger.error({description: 'Error creating new account.', error: err, func: 'createWithPass', obj: 'Account'});
-						d.reject(err);
-					});
+			if(err){
+				logger.error({description: 'Error searching for matching account.', error: err, func: 'createWithPass', obj: 'Account'});
+				return d.reject(err);
+			}
+			if(result){
+				logger.warn({description: 'A user with provided username already exists', user: result, func: 'createWithPass', obj: 'Account'});
+				return d.reject({message: 'A user with that username already exists.'});
+			}
+			logger.log({description: 'User created successfully.', func: 'createWithPass', obj: 'Account'});
+			self.hashPassword(password).then(function (hashedPass){
+				self.password = hashedPass;
+				self.saveNew().then(function (newAccount){
+					logger.log({description: 'New account created successfully.', newAccount: newAccount, func: 'createWithPass', obj: 'Account'});
+					d.resolve(newAccount);
 				}, function (err){
-					logger.error({description: 'Error hashing password.', error: err, func: 'createWithPass', obj: 'Account'});
+					logger.error({description: 'Error creating new account.', error: err, func: 'createWithPass', obj: 'Account'});
 					d.reject(err);
 				});
-			} else if (result) {
-				logger.warn({description: 'A user with this username already exists', user: result, func: 'createWithPass', obj: 'Account'});
-				d.reject({message:'A user with this username already exists', status:'EXISTS'});
-			} else {
-				logger.error({description: 'Error searching for matching account.', error: err, func: 'createWithPass', obj: 'Account'});
-				d.reject({message: 'Account could not be created.'});
-			}
+			}, function (err){
+				logger.error({description: 'Error hashing password.', error: err, func: 'createWithPass', obj: 'Account'});
+				d.reject(err);
+			});
 		});
 		return d.promise;
 	}

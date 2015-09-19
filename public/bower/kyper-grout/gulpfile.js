@@ -166,7 +166,7 @@ gulp.task('addExternals', function() {
   return bundle(addExternalModules());
 });
 gulp.task('build-bundle', function(callback) {
-  runSequence(['build'], 'addExternals', callback);
+  runSequence(['build'], 'addExternals', 'watch', callback);
 });
 // Build the unit test suite for running tests
 // in the browser
@@ -213,7 +213,7 @@ const otherWatchFiles = ['package.json', '**/.eslintrc', '.jscsrc'];
 // Run the headless unit tests as you make changes.
 gulp.task('watch', function() {
   const watchFiles = jsWatchFiles.concat(otherWatchFiles);
-  gulp.watch(watchFiles, ['test', 'build-bundle']);
+  gulp.watch(watchFiles, ['build-bundle']);
 });
 
 // Set up a livereload environment for our spec runner

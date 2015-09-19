@@ -19,7 +19,7 @@ class Account {
 	}
 	//Build endpoint based on accountData
 	get accountEndpoint() {
-		let endpointArray = [matter.endpoint, 'users', this.username];
+		let endpointArray = [matter.endpoint, 'accounts', this.username];
 		//Check for app account action
 		if (_.has(this, 'app') && _.has(this.app, 'name')) {
 			endpointArray.splice(1, 0, 'apps', this.app.name);
@@ -55,7 +55,7 @@ class Account {
 	//Delete a Account
 	del(accountData) {
 		logger.debug({description: 'Delete user called.', func: 'del', obj: 'Account'});
-		return request.delete(this.accountEndpoint, accountData).then((response) => {
+		return request.del(this.accountEndpoint, accountData).then((response) => {
 			logger.info({description: 'Delete user successful.', response: response, func: 'del', obj: 'Account'});
 			return new Account(response);
 		})['catch']((errRes) => {

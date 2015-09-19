@@ -341,7 +341,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.string = tokenStr;
 		},
 		'delete': function _delete() {
+			//Remove string token
 			storage.removeItem(_config.tokenName);
+			//Remove user data
 			storage.removeItem(_config.tokenDataName);
 			____________logger.log({ description: 'Token was removed.', func: 'delete', obj: 'token' });
 		}
@@ -417,6 +419,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (err.status == 401) {
 						console.warn('Unauthorized. You must be signed into make this request.');
 					}
+					if (err && err.response) {
+						return reject(err.response.text);
+					}
 					return reject(err);
 				}
 			});
@@ -429,6 +434,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 		return req;
 	}
+
+	// import hello from 'hellojs'; //Modifies objects to have id parameter?
 
 	// import hello from 'hellojs'; //After es version of module is created
 	//Private object containing clientIds
@@ -444,36 +451,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}
 
 		_createClass(ProviderAuth, [{
-			key: 'login',
-			value: function login() {
-				var _this = this;
-
-				//Initalize Hello
-				return this.initHello.then(function () {
-					if (window) {
-						return window.hello.login(_this.provider);
-					}
-				});
-			}
-		}, {
-			key: 'signup',
-			value: function signup() {
-				var _this2 = this;
-
-				//Initalize Hello
-				if (!_.has(clientIds, this.provider)) {
-					____________logger.error({ description: this.provider + ' is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.', provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
-					return Promise.reject();
-				}
-				return this.initHello.then(function () {
-					if (window) {
-						return window.hello.login(_this2.provider);
-					}
-				});
-			}
-		}, {
 			key: 'loadHello',
-			get: function get() {
+			value: function loadHello() {
 				//Load hellojs script
 				//TODO: Replace this with es6ified version
 				if (window && !window.hello) {
@@ -484,7 +463,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'helloLoginListener',
-			get: function get() {
+			value: function helloLoginListener() {
 				//Login Listener
 				window.hello.on('auth.login', function (auth) {
 					____________logger.info({ description: 'User logged in to google.', func: 'loadHello', obj: 'Google' });
@@ -507,26 +486,52 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'initHello',
-			get: function get() {
-				var _this3 = this;
+			value: function initHello() {
+				var _this = this;
 
-				return this.loadHello.then(function () {
-					return ___________request.get(_this3.app.endpoint).then(function (response) {
+				return this.loadHello().then(function () {
+					return ___________request.get(_this.app.endpoint + '/providers').then(function (response) {
 						____________logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'ProviderAuth' });
-						var provider = _.findWhere(response.providers, { name: _this3.provider });
-						____________logger.warn({ description: 'Provider found', findWhere: provider, func: 'login', obj: 'ProviderAuth' });
+						var provider = response[_this.provider];
+						____________logger.warn({ description: 'Provider found', provider: provider, func: 'login', obj: 'ProviderAuth' });
 						if (!provider) {
-							____________logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this3.provider, provider: _this3.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
+							____________logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this.provider, provider: _this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
 							return Promise.reject({ message: 'Provider is not setup.' });
 						}
-						var providersConfig = {};
-						providersConfig[provider.name] = provider.clientId;
-						____________logger.warn({ description: 'Providers config built', providersConfig: providersConfig, func: 'login', obj: 'ProviderAuth' });
-						return window.hello.init(providersConfig, { redirect_uri: _this3.redirectUri });
+						____________logger.warn({ description: 'Providers config built', providersConfig: response, func: 'login', obj: 'ProviderAuth' });
+						return window.hello.init(response, { redirect_uri: 'redirect.html' });
 					})['catch'](function (errRes) {
 						____________logger.error({ description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter' });
 						return Promise.reject(errRes);
 					});
+				});
+			}
+		}, {
+			key: 'login',
+			value: function login() {
+				var _this2 = this;
+
+				//Initalize Hello
+				return this.initHello().then(function () {
+					return window.hello.login(_this2.provider);
+				});
+			}
+		}, {
+			key: 'signup',
+			value: function signup() {
+				var _this3 = this;
+
+				//Initalize Hello
+				// if (!_.has(clientIds, this.provider)) {
+				// 	logger.error({description: `${this.provider} is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.`, provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth'});
+				// 	return Promise.reject();
+				// }
+				//TODO: send info to server
+				return this.initHello().then(function () {
+					return window.hello.login(_this3.provider);
+				}, function (errRes) {
+					____________logger.error({ description: 'Error signing up.', error: errRes, func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Error signing up.' });
 				});
 			}
 		}]);
@@ -564,6 +569,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     *
     */
 			value: function signup(signupData) {
+				____________logger.log({ description: 'Signup called.', signupData: signupData, func: 'signup', obj: 'Matter' });
+				if (!signupData) {
+					____________logger.error({ description: 'Signup information is required to signup.', func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Login data is required to login.' });
+				}
 				if (_.isObject(signupData)) {
 					return ___________request.post(this.endpoint + '/signup', signupData).then(function (response) {
 						____________logger.log({ description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
@@ -577,13 +587,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						____________logger.error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
 						return Promise.reject(errRes);
 					});
-				} else {
+				} else if (_.isString(signupData)) {
 					//Handle 3rd Party signups
 					var auth = new ProviderAuth({ provider: signupData, app: this });
-					return auth.signup().then(function (res) {
+					return auth.signup(signupData).then(function (res) {
 						____________logger.info({ description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter' });
 						return Promise.resolve(res);
 					});
+				} else {
+					____________logger.error({ description: 'Incorrectly formatted signup information.', signupData: signupData, func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Signup requires an object or a string.' });
 				}
 			}
 
@@ -625,13 +638,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						return Promise.reject(errRes);
 					});
-				} else {
+				} else if (_.isString(loginData)) {
 					//Provider login
 					var auth = new ProviderAuth({ provider: loginData, app: this });
 					return auth.login().then(function (res) {
 						____________logger.info({ description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter' });
 						return Promise.resolve(res);
 					});
+				} else {
+					____________logger.error({ description: 'Incorrectly fomatted login information.', signupData: signupData, func: 'login', obj: 'Matter' });
+					return Promise.reject({ message: 'Login requires an object or a string.' });
 				}
 			}
 
@@ -643,6 +659,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				var _this5 = this;
 
 				//TODO: Handle logging out of providers
+				if (!this.isLoggedIn) {
+					____________logger.warn({ description: 'No logged in account to log out.', func: 'logout', obj: 'Matter' });
+					return Promise.reject({ message: 'No logged in account to log out.' });
+				}
 				return ___________request.put(this.endpoint + '/logout').then(function (response) {
 					____________logger.log({ description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter' });
 					_this5.currentUser = null;
@@ -670,8 +690,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							_this6.currentUser = response;
 							return response;
 						})['catch'](function (errRes) {
-							if (err.status == 401) {
+							if (errRes.status == 401) {
 								____________logger.warn({ description: 'Called for current user without token.', error: errRes, func: 'currentUser', obj: 'Matter' });
+								token['delete']();
 								return Promise.resolve(null);
 							} else {
 								____________logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
@@ -792,7 +813,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				}
 				if (this.name == 'tessellate') {
 					//Remove url if host is server
-					if (window && _.has(window, 'location') && window.location.host == serverUrl) {
+					if (typeof window !== 'undefined' && _.has(window, 'location') && window.location.host === serverUrl) {
 						serverUrl = '';
 						____________logger.info({ description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
 					}
@@ -1296,7 +1317,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'del',
 			value: function del(accountData) {
 				_______logger.debug({ description: 'Delete user called.', func: 'del', obj: 'Account' });
-				return ______request['delete'](this.accountEndpoint, accountData).then(function (response) {
+				return ______request.del(this.accountEndpoint, accountData).then(function (response) {
 					_______logger.info({ description: 'Delete user successful.', response: response, func: 'del', obj: 'Account' });
 					return new _Account(response);
 				})['catch'](function (errRes) {
@@ -1307,7 +1328,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'accountEndpoint',
 			get: function get() {
-				var endpointArray = [matter.endpoint, 'users', this.username];
+				var endpointArray = [matter.endpoint, 'accounts', this.username];
 				//Check for app account action
 				if (_.has(this, 'app') && _.has(this.app, 'name')) {
 					endpointArray.splice(1, 0, 'apps', this.app.name);
@@ -1699,16 +1720,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		function Files(filesData) {
 			_classCallCheck(this, Files);
 
-			if (filesData && _.isObject(filesData) && (_.has(filesData, 'appName') || _.has(filesData, 'name'))) {
+			if (filesData && _.isObject(filesData) && _.has(filesData, 'app')) {
 				//Data is object containing directory data
-				this.app = filesData.filesData;
+				this.app = filesData.app;
 			} else if (filesData && _.isString(filesData)) {
 				//Data is string name
 				this.app = { name: filesData };
 			} else if (filesData && _.isArray(filesData)) {
 				//TODO: Handle an array of files being passed as data
 				__logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
-				throw new Error('Files Data object with name is required to start a Files action.');
+				throw new Error('Files Data object with application is required to start a Files action.');
 			} else {
 				__logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
 				throw new Error('Files Data object with name is required to start a Files action.');
@@ -1730,9 +1751,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function get() {
 				var _this10 = this;
 
-				if (!this.app || !this.app.frontend || !this.app.frontend.bucketName) {
-					__logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files' });
-					return Promise.reject({ message: 'Bucket name required to get objects' });
+				if (!this.app.frontend || !this.app.frontend.bucketName) {
+					__logger.warn({ description: 'Application Frontend data not available. Calling .get().', app: this.app, func: 'get', obj: 'Files' });
+					return this.app.get().then(function (applicationData) {
+						__logger.warn({ description: 'Get returned', data: applicationData, func: 'get', obj: 'Files' });
+						_this10.app = applicationData;
+						return _this10.get();
+					}, function (err) {
+						__logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files' });
+						return Promise.reject({ message: 'Bucket name required to get objects' });
+					});
 				} else {
 					var _ret2 = (function () {
 						//If AWS Credential do not exist, set them
@@ -1785,11 +1813,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			//ALIAS FOR buildStructure
-		}, {
-			key: 'structure',
-			get: function get() {
-				return this.buildStructure();
-			}
+			// get structure() {
+			// 	return this.buildStructure();
+			// }
 		}]);
 
 		return Files;
@@ -1844,7 +1870,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (ind != list.length - 1) {
 					//Not the last loc
 					currentObj.name = loc;
-					currentObj.path = _.first(list, ind + 1).join('/');
+					currentObj.path = _.take(list, ind + 1).join('/');
 					currentObj.type = 'folder';
 					currentObj.children = [{}];
 					//TODO: Find out why this works
@@ -1892,9 +1918,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   *
   */
 
-	var _Application = (function () {
-		function _Application(appData) {
-			_classCallCheck(this, _Application);
+	var Application = (function () {
+		function Application(appData) {
+			_classCallCheck(this, Application);
 
 			//Setup application data based on input
 			if (appData && _.isObject(appData)) {
@@ -1908,15 +1934,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			// logger.debug({description: 'Application object created.', application: this, func: 'constructor', obj: 'Application'});
 		}
 
-		_createClass(_Application, [{
+		_createClass(Application, [{
 			key: 'get',
 
 			//Get applications or single application
 			value: function get() {
 				_logger.debug({ description: 'Application get called.', func: 'get', obj: 'Application' });
 				return _request.get(this.appEndpoint).then(function (response) {
-					_logger.info({ description: 'Application loaded successfully.', response: response, application: new _Application(response), func: 'get', obj: 'Application' });
-					return new _Application(response);
+					_logger.info({ description: 'Application loaded successfully.', response: response, application: new Application(response), func: 'get', obj: 'Application' });
+					return new Application(response);
 				})['catch'](function (errRes) {
 					_logger.error({ description: 'Error getting Application.', message: errRes.response.text, error: errRes, func: 'get', obj: 'Application' });
 					return Promise.reject(errRes.response.text || errRes.response);
@@ -1930,7 +1956,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_logger.debug({ description: 'Application update called.', func: 'update', obj: 'Application' });
 				return _request.put(this.appEndpoint, appData).then(function (response) {
 					_logger.info({ description: 'Application updated successfully.', response: response, func: 'update', obj: 'Application' });
-					return new _Application(response);
+					return new Application(response);
 				})['catch'](function (errRes) {
 					_logger.error({ description: 'Error updating application.', error: errRes, func: 'update', obj: 'Application' });
 					return Promise.reject(errRes.response.text || errRes.response);
@@ -1941,8 +1967,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function addStorage() {
 				_logger.debug({ description: 'Application add storage called.', application: this, func: 'addStorage', obj: 'Application' });
 				return _request.post(this.appEndpoint + '/storage', appData).then(function (response) {
-					_logger.info({ description: 'Storage successfully added to application.', response: response, application: new _Application(response), func: 'addStorage', obj: 'Application' });
-					return new _Application(response);
+					_logger.info({ description: 'Storage successfully added to application.', response: response, application: new Application(response), func: 'addStorage', obj: 'Application' });
+					return new Application(response);
 				})['catch'](function (errRes) {
 					_logger.error({ description: 'Error adding storage to application.', error: errRes, func: 'addStorage', obj: 'Application' });
 					return Promise.reject(errRes.response.text || errRes.response);
@@ -1956,7 +1982,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				_logger.error({ description: 'Applying templates to existing applications is not currently supported.', func: 'applyTemplate', obj: 'Application' });
 				return _request.post(this.appEndpoint, appData).then(function (response) {
 					_logger.info({ description: 'Template successfully applied to application.', response: response, application: _this11, func: 'applyTemplate', obj: 'Application' });
-					return new _Application(response);
+					return new Application(response);
 				})['catch'](function (errRes) {
 					_logger.error({ description: 'Error applying template to application.', error: errRes, application: _this11, func: 'applyTemplate', obj: 'Application' });
 					return Promise.reject(errRes.response.text || errRes.response);
@@ -2031,7 +2057,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}]);
 
-		return _Application;
+		return Application;
 	})();
 
 	var request = matter.utils.request;
@@ -2056,6 +2082,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				logger.debug({ description: 'Apps get called.', action: this, func: 'get', obj: 'AppsAction' });
 				return request.get(this.appsEndpoint).then(function (response) {
 					logger.info({ description: 'Apps data loaded successfully.', response: response, func: 'get', obj: 'AppsAction' });
+					//TODO: Return application object
+					// return new Application(response);
 					return response;
 				})['catch'](function (errRes) {
 					logger.error({ description: 'Error getting apps data.', error: errRes, func: 'get', obj: 'AppsAction' });
@@ -2070,7 +2098,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				logger.debug({ description: 'Application add called.', appData: appData, func: 'add', obj: 'AppsAction' });
 				return matter.utils.request.post(this.appsEndpoint, appData).then(function (response) {
 					logger.info({ description: 'Application added successfully.', response: response, func: 'add', obj: 'AppsAction' });
-					return new Application(response);
+					// TODO: Return application object
+					// return new Application(response);
+					return response;
 				})['catch'](function (errRes) {
 					logger.error({ description: 'Error adding app.', error: errRes, func: 'add', obj: 'AppsAction' });
 					return Promise.reject(errRes);
@@ -2107,8 +2137,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			//Start a new App action
 			value: function App(appName) {
-				this.utils.logger.debug({ description: 'Templates Action called.', appName: appName, template: new _Application(appName), func: 'App', obj: 'Grout' });
-				return new _Application(appName);
+				this.utils.logger.debug({ description: 'Application action called.', appName: appName, template: new Application(appName), func: 'App', obj: 'Grout' });
+				return new Application(appName);
 			}
 
 			//Start a new Apps Action

@@ -9,14 +9,14 @@ let logger = matter.utils.logger;
 
 class Files {
 	constructor(filesData) {
-		if (filesData && _.isObject(filesData) && (_.has(filesData, 'appName') || _.has(filesData, 'name'))) { //Data is object containing directory data
-			this.app = filesData.filesData;
+		if (filesData && _.isObject(filesData) && _.has(filesData, 'app')) { //Data is object containing directory data
+			this.app = filesData.app;
 		} else if (filesData && _.isString(filesData)) { //Data is string name
 			this.app = {name: filesData};
 		} else if (filesData && _.isArray(filesData)) {
 			//TODO: Handle an array of files being passed as data
 			logger.error({description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files'});
-			throw new Error('Files Data object with name is required to start a Files action.');
+			throw new Error('Files Data object with application is required to start a Files action.');
 		} else {
 			logger.error({description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files'});
 			throw new Error('Files Data object with name is required to start a Files action.');
@@ -27,9 +27,16 @@ class Files {
 		//TODO: Publish all files
 	}
 	get() {
-		if (!this.app || !this.app.frontend || !this.app.frontend.bucketName) {
-			logger.error({description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files'});
-			return Promise.reject({message: 'Bucket name required to get objects'});
+		if (!this.app.frontend || !this.app.frontend.bucketName) {
+			logger.warn({description: 'Application Frontend data not available. Calling .get().', app: this.app, func: 'get', obj: 'Files'});
+			return this.app.get().then((applicationData) => {
+				logger.warn({description: 'Get returned', data: applicationData, func: 'get', obj: 'Files'});
+				this.app = applicationData;
+				return this.get();
+			}, (err) => {
+				logger.error({description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files'});
+				return Promise.reject({message: 'Bucket name required to get objects'});
+			});
 		} else {
 			//If AWS Credential do not exist, set them
 			if (typeof AWS.config.credentials == 'undefined' || !AWS.config.credentials) {
@@ -69,9 +76,9 @@ class Files {
 		});
 	}
 	//ALIAS FOR buildStructure
-	get structure() {
-		return this.buildStructure();
-	}
+	// get structure() {
+	// 	return this.buildStructure();
+	// }
 }
 export default Files;
 //------------------ Utility Functions ------------------//
@@ -125,7 +132,7 @@ function buildStructureObject(file) {
 		_.each(pathArray, (loc, ind, list) => {
 			if (ind != list.length - 1) {//Not the last loc
 				currentObj.name = loc;
-				currentObj.path = _.first(list, ind + 1).join('/');
+				currentObj.path = _.take(list, ind + 1).join('/');
 				currentObj.type = 'folder';
 				currentObj.children = [{}];
 				//TODO: Find out why this works

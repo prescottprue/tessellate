@@ -46,7 +46,9 @@ let token = {
 		this.string = tokenStr;
 	},
 	delete() {
+		//Remove string token
 		storage.removeItem(config.tokenName);
+		//Remove user data
 		storage.removeItem(config.tokenDataName);
 		logger.log({description: 'Token was removed.', func: 'delete', obj: 'token'});
 	}

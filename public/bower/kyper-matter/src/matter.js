@@ -33,7 +33,7 @@ class Matter {
 		}
 		if (this.name == 'tessellate') {
 			//Remove url if host is server
-			if (window && _.has(window, 'location') && window.location.host == serverUrl) {
+			if (typeof window !== 'undefined' && _.has(window, 'location') && window.location.host === serverUrl) {
 				serverUrl = '';
 				logger.info({description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter'});
 			}
@@ -47,6 +47,11 @@ class Matter {
 	 *
 	 */
 	signup(signupData) {
+		logger.log({description: 'Signup called.', signupData: signupData, func: 'signup', obj: 'Matter'});
+		if (!signupData) {
+			logger.error({description: 'Signup information is required to signup.', func: 'signup', obj: 'Matter'});
+			return Promise.reject({message: 'Login data is required to login.'});
+		}
 		if (_.isObject(signupData)) {
 			return request.post(this.endpoint + '/signup', signupData)
 			.then((response) => {
@@ -62,15 +67,17 @@ class Matter {
 				logger.error({description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter'});
 				return Promise.reject(errRes);
 			});
-		} else {
+		} else if (_.isString(signupData)) {
 			//Handle 3rd Party signups
 			let auth = new ProviderAuth({provider: signupData, app: this});
-			return auth.signup().then((res) => {
+			return auth.signup(signupData).then((res) => {
 				logger.info({description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter'});
 				return Promise.resolve(res);
 			});
+		} else {
+			logger.error({description: 'Incorrectly formatted signup information.', signupData: signupData, func: 'signup', obj: 'Matter'});
+			return Promise.reject({message: 'Signup requires an object or a string.'});
 		}
-
 	}
 	/** Login
 	 *
@@ -107,19 +114,26 @@ class Matter {
 				}
 				return Promise.reject(errRes);
 			});
-		} else {
+		} else if (_.isString(loginData)) {
 			//Provider login
 			let auth = new ProviderAuth({provider: loginData, app: this});
 			return auth.login().then((res) => {
 				logger.info({description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter'});
 				return Promise.resolve(res);
 			});
+		} else {
+			logger.error({description: 'Incorrectly fomatted login information.', signupData: signupData, func: 'login', obj: 'Matter'});
+			return Promise.reject({message: 'Login requires an object or a string.'});
 		}
 	}
 	/** Logout
 	 */
 	logout() {
 		//TODO: Handle logging out of providers
+		if (!this.isLoggedIn) {
+			logger.warn({description: 'No logged in account to log out.', func: 'logout', obj: 'Matter'});
+			return Promise.reject({message: 'No logged in account to log out.'});
+		}
 		return request.put(this.endpoint + '/logout').then((response) => {
 			logger.log({description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter'});
 			this.currentUser = null;
@@ -143,8 +157,9 @@ class Matter {
 					this.currentUser = response;
 					return response;
 				})['catch']((errRes) => {
-					if (err.status == 401) {
+					if (errRes.status == 401) {
 						logger.warn({description: 'Called for current user without token.', error: errRes, func: 'currentUser', obj: 'Matter'});
+						token.delete();
 						return Promise.resolve(null);
 					} else {
 						logger.error({description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter'});

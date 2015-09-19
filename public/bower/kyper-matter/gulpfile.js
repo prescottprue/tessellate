@@ -22,6 +22,9 @@ const mainFile = manifest.main;
 const destinationFolder = path.dirname(mainFile);
 const exportFileName = path.basename(mainFile, path.extname(mainFile));
 const conf = require('./config.json');
+
+const Server = require('karma').Server;
+
 // Remove the built files
 gulp.task('clean', function(cb) {
   del([destinationFolder], cb);
@@ -50,6 +53,7 @@ function createLintTask(taskName, files) {
       .pipe($.notify(jscsNotify));
   });
 }
+
 
 // Lint our source code
 createLintTask('lint-src', ['src/**/*.js']);
@@ -88,18 +92,6 @@ gulp.task('build', ['lint-src', 'clean'], function(done) {
   .catch(done);
 });
 
-function bundleTest(bundler) {
-  return bundler.bundle()
-    .on('error', function(err) {
-      console.log(err.message);
-      this.emit('end');
-    })
-    .pipe($.plumber())
-    .pipe(source('./tmp/__spec-build.js'))
-    .pipe(buffer())
-    .pipe(gulp.dest(''))
-    .pipe($.livereload());
-}
 function bundle(bundler) {
   return bundler.bundle()
     .on('error', function(err) {
@@ -132,31 +124,6 @@ function addExternalModules(code) {
   }));
   return bundler;
 };
-function getTestBundler() {
-  // Our browserify bundle is made up of our unit tests, which
-  // should individually load up pieces of our application.
-  // We also include the browserify setup file.
-  var testFiles = glob.sync('./test/unit/**/*');
-  var allFiles = ['./test/setup/browserify.js'].concat(testFiles);
-
-  // Create our bundler, passing in the arguments required for watchify
-  var bundler = browserify(allFiles, watchify.args);
-
-  // Watch the bundler, and re-bundle it whenever files change
-  bundler = watchify(bundler);
-  bundler.on('update', function() {
-    bundle(bundler);
-  });
-
-  // Set up Babelify so that ES6 works in the tests
-  bundler.transform(babelify.configure({
-    sourceMapRelative: __dirname + '/src',
-    optional: ["es7.asyncFunctions"],
-    stage:2
-  }));
-
-  return bundler;
-};
 
 gulp.task('addExternals', function() {
   return bundle(addExternalModules());
@@ -171,28 +138,36 @@ gulp.task('browserify', function() {
 });
 
 function test() {
-  return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], {read: false})
+  return gulp.src(['test/setup/browser.js', 'test/unit/**/*.js'], {read: false})
     .pipe($.mocha({reporter: 'dot', globals: config.mochaGlobals}));
 }
 
-gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
-  require('babel-core/register');
-  gulp.src(['src/**/*.js', '!gulpfile.js', '!dist/**/*.js'])
-    .pipe($.istanbul({ instrumenter: isparta.Instrumenter }))
-    .pipe($.istanbul.hookRequire())
-    .on('finish', function() {
-      return test()
-        .pipe($.istanbul.writeReports())
-        .on('end', done);
-    });
-});
+// gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
+//   require('babel-core/register');
+//   gulp.src(['src/**/*.js', '!gulpfile.js', '!dist/**/*.js'])
+//     .pipe($.istanbul({ instrumenter: isparta.Instrumenter }))
+//     .pipe($.istanbul.hookRequire())
+//     .on('finish', function() {
+//       return test()
+//         .pipe($.istanbul.writeReports())
+//         .on('end', done);
+//     });
+// });
 
 // Lint and run our tests
-gulp.task('test', ['lint-src', 'lint-test'], function() {
-  require('babel-core/register');
-  return test();
+gulp.task('test-old', ['lint-src', 'lint-test'], function() {
+  
 });
-
+/**
+ * Run test once and exit
+ */
+gulp.task('test', function (done) {
+  require('babel-core/register');
+  new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done).start();
+});
 // Ensure that linting occurs before browserify runs. This prevents
 // the build from breaking due to poorly formatted code.
 gulp.task('build-in-sequence', function(callback) {
@@ -208,7 +183,7 @@ const otherWatchFiles = ['package.json', '**/.eslintrc', '.jscsrc'];
 // Run the headless unit tests as you make changes.
 gulp.task('watch', function() {
   const watchFiles = jsWatchFiles.concat(otherWatchFiles);
-  gulp.watch(watchFiles, ['test', 'build-bundle']);
+  gulp.watch(watchFiles, ['build-bundle']);
 });
 
 // Set up a livereload environment for our spec runner

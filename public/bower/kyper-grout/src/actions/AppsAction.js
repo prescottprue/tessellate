@@ -1,5 +1,6 @@
 import config from '../config';
 import matter from '../classes/Matter';
+import Application from '../classes/Application';
 
 let request = matter.utils.request;
 let logger = matter.utils.logger;
@@ -17,6 +18,8 @@ class AppsAction {
 		logger.debug({description: 'Apps get called.', action: this, func: 'get', obj: 'AppsAction'});
 		return request.get(this.appsEndpoint).then((response) => {
 			logger.info({description: 'Apps data loaded successfully.', response: response, func: 'get', obj: 'AppsAction'});
+			//TODO: Return application object
+			// return new Application(response);
 			return response;
 		})['catch']((errRes) => {
 			logger.error({description: 'Error getting apps data.', error: errRes, func: 'get', obj: 'AppsAction'});
@@ -28,7 +31,9 @@ class AppsAction {
 		logger.debug({description: 'Application add called.', appData: appData, func: 'add', obj: 'AppsAction'});
 		return matter.utils.request.post(this.appsEndpoint, appData).then((response) => {
 			logger.info({description: 'Application added successfully.', response: response, func: 'add', obj: 'AppsAction'});
-			return new Application(response);
+			// TODO: Return application object
+			// return new Application(response);
+			return response;
 		})['catch']((errRes) => {
 			logger.error({description: 'Error adding app.', error: errRes, func: 'add', obj: 'AppsAction'});
 			return Promise.reject(errRes);

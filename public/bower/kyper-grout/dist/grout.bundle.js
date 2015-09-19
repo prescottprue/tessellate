@@ -1,5 +1,5 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Grout = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// AWS SDK for JavaScript v2.1.49
+// AWS SDK for JavaScript v2.2.3
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // License at https://sdk.amazonaws.com/js/BUNDLE_LICENSE.txt
 var AWS = require('./core');
@@ -29,7 +29,7 @@ AWS.apiLoader.services['cloudwatch']['2010-08-01'] = {"metadata":{"apiVersion":"
 AWS.apiLoader.services['cloudwatchlogs'] = {};
 AWS.CloudWatchLogs = AWS.Service.defineService('cloudwatchlogs', [ '2014-03-28' ]);
 
-AWS.apiLoader.services['cloudwatchlogs']['2014-03-28'] = {"version":"2.0","metadata":{"apiVersion":"2014-03-28","endpointPrefix":"logs","jsonVersion":"1.1","serviceFullName":"Amazon CloudWatch Logs","signatureVersion":"v4","targetPrefix":"Logs_20140328","protocol":"json"},"operations":{"CreateLogGroup":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{}}},"http":{}},"CreateLogStream":{"input":{"type":"structure","required":["logGroupName","logStreamName"],"members":{"logGroupName":{},"logStreamName":{}}},"http":{}},"DeleteDestination":{"input":{"type":"structure","required":["destinationName"],"members":{"destinationName":{}}},"http":{}},"DeleteLogGroup":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{}}},"http":{}},"DeleteLogStream":{"input":{"type":"structure","required":["logGroupName","logStreamName"],"members":{"logGroupName":{},"logStreamName":{}}},"http":{}},"DeleteMetricFilter":{"input":{"type":"structure","required":["logGroupName","filterName"],"members":{"logGroupName":{},"filterName":{}}},"http":{}},"DeleteRetentionPolicy":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{}}},"http":{}},"DeleteSubscriptionFilter":{"input":{"type":"structure","required":["logGroupName","filterName"],"members":{"logGroupName":{},"filterName":{}}},"http":{}},"DescribeDestinations":{"input":{"type":"structure","members":{"DestinationNamePrefix":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"destinations":{"type":"list","member":{"shape":"Si"}},"nextToken":{}}},"http":{}},"DescribeLogGroups":{"input":{"type":"structure","members":{"logGroupNamePrefix":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"logGroups":{"type":"list","member":{"type":"structure","members":{"logGroupName":{},"creationTime":{"type":"long"},"retentionInDays":{"type":"integer"},"metricFilterCount":{"type":"integer"},"arn":{},"storedBytes":{"type":"long"}}}},"nextToken":{}}},"http":{}},"DescribeLogStreams":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{},"logStreamNamePrefix":{},"orderBy":{},"descending":{"type":"boolean"},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"logStreams":{"type":"list","member":{"type":"structure","members":{"logStreamName":{},"creationTime":{"type":"long"},"firstEventTimestamp":{"type":"long"},"lastEventTimestamp":{"type":"long"},"lastIngestionTime":{"type":"long"},"uploadSequenceToken":{},"arn":{},"storedBytes":{"type":"long"}}}},"nextToken":{}}},"http":{}},"DescribeMetricFilters":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{},"filterNamePrefix":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"metricFilters":{"type":"list","member":{"type":"structure","members":{"filterName":{},"filterPattern":{},"metricTransformations":{"shape":"S17"},"creationTime":{"type":"long"}}}},"nextToken":{}}},"http":{}},"DescribeSubscriptionFilters":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{},"filterNamePrefix":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"subscriptionFilters":{"type":"list","member":{"type":"structure","members":{"filterName":{},"logGroupName":{},"filterPattern":{},"destinationArn":{},"roleArn":{},"creationTime":{"type":"long"}}}},"nextToken":{}}},"http":{}},"FilterLogEvents":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{},"logStreamNames":{"type":"list","member":{}},"startTime":{"type":"long"},"endTime":{"type":"long"},"filterPattern":{},"nextToken":{},"limit":{"type":"integer"},"interleaved":{"type":"boolean"}}},"output":{"type":"structure","members":{"events":{"type":"list","member":{"type":"structure","members":{"logStreamName":{},"timestamp":{"type":"long"},"message":{},"ingestionTime":{"type":"long"},"eventId":{}}}},"searchedLogStreams":{"type":"list","member":{"type":"structure","members":{"logStreamName":{},"searchedCompletely":{"type":"boolean"}}}},"nextToken":{}}},"http":{}},"GetLogEvents":{"input":{"type":"structure","required":["logGroupName","logStreamName"],"members":{"logGroupName":{},"logStreamName":{},"startTime":{"type":"long"},"endTime":{"type":"long"},"nextToken":{},"limit":{"type":"integer"},"startFromHead":{"type":"boolean"}}},"output":{"type":"structure","members":{"events":{"type":"list","member":{"type":"structure","members":{"timestamp":{"type":"long"},"message":{},"ingestionTime":{"type":"long"}}}},"nextForwardToken":{},"nextBackwardToken":{}}},"http":{}},"PutDestination":{"input":{"type":"structure","required":["destinationName","targetArn","roleArn"],"members":{"destinationName":{},"targetArn":{},"roleArn":{}}},"output":{"type":"structure","members":{"destination":{"shape":"Si"}}},"http":{}},"PutDestinationPolicy":{"input":{"type":"structure","required":["destinationName","accessPolicy"],"members":{"destinationName":{},"accessPolicy":{}}},"http":{}},"PutLogEvents":{"input":{"type":"structure","required":["logGroupName","logStreamName","logEvents"],"members":{"logGroupName":{},"logStreamName":{},"logEvents":{"type":"list","member":{"type":"structure","required":["timestamp","message"],"members":{"timestamp":{"type":"long"},"message":{}}}},"sequenceToken":{}}},"output":{"type":"structure","members":{"nextSequenceToken":{},"rejectedLogEventsInfo":{"type":"structure","members":{"tooNewLogEventStartIndex":{"type":"integer"},"tooOldLogEventEndIndex":{"type":"integer"},"expiredLogEventEndIndex":{"type":"integer"}}}}},"http":{}},"PutMetricFilter":{"input":{"type":"structure","required":["logGroupName","filterName","filterPattern","metricTransformations"],"members":{"logGroupName":{},"filterName":{},"filterPattern":{},"metricTransformations":{"shape":"S17"}}},"http":{}},"PutRetentionPolicy":{"input":{"type":"structure","required":["logGroupName","retentionInDays"],"members":{"logGroupName":{},"retentionInDays":{"type":"integer"}}},"http":{}},"PutSubscriptionFilter":{"input":{"type":"structure","required":["logGroupName","filterName","filterPattern","destinationArn"],"members":{"logGroupName":{},"filterName":{},"filterPattern":{},"destinationArn":{},"roleArn":{}}},"http":{}},"TestMetricFilter":{"input":{"type":"structure","required":["filterPattern","logEventMessages"],"members":{"filterPattern":{},"logEventMessages":{"type":"list","member":{}}}},"output":{"type":"structure","members":{"matches":{"type":"list","member":{"type":"structure","members":{"eventNumber":{"type":"long"},"eventMessage":{},"extractedValues":{"type":"map","key":{},"value":{}}}}}}},"http":{}}},"shapes":{"Si":{"type":"structure","members":{"destinationName":{},"targetArn":{},"roleArn":{},"accessPolicy":{},"arn":{},"creationTime":{"type":"long"}}},"S17":{"type":"list","member":{"type":"structure","required":["metricName","metricNamespace","metricValue"],"members":{"metricName":{},"metricNamespace":{},"metricValue":{}}}}},"examples":{},"paginators":{"DescribeDestinations":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"destinations"},"DescribeLogGroups":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"logGroups"},"DescribeLogStreams":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"logStreams"},"DescribeMetricFilters":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"metricFilters"},"DescribeSubscriptionFilters":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"subscriptionFilters"},"FilterLogEvents":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":["events","searchedLogStreams"]},"GetLogEvents":{"input_token":"nextToken","output_token":"nextForwardToken","limit_key":"limit","result_key":"events"}}};
+AWS.apiLoader.services['cloudwatchlogs']['2014-03-28'] = {"version":"2.0","metadata":{"apiVersion":"2014-03-28","endpointPrefix":"logs","jsonVersion":"1.1","serviceFullName":"Amazon CloudWatch Logs","signatureVersion":"v4","targetPrefix":"Logs_20140328","protocol":"json"},"operations":{"CancelExportTask":{"input":{"type":"structure","required":["taskId"],"members":{"taskId":{}}},"http":{}},"CreateExportTask":{"input":{"type":"structure","required":["logGroupName","from","to","destination"],"members":{"taskName":{},"logGroupName":{},"logStreamNamePrefix":{},"from":{"type":"long"},"to":{"type":"long"},"destination":{},"destinationPrefix":{}}},"output":{"type":"structure","members":{"taskId":{}}},"http":{}},"CreateLogGroup":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{}}},"http":{}},"CreateLogStream":{"input":{"type":"structure","required":["logGroupName","logStreamName"],"members":{"logGroupName":{},"logStreamName":{}}},"http":{}},"DeleteDestination":{"input":{"type":"structure","required":["destinationName"],"members":{"destinationName":{}}},"http":{}},"DeleteLogGroup":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{}}},"http":{}},"DeleteLogStream":{"input":{"type":"structure","required":["logGroupName","logStreamName"],"members":{"logGroupName":{},"logStreamName":{}}},"http":{}},"DeleteMetricFilter":{"input":{"type":"structure","required":["logGroupName","filterName"],"members":{"logGroupName":{},"filterName":{}}},"http":{}},"DeleteRetentionPolicy":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{}}},"http":{}},"DeleteSubscriptionFilter":{"input":{"type":"structure","required":["logGroupName","filterName"],"members":{"logGroupName":{},"filterName":{}}},"http":{}},"DescribeDestinations":{"input":{"type":"structure","members":{"DestinationNamePrefix":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"destinations":{"type":"list","member":{"shape":"Sq"}},"nextToken":{}}},"http":{}},"DescribeExportTasks":{"input":{"type":"structure","members":{"taskId":{},"statusCode":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"exportTasks":{"type":"list","member":{"type":"structure","members":{"taskId":{},"taskName":{},"logGroupName":{},"from":{"type":"long"},"to":{"type":"long"},"destination":{},"destinationPrefix":{},"status":{"type":"structure","members":{"code":{},"message":{}}},"executionInfo":{"type":"structure","members":{"creationTime":{"type":"long"},"completionTime":{"type":"long"}}}}}},"nextToken":{}}},"http":{}},"DescribeLogGroups":{"input":{"type":"structure","members":{"logGroupNamePrefix":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"logGroups":{"type":"list","member":{"type":"structure","members":{"logGroupName":{},"creationTime":{"type":"long"},"retentionInDays":{"type":"integer"},"metricFilterCount":{"type":"integer"},"arn":{},"storedBytes":{"type":"long"}}}},"nextToken":{}}},"http":{}},"DescribeLogStreams":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{},"logStreamNamePrefix":{},"orderBy":{},"descending":{"type":"boolean"},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"logStreams":{"type":"list","member":{"type":"structure","members":{"logStreamName":{},"creationTime":{"type":"long"},"firstEventTimestamp":{"type":"long"},"lastEventTimestamp":{"type":"long"},"lastIngestionTime":{"type":"long"},"uploadSequenceToken":{},"arn":{},"storedBytes":{"type":"long"}}}},"nextToken":{}}},"http":{}},"DescribeMetricFilters":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{},"filterNamePrefix":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"metricFilters":{"type":"list","member":{"type":"structure","members":{"filterName":{},"filterPattern":{},"metricTransformations":{"shape":"S1m"},"creationTime":{"type":"long"}}}},"nextToken":{}}},"http":{}},"DescribeSubscriptionFilters":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{},"filterNamePrefix":{},"nextToken":{},"limit":{"type":"integer"}}},"output":{"type":"structure","members":{"subscriptionFilters":{"type":"list","member":{"type":"structure","members":{"filterName":{},"logGroupName":{},"filterPattern":{},"destinationArn":{},"roleArn":{},"creationTime":{"type":"long"}}}},"nextToken":{}}},"http":{}},"FilterLogEvents":{"input":{"type":"structure","required":["logGroupName"],"members":{"logGroupName":{},"logStreamNames":{"type":"list","member":{}},"startTime":{"type":"long"},"endTime":{"type":"long"},"filterPattern":{},"nextToken":{},"limit":{"type":"integer"},"interleaved":{"type":"boolean"}}},"output":{"type":"structure","members":{"events":{"type":"list","member":{"type":"structure","members":{"logStreamName":{},"timestamp":{"type":"long"},"message":{},"ingestionTime":{"type":"long"},"eventId":{}}}},"searchedLogStreams":{"type":"list","member":{"type":"structure","members":{"logStreamName":{},"searchedCompletely":{"type":"boolean"}}}},"nextToken":{}}},"http":{}},"GetLogEvents":{"input":{"type":"structure","required":["logGroupName","logStreamName"],"members":{"logGroupName":{},"logStreamName":{},"startTime":{"type":"long"},"endTime":{"type":"long"},"nextToken":{},"limit":{"type":"integer"},"startFromHead":{"type":"boolean"}}},"output":{"type":"structure","members":{"events":{"type":"list","member":{"type":"structure","members":{"timestamp":{"type":"long"},"message":{},"ingestionTime":{"type":"long"}}}},"nextForwardToken":{},"nextBackwardToken":{}}},"http":{}},"PutDestination":{"input":{"type":"structure","required":["destinationName","targetArn","roleArn"],"members":{"destinationName":{},"targetArn":{},"roleArn":{}}},"output":{"type":"structure","members":{"destination":{"shape":"Sq"}}},"http":{}},"PutDestinationPolicy":{"input":{"type":"structure","required":["destinationName","accessPolicy"],"members":{"destinationName":{},"accessPolicy":{}}},"http":{}},"PutLogEvents":{"input":{"type":"structure","required":["logGroupName","logStreamName","logEvents"],"members":{"logGroupName":{},"logStreamName":{},"logEvents":{"type":"list","member":{"type":"structure","required":["timestamp","message"],"members":{"timestamp":{"type":"long"},"message":{}}}},"sequenceToken":{}}},"output":{"type":"structure","members":{"nextSequenceToken":{},"rejectedLogEventsInfo":{"type":"structure","members":{"tooNewLogEventStartIndex":{"type":"integer"},"tooOldLogEventEndIndex":{"type":"integer"},"expiredLogEventEndIndex":{"type":"integer"}}}}},"http":{}},"PutMetricFilter":{"input":{"type":"structure","required":["logGroupName","filterName","filterPattern","metricTransformations"],"members":{"logGroupName":{},"filterName":{},"filterPattern":{},"metricTransformations":{"shape":"S1m"}}},"http":{}},"PutRetentionPolicy":{"input":{"type":"structure","required":["logGroupName","retentionInDays"],"members":{"logGroupName":{},"retentionInDays":{"type":"integer"}}},"http":{}},"PutSubscriptionFilter":{"input":{"type":"structure","required":["logGroupName","filterName","filterPattern","destinationArn"],"members":{"logGroupName":{},"filterName":{},"filterPattern":{},"destinationArn":{},"roleArn":{}}},"http":{}},"TestMetricFilter":{"input":{"type":"structure","required":["filterPattern","logEventMessages"],"members":{"filterPattern":{},"logEventMessages":{"type":"list","member":{}}}},"output":{"type":"structure","members":{"matches":{"type":"list","member":{"type":"structure","members":{"eventNumber":{"type":"long"},"eventMessage":{},"extractedValues":{"type":"map","key":{},"value":{}}}}}}},"http":{}}},"shapes":{"Sq":{"type":"structure","members":{"destinationName":{},"targetArn":{},"roleArn":{},"accessPolicy":{},"arn":{},"creationTime":{"type":"long"}}},"S1m":{"type":"list","member":{"type":"structure","required":["metricName","metricNamespace","metricValue"],"members":{"metricName":{},"metricNamespace":{},"metricValue":{}}}}},"examples":{},"paginators":{"DescribeDestinations":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"destinations"},"DescribeLogGroups":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"logGroups"},"DescribeLogStreams":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"logStreams"},"DescribeMetricFilters":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"metricFilters"},"DescribeSubscriptionFilters":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":"subscriptionFilters"},"FilterLogEvents":{"input_token":"nextToken","output_token":"nextToken","limit_key":"limit","result_key":["events","searchedLogStreams"]},"GetLogEvents":{"input_token":"nextToken","output_token":"nextForwardToken","limit_key":"limit","result_key":"events"}}};
 AWS.apiLoader.services['cognitoidentity'] = {};
 AWS.CognitoIdentity = AWS.Service.defineService('cognitoidentity', [ '2014-06-30' ]);
 require('./services/cognitoidentity');
@@ -56,7 +56,7 @@ AWS.apiLoader.services['ec2'] = {};
 AWS.EC2 = AWS.Service.defineService('ec2', [ '2015-04-15' ]);
 require('./services/ec2');
 
-AWS.apiLoader.services['ec2']['2015-04-15'] = {"version":"2.0","metadata":{"apiVersion":"2015-04-15","endpointPrefix":"ec2","serviceAbbreviation":"Amazon EC2","serviceFullName":"Amazon Elastic Compute Cloud","signatureVersion":"v4","xmlNamespace":"http://ec2.amazonaws.com/doc/2015-04-15","protocol":"ec2"},"operations":{"AcceptVpcPeeringConnection":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"output":{"type":"structure","members":{"VpcPeeringConnection":{"shape":"S5","locationName":"vpcPeeringConnection"}}},"http":{}},"AllocateAddress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Domain":{}}},"output":{"type":"structure","members":{"PublicIp":{"locationName":"publicIp"},"Domain":{"locationName":"domain"},"AllocationId":{"locationName":"allocationId"}}},"http":{}},"AssignPrivateIpAddresses":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"PrivateIpAddresses":{"shape":"Sg","locationName":"privateIpAddress"},"SecondaryPrivateIpAddressCount":{"locationName":"secondaryPrivateIpAddressCount","type":"integer"},"AllowReassignment":{"locationName":"allowReassignment","type":"boolean"}}},"http":{}},"AssociateAddress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{},"PublicIp":{},"AllocationId":{},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"AllowReassociation":{"locationName":"allowReassociation","type":"boolean"}}},"output":{"type":"structure","members":{"AssociationId":{"locationName":"associationId"}}},"http":{}},"AssociateDhcpOptions":{"input":{"type":"structure","required":["DhcpOptionsId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"DhcpOptionsId":{},"VpcId":{}}},"http":{}},"AssociateRouteTable":{"input":{"type":"structure","required":["SubnetId","RouteTableId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SubnetId":{"locationName":"subnetId"},"RouteTableId":{"locationName":"routeTableId"}}},"output":{"type":"structure","members":{"AssociationId":{"locationName":"associationId"}}},"http":{}},"AttachClassicLinkVpc":{"input":{"type":"structure","required":["InstanceId","VpcId","Groups"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"VpcId":{"locationName":"vpcId"},"Groups":{"shape":"So","locationName":"SecurityGroupId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"AttachInternetGateway":{"input":{"type":"structure","required":["InternetGatewayId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InternetGatewayId":{"locationName":"internetGatewayId"},"VpcId":{"locationName":"vpcId"}}},"http":{}},"AttachNetworkInterface":{"input":{"type":"structure","required":["NetworkInterfaceId","InstanceId","DeviceIndex"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"InstanceId":{"locationName":"instanceId"},"DeviceIndex":{"locationName":"deviceIndex","type":"integer"}}},"output":{"type":"structure","members":{"AttachmentId":{"locationName":"attachmentId"}}},"http":{}},"AttachVolume":{"input":{"type":"structure","required":["VolumeId","InstanceId","Device"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"InstanceId":{},"Device":{}}},"output":{"shape":"Su","locationName":"attachment"},"http":{}},"AttachVpnGateway":{"input":{"type":"structure","required":["VpnGatewayId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnGatewayId":{},"VpcId":{}}},"output":{"type":"structure","members":{"VpcAttachment":{"shape":"Sy","locationName":"attachment"}}},"http":{}},"AuthorizeSecurityGroupEgress":{"input":{"type":"structure","required":["GroupId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupId":{"locationName":"groupId"},"SourceSecurityGroupName":{"locationName":"sourceSecurityGroupName"},"SourceSecurityGroupOwnerId":{"locationName":"sourceSecurityGroupOwnerId"},"IpProtocol":{"locationName":"ipProtocol"},"FromPort":{"locationName":"fromPort","type":"integer"},"ToPort":{"locationName":"toPort","type":"integer"},"CidrIp":{"locationName":"cidrIp"},"IpPermissions":{"shape":"S11","locationName":"ipPermissions"}}},"http":{}},"AuthorizeSecurityGroupIngress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{},"GroupId":{},"SourceSecurityGroupName":{},"SourceSecurityGroupOwnerId":{},"IpProtocol":{},"FromPort":{"type":"integer"},"ToPort":{"type":"integer"},"CidrIp":{},"IpPermissions":{"shape":"S11"}}},"http":{}},"BundleInstance":{"input":{"type":"structure","required":["InstanceId","Storage"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{},"Storage":{"shape":"S1b"}}},"output":{"type":"structure","members":{"BundleTask":{"shape":"S1f","locationName":"bundleInstanceTask"}}},"http":{}},"CancelBundleTask":{"input":{"type":"structure","required":["BundleId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"BundleId":{}}},"output":{"type":"structure","members":{"BundleTask":{"shape":"S1f","locationName":"bundleInstanceTask"}}},"http":{}},"CancelConversionTask":{"input":{"type":"structure","required":["ConversionTaskId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ConversionTaskId":{"locationName":"conversionTaskId"},"ReasonMessage":{"locationName":"reasonMessage"}}},"http":{}},"CancelExportTask":{"input":{"type":"structure","required":["ExportTaskId"],"members":{"ExportTaskId":{"locationName":"exportTaskId"}}},"http":{}},"CancelImportTask":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"ImportTaskId":{},"CancelReason":{}}},"output":{"type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"State":{"locationName":"state"},"PreviousState":{"locationName":"previousState"}}},"http":{}},"CancelReservedInstancesListing":{"input":{"type":"structure","required":["ReservedInstancesListingId"],"members":{"ReservedInstancesListingId":{"locationName":"reservedInstancesListingId"}}},"output":{"type":"structure","members":{"ReservedInstancesListings":{"shape":"S1q","locationName":"reservedInstancesListingsSet"}}},"http":{}},"CancelSpotFleetRequests":{"input":{"type":"structure","required":["SpotFleetRequestIds","TerminateInstances"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestIds":{"shape":"S22","locationName":"spotFleetRequestId"},"TerminateInstances":{"locationName":"terminateInstances","type":"boolean"}}},"output":{"type":"structure","members":{"UnsuccessfulFleetRequests":{"locationName":"unsuccessfulFleetRequestSet","type":"list","member":{"locationName":"item","type":"structure","required":["SpotFleetRequestId","Error"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"Error":{"locationName":"error","type":"structure","required":["Code","Message"],"members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}}}}},"SuccessfulFleetRequests":{"locationName":"successfulFleetRequestSet","type":"list","member":{"locationName":"item","type":"structure","required":["SpotFleetRequestId","CurrentSpotFleetRequestState","PreviousSpotFleetRequestState"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"CurrentSpotFleetRequestState":{"locationName":"currentSpotFleetRequestState"},"PreviousSpotFleetRequestState":{"locationName":"previousSpotFleetRequestState"}}}}}},"http":{}},"CancelSpotInstanceRequests":{"input":{"type":"structure","required":["SpotInstanceRequestIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotInstanceRequestIds":{"shape":"S2c","locationName":"SpotInstanceRequestId"}}},"output":{"type":"structure","members":{"CancelledSpotInstanceRequests":{"locationName":"spotInstanceRequestSet","type":"list","member":{"locationName":"item","type":"structure","members":{"SpotInstanceRequestId":{"locationName":"spotInstanceRequestId"},"State":{"locationName":"state"}}}}}},"http":{}},"ConfirmProductInstance":{"input":{"type":"structure","required":["ProductCode","InstanceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ProductCode":{},"InstanceId":{}}},"output":{"type":"structure","members":{"OwnerId":{"locationName":"ownerId"},"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"CopyImage":{"input":{"type":"structure","required":["SourceRegion","SourceImageId","Name"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SourceRegion":{},"SourceImageId":{},"Name":{},"Description":{},"ClientToken":{}}},"output":{"type":"structure","members":{"ImageId":{"locationName":"imageId"}}},"http":{}},"CopySnapshot":{"input":{"type":"structure","required":["SourceRegion","SourceSnapshotId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SourceRegion":{},"SourceSnapshotId":{},"Description":{},"DestinationRegion":{"locationName":"destinationRegion"},"PresignedUrl":{"locationName":"presignedUrl"},"Encrypted":{"locationName":"encrypted","type":"boolean"},"KmsKeyId":{"locationName":"kmsKeyId"}}},"output":{"type":"structure","members":{"SnapshotId":{"locationName":"snapshotId"}}},"http":{}},"CreateCustomerGateway":{"input":{"type":"structure","required":["Type","PublicIp","BgpAsn"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Type":{},"PublicIp":{"locationName":"IpAddress"},"BgpAsn":{"type":"integer"}}},"output":{"type":"structure","members":{"CustomerGateway":{"shape":"S2q","locationName":"customerGateway"}}},"http":{}},"CreateDhcpOptions":{"input":{"type":"structure","required":["DhcpConfigurations"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"DhcpConfigurations":{"locationName":"dhcpConfiguration","type":"list","member":{"locationName":"item","type":"structure","members":{"Key":{"locationName":"key"},"Values":{"shape":"S22","locationName":"Value"}}}}}},"output":{"type":"structure","members":{"DhcpOptions":{"shape":"S2v","locationName":"dhcpOptions"}}},"http":{}},"CreateFlowLogs":{"input":{"type":"structure","required":["ResourceIds","ResourceType","TrafficType","LogGroupName","DeliverLogsPermissionArn"],"members":{"ResourceIds":{"shape":"S22","locationName":"ResourceId"},"ResourceType":{},"TrafficType":{},"LogGroupName":{},"DeliverLogsPermissionArn":{},"ClientToken":{}}},"output":{"type":"structure","members":{"FlowLogIds":{"shape":"S22","locationName":"flowLogIdSet"},"ClientToken":{"locationName":"clientToken"},"Unsuccessful":{"shape":"S34","locationName":"unsuccessful"}}},"http":{}},"CreateImage":{"input":{"type":"structure","required":["InstanceId","Name"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"Name":{"locationName":"name"},"Description":{"locationName":"description"},"NoReboot":{"locationName":"noReboot","type":"boolean"},"BlockDeviceMappings":{"shape":"S38","locationName":"blockDeviceMapping"}}},"output":{"type":"structure","members":{"ImageId":{"locationName":"imageId"}}},"http":{}},"CreateInstanceExportTask":{"input":{"type":"structure","required":["InstanceId"],"members":{"Description":{"locationName":"description"},"InstanceId":{"locationName":"instanceId"},"TargetEnvironment":{"locationName":"targetEnvironment"},"ExportToS3Task":{"locationName":"exportToS3","type":"structure","members":{"DiskImageFormat":{"locationName":"diskImageFormat"},"ContainerFormat":{"locationName":"containerFormat"},"S3Bucket":{"locationName":"s3Bucket"},"S3Prefix":{"locationName":"s3Prefix"}}}}},"output":{"type":"structure","members":{"ExportTask":{"shape":"S3j","locationName":"exportTask"}}},"http":{}},"CreateInternetGateway":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"}}},"output":{"type":"structure","members":{"InternetGateway":{"shape":"S3p","locationName":"internetGateway"}}},"http":{}},"CreateKeyPair":{"input":{"type":"structure","required":["KeyName"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"KeyName":{}}},"output":{"locationName":"keyPair","type":"structure","members":{"KeyName":{"locationName":"keyName"},"KeyFingerprint":{"locationName":"keyFingerprint"},"KeyMaterial":{"locationName":"keyMaterial"}}},"http":{}},"CreateNetworkAcl":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"NetworkAcl":{"shape":"S3w","locationName":"networkAcl"}}},"http":{}},"CreateNetworkAclEntry":{"input":{"type":"structure","required":["NetworkAclId","RuleNumber","Protocol","RuleAction","Egress","CidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclId":{"locationName":"networkAclId"},"RuleNumber":{"locationName":"ruleNumber","type":"integer"},"Protocol":{"locationName":"protocol"},"RuleAction":{"locationName":"ruleAction"},"Egress":{"locationName":"egress","type":"boolean"},"CidrBlock":{"locationName":"cidrBlock"},"IcmpTypeCode":{"shape":"S40","locationName":"Icmp"},"PortRange":{"shape":"S41","locationName":"portRange"}}},"http":{}},"CreateNetworkInterface":{"input":{"type":"structure","required":["SubnetId"],"members":{"SubnetId":{"locationName":"subnetId"},"Description":{"locationName":"description"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"Groups":{"shape":"S46","locationName":"SecurityGroupId"},"PrivateIpAddresses":{"shape":"S47","locationName":"privateIpAddresses"},"SecondaryPrivateIpAddressCount":{"locationName":"secondaryPrivateIpAddressCount","type":"integer"},"DryRun":{"locationName":"dryRun","type":"boolean"}}},"output":{"type":"structure","members":{"NetworkInterface":{"shape":"S4a","locationName":"networkInterface"}}},"http":{}},"CreatePlacementGroup":{"input":{"type":"structure","required":["GroupName","Strategy"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{"locationName":"groupName"},"Strategy":{"locationName":"strategy"}}},"http":{}},"CreateReservedInstancesListing":{"input":{"type":"structure","required":["ReservedInstancesId","InstanceCount","PriceSchedules","ClientToken"],"members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"},"InstanceCount":{"locationName":"instanceCount","type":"integer"},"PriceSchedules":{"locationName":"priceSchedules","type":"list","member":{"locationName":"item","type":"structure","members":{"Term":{"locationName":"term","type":"long"},"Price":{"locationName":"price","type":"double"},"CurrencyCode":{"locationName":"currencyCode"}}}},"ClientToken":{"locationName":"clientToken"}}},"output":{"type":"structure","members":{"ReservedInstancesListings":{"shape":"S1q","locationName":"reservedInstancesListingsSet"}}},"http":{}},"CreateRoute":{"input":{"type":"structure","required":["RouteTableId","DestinationCidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableId":{"locationName":"routeTableId"},"DestinationCidrBlock":{"locationName":"destinationCidrBlock"},"GatewayId":{"locationName":"gatewayId"},"InstanceId":{"locationName":"instanceId"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"CreateRouteTable":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"RouteTable":{"shape":"S4s","locationName":"routeTable"}}},"http":{}},"CreateSecurityGroup":{"input":{"type":"structure","required":["GroupName","Description"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{},"Description":{"locationName":"GroupDescription"},"VpcId":{}}},"output":{"type":"structure","members":{"GroupId":{"locationName":"groupId"}}},"http":{}},"CreateSnapshot":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"Description":{}}},"output":{"shape":"S54","locationName":"snapshot"},"http":{}},"CreateSpotDatafeedSubscription":{"input":{"type":"structure","required":["Bucket"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Bucket":{"locationName":"bucket"},"Prefix":{"locationName":"prefix"}}},"output":{"type":"structure","members":{"SpotDatafeedSubscription":{"shape":"S58","locationName":"spotDatafeedSubscription"}}},"http":{}},"CreateSubnet":{"input":{"type":"structure","required":["VpcId","CidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{},"CidrBlock":{},"AvailabilityZone":{}}},"output":{"type":"structure","members":{"Subnet":{"shape":"S5d","locationName":"subnet"}}},"http":{}},"CreateTags":{"input":{"type":"structure","required":["Resources","Tags"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Resources":{"shape":"S5g","locationName":"ResourceId"},"Tags":{"shape":"Sa","locationName":"Tag"}}},"http":{}},"CreateVolume":{"input":{"type":"structure","required":["AvailabilityZone"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Size":{"type":"integer"},"SnapshotId":{},"AvailabilityZone":{},"VolumeType":{},"Iops":{"type":"integer"},"Encrypted":{"locationName":"encrypted","type":"boolean"},"KmsKeyId":{}}},"output":{"shape":"S5i","locationName":"volume"},"http":{}},"CreateVpc":{"input":{"type":"structure","required":["CidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"CidrBlock":{},"InstanceTenancy":{"locationName":"instanceTenancy"}}},"output":{"type":"structure","members":{"Vpc":{"shape":"S5o","locationName":"vpc"}}},"http":{}},"CreateVpcEndpoint":{"input":{"type":"structure","required":["VpcId","ServiceName"],"members":{"DryRun":{"type":"boolean"},"VpcId":{},"ServiceName":{},"PolicyDocument":{},"RouteTableIds":{"shape":"S22","locationName":"RouteTableId"},"ClientToken":{}}},"output":{"type":"structure","members":{"VpcEndpoint":{"shape":"S5s","locationName":"vpcEndpoint"},"ClientToken":{"locationName":"clientToken"}}},"http":{}},"CreateVpcPeeringConnection":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"},"PeerVpcId":{"locationName":"peerVpcId"},"PeerOwnerId":{"locationName":"peerOwnerId"}}},"output":{"type":"structure","members":{"VpcPeeringConnection":{"shape":"S5","locationName":"vpcPeeringConnection"}}},"http":{}},"CreateVpnConnection":{"input":{"type":"structure","required":["Type","CustomerGatewayId","VpnGatewayId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Type":{},"CustomerGatewayId":{},"VpnGatewayId":{},"Options":{"locationName":"options","type":"structure","members":{"StaticRoutesOnly":{"locationName":"staticRoutesOnly","type":"boolean"}}}}},"output":{"type":"structure","members":{"VpnConnection":{"shape":"S5z","locationName":"vpnConnection"}}},"http":{}},"CreateVpnConnectionRoute":{"input":{"type":"structure","required":["VpnConnectionId","DestinationCidrBlock"],"members":{"VpnConnectionId":{},"DestinationCidrBlock":{}}},"http":{}},"CreateVpnGateway":{"input":{"type":"structure","required":["Type"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Type":{},"AvailabilityZone":{}}},"output":{"type":"structure","members":{"VpnGateway":{"shape":"S6b","locationName":"vpnGateway"}}},"http":{}},"DeleteCustomerGateway":{"input":{"type":"structure","required":["CustomerGatewayId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"CustomerGatewayId":{}}},"http":{}},"DeleteDhcpOptions":{"input":{"type":"structure","required":["DhcpOptionsId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"DhcpOptionsId":{}}},"http":{}},"DeleteFlowLogs":{"input":{"type":"structure","required":["FlowLogIds"],"members":{"FlowLogIds":{"shape":"S22","locationName":"FlowLogId"}}},"output":{"type":"structure","members":{"Unsuccessful":{"shape":"S34","locationName":"unsuccessful"}}},"http":{}},"DeleteInternetGateway":{"input":{"type":"structure","required":["InternetGatewayId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InternetGatewayId":{"locationName":"internetGatewayId"}}},"http":{}},"DeleteKeyPair":{"input":{"type":"structure","required":["KeyName"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"KeyName":{}}},"http":{}},"DeleteNetworkAcl":{"input":{"type":"structure","required":["NetworkAclId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclId":{"locationName":"networkAclId"}}},"http":{}},"DeleteNetworkAclEntry":{"input":{"type":"structure","required":["NetworkAclId","RuleNumber","Egress"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclId":{"locationName":"networkAclId"},"RuleNumber":{"locationName":"ruleNumber","type":"integer"},"Egress":{"locationName":"egress","type":"boolean"}}},"http":{}},"DeleteNetworkInterface":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"}}},"http":{}},"DeletePlacementGroup":{"input":{"type":"structure","required":["GroupName"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{"locationName":"groupName"}}},"http":{}},"DeleteRoute":{"input":{"type":"structure","required":["RouteTableId","DestinationCidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableId":{"locationName":"routeTableId"},"DestinationCidrBlock":{"locationName":"destinationCidrBlock"}}},"http":{}},"DeleteRouteTable":{"input":{"type":"structure","required":["RouteTableId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableId":{"locationName":"routeTableId"}}},"http":{}},"DeleteSecurityGroup":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{},"GroupId":{}}},"http":{}},"DeleteSnapshot":{"input":{"type":"structure","required":["SnapshotId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotId":{}}},"http":{}},"DeleteSpotDatafeedSubscription":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"}}},"http":{}},"DeleteSubnet":{"input":{"type":"structure","required":["SubnetId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SubnetId":{}}},"http":{}},"DeleteTags":{"input":{"type":"structure","required":["Resources"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Resources":{"shape":"S5g","locationName":"resourceId"},"Tags":{"shape":"Sa","locationName":"tag"}}},"http":{}},"DeleteVolume":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{}}},"http":{}},"DeleteVpc":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{}}},"http":{}},"DeleteVpcEndpoints":{"input":{"type":"structure","required":["VpcEndpointIds"],"members":{"DryRun":{"type":"boolean"},"VpcEndpointIds":{"shape":"S22","locationName":"VpcEndpointId"}}},"output":{"type":"structure","members":{"Unsuccessful":{"shape":"S34","locationName":"unsuccessful"}}},"http":{}},"DeleteVpcPeeringConnection":{"input":{"type":"structure","required":["VpcPeeringConnectionId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"DeleteVpnConnection":{"input":{"type":"structure","required":["VpnConnectionId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnConnectionId":{}}},"http":{}},"DeleteVpnConnectionRoute":{"input":{"type":"structure","required":["VpnConnectionId","DestinationCidrBlock"],"members":{"VpnConnectionId":{},"DestinationCidrBlock":{}}},"http":{}},"DeleteVpnGateway":{"input":{"type":"structure","required":["VpnGatewayId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnGatewayId":{}}},"http":{}},"DeregisterImage":{"input":{"type":"structure","required":["ImageId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{}}},"http":{}},"DescribeAccountAttributes":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AttributeNames":{"locationName":"attributeName","type":"list","member":{"locationName":"attributeName"}}}},"output":{"type":"structure","members":{"AccountAttributes":{"locationName":"accountAttributeSet","type":"list","member":{"locationName":"item","type":"structure","members":{"AttributeName":{"locationName":"attributeName"},"AttributeValues":{"locationName":"attributeValueSet","type":"list","member":{"locationName":"item","type":"structure","members":{"AttributeValue":{"locationName":"attributeValue"}}}}}}}}},"http":{}},"DescribeAddresses":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIps":{"locationName":"PublicIp","type":"list","member":{"locationName":"PublicIp"}},"Filters":{"shape":"S7e","locationName":"Filter"},"AllocationIds":{"locationName":"AllocationId","type":"list","member":{"locationName":"AllocationId"}}}},"output":{"type":"structure","members":{"Addresses":{"locationName":"addressesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"PublicIp":{"locationName":"publicIp"},"AllocationId":{"locationName":"allocationId"},"AssociationId":{"locationName":"associationId"},"Domain":{"locationName":"domain"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"NetworkInterfaceOwnerId":{"locationName":"networkInterfaceOwnerId"},"PrivateIpAddress":{"locationName":"privateIpAddress"}}}}}},"http":{}},"DescribeAvailabilityZones":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ZoneNames":{"locationName":"ZoneName","type":"list","member":{"locationName":"ZoneName"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"AvailabilityZones":{"locationName":"availabilityZoneInfo","type":"list","member":{"locationName":"item","type":"structure","members":{"ZoneName":{"locationName":"zoneName"},"State":{"locationName":"zoneState"},"RegionName":{"locationName":"regionName"},"Messages":{"locationName":"messageSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Message":{"locationName":"message"}}}}}}}}},"http":{}},"DescribeBundleTasks":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"BundleIds":{"locationName":"BundleId","type":"list","member":{"locationName":"BundleId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"BundleTasks":{"locationName":"bundleInstanceTasksSet","type":"list","member":{"shape":"S1f","locationName":"item"}}}},"http":{}},"DescribeClassicLinkInstances":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","members":{"Instances":{"locationName":"instancesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"VpcId":{"locationName":"vpcId"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Tags":{"shape":"Sa","locationName":"tagSet"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeConversionTasks":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Filters":{"shape":"S7e","locationName":"filter"},"ConversionTaskIds":{"locationName":"conversionTaskId","type":"list","member":{"locationName":"item"}}}},"output":{"type":"structure","members":{"ConversionTasks":{"locationName":"conversionTasks","type":"list","member":{"shape":"S85","locationName":"item"}}}},"http":{}},"DescribeCustomerGateways":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"CustomerGatewayIds":{"locationName":"CustomerGatewayId","type":"list","member":{"locationName":"CustomerGatewayId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"CustomerGateways":{"locationName":"customerGatewaySet","type":"list","member":{"shape":"S2q","locationName":"item"}}}},"http":{}},"DescribeDhcpOptions":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"DhcpOptionsIds":{"locationName":"DhcpOptionsId","type":"list","member":{"locationName":"DhcpOptionsId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"DhcpOptions":{"locationName":"dhcpOptionsSet","type":"list","member":{"shape":"S2v","locationName":"item"}}}},"http":{}},"DescribeExportTasks":{"input":{"type":"structure","members":{"ExportTaskIds":{"locationName":"exportTaskId","type":"list","member":{"locationName":"ExportTaskId"}}}},"output":{"type":"structure","members":{"ExportTasks":{"locationName":"exportTaskSet","type":"list","member":{"shape":"S3j","locationName":"item"}}}},"http":{}},"DescribeFlowLogs":{"input":{"type":"structure","members":{"FlowLogIds":{"shape":"S22","locationName":"FlowLogId"},"Filter":{"shape":"S7e"},"NextToken":{},"MaxResults":{"type":"integer"}}},"output":{"type":"structure","members":{"FlowLogs":{"locationName":"flowLogSet","type":"list","member":{"locationName":"item","type":"structure","members":{"CreationTime":{"locationName":"creationTime","type":"timestamp"},"FlowLogId":{"locationName":"flowLogId"},"FlowLogStatus":{"locationName":"flowLogStatus"},"ResourceId":{"locationName":"resourceId"},"TrafficType":{"locationName":"trafficType"},"LogGroupName":{"locationName":"logGroupName"},"DeliverLogsStatus":{"locationName":"deliverLogsStatus"},"DeliverLogsErrorMessage":{"locationName":"deliverLogsErrorMessage"},"DeliverLogsPermissionArn":{"locationName":"deliverLogsPermissionArn"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeImageAttribute":{"input":{"type":"structure","required":["ImageId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{},"Attribute":{}}},"output":{"locationName":"imageAttribute","type":"structure","members":{"ImageId":{"locationName":"imageId"},"LaunchPermissions":{"shape":"S8x","locationName":"launchPermission"},"ProductCodes":{"shape":"S90","locationName":"productCodes"},"KernelId":{"shape":"S2z","locationName":"kernel"},"RamdiskId":{"shape":"S2z","locationName":"ramdisk"},"Description":{"shape":"S2z","locationName":"description"},"SriovNetSupport":{"shape":"S2z","locationName":"sriovNetSupport"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"}}},"http":{}},"DescribeImages":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageIds":{"locationName":"ImageId","type":"list","member":{"locationName":"ImageId"}},"Owners":{"shape":"S96","locationName":"Owner"},"ExecutableUsers":{"locationName":"ExecutableBy","type":"list","member":{"locationName":"ExecutableBy"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Images":{"locationName":"imagesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ImageId":{"locationName":"imageId"},"ImageLocation":{"locationName":"imageLocation"},"State":{"locationName":"imageState"},"OwnerId":{"locationName":"imageOwnerId"},"CreationDate":{"locationName":"creationDate"},"Public":{"locationName":"isPublic","type":"boolean"},"ProductCodes":{"shape":"S90","locationName":"productCodes"},"Architecture":{"locationName":"architecture"},"ImageType":{"locationName":"imageType"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"Platform":{"locationName":"platform"},"SriovNetSupport":{"locationName":"sriovNetSupport"},"StateReason":{"shape":"S9e","locationName":"stateReason"},"ImageOwnerAlias":{"locationName":"imageOwnerAlias"},"Name":{"locationName":"name"},"Description":{"locationName":"description"},"RootDeviceType":{"locationName":"rootDeviceType"},"RootDeviceName":{"locationName":"rootDeviceName"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"},"VirtualizationType":{"locationName":"virtualizationType"},"Tags":{"shape":"Sa","locationName":"tagSet"},"Hypervisor":{"locationName":"hypervisor"}}}}}},"http":{}},"DescribeImportImageTasks":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"ImportTaskIds":{"shape":"S9j","locationName":"ImportTaskId"},"NextToken":{},"MaxResults":{"type":"integer"},"Filters":{"shape":"S7e"}}},"output":{"type":"structure","members":{"ImportImageTasks":{"locationName":"importImageTaskSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"Architecture":{"locationName":"architecture"},"LicenseType":{"locationName":"licenseType"},"Platform":{"locationName":"platform"},"Hypervisor":{"locationName":"hypervisor"},"Description":{"locationName":"description"},"SnapshotDetails":{"shape":"S9n","locationName":"snapshotDetailSet"},"ImageId":{"locationName":"imageId"},"Progress":{"locationName":"progress"},"StatusMessage":{"locationName":"statusMessage"},"Status":{"locationName":"status"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeImportSnapshotTasks":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"ImportTaskIds":{"shape":"S9j","locationName":"ImportTaskId"},"NextToken":{},"MaxResults":{"type":"integer"},"Filters":{"shape":"S7e"}}},"output":{"type":"structure","members":{"ImportSnapshotTasks":{"locationName":"importSnapshotTaskSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"SnapshotTaskDetail":{"shape":"S9u","locationName":"snapshotTaskDetail"},"Description":{"locationName":"description"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeInstanceAttribute":{"input":{"type":"structure","required":["InstanceId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"Attribute":{"locationName":"attribute"}}},"output":{"type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"InstanceType":{"shape":"S2z","locationName":"instanceType"},"KernelId":{"shape":"S2z","locationName":"kernel"},"RamdiskId":{"shape":"S2z","locationName":"ramdisk"},"UserData":{"shape":"S2z","locationName":"userData"},"DisableApiTermination":{"shape":"S9y","locationName":"disableApiTermination"},"InstanceInitiatedShutdownBehavior":{"shape":"S2z","locationName":"instanceInitiatedShutdownBehavior"},"RootDeviceName":{"shape":"S2z","locationName":"rootDeviceName"},"BlockDeviceMappings":{"shape":"S9z","locationName":"blockDeviceMapping"},"ProductCodes":{"shape":"S90","locationName":"productCodes"},"EbsOptimized":{"shape":"S9y","locationName":"ebsOptimized"},"SriovNetSupport":{"shape":"S2z","locationName":"sriovNetSupport"},"SourceDestCheck":{"shape":"S9y","locationName":"sourceDestCheck"},"Groups":{"shape":"S4c","locationName":"groupSet"}}},"http":{}},"DescribeInstanceStatus":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{},"MaxResults":{"type":"integer"},"IncludeAllInstances":{"locationName":"includeAllInstances","type":"boolean"}}},"output":{"type":"structure","members":{"InstanceStatuses":{"locationName":"instanceStatusSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"AvailabilityZone":{"locationName":"availabilityZone"},"Events":{"locationName":"eventsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Code":{"locationName":"code"},"Description":{"locationName":"description"},"NotBefore":{"locationName":"notBefore","type":"timestamp"},"NotAfter":{"locationName":"notAfter","type":"timestamp"}}}},"InstanceState":{"shape":"Sa9","locationName":"instanceState"},"SystemStatus":{"shape":"Sab","locationName":"systemStatus"},"InstanceStatus":{"shape":"Sab","locationName":"instanceStatus"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeInstances":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","members":{"Reservations":{"locationName":"reservationSet","type":"list","member":{"shape":"Sak","locationName":"item"}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeInternetGateways":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InternetGatewayIds":{"shape":"S22","locationName":"internetGatewayId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"InternetGateways":{"locationName":"internetGatewaySet","type":"list","member":{"shape":"S3p","locationName":"item"}}}},"http":{}},"DescribeKeyPairs":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"KeyNames":{"locationName":"KeyName","type":"list","member":{"locationName":"KeyName"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"KeyPairs":{"locationName":"keySet","type":"list","member":{"locationName":"item","type":"structure","members":{"KeyName":{"locationName":"keyName"},"KeyFingerprint":{"locationName":"keyFingerprint"}}}}}},"http":{}},"DescribeMovingAddresses":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIps":{"shape":"S22","locationName":"publicIp"},"NextToken":{"locationName":"nextToken"},"Filters":{"shape":"S7e","locationName":"filter"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","members":{"MovingAddressStatuses":{"locationName":"movingAddressStatusSet","type":"list","member":{"locationName":"item","type":"structure","members":{"PublicIp":{"locationName":"publicIp"},"MoveStatus":{"locationName":"moveStatus"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeNetworkAcls":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclIds":{"shape":"S22","locationName":"NetworkAclId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"NetworkAcls":{"locationName":"networkAclSet","type":"list","member":{"shape":"S3w","locationName":"item"}}}},"http":{}},"DescribeNetworkInterfaceAttribute":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"Attribute":{"locationName":"attribute"}}},"output":{"type":"structure","members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"Description":{"shape":"S2z","locationName":"description"},"SourceDestCheck":{"shape":"S9y","locationName":"sourceDestCheck"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Attachment":{"shape":"S4e","locationName":"attachment"}}},"http":{}},"DescribeNetworkInterfaces":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceIds":{"locationName":"NetworkInterfaceId","type":"list","member":{"locationName":"item"}},"Filters":{"shape":"S7e","locationName":"filter"}}},"output":{"type":"structure","members":{"NetworkInterfaces":{"locationName":"networkInterfaceSet","type":"list","member":{"shape":"S4a","locationName":"item"}}}},"http":{}},"DescribePlacementGroups":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupNames":{"locationName":"groupName","type":"list","member":{}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"PlacementGroups":{"locationName":"placementGroupSet","type":"list","member":{"locationName":"item","type":"structure","members":{"GroupName":{"locationName":"groupName"},"Strategy":{"locationName":"strategy"},"State":{"locationName":"state"}}}}}},"http":{}},"DescribePrefixLists":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"PrefixListIds":{"shape":"S22","locationName":"PrefixListId"},"Filters":{"shape":"S7e","locationName":"Filter"},"MaxResults":{"type":"integer"},"NextToken":{}}},"output":{"type":"structure","members":{"PrefixLists":{"locationName":"prefixListSet","type":"list","member":{"locationName":"item","type":"structure","members":{"PrefixListId":{"locationName":"prefixListId"},"PrefixListName":{"locationName":"prefixListName"},"Cidrs":{"shape":"S22","locationName":"cidrSet"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeRegions":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RegionNames":{"locationName":"RegionName","type":"list","member":{"locationName":"RegionName"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Regions":{"locationName":"regionInfo","type":"list","member":{"locationName":"item","type":"structure","members":{"RegionName":{"locationName":"regionName"},"Endpoint":{"locationName":"regionEndpoint"}}}}}},"http":{}},"DescribeReservedInstances":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ReservedInstancesIds":{"shape":"Sc2","locationName":"ReservedInstancesId"},"Filters":{"shape":"S7e","locationName":"Filter"},"OfferingType":{"locationName":"offeringType"}}},"output":{"type":"structure","members":{"ReservedInstances":{"locationName":"reservedInstancesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"},"InstanceType":{"locationName":"instanceType"},"AvailabilityZone":{"locationName":"availabilityZone"},"Start":{"locationName":"start","type":"timestamp"},"End":{"locationName":"end","type":"timestamp"},"Duration":{"locationName":"duration","type":"long"},"UsagePrice":{"locationName":"usagePrice","type":"float"},"FixedPrice":{"locationName":"fixedPrice","type":"float"},"InstanceCount":{"locationName":"instanceCount","type":"integer"},"ProductDescription":{"locationName":"productDescription"},"State":{"locationName":"state"},"Tags":{"shape":"Sa","locationName":"tagSet"},"InstanceTenancy":{"locationName":"instanceTenancy"},"CurrencyCode":{"locationName":"currencyCode"},"OfferingType":{"locationName":"offeringType"},"RecurringCharges":{"shape":"Sca","locationName":"recurringCharges"}}}}}},"http":{}},"DescribeReservedInstancesListings":{"input":{"type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"},"ReservedInstancesListingId":{"locationName":"reservedInstancesListingId"},"Filters":{"shape":"S7e","locationName":"filters"}}},"output":{"type":"structure","members":{"ReservedInstancesListings":{"shape":"S1q","locationName":"reservedInstancesListingsSet"}}},"http":{}},"DescribeReservedInstancesModifications":{"input":{"type":"structure","members":{"ReservedInstancesModificationIds":{"locationName":"ReservedInstancesModificationId","type":"list","member":{"locationName":"ReservedInstancesModificationId"}},"NextToken":{"locationName":"nextToken"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"ReservedInstancesModifications":{"locationName":"reservedInstancesModificationsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesModificationId":{"locationName":"reservedInstancesModificationId"},"ReservedInstancesIds":{"locationName":"reservedInstancesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"}}}},"ModificationResults":{"locationName":"modificationResultSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"},"TargetConfiguration":{"shape":"Sco","locationName":"targetConfiguration"}}}},"CreateDate":{"locationName":"createDate","type":"timestamp"},"UpdateDate":{"locationName":"updateDate","type":"timestamp"},"EffectiveDate":{"locationName":"effectiveDate","type":"timestamp"},"Status":{"locationName":"status"},"StatusMessage":{"locationName":"statusMessage"},"ClientToken":{"locationName":"clientToken"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeReservedInstancesOfferings":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ReservedInstancesOfferingIds":{"locationName":"ReservedInstancesOfferingId","type":"list","member":{}},"InstanceType":{},"AvailabilityZone":{},"ProductDescription":{},"Filters":{"shape":"S7e","locationName":"Filter"},"InstanceTenancy":{"locationName":"instanceTenancy"},"OfferingType":{"locationName":"offeringType"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"},"IncludeMarketplace":{"type":"boolean"},"MinDuration":{"type":"long"},"MaxDuration":{"type":"long"},"MaxInstanceCount":{"type":"integer"}}},"output":{"type":"structure","members":{"ReservedInstancesOfferings":{"locationName":"reservedInstancesOfferingsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesOfferingId":{"locationName":"reservedInstancesOfferingId"},"InstanceType":{"locationName":"instanceType"},"AvailabilityZone":{"locationName":"availabilityZone"},"Duration":{"locationName":"duration","type":"long"},"UsagePrice":{"locationName":"usagePrice","type":"float"},"FixedPrice":{"locationName":"fixedPrice","type":"float"},"ProductDescription":{"locationName":"productDescription"},"InstanceTenancy":{"locationName":"instanceTenancy"},"CurrencyCode":{"locationName":"currencyCode"},"OfferingType":{"locationName":"offeringType"},"RecurringCharges":{"shape":"Sca","locationName":"recurringCharges"},"Marketplace":{"locationName":"marketplace","type":"boolean"},"PricingDetails":{"locationName":"pricingDetailsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Price":{"locationName":"price","type":"double"},"Count":{"locationName":"count","type":"integer"}}}}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeRouteTables":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableIds":{"shape":"S22","locationName":"RouteTableId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"RouteTables":{"locationName":"routeTableSet","type":"list","member":{"shape":"S4s","locationName":"item"}}}},"http":{}},"DescribeSecurityGroups":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupNames":{"shape":"Sd0","locationName":"GroupName"},"GroupIds":{"shape":"So","locationName":"GroupId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"SecurityGroups":{"locationName":"securityGroupInfo","type":"list","member":{"locationName":"item","type":"structure","members":{"OwnerId":{"locationName":"ownerId"},"GroupName":{"locationName":"groupName"},"GroupId":{"locationName":"groupId"},"Description":{"locationName":"groupDescription"},"IpPermissions":{"shape":"S11","locationName":"ipPermissions"},"IpPermissionsEgress":{"shape":"S11","locationName":"ipPermissionsEgress"},"VpcId":{"locationName":"vpcId"},"Tags":{"shape":"Sa","locationName":"tagSet"}}}}}},"http":{}},"DescribeSnapshotAttribute":{"input":{"type":"structure","required":["SnapshotId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotId":{},"Attribute":{}}},"output":{"type":"structure","members":{"SnapshotId":{"locationName":"snapshotId"},"CreateVolumePermissions":{"shape":"Sd7","locationName":"createVolumePermission"},"ProductCodes":{"shape":"S90","locationName":"productCodes"}}},"http":{}},"DescribeSnapshots":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotIds":{"locationName":"SnapshotId","type":"list","member":{"locationName":"SnapshotId"}},"OwnerIds":{"shape":"S96","locationName":"Owner"},"RestorableByUserIds":{"locationName":"RestorableBy","type":"list","member":{}},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{},"MaxResults":{"type":"integer"}}},"output":{"type":"structure","members":{"Snapshots":{"locationName":"snapshotSet","type":"list","member":{"shape":"S54","locationName":"item"}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSpotDatafeedSubscription":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"}}},"output":{"type":"structure","members":{"SpotDatafeedSubscription":{"shape":"S58","locationName":"spotDatafeedSubscription"}}},"http":{}},"DescribeSpotFleetInstances":{"input":{"type":"structure","required":["SpotFleetRequestId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","required":["SpotFleetRequestId","ActiveInstances"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"ActiveInstances":{"locationName":"activeInstanceSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceType":{"locationName":"instanceType"},"InstanceId":{"locationName":"instanceId"},"SpotInstanceRequestId":{"locationName":"spotInstanceRequestId"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSpotFleetRequestHistory":{"input":{"type":"structure","required":["SpotFleetRequestId","StartTime"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"EventType":{"locationName":"eventType"},"StartTime":{"locationName":"startTime","type":"timestamp"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","required":["SpotFleetRequestId","StartTime","LastEvaluatedTime","HistoryRecords"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"StartTime":{"locationName":"startTime","type":"timestamp"},"LastEvaluatedTime":{"locationName":"lastEvaluatedTime","type":"timestamp"},"HistoryRecords":{"locationName":"historyRecordSet","type":"list","member":{"locationName":"item","type":"structure","required":["Timestamp","EventType","EventInformation"],"members":{"Timestamp":{"locationName":"timestamp","type":"timestamp"},"EventType":{"locationName":"eventType"},"EventInformation":{"locationName":"eventInformation","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"EventSubType":{"locationName":"eventSubType"},"EventDescription":{"locationName":"eventDescription"}}}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSpotFleetRequests":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestIds":{"shape":"S22","locationName":"spotFleetRequestId"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","required":["SpotFleetRequestConfigs"],"members":{"SpotFleetRequestConfigs":{"locationName":"spotFleetRequestConfigSet","type":"list","member":{"locationName":"item","type":"structure","required":["SpotFleetRequestId","SpotFleetRequestState","SpotFleetRequestConfig"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"SpotFleetRequestState":{"locationName":"spotFleetRequestState"},"SpotFleetRequestConfig":{"shape":"Sdu","locationName":"spotFleetRequestConfig"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSpotInstanceRequests":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotInstanceRequestIds":{"shape":"S2c","locationName":"SpotInstanceRequestId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"SpotInstanceRequests":{"shape":"Se4","locationName":"spotInstanceRequestSet"}}},"http":{}},"DescribeSpotPriceHistory":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"StartTime":{"locationName":"startTime","type":"timestamp"},"EndTime":{"locationName":"endTime","type":"timestamp"},"InstanceTypes":{"locationName":"InstanceType","type":"list","member":{}},"ProductDescriptions":{"locationName":"ProductDescription","type":"list","member":{}},"Filters":{"shape":"S7e","locationName":"Filter"},"AvailabilityZone":{"locationName":"availabilityZone"},"MaxResults":{"locationName":"maxResults","type":"integer"},"NextToken":{"locationName":"nextToken"}}},"output":{"type":"structure","members":{"SpotPriceHistory":{"locationName":"spotPriceHistorySet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceType":{"locationName":"instanceType"},"ProductDescription":{"locationName":"productDescription"},"SpotPrice":{"locationName":"spotPrice"},"Timestamp":{"locationName":"timestamp","type":"timestamp"},"AvailabilityZone":{"locationName":"availabilityZone"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSubnets":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SubnetIds":{"locationName":"SubnetId","type":"list","member":{"locationName":"SubnetId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Subnets":{"locationName":"subnetSet","type":"list","member":{"shape":"S5d","locationName":"item"}}}},"http":{}},"DescribeTags":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Filters":{"shape":"S7e","locationName":"Filter"},"MaxResults":{"locationName":"maxResults","type":"integer"},"NextToken":{"locationName":"nextToken"}}},"output":{"type":"structure","members":{"Tags":{"locationName":"tagSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ResourceId":{"locationName":"resourceId"},"ResourceType":{"locationName":"resourceType"},"Key":{"locationName":"key"},"Value":{"locationName":"value"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVolumeAttribute":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"Attribute":{}}},"output":{"type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"AutoEnableIO":{"shape":"S9y","locationName":"autoEnableIO"},"ProductCodes":{"shape":"S90","locationName":"productCodes"}}},"http":{}},"DescribeVolumeStatus":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeIds":{"shape":"Seu","locationName":"VolumeId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{},"MaxResults":{"type":"integer"}}},"output":{"type":"structure","members":{"VolumeStatuses":{"locationName":"volumeStatusSet","type":"list","member":{"locationName":"item","type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"AvailabilityZone":{"locationName":"availabilityZone"},"VolumeStatus":{"locationName":"volumeStatus","type":"structure","members":{"Status":{"locationName":"status"},"Details":{"locationName":"details","type":"list","member":{"locationName":"item","type":"structure","members":{"Name":{"locationName":"name"},"Status":{"locationName":"status"}}}}}},"Events":{"locationName":"eventsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"EventType":{"locationName":"eventType"},"Description":{"locationName":"description"},"NotBefore":{"locationName":"notBefore","type":"timestamp"},"NotAfter":{"locationName":"notAfter","type":"timestamp"},"EventId":{"locationName":"eventId"}}}},"Actions":{"locationName":"actionsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Code":{"locationName":"code"},"Description":{"locationName":"description"},"EventType":{"locationName":"eventType"},"EventId":{"locationName":"eventId"}}}}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVolumes":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeIds":{"shape":"Seu","locationName":"VolumeId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","members":{"Volumes":{"locationName":"volumeSet","type":"list","member":{"shape":"S5i","locationName":"item"}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVpcAttribute":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{},"Attribute":{}}},"output":{"type":"structure","members":{"VpcId":{"locationName":"vpcId"},"EnableDnsSupport":{"shape":"S9y","locationName":"enableDnsSupport"},"EnableDnsHostnames":{"shape":"S9y","locationName":"enableDnsHostnames"}}},"http":{}},"DescribeVpcClassicLink":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcIds":{"locationName":"VpcId","type":"list","member":{"locationName":"VpcId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Vpcs":{"locationName":"vpcSet","type":"list","member":{"locationName":"item","type":"structure","members":{"VpcId":{"locationName":"vpcId"},"ClassicLinkEnabled":{"locationName":"classicLinkEnabled","type":"boolean"},"Tags":{"shape":"Sa","locationName":"tagSet"}}}}}},"http":{}},"DescribeVpcEndpointServices":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"MaxResults":{"type":"integer"},"NextToken":{}}},"output":{"type":"structure","members":{"ServiceNames":{"shape":"S22","locationName":"serviceNameSet"},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVpcEndpoints":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"VpcEndpointIds":{"shape":"S22","locationName":"VpcEndpointId"},"Filters":{"shape":"S7e","locationName":"Filter"},"MaxResults":{"type":"integer"},"NextToken":{}}},"output":{"type":"structure","members":{"VpcEndpoints":{"locationName":"vpcEndpointSet","type":"list","member":{"shape":"S5s","locationName":"item"}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVpcPeeringConnections":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcPeeringConnectionIds":{"shape":"S22","locationName":"VpcPeeringConnectionId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"VpcPeeringConnections":{"locationName":"vpcPeeringConnectionSet","type":"list","member":{"shape":"S5","locationName":"item"}}}},"http":{}},"DescribeVpcs":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcIds":{"locationName":"VpcId","type":"list","member":{"locationName":"VpcId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Vpcs":{"locationName":"vpcSet","type":"list","member":{"shape":"S5o","locationName":"item"}}}},"http":{}},"DescribeVpnConnections":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnConnectionIds":{"locationName":"VpnConnectionId","type":"list","member":{"locationName":"VpnConnectionId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"VpnConnections":{"locationName":"vpnConnectionSet","type":"list","member":{"shape":"S5z","locationName":"item"}}}},"http":{}},"DescribeVpnGateways":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnGatewayIds":{"locationName":"VpnGatewayId","type":"list","member":{"locationName":"VpnGatewayId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"VpnGateways":{"locationName":"vpnGatewaySet","type":"list","member":{"shape":"S6b","locationName":"item"}}}},"http":{}},"DetachClassicLinkVpc":{"input":{"type":"structure","required":["InstanceId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"DetachInternetGateway":{"input":{"type":"structure","required":["InternetGatewayId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InternetGatewayId":{"locationName":"internetGatewayId"},"VpcId":{"locationName":"vpcId"}}},"http":{}},"DetachNetworkInterface":{"input":{"type":"structure","required":["AttachmentId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AttachmentId":{"locationName":"attachmentId"},"Force":{"locationName":"force","type":"boolean"}}},"http":{}},"DetachVolume":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"InstanceId":{},"Device":{},"Force":{"type":"boolean"}}},"output":{"shape":"Su","locationName":"attachment"},"http":{}},"DetachVpnGateway":{"input":{"type":"structure","required":["VpnGatewayId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnGatewayId":{},"VpcId":{}}},"http":{}},"DisableVgwRoutePropagation":{"input":{"type":"structure","required":["RouteTableId","GatewayId"],"members":{"RouteTableId":{},"GatewayId":{}}},"http":{}},"DisableVpcClassicLink":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"DisassociateAddress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIp":{},"AssociationId":{}}},"http":{}},"DisassociateRouteTable":{"input":{"type":"structure","required":["AssociationId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AssociationId":{"locationName":"associationId"}}},"http":{}},"EnableVgwRoutePropagation":{"input":{"type":"structure","required":["RouteTableId","GatewayId"],"members":{"RouteTableId":{},"GatewayId":{}}},"http":{}},"EnableVolumeIO":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{"locationName":"volumeId"}}},"http":{}},"EnableVpcClassicLink":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"GetConsoleOutput":{"input":{"type":"structure","required":["InstanceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{}}},"output":{"type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"Timestamp":{"locationName":"timestamp","type":"timestamp"},"Output":{"locationName":"output"}}},"http":{}},"GetPasswordData":{"input":{"type":"structure","required":["InstanceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{}}},"output":{"type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"Timestamp":{"locationName":"timestamp","type":"timestamp"},"PasswordData":{"locationName":"passwordData"}}},"http":{}},"ImportImage":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"Description":{},"DiskContainers":{"locationName":"DiskContainer","type":"list","member":{"locationName":"item","type":"structure","members":{"Description":{},"Format":{},"Url":{},"UserBucket":{"shape":"Sgo"},"DeviceName":{},"SnapshotId":{}}}},"LicenseType":{},"Hypervisor":{},"Architecture":{},"Platform":{},"ClientData":{"shape":"Sgp"},"ClientToken":{},"RoleName":{}}},"output":{"type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"Architecture":{"locationName":"architecture"},"LicenseType":{"locationName":"licenseType"},"Platform":{"locationName":"platform"},"Hypervisor":{"locationName":"hypervisor"},"Description":{"locationName":"description"},"SnapshotDetails":{"shape":"S9n","locationName":"snapshotDetailSet"},"ImageId":{"locationName":"imageId"},"Progress":{"locationName":"progress"},"StatusMessage":{"locationName":"statusMessage"},"Status":{"locationName":"status"}}},"http":{}},"ImportInstance":{"input":{"type":"structure","required":["Platform"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Description":{"locationName":"description"},"LaunchSpecification":{"locationName":"launchSpecification","type":"structure","members":{"Architecture":{"locationName":"architecture"},"GroupNames":{"shape":"Sgt","locationName":"GroupName"},"GroupIds":{"shape":"S46","locationName":"GroupId"},"AdditionalInfo":{"locationName":"additionalInfo"},"UserData":{"locationName":"userData","type":"structure","members":{"Data":{"locationName":"data"}}},"InstanceType":{"locationName":"instanceType"},"Placement":{"shape":"Sao","locationName":"placement"},"Monitoring":{"locationName":"monitoring","type":"boolean"},"SubnetId":{"locationName":"subnetId"},"InstanceInitiatedShutdownBehavior":{"locationName":"instanceInitiatedShutdownBehavior"},"PrivateIpAddress":{"locationName":"privateIpAddress"}}},"DiskImages":{"locationName":"diskImage","type":"list","member":{"type":"structure","members":{"Image":{"shape":"Sgy"},"Description":{},"Volume":{"shape":"Sgz"}}}},"Platform":{"locationName":"platform"}}},"output":{"type":"structure","members":{"ConversionTask":{"shape":"S85","locationName":"conversionTask"}}},"http":{}},"ImportKeyPair":{"input":{"type":"structure","required":["KeyName","PublicKeyMaterial"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"KeyName":{"locationName":"keyName"},"PublicKeyMaterial":{"locationName":"publicKeyMaterial","type":"blob"}}},"output":{"type":"structure","members":{"KeyName":{"locationName":"keyName"},"KeyFingerprint":{"locationName":"keyFingerprint"}}},"http":{}},"ImportSnapshot":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"Description":{},"DiskContainer":{"type":"structure","members":{"Description":{},"Format":{},"Url":{},"UserBucket":{"shape":"Sgo"}}},"ClientData":{"shape":"Sgp"},"ClientToken":{},"RoleName":{}}},"output":{"type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"SnapshotTaskDetail":{"shape":"S9u","locationName":"snapshotTaskDetail"},"Description":{"locationName":"description"}}},"http":{}},"ImportVolume":{"input":{"type":"structure","required":["AvailabilityZone","Image","Volume"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AvailabilityZone":{"locationName":"availabilityZone"},"Image":{"shape":"Sgy","locationName":"image"},"Description":{"locationName":"description"},"Volume":{"shape":"Sgz","locationName":"volume"}}},"output":{"type":"structure","members":{"ConversionTask":{"shape":"S85","locationName":"conversionTask"}}},"http":{}},"ModifyImageAttribute":{"input":{"type":"structure","required":["ImageId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{},"Attribute":{},"OperationType":{},"UserIds":{"shape":"Sha","locationName":"UserId"},"UserGroups":{"locationName":"UserGroup","type":"list","member":{"locationName":"UserGroup"}},"ProductCodes":{"locationName":"ProductCode","type":"list","member":{"locationName":"ProductCode"}},"Value":{},"LaunchPermission":{"type":"structure","members":{"Add":{"shape":"S8x"},"Remove":{"shape":"S8x"}}},"Description":{"shape":"S2z"}}},"http":{}},"ModifyInstanceAttribute":{"input":{"type":"structure","required":["InstanceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"Attribute":{"locationName":"attribute"},"Value":{"locationName":"value"},"BlockDeviceMappings":{"locationName":"blockDeviceMapping","type":"list","member":{"locationName":"item","type":"structure","members":{"DeviceName":{"locationName":"deviceName"},"Ebs":{"locationName":"ebs","type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}},"VirtualName":{"locationName":"virtualName"},"NoDevice":{"locationName":"noDevice"}}}},"SourceDestCheck":{"shape":"S9y"},"DisableApiTermination":{"shape":"S9y","locationName":"disableApiTermination"},"InstanceType":{"shape":"S2z","locationName":"instanceType"},"Kernel":{"shape":"S2z","locationName":"kernel"},"Ramdisk":{"shape":"S2z","locationName":"ramdisk"},"UserData":{"locationName":"userData","type":"structure","members":{"Value":{"locationName":"value","type":"blob"}}},"InstanceInitiatedShutdownBehavior":{"shape":"S2z","locationName":"instanceInitiatedShutdownBehavior"},"Groups":{"shape":"So","locationName":"GroupId"},"EbsOptimized":{"shape":"S9y","locationName":"ebsOptimized"},"SriovNetSupport":{"shape":"S2z","locationName":"sriovNetSupport"}}},"http":{}},"ModifyNetworkInterfaceAttribute":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"Description":{"shape":"S2z","locationName":"description"},"SourceDestCheck":{"shape":"S9y","locationName":"sourceDestCheck"},"Groups":{"shape":"S46","locationName":"SecurityGroupId"},"Attachment":{"locationName":"attachment","type":"structure","members":{"AttachmentId":{"locationName":"attachmentId"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}}}},"http":{}},"ModifyReservedInstances":{"input":{"type":"structure","required":["ReservedInstancesIds","TargetConfigurations"],"members":{"ClientToken":{"locationName":"clientToken"},"ReservedInstancesIds":{"shape":"Sc2","locationName":"ReservedInstancesId"},"TargetConfigurations":{"locationName":"ReservedInstancesConfigurationSetItemType","type":"list","member":{"shape":"Sco","locationName":"item"}}}},"output":{"type":"structure","members":{"ReservedInstancesModificationId":{"locationName":"reservedInstancesModificationId"}}},"http":{}},"ModifySnapshotAttribute":{"input":{"type":"structure","required":["SnapshotId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotId":{},"Attribute":{},"OperationType":{},"UserIds":{"shape":"Sha","locationName":"UserId"},"GroupNames":{"shape":"Sd0","locationName":"UserGroup"},"CreateVolumePermission":{"type":"structure","members":{"Add":{"shape":"Sd7"},"Remove":{"shape":"Sd7"}}}}},"http":{}},"ModifySubnetAttribute":{"input":{"type":"structure","required":["SubnetId"],"members":{"SubnetId":{"locationName":"subnetId"},"MapPublicIpOnLaunch":{"shape":"S9y"}}},"http":{}},"ModifyVolumeAttribute":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"AutoEnableIO":{"shape":"S9y"}}},"http":{}},"ModifyVpcAttribute":{"input":{"type":"structure","required":["VpcId"],"members":{"VpcId":{"locationName":"vpcId"},"EnableDnsSupport":{"shape":"S9y"},"EnableDnsHostnames":{"shape":"S9y"}}},"http":{}},"ModifyVpcEndpoint":{"input":{"type":"structure","required":["VpcEndpointId"],"members":{"DryRun":{"type":"boolean"},"VpcEndpointId":{},"ResetPolicy":{"type":"boolean"},"PolicyDocument":{},"AddRouteTableIds":{"shape":"S22","locationName":"AddRouteTableId"},"RemoveRouteTableIds":{"shape":"S22","locationName":"RemoveRouteTableId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"MonitorInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"}}},"output":{"type":"structure","members":{"InstanceMonitorings":{"shape":"Shx","locationName":"instancesSet"}}},"http":{}},"MoveAddressToVpc":{"input":{"type":"structure","required":["PublicIp"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIp":{"locationName":"publicIp"}}},"output":{"type":"structure","members":{"AllocationId":{"locationName":"allocationId"},"Status":{"locationName":"status"}}},"http":{}},"PurchaseReservedInstancesOffering":{"input":{"type":"structure","required":["ReservedInstancesOfferingId","InstanceCount"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ReservedInstancesOfferingId":{},"InstanceCount":{"type":"integer"},"LimitPrice":{"locationName":"limitPrice","type":"structure","members":{"Amount":{"locationName":"amount","type":"double"},"CurrencyCode":{"locationName":"currencyCode"}}}}},"output":{"type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"}}},"http":{}},"RebootInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"}}},"http":{}},"RegisterImage":{"input":{"type":"structure","required":["Name"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageLocation":{},"Name":{"locationName":"name"},"Description":{"locationName":"description"},"Architecture":{"locationName":"architecture"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"RootDeviceName":{"locationName":"rootDeviceName"},"BlockDeviceMappings":{"shape":"S38","locationName":"BlockDeviceMapping"},"VirtualizationType":{"locationName":"virtualizationType"},"SriovNetSupport":{"locationName":"sriovNetSupport"}}},"output":{"type":"structure","members":{"ImageId":{"locationName":"imageId"}}},"http":{}},"RejectVpcPeeringConnection":{"input":{"type":"structure","required":["VpcPeeringConnectionId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"ReleaseAddress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIp":{},"AllocationId":{}}},"http":{}},"ReplaceNetworkAclAssociation":{"input":{"type":"structure","required":["AssociationId","NetworkAclId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AssociationId":{"locationName":"associationId"},"NetworkAclId":{"locationName":"networkAclId"}}},"output":{"type":"structure","members":{"NewAssociationId":{"locationName":"newAssociationId"}}},"http":{}},"ReplaceNetworkAclEntry":{"input":{"type":"structure","required":["NetworkAclId","RuleNumber","Protocol","RuleAction","Egress","CidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclId":{"locationName":"networkAclId"},"RuleNumber":{"locationName":"ruleNumber","type":"integer"},"Protocol":{"locationName":"protocol"},"RuleAction":{"locationName":"ruleAction"},"Egress":{"locationName":"egress","type":"boolean"},"CidrBlock":{"locationName":"cidrBlock"},"IcmpTypeCode":{"shape":"S40","locationName":"Icmp"},"PortRange":{"shape":"S41","locationName":"portRange"}}},"http":{}},"ReplaceRoute":{"input":{"type":"structure","required":["RouteTableId","DestinationCidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableId":{"locationName":"routeTableId"},"DestinationCidrBlock":{"locationName":"destinationCidrBlock"},"GatewayId":{"locationName":"gatewayId"},"InstanceId":{"locationName":"instanceId"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"http":{}},"ReplaceRouteTableAssociation":{"input":{"type":"structure","required":["AssociationId","RouteTableId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AssociationId":{"locationName":"associationId"},"RouteTableId":{"locationName":"routeTableId"}}},"output":{"type":"structure","members":{"NewAssociationId":{"locationName":"newAssociationId"}}},"http":{}},"ReportInstanceStatus":{"input":{"type":"structure","required":["Instances","Status","ReasonCodes"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Instances":{"shape":"S7x","locationName":"instanceId"},"Status":{"locationName":"status"},"StartTime":{"locationName":"startTime","type":"timestamp"},"EndTime":{"locationName":"endTime","type":"timestamp"},"ReasonCodes":{"locationName":"reasonCode","type":"list","member":{"locationName":"item"}},"Description":{"locationName":"description"}}},"http":{}},"RequestSpotFleet":{"input":{"type":"structure","required":["SpotFleetRequestConfig"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestConfig":{"shape":"Sdu","locationName":"spotFleetRequestConfig"}}},"output":{"type":"structure","required":["SpotFleetRequestId"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"}}},"http":{}},"RequestSpotInstances":{"input":{"type":"structure","required":["SpotPrice"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotPrice":{"locationName":"spotPrice"},"ClientToken":{"locationName":"clientToken"},"InstanceCount":{"locationName":"instanceCount","type":"integer"},"Type":{"locationName":"type"},"ValidFrom":{"locationName":"validFrom","type":"timestamp"},"ValidUntil":{"locationName":"validUntil","type":"timestamp"},"LaunchGroup":{"locationName":"launchGroup"},"AvailabilityZoneGroup":{"locationName":"availabilityZoneGroup"},"LaunchSpecification":{"type":"structure","members":{"ImageId":{"locationName":"imageId"},"KeyName":{"locationName":"keyName"},"SecurityGroups":{"shape":"S22","locationName":"SecurityGroup"},"UserData":{"locationName":"userData"},"AddressingType":{"locationName":"addressingType"},"InstanceType":{"locationName":"instanceType"},"Placement":{"shape":"Sdx","locationName":"placement"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"},"SubnetId":{"locationName":"subnetId"},"NetworkInterfaces":{"shape":"Sdz","locationName":"NetworkInterface"},"IamInstanceProfile":{"shape":"Se1","locationName":"iamInstanceProfile"},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"},"Monitoring":{"shape":"Sea","locationName":"monitoring"},"SecurityGroupIds":{"shape":"S22","locationName":"SecurityGroupId"}}}}},"output":{"type":"structure","members":{"SpotInstanceRequests":{"shape":"Se4","locationName":"spotInstanceRequestSet"}}},"http":{}},"ResetImageAttribute":{"input":{"type":"structure","required":["ImageId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{},"Attribute":{}}},"http":{}},"ResetInstanceAttribute":{"input":{"type":"structure","required":["InstanceId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"Attribute":{"locationName":"attribute"}}},"http":{}},"ResetNetworkInterfaceAttribute":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"SourceDestCheck":{"locationName":"sourceDestCheck"}}},"http":{}},"ResetSnapshotAttribute":{"input":{"type":"structure","required":["SnapshotId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotId":{},"Attribute":{}}},"http":{}},"RestoreAddressToClassic":{"input":{"type":"structure","required":["PublicIp"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIp":{"locationName":"publicIp"}}},"output":{"type":"structure","members":{"Status":{"locationName":"status"},"PublicIp":{"locationName":"publicIp"}}},"http":{}},"RevokeSecurityGroupEgress":{"input":{"type":"structure","required":["GroupId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupId":{"locationName":"groupId"},"SourceSecurityGroupName":{"locationName":"sourceSecurityGroupName"},"SourceSecurityGroupOwnerId":{"locationName":"sourceSecurityGroupOwnerId"},"IpProtocol":{"locationName":"ipProtocol"},"FromPort":{"locationName":"fromPort","type":"integer"},"ToPort":{"locationName":"toPort","type":"integer"},"CidrIp":{"locationName":"cidrIp"},"IpPermissions":{"shape":"S11","locationName":"ipPermissions"}}},"http":{}},"RevokeSecurityGroupIngress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{},"GroupId":{},"SourceSecurityGroupName":{},"SourceSecurityGroupOwnerId":{},"IpProtocol":{},"FromPort":{"type":"integer"},"ToPort":{"type":"integer"},"CidrIp":{},"IpPermissions":{"shape":"S11"}}},"http":{}},"RunInstances":{"input":{"type":"structure","required":["ImageId","MinCount","MaxCount"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{},"MinCount":{"type":"integer"},"MaxCount":{"type":"integer"},"KeyName":{},"SecurityGroups":{"shape":"Sgt","locationName":"SecurityGroup"},"SecurityGroupIds":{"shape":"S46","locationName":"SecurityGroupId"},"UserData":{},"InstanceType":{},"Placement":{"shape":"Sao"},"KernelId":{},"RamdiskId":{},"BlockDeviceMappings":{"shape":"S38","locationName":"BlockDeviceMapping"},"Monitoring":{"shape":"Sea"},"SubnetId":{},"DisableApiTermination":{"locationName":"disableApiTermination","type":"boolean"},"InstanceInitiatedShutdownBehavior":{"locationName":"instanceInitiatedShutdownBehavior"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"ClientToken":{"locationName":"clientToken"},"AdditionalInfo":{"locationName":"additionalInfo"},"NetworkInterfaces":{"shape":"Sdz","locationName":"networkInterface"},"IamInstanceProfile":{"shape":"Se1","locationName":"iamInstanceProfile"},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"}}},"output":{"shape":"Sak","locationName":"reservation"},"http":{}},"StartInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"AdditionalInfo":{"locationName":"additionalInfo"},"DryRun":{"locationName":"dryRun","type":"boolean"}}},"output":{"type":"structure","members":{"StartingInstances":{"shape":"Sj2","locationName":"instancesSet"}}},"http":{}},"StopInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"Force":{"locationName":"force","type":"boolean"}}},"output":{"type":"structure","members":{"StoppingInstances":{"shape":"Sj2","locationName":"instancesSet"}}},"http":{}},"TerminateInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"}}},"output":{"type":"structure","members":{"TerminatingInstances":{"shape":"Sj2","locationName":"instancesSet"}}},"http":{}},"UnassignPrivateIpAddresses":{"input":{"type":"structure","required":["NetworkInterfaceId","PrivateIpAddresses"],"members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"PrivateIpAddresses":{"shape":"Sg","locationName":"privateIpAddress"}}},"http":{}},"UnmonitorInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"}}},"output":{"type":"structure","members":{"InstanceMonitorings":{"shape":"Shx","locationName":"instancesSet"}}},"http":{}}},"shapes":{"S5":{"type":"structure","members":{"AccepterVpcInfo":{"shape":"S6","locationName":"accepterVpcInfo"},"ExpirationTime":{"locationName":"expirationTime","type":"timestamp"},"RequesterVpcInfo":{"shape":"S6","locationName":"requesterVpcInfo"},"Status":{"locationName":"status","type":"structure","members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}},"Tags":{"shape":"Sa","locationName":"tagSet"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"S6":{"type":"structure","members":{"CidrBlock":{"locationName":"cidrBlock"},"OwnerId":{"locationName":"ownerId"},"VpcId":{"locationName":"vpcId"}}},"Sa":{"type":"list","member":{"locationName":"item","type":"structure","members":{"Key":{"locationName":"key"},"Value":{"locationName":"value"}}}},"Sg":{"type":"list","member":{"locationName":"PrivateIpAddress"}},"So":{"type":"list","member":{"locationName":"groupId"}},"Su":{"type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"InstanceId":{"locationName":"instanceId"},"Device":{"locationName":"device"},"State":{"locationName":"status"},"AttachTime":{"locationName":"attachTime","type":"timestamp"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}},"Sy":{"type":"structure","members":{"VpcId":{"locationName":"vpcId"},"State":{"locationName":"state"}}},"S11":{"type":"list","member":{"locationName":"item","type":"structure","members":{"IpProtocol":{"locationName":"ipProtocol"},"FromPort":{"locationName":"fromPort","type":"integer"},"ToPort":{"locationName":"toPort","type":"integer"},"UserIdGroupPairs":{"locationName":"groups","type":"list","member":{"locationName":"item","type":"structure","members":{"UserId":{"locationName":"userId"},"GroupName":{"locationName":"groupName"},"GroupId":{"locationName":"groupId"}}}},"IpRanges":{"locationName":"ipRanges","type":"list","member":{"locationName":"item","type":"structure","members":{"CidrIp":{"locationName":"cidrIp"}}}},"PrefixListIds":{"locationName":"prefixListIds","type":"list","member":{"locationName":"item","type":"structure","members":{"PrefixListId":{"locationName":"prefixListId"}}}}}}},"S1b":{"type":"structure","members":{"S3":{"type":"structure","members":{"Bucket":{"locationName":"bucket"},"Prefix":{"locationName":"prefix"},"AWSAccessKeyId":{},"UploadPolicy":{"locationName":"uploadPolicy","type":"blob"},"UploadPolicySignature":{"locationName":"uploadPolicySignature"}}}}},"S1f":{"type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"BundleId":{"locationName":"bundleId"},"State":{"locationName":"state"},"StartTime":{"locationName":"startTime","type":"timestamp"},"UpdateTime":{"locationName":"updateTime","type":"timestamp"},"Storage":{"shape":"S1b","locationName":"storage"},"Progress":{"locationName":"progress"},"BundleTaskError":{"locationName":"error","type":"structure","members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}}}},"S1q":{"type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesListingId":{"locationName":"reservedInstancesListingId"},"ReservedInstancesId":{"locationName":"reservedInstancesId"},"CreateDate":{"locationName":"createDate","type":"timestamp"},"UpdateDate":{"locationName":"updateDate","type":"timestamp"},"Status":{"locationName":"status"},"StatusMessage":{"locationName":"statusMessage"},"InstanceCounts":{"locationName":"instanceCounts","type":"list","member":{"locationName":"item","type":"structure","members":{"State":{"locationName":"state"},"InstanceCount":{"locationName":"instanceCount","type":"integer"}}}},"PriceSchedules":{"locationName":"priceSchedules","type":"list","member":{"locationName":"item","type":"structure","members":{"Term":{"locationName":"term","type":"long"},"Price":{"locationName":"price","type":"double"},"CurrencyCode":{"locationName":"currencyCode"},"Active":{"locationName":"active","type":"boolean"}}}},"Tags":{"shape":"Sa","locationName":"tagSet"},"ClientToken":{"locationName":"clientToken"}}}},"S22":{"type":"list","member":{"locationName":"item"}},"S2c":{"type":"list","member":{"locationName":"SpotInstanceRequestId"}},"S2q":{"type":"structure","members":{"CustomerGatewayId":{"locationName":"customerGatewayId"},"State":{"locationName":"state"},"Type":{"locationName":"type"},"IpAddress":{"locationName":"ipAddress"},"BgpAsn":{"locationName":"bgpAsn"},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S2v":{"type":"structure","members":{"DhcpOptionsId":{"locationName":"dhcpOptionsId"},"DhcpConfigurations":{"locationName":"dhcpConfigurationSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Key":{"locationName":"key"},"Values":{"locationName":"valueSet","type":"list","member":{"shape":"S2z","locationName":"item"}}}}},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S2z":{"type":"structure","members":{"Value":{"locationName":"value"}}},"S34":{"type":"list","member":{"locationName":"item","type":"structure","required":["Error"],"members":{"ResourceId":{"locationName":"resourceId"},"Error":{"locationName":"error","type":"structure","required":["Code","Message"],"members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}}}}},"S38":{"type":"list","member":{"shape":"S39","locationName":"BlockDeviceMapping"}},"S39":{"type":"structure","members":{"VirtualName":{"locationName":"virtualName"},"DeviceName":{"locationName":"deviceName"},"Ebs":{"locationName":"ebs","type":"structure","members":{"SnapshotId":{"locationName":"snapshotId"},"VolumeSize":{"locationName":"volumeSize","type":"integer"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"},"VolumeType":{"locationName":"volumeType"},"Iops":{"locationName":"iops","type":"integer"},"Encrypted":{"locationName":"encrypted","type":"boolean"}}},"NoDevice":{"locationName":"noDevice"}}},"S3j":{"type":"structure","members":{"ExportTaskId":{"locationName":"exportTaskId"},"Description":{"locationName":"description"},"State":{"locationName":"state"},"StatusMessage":{"locationName":"statusMessage"},"InstanceExportDetails":{"locationName":"instanceExport","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"TargetEnvironment":{"locationName":"targetEnvironment"}}},"ExportToS3Task":{"locationName":"exportToS3","type":"structure","members":{"DiskImageFormat":{"locationName":"diskImageFormat"},"ContainerFormat":{"locationName":"containerFormat"},"S3Bucket":{"locationName":"s3Bucket"},"S3Key":{"locationName":"s3Key"}}}}},"S3p":{"type":"structure","members":{"InternetGatewayId":{"locationName":"internetGatewayId"},"Attachments":{"locationName":"attachmentSet","type":"list","member":{"locationName":"item","type":"structure","members":{"VpcId":{"locationName":"vpcId"},"State":{"locationName":"state"}}}},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S3w":{"type":"structure","members":{"NetworkAclId":{"locationName":"networkAclId"},"VpcId":{"locationName":"vpcId"},"IsDefault":{"locationName":"default","type":"boolean"},"Entries":{"locationName":"entrySet","type":"list","member":{"locationName":"item","type":"structure","members":{"RuleNumber":{"locationName":"ruleNumber","type":"integer"},"Protocol":{"locationName":"protocol"},"RuleAction":{"locationName":"ruleAction"},"Egress":{"locationName":"egress","type":"boolean"},"CidrBlock":{"locationName":"cidrBlock"},"IcmpTypeCode":{"shape":"S40","locationName":"icmpTypeCode"},"PortRange":{"shape":"S41","locationName":"portRange"}}}},"Associations":{"locationName":"associationSet","type":"list","member":{"locationName":"item","type":"structure","members":{"NetworkAclAssociationId":{"locationName":"networkAclAssociationId"},"NetworkAclId":{"locationName":"networkAclId"},"SubnetId":{"locationName":"subnetId"}}}},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S40":{"type":"structure","members":{"Type":{"locationName":"type","type":"integer"},"Code":{"locationName":"code","type":"integer"}}},"S41":{"type":"structure","members":{"From":{"locationName":"from","type":"integer"},"To":{"locationName":"to","type":"integer"}}},"S46":{"type":"list","member":{"locationName":"SecurityGroupId"}},"S47":{"type":"list","member":{"locationName":"item","type":"structure","required":["PrivateIpAddress"],"members":{"PrivateIpAddress":{"locationName":"privateIpAddress"},"Primary":{"locationName":"primary","type":"boolean"}}}},"S4a":{"type":"structure","members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"SubnetId":{"locationName":"subnetId"},"VpcId":{"locationName":"vpcId"},"AvailabilityZone":{"locationName":"availabilityZone"},"Description":{"locationName":"description"},"OwnerId":{"locationName":"ownerId"},"RequesterId":{"locationName":"requesterId"},"RequesterManaged":{"locationName":"requesterManaged","type":"boolean"},"Status":{"locationName":"status"},"MacAddress":{"locationName":"macAddress"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"PrivateDnsName":{"locationName":"privateDnsName"},"SourceDestCheck":{"locationName":"sourceDestCheck","type":"boolean"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Attachment":{"shape":"S4e","locationName":"attachment"},"Association":{"shape":"S4f","locationName":"association"},"TagSet":{"shape":"Sa","locationName":"tagSet"},"PrivateIpAddresses":{"locationName":"privateIpAddressesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"PrivateIpAddress":{"locationName":"privateIpAddress"},"PrivateDnsName":{"locationName":"privateDnsName"},"Primary":{"locationName":"primary","type":"boolean"},"Association":{"shape":"S4f","locationName":"association"}}}}}},"S4c":{"type":"list","member":{"locationName":"item","type":"structure","members":{"GroupName":{"locationName":"groupName"},"GroupId":{"locationName":"groupId"}}}},"S4e":{"type":"structure","members":{"AttachmentId":{"locationName":"attachmentId"},"InstanceId":{"locationName":"instanceId"},"InstanceOwnerId":{"locationName":"instanceOwnerId"},"DeviceIndex":{"locationName":"deviceIndex","type":"integer"},"Status":{"locationName":"status"},"AttachTime":{"locationName":"attachTime","type":"timestamp"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}},"S4f":{"type":"structure","members":{"PublicIp":{"locationName":"publicIp"},"PublicDnsName":{"locationName":"publicDnsName"},"IpOwnerId":{"locationName":"ipOwnerId"},"AllocationId":{"locationName":"allocationId"},"AssociationId":{"locationName":"associationId"}}},"S4s":{"type":"structure","members":{"RouteTableId":{"locationName":"routeTableId"},"VpcId":{"locationName":"vpcId"},"Routes":{"locationName":"routeSet","type":"list","member":{"locationName":"item","type":"structure","members":{"DestinationCidrBlock":{"locationName":"destinationCidrBlock"},"DestinationPrefixListId":{"locationName":"destinationPrefixListId"},"GatewayId":{"locationName":"gatewayId"},"InstanceId":{"locationName":"instanceId"},"InstanceOwnerId":{"locationName":"instanceOwnerId"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"},"State":{"locationName":"state"},"Origin":{"locationName":"origin"}}}},"Associations":{"locationName":"associationSet","type":"list","member":{"locationName":"item","type":"structure","members":{"RouteTableAssociationId":{"locationName":"routeTableAssociationId"},"RouteTableId":{"locationName":"routeTableId"},"SubnetId":{"locationName":"subnetId"},"Main":{"locationName":"main","type":"boolean"}}}},"Tags":{"shape":"Sa","locationName":"tagSet"},"PropagatingVgws":{"locationName":"propagatingVgwSet","type":"list","member":{"locationName":"item","type":"structure","members":{"GatewayId":{"locationName":"gatewayId"}}}}}},"S54":{"type":"structure","members":{"SnapshotId":{"locationName":"snapshotId"},"VolumeId":{"locationName":"volumeId"},"State":{"locationName":"status"},"StartTime":{"locationName":"startTime","type":"timestamp"},"Progress":{"locationName":"progress"},"OwnerId":{"locationName":"ownerId"},"Description":{"locationName":"description"},"VolumeSize":{"locationName":"volumeSize","type":"integer"},"OwnerAlias":{"locationName":"ownerAlias"},"Tags":{"shape":"Sa","locationName":"tagSet"},"Encrypted":{"locationName":"encrypted","type":"boolean"},"KmsKeyId":{"locationName":"kmsKeyId"}}},"S58":{"type":"structure","members":{"OwnerId":{"locationName":"ownerId"},"Bucket":{"locationName":"bucket"},"Prefix":{"locationName":"prefix"},"State":{"locationName":"state"},"Fault":{"shape":"S5a","locationName":"fault"}}},"S5a":{"type":"structure","members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}},"S5d":{"type":"structure","members":{"SubnetId":{"locationName":"subnetId"},"State":{"locationName":"state"},"VpcId":{"locationName":"vpcId"},"CidrBlock":{"locationName":"cidrBlock"},"AvailableIpAddressCount":{"locationName":"availableIpAddressCount","type":"integer"},"AvailabilityZone":{"locationName":"availabilityZone"},"DefaultForAz":{"locationName":"defaultForAz","type":"boolean"},"MapPublicIpOnLaunch":{"locationName":"mapPublicIpOnLaunch","type":"boolean"},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S5g":{"type":"list","member":{}},"S5i":{"type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"Size":{"locationName":"size","type":"integer"},"SnapshotId":{"locationName":"snapshotId"},"AvailabilityZone":{"locationName":"availabilityZone"},"State":{"locationName":"status"},"CreateTime":{"locationName":"createTime","type":"timestamp"},"Attachments":{"locationName":"attachmentSet","type":"list","member":{"shape":"Su","locationName":"item"}},"Tags":{"shape":"Sa","locationName":"tagSet"},"VolumeType":{"locationName":"volumeType"},"Iops":{"locationName":"iops","type":"integer"},"Encrypted":{"locationName":"encrypted","type":"boolean"},"KmsKeyId":{"locationName":"kmsKeyId"}}},"S5o":{"type":"structure","members":{"VpcId":{"locationName":"vpcId"},"State":{"locationName":"state"},"CidrBlock":{"locationName":"cidrBlock"},"DhcpOptionsId":{"locationName":"dhcpOptionsId"},"Tags":{"shape":"Sa","locationName":"tagSet"},"InstanceTenancy":{"locationName":"instanceTenancy"},"IsDefault":{"locationName":"isDefault","type":"boolean"}}},"S5s":{"type":"structure","members":{"VpcEndpointId":{"locationName":"vpcEndpointId"},"VpcId":{"locationName":"vpcId"},"ServiceName":{"locationName":"serviceName"},"State":{"locationName":"state"},"PolicyDocument":{"locationName":"policyDocument"},"RouteTableIds":{"shape":"S22","locationName":"routeTableIdSet"},"CreationTimestamp":{"locationName":"creationTimestamp","type":"timestamp"}}},"S5z":{"type":"structure","members":{"VpnConnectionId":{"locationName":"vpnConnectionId"},"State":{"locationName":"state"},"CustomerGatewayConfiguration":{"locationName":"customerGatewayConfiguration"},"Type":{"locationName":"type"},"CustomerGatewayId":{"locationName":"customerGatewayId"},"VpnGatewayId":{"locationName":"vpnGatewayId"},"Tags":{"shape":"Sa","locationName":"tagSet"},"VgwTelemetry":{"locationName":"vgwTelemetry","type":"list","member":{"locationName":"item","type":"structure","members":{"OutsideIpAddress":{"locationName":"outsideIpAddress"},"Status":{"locationName":"status"},"LastStatusChange":{"locationName":"lastStatusChange","type":"timestamp"},"StatusMessage":{"locationName":"statusMessage"},"AcceptedRouteCount":{"locationName":"acceptedRouteCount","type":"integer"}}}},"Options":{"locationName":"options","type":"structure","members":{"StaticRoutesOnly":{"locationName":"staticRoutesOnly","type":"boolean"}}},"Routes":{"locationName":"routes","type":"list","member":{"locationName":"item","type":"structure","members":{"DestinationCidrBlock":{"locationName":"destinationCidrBlock"},"Source":{"locationName":"source"},"State":{"locationName":"state"}}}}}},"S6b":{"type":"structure","members":{"VpnGatewayId":{"locationName":"vpnGatewayId"},"State":{"locationName":"state"},"Type":{"locationName":"type"},"AvailabilityZone":{"locationName":"availabilityZone"},"VpcAttachments":{"locationName":"attachments","type":"list","member":{"shape":"Sy","locationName":"item"}},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S7e":{"type":"list","member":{"locationName":"Filter","type":"structure","members":{"Name":{},"Values":{"shape":"S22","locationName":"Value"}}}},"S7x":{"type":"list","member":{"locationName":"InstanceId"}},"S85":{"type":"structure","required":["ConversionTaskId","State"],"members":{"ConversionTaskId":{"locationName":"conversionTaskId"},"ExpirationTime":{"locationName":"expirationTime"},"ImportInstance":{"locationName":"importInstance","type":"structure","required":["Volumes"],"members":{"Volumes":{"locationName":"volumes","type":"list","member":{"locationName":"item","type":"structure","required":["BytesConverted","AvailabilityZone","Image","Volume","Status"],"members":{"BytesConverted":{"locationName":"bytesConverted","type":"long"},"AvailabilityZone":{"locationName":"availabilityZone"},"Image":{"shape":"S89","locationName":"image"},"Volume":{"shape":"S8a","locationName":"volume"},"Status":{"locationName":"status"},"StatusMessage":{"locationName":"statusMessage"},"Description":{"locationName":"description"}}}},"InstanceId":{"locationName":"instanceId"},"Platform":{"locationName":"platform"},"Description":{"locationName":"description"}}},"ImportVolume":{"locationName":"importVolume","type":"structure","required":["BytesConverted","AvailabilityZone","Image","Volume"],"members":{"BytesConverted":{"locationName":"bytesConverted","type":"long"},"AvailabilityZone":{"locationName":"availabilityZone"},"Description":{"locationName":"description"},"Image":{"shape":"S89","locationName":"image"},"Volume":{"shape":"S8a","locationName":"volume"}}},"State":{"locationName":"state"},"StatusMessage":{"locationName":"statusMessage"},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S89":{"type":"structure","required":["Format","Size","ImportManifestUrl"],"members":{"Format":{"locationName":"format"},"Size":{"locationName":"size","type":"long"},"ImportManifestUrl":{"locationName":"importManifestUrl"},"Checksum":{"locationName":"checksum"}}},"S8a":{"type":"structure","required":["Id"],"members":{"Size":{"locationName":"size","type":"long"},"Id":{"locationName":"id"}}},"S8x":{"type":"list","member":{"locationName":"item","type":"structure","members":{"UserId":{"locationName":"userId"},"Group":{"locationName":"group"}}}},"S90":{"type":"list","member":{"locationName":"item","type":"structure","members":{"ProductCodeId":{"locationName":"productCode"},"ProductCodeType":{"locationName":"type"}}}},"S93":{"type":"list","member":{"shape":"S39","locationName":"item"}},"S96":{"type":"list","member":{"locationName":"Owner"}},"S9e":{"type":"structure","members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}},"S9j":{"type":"list","member":{"locationName":"ImportTaskId"}},"S9n":{"type":"list","member":{"locationName":"item","type":"structure","members":{"DiskImageSize":{"locationName":"diskImageSize","type":"double"},"Description":{"locationName":"description"},"Format":{"locationName":"format"},"Url":{"locationName":"url"},"UserBucket":{"shape":"S9p","locationName":"userBucket"},"DeviceName":{"locationName":"deviceName"},"SnapshotId":{"locationName":"snapshotId"},"Progress":{"locationName":"progress"},"StatusMessage":{"locationName":"statusMessage"},"Status":{"locationName":"status"}}}},"S9p":{"type":"structure","members":{"S3Bucket":{"locationName":"s3Bucket"},"S3Key":{"locationName":"s3Key"}}},"S9u":{"type":"structure","members":{"DiskImageSize":{"locationName":"diskImageSize","type":"double"},"Description":{"locationName":"description"},"Format":{"locationName":"format"},"Url":{"locationName":"url"},"UserBucket":{"shape":"S9p","locationName":"userBucket"},"SnapshotId":{"locationName":"snapshotId"},"Progress":{"locationName":"progress"},"StatusMessage":{"locationName":"statusMessage"},"Status":{"locationName":"status"}}},"S9y":{"type":"structure","members":{"Value":{"locationName":"value","type":"boolean"}}},"S9z":{"type":"list","member":{"locationName":"item","type":"structure","members":{"DeviceName":{"locationName":"deviceName"},"Ebs":{"locationName":"ebs","type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"Status":{"locationName":"status"},"AttachTime":{"locationName":"attachTime","type":"timestamp"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}}}}},"Sa9":{"type":"structure","members":{"Code":{"locationName":"code","type":"integer"},"Name":{"locationName":"name"}}},"Sab":{"type":"structure","members":{"Status":{"locationName":"status"},"Details":{"locationName":"details","type":"list","member":{"locationName":"item","type":"structure","members":{"Name":{"locationName":"name"},"Status":{"locationName":"status"},"ImpairedSince":{"locationName":"impairedSince","type":"timestamp"}}}}}},"Sak":{"type":"structure","members":{"ReservationId":{"locationName":"reservationId"},"OwnerId":{"locationName":"ownerId"},"RequesterId":{"locationName":"requesterId"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Instances":{"locationName":"instancesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"ImageId":{"locationName":"imageId"},"State":{"shape":"Sa9","locationName":"instanceState"},"PrivateDnsName":{"locationName":"privateDnsName"},"PublicDnsName":{"locationName":"dnsName"},"StateTransitionReason":{"locationName":"reason"},"KeyName":{"locationName":"keyName"},"AmiLaunchIndex":{"locationName":"amiLaunchIndex","type":"integer"},"ProductCodes":{"shape":"S90","locationName":"productCodes"},"InstanceType":{"locationName":"instanceType"},"LaunchTime":{"locationName":"launchTime","type":"timestamp"},"Placement":{"shape":"Sao","locationName":"placement"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"Platform":{"locationName":"platform"},"Monitoring":{"shape":"Sap","locationName":"monitoring"},"SubnetId":{"locationName":"subnetId"},"VpcId":{"locationName":"vpcId"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"PublicIpAddress":{"locationName":"ipAddress"},"StateReason":{"shape":"S9e","locationName":"stateReason"},"Architecture":{"locationName":"architecture"},"RootDeviceType":{"locationName":"rootDeviceType"},"RootDeviceName":{"locationName":"rootDeviceName"},"BlockDeviceMappings":{"shape":"S9z","locationName":"blockDeviceMapping"},"VirtualizationType":{"locationName":"virtualizationType"},"InstanceLifecycle":{"locationName":"instanceLifecycle"},"SpotInstanceRequestId":{"locationName":"spotInstanceRequestId"},"ClientToken":{"locationName":"clientToken"},"Tags":{"shape":"Sa","locationName":"tagSet"},"SecurityGroups":{"shape":"S4c","locationName":"groupSet"},"SourceDestCheck":{"locationName":"sourceDestCheck","type":"boolean"},"Hypervisor":{"locationName":"hypervisor"},"NetworkInterfaces":{"locationName":"networkInterfaceSet","type":"list","member":{"locationName":"item","type":"structure","members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"SubnetId":{"locationName":"subnetId"},"VpcId":{"locationName":"vpcId"},"Description":{"locationName":"description"},"OwnerId":{"locationName":"ownerId"},"Status":{"locationName":"status"},"MacAddress":{"locationName":"macAddress"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"PrivateDnsName":{"locationName":"privateDnsName"},"SourceDestCheck":{"locationName":"sourceDestCheck","type":"boolean"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Attachment":{"locationName":"attachment","type":"structure","members":{"AttachmentId":{"locationName":"attachmentId"},"DeviceIndex":{"locationName":"deviceIndex","type":"integer"},"Status":{"locationName":"status"},"AttachTime":{"locationName":"attachTime","type":"timestamp"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}},"Association":{"shape":"Sav","locationName":"association"},"PrivateIpAddresses":{"locationName":"privateIpAddressesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"PrivateIpAddress":{"locationName":"privateIpAddress"},"PrivateDnsName":{"locationName":"privateDnsName"},"Primary":{"locationName":"primary","type":"boolean"},"Association":{"shape":"Sav","locationName":"association"}}}}}}},"IamInstanceProfile":{"locationName":"iamInstanceProfile","type":"structure","members":{"Arn":{"locationName":"arn"},"Id":{"locationName":"id"}}},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"},"SriovNetSupport":{"locationName":"sriovNetSupport"}}}}}},"Sao":{"type":"structure","members":{"AvailabilityZone":{"locationName":"availabilityZone"},"GroupName":{"locationName":"groupName"},"Tenancy":{"locationName":"tenancy"}}},"Sap":{"type":"structure","members":{"State":{"locationName":"state"}}},"Sav":{"type":"structure","members":{"PublicIp":{"locationName":"publicIp"},"PublicDnsName":{"locationName":"publicDnsName"},"IpOwnerId":{"locationName":"ipOwnerId"}}},"Sc2":{"type":"list","member":{"locationName":"ReservedInstancesId"}},"Sca":{"type":"list","member":{"locationName":"item","type":"structure","members":{"Frequency":{"locationName":"frequency"},"Amount":{"locationName":"amount","type":"double"}}}},"Sco":{"type":"structure","members":{"AvailabilityZone":{"locationName":"availabilityZone"},"Platform":{"locationName":"platform"},"InstanceCount":{"locationName":"instanceCount","type":"integer"},"InstanceType":{"locationName":"instanceType"}}},"Sd0":{"type":"list","member":{"locationName":"GroupName"}},"Sd7":{"type":"list","member":{"locationName":"item","type":"structure","members":{"UserId":{"locationName":"userId"},"Group":{"locationName":"group"}}}},"Sdu":{"type":"structure","required":["SpotPrice","TargetCapacity","IamFleetRole","LaunchSpecifications"],"members":{"ClientToken":{"locationName":"clientToken"},"SpotPrice":{"locationName":"spotPrice"},"TargetCapacity":{"locationName":"targetCapacity","type":"integer"},"ValidFrom":{"locationName":"validFrom","type":"timestamp"},"ValidUntil":{"locationName":"validUntil","type":"timestamp"},"TerminateInstancesWithExpiration":{"locationName":"terminateInstancesWithExpiration","type":"boolean"},"IamFleetRole":{"locationName":"iamFleetRole"},"LaunchSpecifications":{"locationName":"launchSpecifications","type":"list","member":{"locationName":"item","type":"structure","members":{"ImageId":{"locationName":"imageId"},"KeyName":{"locationName":"keyName"},"SecurityGroups":{"shape":"S4c","locationName":"groupSet"},"UserData":{"locationName":"userData"},"AddressingType":{"locationName":"addressingType"},"InstanceType":{"locationName":"instanceType"},"Placement":{"shape":"Sdx","locationName":"placement"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"},"Monitoring":{"locationName":"monitoring","type":"structure","members":{"Enabled":{"locationName":"enabled","type":"boolean"}}},"SubnetId":{"locationName":"subnetId"},"NetworkInterfaces":{"shape":"Sdz","locationName":"networkInterfaceSet"},"IamInstanceProfile":{"shape":"Se1","locationName":"iamInstanceProfile"},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"},"WeightedCapacity":{"locationName":"weightedCapacity","type":"double"},"SpotPrice":{"locationName":"spotPrice"}}}}}},"Sdx":{"type":"structure","members":{"AvailabilityZone":{"locationName":"availabilityZone"},"GroupName":{"locationName":"groupName"}}},"Sdz":{"type":"list","member":{"locationName":"item","type":"structure","members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"DeviceIndex":{"locationName":"deviceIndex","type":"integer"},"SubnetId":{"locationName":"subnetId"},"Description":{"locationName":"description"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"Groups":{"shape":"S46","locationName":"SecurityGroupId"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"},"PrivateIpAddresses":{"shape":"S47","locationName":"privateIpAddressesSet","queryName":"PrivateIpAddresses"},"SecondaryPrivateIpAddressCount":{"locationName":"secondaryPrivateIpAddressCount","type":"integer"},"AssociatePublicIpAddress":{"locationName":"associatePublicIpAddress","type":"boolean"}}}},"Se1":{"type":"structure","members":{"Arn":{"locationName":"arn"},"Name":{"locationName":"name"}}},"Se4":{"type":"list","member":{"locationName":"item","type":"structure","members":{"SpotInstanceRequestId":{"locationName":"spotInstanceRequestId"},"SpotPrice":{"locationName":"spotPrice"},"Type":{"locationName":"type"},"State":{"locationName":"state"},"Fault":{"shape":"S5a","locationName":"fault"},"Status":{"locationName":"status","type":"structure","members":{"Code":{"locationName":"code"},"UpdateTime":{"locationName":"updateTime","type":"timestamp"},"Message":{"locationName":"message"}}},"ValidFrom":{"locationName":"validFrom","type":"timestamp"},"ValidUntil":{"locationName":"validUntil","type":"timestamp"},"LaunchGroup":{"locationName":"launchGroup"},"AvailabilityZoneGroup":{"locationName":"availabilityZoneGroup"},"LaunchSpecification":{"locationName":"launchSpecification","type":"structure","members":{"ImageId":{"locationName":"imageId"},"KeyName":{"locationName":"keyName"},"SecurityGroups":{"shape":"S4c","locationName":"groupSet"},"UserData":{"locationName":"userData"},"AddressingType":{"locationName":"addressingType"},"InstanceType":{"locationName":"instanceType"},"Placement":{"shape":"Sdx","locationName":"placement"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"},"SubnetId":{"locationName":"subnetId"},"NetworkInterfaces":{"shape":"Sdz","locationName":"networkInterfaceSet"},"IamInstanceProfile":{"shape":"Se1","locationName":"iamInstanceProfile"},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"},"Monitoring":{"shape":"Sea","locationName":"monitoring"}}},"InstanceId":{"locationName":"instanceId"},"CreateTime":{"locationName":"createTime","type":"timestamp"},"ProductDescription":{"locationName":"productDescription"},"Tags":{"shape":"Sa","locationName":"tagSet"},"LaunchedAvailabilityZone":{"locationName":"launchedAvailabilityZone"}}}},"Sea":{"type":"structure","required":["Enabled"],"members":{"Enabled":{"locationName":"enabled","type":"boolean"}}},"Seu":{"type":"list","member":{"locationName":"VolumeId"}},"Sgo":{"type":"structure","members":{"S3Bucket":{},"S3Key":{}}},"Sgp":{"type":"structure","members":{"UploadStart":{"type":"timestamp"},"UploadEnd":{"type":"timestamp"},"UploadSize":{"type":"double"},"Comment":{}}},"Sgt":{"type":"list","member":{"locationName":"SecurityGroup"}},"Sgy":{"type":"structure","required":["Format","Bytes","ImportManifestUrl"],"members":{"Format":{"locationName":"format"},"Bytes":{"locationName":"bytes","type":"long"},"ImportManifestUrl":{"locationName":"importManifestUrl"}}},"Sgz":{"type":"structure","required":["Size"],"members":{"Size":{"locationName":"size","type":"long"}}},"Sha":{"type":"list","member":{"locationName":"UserId"}},"Shx":{"type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"Monitoring":{"shape":"Sap","locationName":"monitoring"}}}},"Sj2":{"type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"CurrentState":{"shape":"Sa9","locationName":"currentState"},"PreviousState":{"shape":"Sa9","locationName":"previousState"}}}}},"examples":{},"paginators":{"DescribeAccountAttributes":{"result_key":"AccountAttributes"},"DescribeAddresses":{"result_key":"Addresses"},"DescribeAvailabilityZones":{"result_key":"AvailabilityZones"},"DescribeBundleTasks":{"result_key":"BundleTasks"},"DescribeConversionTasks":{"result_key":"ConversionTasks"},"DescribeCustomerGateways":{"result_key":"CustomerGateways"},"DescribeDhcpOptions":{"result_key":"DhcpOptions"},"DescribeExportTasks":{"result_key":"ExportTasks"},"DescribeImages":{"result_key":"Images"},"DescribeInstanceStatus":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"InstanceStatuses"},"DescribeInstances":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"Reservations"},"DescribeInternetGateways":{"result_key":"InternetGateways"},"DescribeKeyPairs":{"result_key":"KeyPairs"},"DescribeNetworkAcls":{"result_key":"NetworkAcls"},"DescribeNetworkInterfaces":{"result_key":"NetworkInterfaces"},"DescribePlacementGroups":{"result_key":"PlacementGroups"},"DescribeRegions":{"result_key":"Regions"},"DescribeReservedInstances":{"result_key":"ReservedInstances"},"DescribeReservedInstancesListings":{"result_key":"ReservedInstancesListings"},"DescribeReservedInstancesOfferings":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"ReservedInstancesOfferings"},"DescribeReservedInstancesModifications":{"input_token":"NextToken","output_token":"NextToken","result_key":"ReservedInstancesModifications"},"DescribeRouteTables":{"result_key":"RouteTables"},"DescribeSecurityGroups":{"result_key":"SecurityGroups"},"DescribeSnapshots":{"input_token":"NextToken","output_token":"NextToken","result_key":"Snapshots"},"DescribeSpotInstanceRequests":{"result_key":"SpotInstanceRequests"},"DescribeSpotPriceHistory":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"SpotPriceHistory"},"DescribeSubnets":{"result_key":"Subnets"},"DescribeTags":{"result_key":"Tags"},"DescribeVolumeStatus":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"VolumeStatuses"},"DescribeVolumes":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"Volumes"},"DescribeVpcs":{"result_key":"Vpcs"},"DescribeVpnConnections":{"result_key":"VpnConnections"},"DescribeVpnGateways":{"result_key":"VpnGateways"}},"waiters":{"__default__":{"interval":15,"max_attempts":40,"acceptor_type":"output"},"__InstanceState":{"operation":"DescribeInstances","acceptor_path":"Reservations[].Instances[].State.Name"},"__InstanceStatus":{"operation":"DescribeInstanceStatus","success_value":"ok"},"SystemStatusOk":{"extends":"__InstanceStatus","acceptor_path":"InstanceStatuses[].SystemStatus.Status"},"InstanceStatusOk":{"extends":"__InstanceStatus","acceptor_path":"InstanceStatuses[].InstanceStatus.Status"},"ImageAvailable":{"operation":"DescribeImages","acceptor_path":"Images[].State","success_value":"available","failure_value":["failed"]},"InstanceRunning":{"extends":"__InstanceState","success_value":"running","failure_value":["shutting-down","terminated","stopping"]},"InstanceStopped":{"extends":"__InstanceState","success_value":"stopped","failure_value":["pending","terminated"]},"InstanceTerminated":{"extends":"__InstanceState","success_value":"terminated","failure_value":["pending","stopping"]},"__ExportTaskState":{"operation":"DescribeExportTasks","acceptor_path":"ExportTasks[].State"},"ExportTaskCompleted":{"extends":"__ExportTaskState","success_value":"completed"},"ExportTaskCancelled":{"extends":"__ExportTaskState","success_value":"cancelled"},"SnapshotCompleted":{"operation":"DescribeSnapshots","success_path":"Snapshots[].State","success_value":"completed"},"SubnetAvailable":{"operation":"DescribeSubnets","success_path":"Subnets[].State","success_value":"available"},"__VolumeStatus":{"operation":"DescribeVolumes","acceptor_path":"Volumes[].State"},"VolumeAvailable":{"extends":"__VolumeStatus","success_value":"available","failure_value":["deleted"]},"VolumeInUse":{"extends":"__VolumeStatus","success_value":"in-use","failure_value":["deleted"]},"VolumeDeleted":{"extends":"__VolumeStatus","success_type":"error","success_value":"InvalidVolume.NotFound"},"VpcAvailable":{"operation":"DescribeVpcs","success_path":"Vpcs[].State","success_value":"available"},"__VpnConnectionState":{"operation":"DescribeVpnConnections","acceptor_path":"VpnConnections[].State"},"VpnConnectionAvailable":{"extends":"__VpnConnectionState","success_value":"available","failure_value":["deleting","deleted"]},"VpnConnectionDeleted":{"extends":"__VpnConnectionState","success_value":"deleted","failure_value":["pending"]},"BundleTaskComplete":{"operation":"DescribeBundleTasks","acceptor_path":"BundleTasks[].State","success_value":"complete","failure_value":["failed"]},"__ConversionTaskState":{"operation":"DescribeConversionTasks","acceptor_path":"ConversionTasks[].State"},"ConversionTaskCompleted":{"extends":"__ConversionTaskState","success_value":"completed","failure_value":["cancelled","cancelling"]},"ConversionTaskCancelled":{"extends":"__ConversionTaskState","success_value":"cancelled"},"__CustomerGatewayState":{"operation":"DescribeCustomerGateways","acceptor_path":"CustomerGateways[].State"},"CustomerGatewayAvailable":{"extends":"__CustomerGatewayState","success_value":"available","failure_value":["deleted","deleting"]},"ConversionTaskDeleted":{"extends":"__CustomerGatewayState","success_value":"deleted"},"__SpotInstanceRequestState":{"operation":"DescribeSpotInstanceRequests","acceptor_path":"SpotInstanceRequests[].Status.Code"},"SpotInstanceRequestFulfilled":{"extends":"__SpotInstanceRequestState","success_value":"fulfilled","failure_value":["schedule-expired","canceled-before-fulfillment","bad-parameters","system-error"]}}};
+AWS.apiLoader.services['ec2']['2015-04-15'] = {"version":"2.0","metadata":{"apiVersion":"2015-04-15","endpointPrefix":"ec2","serviceAbbreviation":"Amazon EC2","serviceFullName":"Amazon Elastic Compute Cloud","signatureVersion":"v4","xmlNamespace":"http://ec2.amazonaws.com/doc/2015-04-15","protocol":"ec2"},"operations":{"AcceptVpcPeeringConnection":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"output":{"type":"structure","members":{"VpcPeeringConnection":{"shape":"S5","locationName":"vpcPeeringConnection"}}},"http":{}},"AllocateAddress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Domain":{}}},"output":{"type":"structure","members":{"PublicIp":{"locationName":"publicIp"},"Domain":{"locationName":"domain"},"AllocationId":{"locationName":"allocationId"}}},"http":{}},"AssignPrivateIpAddresses":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"PrivateIpAddresses":{"shape":"Sg","locationName":"privateIpAddress"},"SecondaryPrivateIpAddressCount":{"locationName":"secondaryPrivateIpAddressCount","type":"integer"},"AllowReassignment":{"locationName":"allowReassignment","type":"boolean"}}},"http":{}},"AssociateAddress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{},"PublicIp":{},"AllocationId":{},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"AllowReassociation":{"locationName":"allowReassociation","type":"boolean"}}},"output":{"type":"structure","members":{"AssociationId":{"locationName":"associationId"}}},"http":{}},"AssociateDhcpOptions":{"input":{"type":"structure","required":["DhcpOptionsId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"DhcpOptionsId":{},"VpcId":{}}},"http":{}},"AssociateRouteTable":{"input":{"type":"structure","required":["SubnetId","RouteTableId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SubnetId":{"locationName":"subnetId"},"RouteTableId":{"locationName":"routeTableId"}}},"output":{"type":"structure","members":{"AssociationId":{"locationName":"associationId"}}},"http":{}},"AttachClassicLinkVpc":{"input":{"type":"structure","required":["InstanceId","VpcId","Groups"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"VpcId":{"locationName":"vpcId"},"Groups":{"shape":"So","locationName":"SecurityGroupId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"AttachInternetGateway":{"input":{"type":"structure","required":["InternetGatewayId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InternetGatewayId":{"locationName":"internetGatewayId"},"VpcId":{"locationName":"vpcId"}}},"http":{}},"AttachNetworkInterface":{"input":{"type":"structure","required":["NetworkInterfaceId","InstanceId","DeviceIndex"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"InstanceId":{"locationName":"instanceId"},"DeviceIndex":{"locationName":"deviceIndex","type":"integer"}}},"output":{"type":"structure","members":{"AttachmentId":{"locationName":"attachmentId"}}},"http":{}},"AttachVolume":{"input":{"type":"structure","required":["VolumeId","InstanceId","Device"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"InstanceId":{},"Device":{}}},"output":{"shape":"Su","locationName":"attachment"},"http":{}},"AttachVpnGateway":{"input":{"type":"structure","required":["VpnGatewayId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnGatewayId":{},"VpcId":{}}},"output":{"type":"structure","members":{"VpcAttachment":{"shape":"Sy","locationName":"attachment"}}},"http":{}},"AuthorizeSecurityGroupEgress":{"input":{"type":"structure","required":["GroupId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupId":{"locationName":"groupId"},"SourceSecurityGroupName":{"locationName":"sourceSecurityGroupName"},"SourceSecurityGroupOwnerId":{"locationName":"sourceSecurityGroupOwnerId"},"IpProtocol":{"locationName":"ipProtocol"},"FromPort":{"locationName":"fromPort","type":"integer"},"ToPort":{"locationName":"toPort","type":"integer"},"CidrIp":{"locationName":"cidrIp"},"IpPermissions":{"shape":"S11","locationName":"ipPermissions"}}},"http":{}},"AuthorizeSecurityGroupIngress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{},"GroupId":{},"SourceSecurityGroupName":{},"SourceSecurityGroupOwnerId":{},"IpProtocol":{},"FromPort":{"type":"integer"},"ToPort":{"type":"integer"},"CidrIp":{},"IpPermissions":{"shape":"S11"}}},"http":{}},"BundleInstance":{"input":{"type":"structure","required":["InstanceId","Storage"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{},"Storage":{"shape":"S1b"}}},"output":{"type":"structure","members":{"BundleTask":{"shape":"S1f","locationName":"bundleInstanceTask"}}},"http":{}},"CancelBundleTask":{"input":{"type":"structure","required":["BundleId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"BundleId":{}}},"output":{"type":"structure","members":{"BundleTask":{"shape":"S1f","locationName":"bundleInstanceTask"}}},"http":{}},"CancelConversionTask":{"input":{"type":"structure","required":["ConversionTaskId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ConversionTaskId":{"locationName":"conversionTaskId"},"ReasonMessage":{"locationName":"reasonMessage"}}},"http":{}},"CancelExportTask":{"input":{"type":"structure","required":["ExportTaskId"],"members":{"ExportTaskId":{"locationName":"exportTaskId"}}},"http":{}},"CancelImportTask":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"ImportTaskId":{},"CancelReason":{}}},"output":{"type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"State":{"locationName":"state"},"PreviousState":{"locationName":"previousState"}}},"http":{}},"CancelReservedInstancesListing":{"input":{"type":"structure","required":["ReservedInstancesListingId"],"members":{"ReservedInstancesListingId":{"locationName":"reservedInstancesListingId"}}},"output":{"type":"structure","members":{"ReservedInstancesListings":{"shape":"S1q","locationName":"reservedInstancesListingsSet"}}},"http":{}},"CancelSpotFleetRequests":{"input":{"type":"structure","required":["SpotFleetRequestIds","TerminateInstances"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestIds":{"shape":"S22","locationName":"spotFleetRequestId"},"TerminateInstances":{"locationName":"terminateInstances","type":"boolean"}}},"output":{"type":"structure","members":{"UnsuccessfulFleetRequests":{"locationName":"unsuccessfulFleetRequestSet","type":"list","member":{"locationName":"item","type":"structure","required":["SpotFleetRequestId","Error"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"Error":{"locationName":"error","type":"structure","required":["Code","Message"],"members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}}}}},"SuccessfulFleetRequests":{"locationName":"successfulFleetRequestSet","type":"list","member":{"locationName":"item","type":"structure","required":["SpotFleetRequestId","CurrentSpotFleetRequestState","PreviousSpotFleetRequestState"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"CurrentSpotFleetRequestState":{"locationName":"currentSpotFleetRequestState"},"PreviousSpotFleetRequestState":{"locationName":"previousSpotFleetRequestState"}}}}}},"http":{}},"CancelSpotInstanceRequests":{"input":{"type":"structure","required":["SpotInstanceRequestIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotInstanceRequestIds":{"shape":"S2c","locationName":"SpotInstanceRequestId"}}},"output":{"type":"structure","members":{"CancelledSpotInstanceRequests":{"locationName":"spotInstanceRequestSet","type":"list","member":{"locationName":"item","type":"structure","members":{"SpotInstanceRequestId":{"locationName":"spotInstanceRequestId"},"State":{"locationName":"state"}}}}}},"http":{}},"ConfirmProductInstance":{"input":{"type":"structure","required":["ProductCode","InstanceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ProductCode":{},"InstanceId":{}}},"output":{"type":"structure","members":{"OwnerId":{"locationName":"ownerId"},"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"CopyImage":{"input":{"type":"structure","required":["SourceRegion","SourceImageId","Name"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SourceRegion":{},"SourceImageId":{},"Name":{},"Description":{},"ClientToken":{}}},"output":{"type":"structure","members":{"ImageId":{"locationName":"imageId"}}},"http":{}},"CopySnapshot":{"input":{"type":"structure","required":["SourceRegion","SourceSnapshotId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SourceRegion":{},"SourceSnapshotId":{},"Description":{},"DestinationRegion":{"locationName":"destinationRegion"},"PresignedUrl":{"locationName":"presignedUrl"},"Encrypted":{"locationName":"encrypted","type":"boolean"},"KmsKeyId":{"locationName":"kmsKeyId"}}},"output":{"type":"structure","members":{"SnapshotId":{"locationName":"snapshotId"}}},"http":{}},"CreateCustomerGateway":{"input":{"type":"structure","required":["Type","PublicIp","BgpAsn"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Type":{},"PublicIp":{"locationName":"IpAddress"},"BgpAsn":{"type":"integer"}}},"output":{"type":"structure","members":{"CustomerGateway":{"shape":"S2q","locationName":"customerGateway"}}},"http":{}},"CreateDhcpOptions":{"input":{"type":"structure","required":["DhcpConfigurations"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"DhcpConfigurations":{"locationName":"dhcpConfiguration","type":"list","member":{"locationName":"item","type":"structure","members":{"Key":{"locationName":"key"},"Values":{"shape":"S22","locationName":"Value"}}}}}},"output":{"type":"structure","members":{"DhcpOptions":{"shape":"S2v","locationName":"dhcpOptions"}}},"http":{}},"CreateFlowLogs":{"input":{"type":"structure","required":["ResourceIds","ResourceType","TrafficType","LogGroupName","DeliverLogsPermissionArn"],"members":{"ResourceIds":{"shape":"S22","locationName":"ResourceId"},"ResourceType":{},"TrafficType":{},"LogGroupName":{},"DeliverLogsPermissionArn":{},"ClientToken":{}}},"output":{"type":"structure","members":{"FlowLogIds":{"shape":"S22","locationName":"flowLogIdSet"},"ClientToken":{"locationName":"clientToken"},"Unsuccessful":{"shape":"S34","locationName":"unsuccessful"}}},"http":{}},"CreateImage":{"input":{"type":"structure","required":["InstanceId","Name"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"Name":{"locationName":"name"},"Description":{"locationName":"description"},"NoReboot":{"locationName":"noReboot","type":"boolean"},"BlockDeviceMappings":{"shape":"S38","locationName":"blockDeviceMapping"}}},"output":{"type":"structure","members":{"ImageId":{"locationName":"imageId"}}},"http":{}},"CreateInstanceExportTask":{"input":{"type":"structure","required":["InstanceId"],"members":{"Description":{"locationName":"description"},"InstanceId":{"locationName":"instanceId"},"TargetEnvironment":{"locationName":"targetEnvironment"},"ExportToS3Task":{"locationName":"exportToS3","type":"structure","members":{"DiskImageFormat":{"locationName":"diskImageFormat"},"ContainerFormat":{"locationName":"containerFormat"},"S3Bucket":{"locationName":"s3Bucket"},"S3Prefix":{"locationName":"s3Prefix"}}}}},"output":{"type":"structure","members":{"ExportTask":{"shape":"S3j","locationName":"exportTask"}}},"http":{}},"CreateInternetGateway":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"}}},"output":{"type":"structure","members":{"InternetGateway":{"shape":"S3p","locationName":"internetGateway"}}},"http":{}},"CreateKeyPair":{"input":{"type":"structure","required":["KeyName"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"KeyName":{}}},"output":{"locationName":"keyPair","type":"structure","members":{"KeyName":{"locationName":"keyName"},"KeyFingerprint":{"locationName":"keyFingerprint"},"KeyMaterial":{"locationName":"keyMaterial"}}},"http":{}},"CreateNetworkAcl":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"NetworkAcl":{"shape":"S3w","locationName":"networkAcl"}}},"http":{}},"CreateNetworkAclEntry":{"input":{"type":"structure","required":["NetworkAclId","RuleNumber","Protocol","RuleAction","Egress","CidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclId":{"locationName":"networkAclId"},"RuleNumber":{"locationName":"ruleNumber","type":"integer"},"Protocol":{"locationName":"protocol"},"RuleAction":{"locationName":"ruleAction"},"Egress":{"locationName":"egress","type":"boolean"},"CidrBlock":{"locationName":"cidrBlock"},"IcmpTypeCode":{"shape":"S40","locationName":"Icmp"},"PortRange":{"shape":"S41","locationName":"portRange"}}},"http":{}},"CreateNetworkInterface":{"input":{"type":"structure","required":["SubnetId"],"members":{"SubnetId":{"locationName":"subnetId"},"Description":{"locationName":"description"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"Groups":{"shape":"S46","locationName":"SecurityGroupId"},"PrivateIpAddresses":{"shape":"S47","locationName":"privateIpAddresses"},"SecondaryPrivateIpAddressCount":{"locationName":"secondaryPrivateIpAddressCount","type":"integer"},"DryRun":{"locationName":"dryRun","type":"boolean"}}},"output":{"type":"structure","members":{"NetworkInterface":{"shape":"S4a","locationName":"networkInterface"}}},"http":{}},"CreatePlacementGroup":{"input":{"type":"structure","required":["GroupName","Strategy"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{"locationName":"groupName"},"Strategy":{"locationName":"strategy"}}},"http":{}},"CreateReservedInstancesListing":{"input":{"type":"structure","required":["ReservedInstancesId","InstanceCount","PriceSchedules","ClientToken"],"members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"},"InstanceCount":{"locationName":"instanceCount","type":"integer"},"PriceSchedules":{"locationName":"priceSchedules","type":"list","member":{"locationName":"item","type":"structure","members":{"Term":{"locationName":"term","type":"long"},"Price":{"locationName":"price","type":"double"},"CurrencyCode":{"locationName":"currencyCode"}}}},"ClientToken":{"locationName":"clientToken"}}},"output":{"type":"structure","members":{"ReservedInstancesListings":{"shape":"S1q","locationName":"reservedInstancesListingsSet"}}},"http":{}},"CreateRoute":{"input":{"type":"structure","required":["RouteTableId","DestinationCidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableId":{"locationName":"routeTableId"},"DestinationCidrBlock":{"locationName":"destinationCidrBlock"},"GatewayId":{"locationName":"gatewayId"},"InstanceId":{"locationName":"instanceId"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"CreateRouteTable":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"RouteTable":{"shape":"S4s","locationName":"routeTable"}}},"http":{}},"CreateSecurityGroup":{"input":{"type":"structure","required":["GroupName","Description"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{},"Description":{"locationName":"GroupDescription"},"VpcId":{}}},"output":{"type":"structure","members":{"GroupId":{"locationName":"groupId"}}},"http":{}},"CreateSnapshot":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"Description":{}}},"output":{"shape":"S54","locationName":"snapshot"},"http":{}},"CreateSpotDatafeedSubscription":{"input":{"type":"structure","required":["Bucket"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Bucket":{"locationName":"bucket"},"Prefix":{"locationName":"prefix"}}},"output":{"type":"structure","members":{"SpotDatafeedSubscription":{"shape":"S58","locationName":"spotDatafeedSubscription"}}},"http":{}},"CreateSubnet":{"input":{"type":"structure","required":["VpcId","CidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{},"CidrBlock":{},"AvailabilityZone":{}}},"output":{"type":"structure","members":{"Subnet":{"shape":"S5d","locationName":"subnet"}}},"http":{}},"CreateTags":{"input":{"type":"structure","required":["Resources","Tags"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Resources":{"shape":"S5g","locationName":"ResourceId"},"Tags":{"shape":"Sa","locationName":"Tag"}}},"http":{}},"CreateVolume":{"input":{"type":"structure","required":["AvailabilityZone"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Size":{"type":"integer"},"SnapshotId":{},"AvailabilityZone":{},"VolumeType":{},"Iops":{"type":"integer"},"Encrypted":{"locationName":"encrypted","type":"boolean"},"KmsKeyId":{}}},"output":{"shape":"S5i","locationName":"volume"},"http":{}},"CreateVpc":{"input":{"type":"structure","required":["CidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"CidrBlock":{},"InstanceTenancy":{"locationName":"instanceTenancy"}}},"output":{"type":"structure","members":{"Vpc":{"shape":"S5o","locationName":"vpc"}}},"http":{}},"CreateVpcEndpoint":{"input":{"type":"structure","required":["VpcId","ServiceName"],"members":{"DryRun":{"type":"boolean"},"VpcId":{},"ServiceName":{},"PolicyDocument":{},"RouteTableIds":{"shape":"S22","locationName":"RouteTableId"},"ClientToken":{}}},"output":{"type":"structure","members":{"VpcEndpoint":{"shape":"S5s","locationName":"vpcEndpoint"},"ClientToken":{"locationName":"clientToken"}}},"http":{}},"CreateVpcPeeringConnection":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"},"PeerVpcId":{"locationName":"peerVpcId"},"PeerOwnerId":{"locationName":"peerOwnerId"}}},"output":{"type":"structure","members":{"VpcPeeringConnection":{"shape":"S5","locationName":"vpcPeeringConnection"}}},"http":{}},"CreateVpnConnection":{"input":{"type":"structure","required":["Type","CustomerGatewayId","VpnGatewayId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Type":{},"CustomerGatewayId":{},"VpnGatewayId":{},"Options":{"locationName":"options","type":"structure","members":{"StaticRoutesOnly":{"locationName":"staticRoutesOnly","type":"boolean"}}}}},"output":{"type":"structure","members":{"VpnConnection":{"shape":"S5z","locationName":"vpnConnection"}}},"http":{}},"CreateVpnConnectionRoute":{"input":{"type":"structure","required":["VpnConnectionId","DestinationCidrBlock"],"members":{"VpnConnectionId":{},"DestinationCidrBlock":{}}},"http":{}},"CreateVpnGateway":{"input":{"type":"structure","required":["Type"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Type":{},"AvailabilityZone":{}}},"output":{"type":"structure","members":{"VpnGateway":{"shape":"S6b","locationName":"vpnGateway"}}},"http":{}},"DeleteCustomerGateway":{"input":{"type":"structure","required":["CustomerGatewayId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"CustomerGatewayId":{}}},"http":{}},"DeleteDhcpOptions":{"input":{"type":"structure","required":["DhcpOptionsId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"DhcpOptionsId":{}}},"http":{}},"DeleteFlowLogs":{"input":{"type":"structure","required":["FlowLogIds"],"members":{"FlowLogIds":{"shape":"S22","locationName":"FlowLogId"}}},"output":{"type":"structure","members":{"Unsuccessful":{"shape":"S34","locationName":"unsuccessful"}}},"http":{}},"DeleteInternetGateway":{"input":{"type":"structure","required":["InternetGatewayId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InternetGatewayId":{"locationName":"internetGatewayId"}}},"http":{}},"DeleteKeyPair":{"input":{"type":"structure","required":["KeyName"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"KeyName":{}}},"http":{}},"DeleteNetworkAcl":{"input":{"type":"structure","required":["NetworkAclId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclId":{"locationName":"networkAclId"}}},"http":{}},"DeleteNetworkAclEntry":{"input":{"type":"structure","required":["NetworkAclId","RuleNumber","Egress"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclId":{"locationName":"networkAclId"},"RuleNumber":{"locationName":"ruleNumber","type":"integer"},"Egress":{"locationName":"egress","type":"boolean"}}},"http":{}},"DeleteNetworkInterface":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"}}},"http":{}},"DeletePlacementGroup":{"input":{"type":"structure","required":["GroupName"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{"locationName":"groupName"}}},"http":{}},"DeleteRoute":{"input":{"type":"structure","required":["RouteTableId","DestinationCidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableId":{"locationName":"routeTableId"},"DestinationCidrBlock":{"locationName":"destinationCidrBlock"}}},"http":{}},"DeleteRouteTable":{"input":{"type":"structure","required":["RouteTableId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableId":{"locationName":"routeTableId"}}},"http":{}},"DeleteSecurityGroup":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{},"GroupId":{}}},"http":{}},"DeleteSnapshot":{"input":{"type":"structure","required":["SnapshotId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotId":{}}},"http":{}},"DeleteSpotDatafeedSubscription":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"}}},"http":{}},"DeleteSubnet":{"input":{"type":"structure","required":["SubnetId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SubnetId":{}}},"http":{}},"DeleteTags":{"input":{"type":"structure","required":["Resources"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Resources":{"shape":"S5g","locationName":"resourceId"},"Tags":{"shape":"Sa","locationName":"tag"}}},"http":{}},"DeleteVolume":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{}}},"http":{}},"DeleteVpc":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{}}},"http":{}},"DeleteVpcEndpoints":{"input":{"type":"structure","required":["VpcEndpointIds"],"members":{"DryRun":{"type":"boolean"},"VpcEndpointIds":{"shape":"S22","locationName":"VpcEndpointId"}}},"output":{"type":"structure","members":{"Unsuccessful":{"shape":"S34","locationName":"unsuccessful"}}},"http":{}},"DeleteVpcPeeringConnection":{"input":{"type":"structure","required":["VpcPeeringConnectionId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"DeleteVpnConnection":{"input":{"type":"structure","required":["VpnConnectionId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnConnectionId":{}}},"http":{}},"DeleteVpnConnectionRoute":{"input":{"type":"structure","required":["VpnConnectionId","DestinationCidrBlock"],"members":{"VpnConnectionId":{},"DestinationCidrBlock":{}}},"http":{}},"DeleteVpnGateway":{"input":{"type":"structure","required":["VpnGatewayId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnGatewayId":{}}},"http":{}},"DeregisterImage":{"input":{"type":"structure","required":["ImageId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{}}},"http":{}},"DescribeAccountAttributes":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AttributeNames":{"locationName":"attributeName","type":"list","member":{"locationName":"attributeName"}}}},"output":{"type":"structure","members":{"AccountAttributes":{"locationName":"accountAttributeSet","type":"list","member":{"locationName":"item","type":"structure","members":{"AttributeName":{"locationName":"attributeName"},"AttributeValues":{"locationName":"attributeValueSet","type":"list","member":{"locationName":"item","type":"structure","members":{"AttributeValue":{"locationName":"attributeValue"}}}}}}}}},"http":{}},"DescribeAddresses":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIps":{"locationName":"PublicIp","type":"list","member":{"locationName":"PublicIp"}},"Filters":{"shape":"S7e","locationName":"Filter"},"AllocationIds":{"locationName":"AllocationId","type":"list","member":{"locationName":"AllocationId"}}}},"output":{"type":"structure","members":{"Addresses":{"locationName":"addressesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"PublicIp":{"locationName":"publicIp"},"AllocationId":{"locationName":"allocationId"},"AssociationId":{"locationName":"associationId"},"Domain":{"locationName":"domain"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"NetworkInterfaceOwnerId":{"locationName":"networkInterfaceOwnerId"},"PrivateIpAddress":{"locationName":"privateIpAddress"}}}}}},"http":{}},"DescribeAvailabilityZones":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ZoneNames":{"locationName":"ZoneName","type":"list","member":{"locationName":"ZoneName"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"AvailabilityZones":{"locationName":"availabilityZoneInfo","type":"list","member":{"locationName":"item","type":"structure","members":{"ZoneName":{"locationName":"zoneName"},"State":{"locationName":"zoneState"},"RegionName":{"locationName":"regionName"},"Messages":{"locationName":"messageSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Message":{"locationName":"message"}}}}}}}}},"http":{}},"DescribeBundleTasks":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"BundleIds":{"locationName":"BundleId","type":"list","member":{"locationName":"BundleId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"BundleTasks":{"locationName":"bundleInstanceTasksSet","type":"list","member":{"shape":"S1f","locationName":"item"}}}},"http":{}},"DescribeClassicLinkInstances":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","members":{"Instances":{"locationName":"instancesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"VpcId":{"locationName":"vpcId"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Tags":{"shape":"Sa","locationName":"tagSet"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeConversionTasks":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Filters":{"shape":"S7e","locationName":"filter"},"ConversionTaskIds":{"locationName":"conversionTaskId","type":"list","member":{"locationName":"item"}}}},"output":{"type":"structure","members":{"ConversionTasks":{"locationName":"conversionTasks","type":"list","member":{"shape":"S85","locationName":"item"}}}},"http":{}},"DescribeCustomerGateways":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"CustomerGatewayIds":{"locationName":"CustomerGatewayId","type":"list","member":{"locationName":"CustomerGatewayId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"CustomerGateways":{"locationName":"customerGatewaySet","type":"list","member":{"shape":"S2q","locationName":"item"}}}},"http":{}},"DescribeDhcpOptions":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"DhcpOptionsIds":{"locationName":"DhcpOptionsId","type":"list","member":{"locationName":"DhcpOptionsId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"DhcpOptions":{"locationName":"dhcpOptionsSet","type":"list","member":{"shape":"S2v","locationName":"item"}}}},"http":{}},"DescribeExportTasks":{"input":{"type":"structure","members":{"ExportTaskIds":{"locationName":"exportTaskId","type":"list","member":{"locationName":"ExportTaskId"}}}},"output":{"type":"structure","members":{"ExportTasks":{"locationName":"exportTaskSet","type":"list","member":{"shape":"S3j","locationName":"item"}}}},"http":{}},"DescribeFlowLogs":{"input":{"type":"structure","members":{"FlowLogIds":{"shape":"S22","locationName":"FlowLogId"},"Filter":{"shape":"S7e"},"NextToken":{},"MaxResults":{"type":"integer"}}},"output":{"type":"structure","members":{"FlowLogs":{"locationName":"flowLogSet","type":"list","member":{"locationName":"item","type":"structure","members":{"CreationTime":{"locationName":"creationTime","type":"timestamp"},"FlowLogId":{"locationName":"flowLogId"},"FlowLogStatus":{"locationName":"flowLogStatus"},"ResourceId":{"locationName":"resourceId"},"TrafficType":{"locationName":"trafficType"},"LogGroupName":{"locationName":"logGroupName"},"DeliverLogsStatus":{"locationName":"deliverLogsStatus"},"DeliverLogsErrorMessage":{"locationName":"deliverLogsErrorMessage"},"DeliverLogsPermissionArn":{"locationName":"deliverLogsPermissionArn"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeImageAttribute":{"input":{"type":"structure","required":["ImageId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{},"Attribute":{}}},"output":{"locationName":"imageAttribute","type":"structure","members":{"ImageId":{"locationName":"imageId"},"LaunchPermissions":{"shape":"S8x","locationName":"launchPermission"},"ProductCodes":{"shape":"S90","locationName":"productCodes"},"KernelId":{"shape":"S2z","locationName":"kernel"},"RamdiskId":{"shape":"S2z","locationName":"ramdisk"},"Description":{"shape":"S2z","locationName":"description"},"SriovNetSupport":{"shape":"S2z","locationName":"sriovNetSupport"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"}}},"http":{}},"DescribeImages":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageIds":{"locationName":"ImageId","type":"list","member":{"locationName":"ImageId"}},"Owners":{"shape":"S96","locationName":"Owner"},"ExecutableUsers":{"locationName":"ExecutableBy","type":"list","member":{"locationName":"ExecutableBy"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Images":{"locationName":"imagesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ImageId":{"locationName":"imageId"},"ImageLocation":{"locationName":"imageLocation"},"State":{"locationName":"imageState"},"OwnerId":{"locationName":"imageOwnerId"},"CreationDate":{"locationName":"creationDate"},"Public":{"locationName":"isPublic","type":"boolean"},"ProductCodes":{"shape":"S90","locationName":"productCodes"},"Architecture":{"locationName":"architecture"},"ImageType":{"locationName":"imageType"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"Platform":{"locationName":"platform"},"SriovNetSupport":{"locationName":"sriovNetSupport"},"StateReason":{"shape":"S9e","locationName":"stateReason"},"ImageOwnerAlias":{"locationName":"imageOwnerAlias"},"Name":{"locationName":"name"},"Description":{"locationName":"description"},"RootDeviceType":{"locationName":"rootDeviceType"},"RootDeviceName":{"locationName":"rootDeviceName"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"},"VirtualizationType":{"locationName":"virtualizationType"},"Tags":{"shape":"Sa","locationName":"tagSet"},"Hypervisor":{"locationName":"hypervisor"}}}}}},"http":{}},"DescribeImportImageTasks":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"ImportTaskIds":{"shape":"S9j","locationName":"ImportTaskId"},"NextToken":{},"MaxResults":{"type":"integer"},"Filters":{"shape":"S7e"}}},"output":{"type":"structure","members":{"ImportImageTasks":{"locationName":"importImageTaskSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"Architecture":{"locationName":"architecture"},"LicenseType":{"locationName":"licenseType"},"Platform":{"locationName":"platform"},"Hypervisor":{"locationName":"hypervisor"},"Description":{"locationName":"description"},"SnapshotDetails":{"shape":"S9n","locationName":"snapshotDetailSet"},"ImageId":{"locationName":"imageId"},"Progress":{"locationName":"progress"},"StatusMessage":{"locationName":"statusMessage"},"Status":{"locationName":"status"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeImportSnapshotTasks":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"ImportTaskIds":{"shape":"S9j","locationName":"ImportTaskId"},"NextToken":{},"MaxResults":{"type":"integer"},"Filters":{"shape":"S7e"}}},"output":{"type":"structure","members":{"ImportSnapshotTasks":{"locationName":"importSnapshotTaskSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"SnapshotTaskDetail":{"shape":"S9u","locationName":"snapshotTaskDetail"},"Description":{"locationName":"description"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeInstanceAttribute":{"input":{"type":"structure","required":["InstanceId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"Attribute":{"locationName":"attribute"}}},"output":{"type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"InstanceType":{"shape":"S2z","locationName":"instanceType"},"KernelId":{"shape":"S2z","locationName":"kernel"},"RamdiskId":{"shape":"S2z","locationName":"ramdisk"},"UserData":{"shape":"S2z","locationName":"userData"},"DisableApiTermination":{"shape":"S9y","locationName":"disableApiTermination"},"InstanceInitiatedShutdownBehavior":{"shape":"S2z","locationName":"instanceInitiatedShutdownBehavior"},"RootDeviceName":{"shape":"S2z","locationName":"rootDeviceName"},"BlockDeviceMappings":{"shape":"S9z","locationName":"blockDeviceMapping"},"ProductCodes":{"shape":"S90","locationName":"productCodes"},"EbsOptimized":{"shape":"S9y","locationName":"ebsOptimized"},"SriovNetSupport":{"shape":"S2z","locationName":"sriovNetSupport"},"SourceDestCheck":{"shape":"S9y","locationName":"sourceDestCheck"},"Groups":{"shape":"S4c","locationName":"groupSet"}}},"http":{}},"DescribeInstanceStatus":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{},"MaxResults":{"type":"integer"},"IncludeAllInstances":{"locationName":"includeAllInstances","type":"boolean"}}},"output":{"type":"structure","members":{"InstanceStatuses":{"locationName":"instanceStatusSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"AvailabilityZone":{"locationName":"availabilityZone"},"Events":{"locationName":"eventsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Code":{"locationName":"code"},"Description":{"locationName":"description"},"NotBefore":{"locationName":"notBefore","type":"timestamp"},"NotAfter":{"locationName":"notAfter","type":"timestamp"}}}},"InstanceState":{"shape":"Sa9","locationName":"instanceState"},"SystemStatus":{"shape":"Sab","locationName":"systemStatus"},"InstanceStatus":{"shape":"Sab","locationName":"instanceStatus"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeInstances":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","members":{"Reservations":{"locationName":"reservationSet","type":"list","member":{"shape":"Sak","locationName":"item"}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeInternetGateways":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InternetGatewayIds":{"shape":"S22","locationName":"internetGatewayId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"InternetGateways":{"locationName":"internetGatewaySet","type":"list","member":{"shape":"S3p","locationName":"item"}}}},"http":{}},"DescribeKeyPairs":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"KeyNames":{"locationName":"KeyName","type":"list","member":{"locationName":"KeyName"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"KeyPairs":{"locationName":"keySet","type":"list","member":{"locationName":"item","type":"structure","members":{"KeyName":{"locationName":"keyName"},"KeyFingerprint":{"locationName":"keyFingerprint"}}}}}},"http":{}},"DescribeMovingAddresses":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIps":{"shape":"S22","locationName":"publicIp"},"NextToken":{"locationName":"nextToken"},"Filters":{"shape":"S7e","locationName":"filter"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","members":{"MovingAddressStatuses":{"locationName":"movingAddressStatusSet","type":"list","member":{"locationName":"item","type":"structure","members":{"PublicIp":{"locationName":"publicIp"},"MoveStatus":{"locationName":"moveStatus"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeNetworkAcls":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclIds":{"shape":"S22","locationName":"NetworkAclId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"NetworkAcls":{"locationName":"networkAclSet","type":"list","member":{"shape":"S3w","locationName":"item"}}}},"http":{}},"DescribeNetworkInterfaceAttribute":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"Attribute":{"locationName":"attribute"}}},"output":{"type":"structure","members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"Description":{"shape":"S2z","locationName":"description"},"SourceDestCheck":{"shape":"S9y","locationName":"sourceDestCheck"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Attachment":{"shape":"S4e","locationName":"attachment"}}},"http":{}},"DescribeNetworkInterfaces":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceIds":{"locationName":"NetworkInterfaceId","type":"list","member":{"locationName":"item"}},"Filters":{"shape":"S7e","locationName":"filter"}}},"output":{"type":"structure","members":{"NetworkInterfaces":{"locationName":"networkInterfaceSet","type":"list","member":{"shape":"S4a","locationName":"item"}}}},"http":{}},"DescribePlacementGroups":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupNames":{"locationName":"groupName","type":"list","member":{}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"PlacementGroups":{"locationName":"placementGroupSet","type":"list","member":{"locationName":"item","type":"structure","members":{"GroupName":{"locationName":"groupName"},"Strategy":{"locationName":"strategy"},"State":{"locationName":"state"}}}}}},"http":{}},"DescribePrefixLists":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"PrefixListIds":{"shape":"S22","locationName":"PrefixListId"},"Filters":{"shape":"S7e","locationName":"Filter"},"MaxResults":{"type":"integer"},"NextToken":{}}},"output":{"type":"structure","members":{"PrefixLists":{"locationName":"prefixListSet","type":"list","member":{"locationName":"item","type":"structure","members":{"PrefixListId":{"locationName":"prefixListId"},"PrefixListName":{"locationName":"prefixListName"},"Cidrs":{"shape":"S22","locationName":"cidrSet"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeRegions":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RegionNames":{"locationName":"RegionName","type":"list","member":{"locationName":"RegionName"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Regions":{"locationName":"regionInfo","type":"list","member":{"locationName":"item","type":"structure","members":{"RegionName":{"locationName":"regionName"},"Endpoint":{"locationName":"regionEndpoint"}}}}}},"http":{}},"DescribeReservedInstances":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ReservedInstancesIds":{"shape":"Sc2","locationName":"ReservedInstancesId"},"Filters":{"shape":"S7e","locationName":"Filter"},"OfferingType":{"locationName":"offeringType"}}},"output":{"type":"structure","members":{"ReservedInstances":{"locationName":"reservedInstancesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"},"InstanceType":{"locationName":"instanceType"},"AvailabilityZone":{"locationName":"availabilityZone"},"Start":{"locationName":"start","type":"timestamp"},"End":{"locationName":"end","type":"timestamp"},"Duration":{"locationName":"duration","type":"long"},"UsagePrice":{"locationName":"usagePrice","type":"float"},"FixedPrice":{"locationName":"fixedPrice","type":"float"},"InstanceCount":{"locationName":"instanceCount","type":"integer"},"ProductDescription":{"locationName":"productDescription"},"State":{"locationName":"state"},"Tags":{"shape":"Sa","locationName":"tagSet"},"InstanceTenancy":{"locationName":"instanceTenancy"},"CurrencyCode":{"locationName":"currencyCode"},"OfferingType":{"locationName":"offeringType"},"RecurringCharges":{"shape":"Sca","locationName":"recurringCharges"}}}}}},"http":{}},"DescribeReservedInstancesListings":{"input":{"type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"},"ReservedInstancesListingId":{"locationName":"reservedInstancesListingId"},"Filters":{"shape":"S7e","locationName":"filters"}}},"output":{"type":"structure","members":{"ReservedInstancesListings":{"shape":"S1q","locationName":"reservedInstancesListingsSet"}}},"http":{}},"DescribeReservedInstancesModifications":{"input":{"type":"structure","members":{"ReservedInstancesModificationIds":{"locationName":"ReservedInstancesModificationId","type":"list","member":{"locationName":"ReservedInstancesModificationId"}},"NextToken":{"locationName":"nextToken"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"ReservedInstancesModifications":{"locationName":"reservedInstancesModificationsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesModificationId":{"locationName":"reservedInstancesModificationId"},"ReservedInstancesIds":{"locationName":"reservedInstancesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"}}}},"ModificationResults":{"locationName":"modificationResultSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"},"TargetConfiguration":{"shape":"Sco","locationName":"targetConfiguration"}}}},"CreateDate":{"locationName":"createDate","type":"timestamp"},"UpdateDate":{"locationName":"updateDate","type":"timestamp"},"EffectiveDate":{"locationName":"effectiveDate","type":"timestamp"},"Status":{"locationName":"status"},"StatusMessage":{"locationName":"statusMessage"},"ClientToken":{"locationName":"clientToken"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeReservedInstancesOfferings":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ReservedInstancesOfferingIds":{"locationName":"ReservedInstancesOfferingId","type":"list","member":{}},"InstanceType":{},"AvailabilityZone":{},"ProductDescription":{},"Filters":{"shape":"S7e","locationName":"Filter"},"InstanceTenancy":{"locationName":"instanceTenancy"},"OfferingType":{"locationName":"offeringType"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"},"IncludeMarketplace":{"type":"boolean"},"MinDuration":{"type":"long"},"MaxDuration":{"type":"long"},"MaxInstanceCount":{"type":"integer"}}},"output":{"type":"structure","members":{"ReservedInstancesOfferings":{"locationName":"reservedInstancesOfferingsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesOfferingId":{"locationName":"reservedInstancesOfferingId"},"InstanceType":{"locationName":"instanceType"},"AvailabilityZone":{"locationName":"availabilityZone"},"Duration":{"locationName":"duration","type":"long"},"UsagePrice":{"locationName":"usagePrice","type":"float"},"FixedPrice":{"locationName":"fixedPrice","type":"float"},"ProductDescription":{"locationName":"productDescription"},"InstanceTenancy":{"locationName":"instanceTenancy"},"CurrencyCode":{"locationName":"currencyCode"},"OfferingType":{"locationName":"offeringType"},"RecurringCharges":{"shape":"Sca","locationName":"recurringCharges"},"Marketplace":{"locationName":"marketplace","type":"boolean"},"PricingDetails":{"locationName":"pricingDetailsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Price":{"locationName":"price","type":"double"},"Count":{"locationName":"count","type":"integer"}}}}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeRouteTables":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableIds":{"shape":"S22","locationName":"RouteTableId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"RouteTables":{"locationName":"routeTableSet","type":"list","member":{"shape":"S4s","locationName":"item"}}}},"http":{}},"DescribeSecurityGroups":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupNames":{"shape":"Sd0","locationName":"GroupName"},"GroupIds":{"shape":"So","locationName":"GroupId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"SecurityGroups":{"locationName":"securityGroupInfo","type":"list","member":{"locationName":"item","type":"structure","members":{"OwnerId":{"locationName":"ownerId"},"GroupName":{"locationName":"groupName"},"GroupId":{"locationName":"groupId"},"Description":{"locationName":"groupDescription"},"IpPermissions":{"shape":"S11","locationName":"ipPermissions"},"IpPermissionsEgress":{"shape":"S11","locationName":"ipPermissionsEgress"},"VpcId":{"locationName":"vpcId"},"Tags":{"shape":"Sa","locationName":"tagSet"}}}}}},"http":{}},"DescribeSnapshotAttribute":{"input":{"type":"structure","required":["SnapshotId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotId":{},"Attribute":{}}},"output":{"type":"structure","members":{"SnapshotId":{"locationName":"snapshotId"},"CreateVolumePermissions":{"shape":"Sd7","locationName":"createVolumePermission"},"ProductCodes":{"shape":"S90","locationName":"productCodes"}}},"http":{}},"DescribeSnapshots":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotIds":{"locationName":"SnapshotId","type":"list","member":{"locationName":"SnapshotId"}},"OwnerIds":{"shape":"S96","locationName":"Owner"},"RestorableByUserIds":{"locationName":"RestorableBy","type":"list","member":{}},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{},"MaxResults":{"type":"integer"}}},"output":{"type":"structure","members":{"Snapshots":{"locationName":"snapshotSet","type":"list","member":{"shape":"S54","locationName":"item"}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSpotDatafeedSubscription":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"}}},"output":{"type":"structure","members":{"SpotDatafeedSubscription":{"shape":"S58","locationName":"spotDatafeedSubscription"}}},"http":{}},"DescribeSpotFleetInstances":{"input":{"type":"structure","required":["SpotFleetRequestId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","required":["SpotFleetRequestId","ActiveInstances"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"ActiveInstances":{"locationName":"activeInstanceSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceType":{"locationName":"instanceType"},"InstanceId":{"locationName":"instanceId"},"SpotInstanceRequestId":{"locationName":"spotInstanceRequestId"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSpotFleetRequestHistory":{"input":{"type":"structure","required":["SpotFleetRequestId","StartTime"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"EventType":{"locationName":"eventType"},"StartTime":{"locationName":"startTime","type":"timestamp"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","required":["SpotFleetRequestId","StartTime","LastEvaluatedTime","HistoryRecords"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"StartTime":{"locationName":"startTime","type":"timestamp"},"LastEvaluatedTime":{"locationName":"lastEvaluatedTime","type":"timestamp"},"HistoryRecords":{"locationName":"historyRecordSet","type":"list","member":{"locationName":"item","type":"structure","required":["Timestamp","EventType","EventInformation"],"members":{"Timestamp":{"locationName":"timestamp","type":"timestamp"},"EventType":{"locationName":"eventType"},"EventInformation":{"locationName":"eventInformation","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"EventSubType":{"locationName":"eventSubType"},"EventDescription":{"locationName":"eventDescription"}}}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSpotFleetRequests":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestIds":{"shape":"S22","locationName":"spotFleetRequestId"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","required":["SpotFleetRequestConfigs"],"members":{"SpotFleetRequestConfigs":{"locationName":"spotFleetRequestConfigSet","type":"list","member":{"locationName":"item","type":"structure","required":["SpotFleetRequestId","SpotFleetRequestState","SpotFleetRequestConfig"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"},"SpotFleetRequestState":{"locationName":"spotFleetRequestState"},"SpotFleetRequestConfig":{"shape":"Sdu","locationName":"spotFleetRequestConfig"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSpotInstanceRequests":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotInstanceRequestIds":{"shape":"S2c","locationName":"SpotInstanceRequestId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"SpotInstanceRequests":{"shape":"Se5","locationName":"spotInstanceRequestSet"}}},"http":{}},"DescribeSpotPriceHistory":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"StartTime":{"locationName":"startTime","type":"timestamp"},"EndTime":{"locationName":"endTime","type":"timestamp"},"InstanceTypes":{"locationName":"InstanceType","type":"list","member":{}},"ProductDescriptions":{"locationName":"ProductDescription","type":"list","member":{}},"Filters":{"shape":"S7e","locationName":"Filter"},"AvailabilityZone":{"locationName":"availabilityZone"},"MaxResults":{"locationName":"maxResults","type":"integer"},"NextToken":{"locationName":"nextToken"}}},"output":{"type":"structure","members":{"SpotPriceHistory":{"locationName":"spotPriceHistorySet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceType":{"locationName":"instanceType"},"ProductDescription":{"locationName":"productDescription"},"SpotPrice":{"locationName":"spotPrice"},"Timestamp":{"locationName":"timestamp","type":"timestamp"},"AvailabilityZone":{"locationName":"availabilityZone"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeSubnets":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SubnetIds":{"locationName":"SubnetId","type":"list","member":{"locationName":"SubnetId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Subnets":{"locationName":"subnetSet","type":"list","member":{"shape":"S5d","locationName":"item"}}}},"http":{}},"DescribeTags":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Filters":{"shape":"S7e","locationName":"Filter"},"MaxResults":{"locationName":"maxResults","type":"integer"},"NextToken":{"locationName":"nextToken"}}},"output":{"type":"structure","members":{"Tags":{"locationName":"tagSet","type":"list","member":{"locationName":"item","type":"structure","members":{"ResourceId":{"locationName":"resourceId"},"ResourceType":{"locationName":"resourceType"},"Key":{"locationName":"key"},"Value":{"locationName":"value"}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVolumeAttribute":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"Attribute":{}}},"output":{"type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"AutoEnableIO":{"shape":"S9y","locationName":"autoEnableIO"},"ProductCodes":{"shape":"S90","locationName":"productCodes"}}},"http":{}},"DescribeVolumeStatus":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeIds":{"shape":"Sev","locationName":"VolumeId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{},"MaxResults":{"type":"integer"}}},"output":{"type":"structure","members":{"VolumeStatuses":{"locationName":"volumeStatusSet","type":"list","member":{"locationName":"item","type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"AvailabilityZone":{"locationName":"availabilityZone"},"VolumeStatus":{"locationName":"volumeStatus","type":"structure","members":{"Status":{"locationName":"status"},"Details":{"locationName":"details","type":"list","member":{"locationName":"item","type":"structure","members":{"Name":{"locationName":"name"},"Status":{"locationName":"status"}}}}}},"Events":{"locationName":"eventsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"EventType":{"locationName":"eventType"},"Description":{"locationName":"description"},"NotBefore":{"locationName":"notBefore","type":"timestamp"},"NotAfter":{"locationName":"notAfter","type":"timestamp"},"EventId":{"locationName":"eventId"}}}},"Actions":{"locationName":"actionsSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Code":{"locationName":"code"},"Description":{"locationName":"description"},"EventType":{"locationName":"eventType"},"EventId":{"locationName":"eventId"}}}}}}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVolumes":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeIds":{"shape":"Sev","locationName":"VolumeId"},"Filters":{"shape":"S7e","locationName":"Filter"},"NextToken":{"locationName":"nextToken"},"MaxResults":{"locationName":"maxResults","type":"integer"}}},"output":{"type":"structure","members":{"Volumes":{"locationName":"volumeSet","type":"list","member":{"shape":"S5i","locationName":"item"}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVpcAttribute":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{},"Attribute":{}}},"output":{"type":"structure","members":{"VpcId":{"locationName":"vpcId"},"EnableDnsSupport":{"shape":"S9y","locationName":"enableDnsSupport"},"EnableDnsHostnames":{"shape":"S9y","locationName":"enableDnsHostnames"}}},"http":{}},"DescribeVpcClassicLink":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcIds":{"locationName":"VpcId","type":"list","member":{"locationName":"VpcId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Vpcs":{"locationName":"vpcSet","type":"list","member":{"locationName":"item","type":"structure","members":{"VpcId":{"locationName":"vpcId"},"ClassicLinkEnabled":{"locationName":"classicLinkEnabled","type":"boolean"},"Tags":{"shape":"Sa","locationName":"tagSet"}}}}}},"http":{}},"DescribeVpcEndpointServices":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"MaxResults":{"type":"integer"},"NextToken":{}}},"output":{"type":"structure","members":{"ServiceNames":{"shape":"S22","locationName":"serviceNameSet"},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVpcEndpoints":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"VpcEndpointIds":{"shape":"S22","locationName":"VpcEndpointId"},"Filters":{"shape":"S7e","locationName":"Filter"},"MaxResults":{"type":"integer"},"NextToken":{}}},"output":{"type":"structure","members":{"VpcEndpoints":{"locationName":"vpcEndpointSet","type":"list","member":{"shape":"S5s","locationName":"item"}},"NextToken":{"locationName":"nextToken"}}},"http":{}},"DescribeVpcPeeringConnections":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcPeeringConnectionIds":{"shape":"S22","locationName":"VpcPeeringConnectionId"},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"VpcPeeringConnections":{"locationName":"vpcPeeringConnectionSet","type":"list","member":{"shape":"S5","locationName":"item"}}}},"http":{}},"DescribeVpcs":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcIds":{"locationName":"VpcId","type":"list","member":{"locationName":"VpcId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"Vpcs":{"locationName":"vpcSet","type":"list","member":{"shape":"S5o","locationName":"item"}}}},"http":{}},"DescribeVpnConnections":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnConnectionIds":{"locationName":"VpnConnectionId","type":"list","member":{"locationName":"VpnConnectionId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"VpnConnections":{"locationName":"vpnConnectionSet","type":"list","member":{"shape":"S5z","locationName":"item"}}}},"http":{}},"DescribeVpnGateways":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnGatewayIds":{"locationName":"VpnGatewayId","type":"list","member":{"locationName":"VpnGatewayId"}},"Filters":{"shape":"S7e","locationName":"Filter"}}},"output":{"type":"structure","members":{"VpnGateways":{"locationName":"vpnGatewaySet","type":"list","member":{"shape":"S6b","locationName":"item"}}}},"http":{}},"DetachClassicLinkVpc":{"input":{"type":"structure","required":["InstanceId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"DetachInternetGateway":{"input":{"type":"structure","required":["InternetGatewayId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InternetGatewayId":{"locationName":"internetGatewayId"},"VpcId":{"locationName":"vpcId"}}},"http":{}},"DetachNetworkInterface":{"input":{"type":"structure","required":["AttachmentId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AttachmentId":{"locationName":"attachmentId"},"Force":{"locationName":"force","type":"boolean"}}},"http":{}},"DetachVolume":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"InstanceId":{},"Device":{},"Force":{"type":"boolean"}}},"output":{"shape":"Su","locationName":"attachment"},"http":{}},"DetachVpnGateway":{"input":{"type":"structure","required":["VpnGatewayId","VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpnGatewayId":{},"VpcId":{}}},"http":{}},"DisableVgwRoutePropagation":{"input":{"type":"structure","required":["RouteTableId","GatewayId"],"members":{"RouteTableId":{},"GatewayId":{}}},"http":{}},"DisableVpcClassicLink":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"DisassociateAddress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIp":{},"AssociationId":{}}},"http":{}},"DisassociateRouteTable":{"input":{"type":"structure","required":["AssociationId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AssociationId":{"locationName":"associationId"}}},"http":{}},"EnableVgwRoutePropagation":{"input":{"type":"structure","required":["RouteTableId","GatewayId"],"members":{"RouteTableId":{},"GatewayId":{}}},"http":{}},"EnableVolumeIO":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{"locationName":"volumeId"}}},"http":{}},"EnableVpcClassicLink":{"input":{"type":"structure","required":["VpcId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcId":{"locationName":"vpcId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"GetConsoleOutput":{"input":{"type":"structure","required":["InstanceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{}}},"output":{"type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"Timestamp":{"locationName":"timestamp","type":"timestamp"},"Output":{"locationName":"output"}}},"http":{}},"GetPasswordData":{"input":{"type":"structure","required":["InstanceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{}}},"output":{"type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"Timestamp":{"locationName":"timestamp","type":"timestamp"},"PasswordData":{"locationName":"passwordData"}}},"http":{}},"ImportImage":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"Description":{},"DiskContainers":{"locationName":"DiskContainer","type":"list","member":{"locationName":"item","type":"structure","members":{"Description":{},"Format":{},"Url":{},"UserBucket":{"shape":"Sgp"},"DeviceName":{},"SnapshotId":{}}}},"LicenseType":{},"Hypervisor":{},"Architecture":{},"Platform":{},"ClientData":{"shape":"Sgq"},"ClientToken":{},"RoleName":{}}},"output":{"type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"Architecture":{"locationName":"architecture"},"LicenseType":{"locationName":"licenseType"},"Platform":{"locationName":"platform"},"Hypervisor":{"locationName":"hypervisor"},"Description":{"locationName":"description"},"SnapshotDetails":{"shape":"S9n","locationName":"snapshotDetailSet"},"ImageId":{"locationName":"imageId"},"Progress":{"locationName":"progress"},"StatusMessage":{"locationName":"statusMessage"},"Status":{"locationName":"status"}}},"http":{}},"ImportInstance":{"input":{"type":"structure","required":["Platform"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Description":{"locationName":"description"},"LaunchSpecification":{"locationName":"launchSpecification","type":"structure","members":{"Architecture":{"locationName":"architecture"},"GroupNames":{"shape":"Sgu","locationName":"GroupName"},"GroupIds":{"shape":"S46","locationName":"GroupId"},"AdditionalInfo":{"locationName":"additionalInfo"},"UserData":{"locationName":"userData","type":"structure","members":{"Data":{"locationName":"data"}}},"InstanceType":{"locationName":"instanceType"},"Placement":{"shape":"Sao","locationName":"placement"},"Monitoring":{"locationName":"monitoring","type":"boolean"},"SubnetId":{"locationName":"subnetId"},"InstanceInitiatedShutdownBehavior":{"locationName":"instanceInitiatedShutdownBehavior"},"PrivateIpAddress":{"locationName":"privateIpAddress"}}},"DiskImages":{"locationName":"diskImage","type":"list","member":{"type":"structure","members":{"Image":{"shape":"Sgz"},"Description":{},"Volume":{"shape":"Sh0"}}}},"Platform":{"locationName":"platform"}}},"output":{"type":"structure","members":{"ConversionTask":{"shape":"S85","locationName":"conversionTask"}}},"http":{}},"ImportKeyPair":{"input":{"type":"structure","required":["KeyName","PublicKeyMaterial"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"KeyName":{"locationName":"keyName"},"PublicKeyMaterial":{"locationName":"publicKeyMaterial","type":"blob"}}},"output":{"type":"structure","members":{"KeyName":{"locationName":"keyName"},"KeyFingerprint":{"locationName":"keyFingerprint"}}},"http":{}},"ImportSnapshot":{"input":{"type":"structure","members":{"DryRun":{"type":"boolean"},"Description":{},"DiskContainer":{"type":"structure","members":{"Description":{},"Format":{},"Url":{},"UserBucket":{"shape":"Sgp"}}},"ClientData":{"shape":"Sgq"},"ClientToken":{},"RoleName":{}}},"output":{"type":"structure","members":{"ImportTaskId":{"locationName":"importTaskId"},"SnapshotTaskDetail":{"shape":"S9u","locationName":"snapshotTaskDetail"},"Description":{"locationName":"description"}}},"http":{}},"ImportVolume":{"input":{"type":"structure","required":["AvailabilityZone","Image","Volume"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AvailabilityZone":{"locationName":"availabilityZone"},"Image":{"shape":"Sgz","locationName":"image"},"Description":{"locationName":"description"},"Volume":{"shape":"Sh0","locationName":"volume"}}},"output":{"type":"structure","members":{"ConversionTask":{"shape":"S85","locationName":"conversionTask"}}},"http":{}},"ModifyImageAttribute":{"input":{"type":"structure","required":["ImageId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{},"Attribute":{},"OperationType":{},"UserIds":{"shape":"Shb","locationName":"UserId"},"UserGroups":{"locationName":"UserGroup","type":"list","member":{"locationName":"UserGroup"}},"ProductCodes":{"locationName":"ProductCode","type":"list","member":{"locationName":"ProductCode"}},"Value":{},"LaunchPermission":{"type":"structure","members":{"Add":{"shape":"S8x"},"Remove":{"shape":"S8x"}}},"Description":{"shape":"S2z"}}},"http":{}},"ModifyInstanceAttribute":{"input":{"type":"structure","required":["InstanceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"Attribute":{"locationName":"attribute"},"Value":{"locationName":"value"},"BlockDeviceMappings":{"locationName":"blockDeviceMapping","type":"list","member":{"locationName":"item","type":"structure","members":{"DeviceName":{"locationName":"deviceName"},"Ebs":{"locationName":"ebs","type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}},"VirtualName":{"locationName":"virtualName"},"NoDevice":{"locationName":"noDevice"}}}},"SourceDestCheck":{"shape":"S9y"},"DisableApiTermination":{"shape":"S9y","locationName":"disableApiTermination"},"InstanceType":{"shape":"S2z","locationName":"instanceType"},"Kernel":{"shape":"S2z","locationName":"kernel"},"Ramdisk":{"shape":"S2z","locationName":"ramdisk"},"UserData":{"locationName":"userData","type":"structure","members":{"Value":{"locationName":"value","type":"blob"}}},"InstanceInitiatedShutdownBehavior":{"shape":"S2z","locationName":"instanceInitiatedShutdownBehavior"},"Groups":{"shape":"So","locationName":"GroupId"},"EbsOptimized":{"shape":"S9y","locationName":"ebsOptimized"},"SriovNetSupport":{"shape":"S2z","locationName":"sriovNetSupport"}}},"http":{}},"ModifyNetworkInterfaceAttribute":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"Description":{"shape":"S2z","locationName":"description"},"SourceDestCheck":{"shape":"S9y","locationName":"sourceDestCheck"},"Groups":{"shape":"S46","locationName":"SecurityGroupId"},"Attachment":{"locationName":"attachment","type":"structure","members":{"AttachmentId":{"locationName":"attachmentId"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}}}},"http":{}},"ModifyReservedInstances":{"input":{"type":"structure","required":["ReservedInstancesIds","TargetConfigurations"],"members":{"ClientToken":{"locationName":"clientToken"},"ReservedInstancesIds":{"shape":"Sc2","locationName":"ReservedInstancesId"},"TargetConfigurations":{"locationName":"ReservedInstancesConfigurationSetItemType","type":"list","member":{"shape":"Sco","locationName":"item"}}}},"output":{"type":"structure","members":{"ReservedInstancesModificationId":{"locationName":"reservedInstancesModificationId"}}},"http":{}},"ModifySnapshotAttribute":{"input":{"type":"structure","required":["SnapshotId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotId":{},"Attribute":{},"OperationType":{},"UserIds":{"shape":"Shb","locationName":"UserId"},"GroupNames":{"shape":"Sd0","locationName":"UserGroup"},"CreateVolumePermission":{"type":"structure","members":{"Add":{"shape":"Sd7"},"Remove":{"shape":"Sd7"}}}}},"http":{}},"ModifySubnetAttribute":{"input":{"type":"structure","required":["SubnetId"],"members":{"SubnetId":{"locationName":"subnetId"},"MapPublicIpOnLaunch":{"shape":"S9y"}}},"http":{}},"ModifyVolumeAttribute":{"input":{"type":"structure","required":["VolumeId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VolumeId":{},"AutoEnableIO":{"shape":"S9y"}}},"http":{}},"ModifyVpcAttribute":{"input":{"type":"structure","required":["VpcId"],"members":{"VpcId":{"locationName":"vpcId"},"EnableDnsSupport":{"shape":"S9y"},"EnableDnsHostnames":{"shape":"S9y"}}},"http":{}},"ModifyVpcEndpoint":{"input":{"type":"structure","required":["VpcEndpointId"],"members":{"DryRun":{"type":"boolean"},"VpcEndpointId":{},"ResetPolicy":{"type":"boolean"},"PolicyDocument":{},"AddRouteTableIds":{"shape":"S22","locationName":"AddRouteTableId"},"RemoveRouteTableIds":{"shape":"S22","locationName":"RemoveRouteTableId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"MonitorInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"}}},"output":{"type":"structure","members":{"InstanceMonitorings":{"shape":"Shy","locationName":"instancesSet"}}},"http":{}},"MoveAddressToVpc":{"input":{"type":"structure","required":["PublicIp"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIp":{"locationName":"publicIp"}}},"output":{"type":"structure","members":{"AllocationId":{"locationName":"allocationId"},"Status":{"locationName":"status"}}},"http":{}},"PurchaseReservedInstancesOffering":{"input":{"type":"structure","required":["ReservedInstancesOfferingId","InstanceCount"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ReservedInstancesOfferingId":{},"InstanceCount":{"type":"integer"},"LimitPrice":{"locationName":"limitPrice","type":"structure","members":{"Amount":{"locationName":"amount","type":"double"},"CurrencyCode":{"locationName":"currencyCode"}}}}},"output":{"type":"structure","members":{"ReservedInstancesId":{"locationName":"reservedInstancesId"}}},"http":{}},"RebootInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"}}},"http":{}},"RegisterImage":{"input":{"type":"structure","required":["Name"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageLocation":{},"Name":{"locationName":"name"},"Description":{"locationName":"description"},"Architecture":{"locationName":"architecture"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"RootDeviceName":{"locationName":"rootDeviceName"},"BlockDeviceMappings":{"shape":"S38","locationName":"BlockDeviceMapping"},"VirtualizationType":{"locationName":"virtualizationType"},"SriovNetSupport":{"locationName":"sriovNetSupport"}}},"output":{"type":"structure","members":{"ImageId":{"locationName":"imageId"}}},"http":{}},"RejectVpcPeeringConnection":{"input":{"type":"structure","required":["VpcPeeringConnectionId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"output":{"type":"structure","members":{"Return":{"locationName":"return","type":"boolean"}}},"http":{}},"ReleaseAddress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIp":{},"AllocationId":{}}},"http":{}},"ReplaceNetworkAclAssociation":{"input":{"type":"structure","required":["AssociationId","NetworkAclId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AssociationId":{"locationName":"associationId"},"NetworkAclId":{"locationName":"networkAclId"}}},"output":{"type":"structure","members":{"NewAssociationId":{"locationName":"newAssociationId"}}},"http":{}},"ReplaceNetworkAclEntry":{"input":{"type":"structure","required":["NetworkAclId","RuleNumber","Protocol","RuleAction","Egress","CidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkAclId":{"locationName":"networkAclId"},"RuleNumber":{"locationName":"ruleNumber","type":"integer"},"Protocol":{"locationName":"protocol"},"RuleAction":{"locationName":"ruleAction"},"Egress":{"locationName":"egress","type":"boolean"},"CidrBlock":{"locationName":"cidrBlock"},"IcmpTypeCode":{"shape":"S40","locationName":"Icmp"},"PortRange":{"shape":"S41","locationName":"portRange"}}},"http":{}},"ReplaceRoute":{"input":{"type":"structure","required":["RouteTableId","DestinationCidrBlock"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"RouteTableId":{"locationName":"routeTableId"},"DestinationCidrBlock":{"locationName":"destinationCidrBlock"},"GatewayId":{"locationName":"gatewayId"},"InstanceId":{"locationName":"instanceId"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"http":{}},"ReplaceRouteTableAssociation":{"input":{"type":"structure","required":["AssociationId","RouteTableId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"AssociationId":{"locationName":"associationId"},"RouteTableId":{"locationName":"routeTableId"}}},"output":{"type":"structure","members":{"NewAssociationId":{"locationName":"newAssociationId"}}},"http":{}},"ReportInstanceStatus":{"input":{"type":"structure","required":["Instances","Status","ReasonCodes"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"Instances":{"shape":"S7x","locationName":"instanceId"},"Status":{"locationName":"status"},"StartTime":{"locationName":"startTime","type":"timestamp"},"EndTime":{"locationName":"endTime","type":"timestamp"},"ReasonCodes":{"locationName":"reasonCode","type":"list","member":{"locationName":"item"}},"Description":{"locationName":"description"}}},"http":{}},"RequestSpotFleet":{"input":{"type":"structure","required":["SpotFleetRequestConfig"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotFleetRequestConfig":{"shape":"Sdu","locationName":"spotFleetRequestConfig"}}},"output":{"type":"structure","required":["SpotFleetRequestId"],"members":{"SpotFleetRequestId":{"locationName":"spotFleetRequestId"}}},"http":{}},"RequestSpotInstances":{"input":{"type":"structure","required":["SpotPrice"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SpotPrice":{"locationName":"spotPrice"},"ClientToken":{"locationName":"clientToken"},"InstanceCount":{"locationName":"instanceCount","type":"integer"},"Type":{"locationName":"type"},"ValidFrom":{"locationName":"validFrom","type":"timestamp"},"ValidUntil":{"locationName":"validUntil","type":"timestamp"},"LaunchGroup":{"locationName":"launchGroup"},"AvailabilityZoneGroup":{"locationName":"availabilityZoneGroup"},"LaunchSpecification":{"type":"structure","members":{"ImageId":{"locationName":"imageId"},"KeyName":{"locationName":"keyName"},"SecurityGroups":{"shape":"S22","locationName":"SecurityGroup"},"UserData":{"locationName":"userData"},"AddressingType":{"locationName":"addressingType"},"InstanceType":{"locationName":"instanceType"},"Placement":{"shape":"Sdx","locationName":"placement"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"},"SubnetId":{"locationName":"subnetId"},"NetworkInterfaces":{"shape":"Sdz","locationName":"NetworkInterface"},"IamInstanceProfile":{"shape":"Se1","locationName":"iamInstanceProfile"},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"},"Monitoring":{"shape":"Seb","locationName":"monitoring"},"SecurityGroupIds":{"shape":"S22","locationName":"SecurityGroupId"}}}}},"output":{"type":"structure","members":{"SpotInstanceRequests":{"shape":"Se5","locationName":"spotInstanceRequestSet"}}},"http":{}},"ResetImageAttribute":{"input":{"type":"structure","required":["ImageId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{},"Attribute":{}}},"http":{}},"ResetInstanceAttribute":{"input":{"type":"structure","required":["InstanceId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceId":{"locationName":"instanceId"},"Attribute":{"locationName":"attribute"}}},"http":{}},"ResetNetworkInterfaceAttribute":{"input":{"type":"structure","required":["NetworkInterfaceId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"SourceDestCheck":{"locationName":"sourceDestCheck"}}},"http":{}},"ResetSnapshotAttribute":{"input":{"type":"structure","required":["SnapshotId","Attribute"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"SnapshotId":{},"Attribute":{}}},"http":{}},"RestoreAddressToClassic":{"input":{"type":"structure","required":["PublicIp"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"PublicIp":{"locationName":"publicIp"}}},"output":{"type":"structure","members":{"Status":{"locationName":"status"},"PublicIp":{"locationName":"publicIp"}}},"http":{}},"RevokeSecurityGroupEgress":{"input":{"type":"structure","required":["GroupId"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupId":{"locationName":"groupId"},"SourceSecurityGroupName":{"locationName":"sourceSecurityGroupName"},"SourceSecurityGroupOwnerId":{"locationName":"sourceSecurityGroupOwnerId"},"IpProtocol":{"locationName":"ipProtocol"},"FromPort":{"locationName":"fromPort","type":"integer"},"ToPort":{"locationName":"toPort","type":"integer"},"CidrIp":{"locationName":"cidrIp"},"IpPermissions":{"shape":"S11","locationName":"ipPermissions"}}},"http":{}},"RevokeSecurityGroupIngress":{"input":{"type":"structure","members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"GroupName":{},"GroupId":{},"SourceSecurityGroupName":{},"SourceSecurityGroupOwnerId":{},"IpProtocol":{},"FromPort":{"type":"integer"},"ToPort":{"type":"integer"},"CidrIp":{},"IpPermissions":{"shape":"S11"}}},"http":{}},"RunInstances":{"input":{"type":"structure","required":["ImageId","MinCount","MaxCount"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"ImageId":{},"MinCount":{"type":"integer"},"MaxCount":{"type":"integer"},"KeyName":{},"SecurityGroups":{"shape":"Sgu","locationName":"SecurityGroup"},"SecurityGroupIds":{"shape":"S46","locationName":"SecurityGroupId"},"UserData":{},"InstanceType":{},"Placement":{"shape":"Sao"},"KernelId":{},"RamdiskId":{},"BlockDeviceMappings":{"shape":"S38","locationName":"BlockDeviceMapping"},"Monitoring":{"shape":"Seb"},"SubnetId":{},"DisableApiTermination":{"locationName":"disableApiTermination","type":"boolean"},"InstanceInitiatedShutdownBehavior":{"locationName":"instanceInitiatedShutdownBehavior"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"ClientToken":{"locationName":"clientToken"},"AdditionalInfo":{"locationName":"additionalInfo"},"NetworkInterfaces":{"shape":"Sdz","locationName":"networkInterface"},"IamInstanceProfile":{"shape":"Se1","locationName":"iamInstanceProfile"},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"}}},"output":{"shape":"Sak","locationName":"reservation"},"http":{}},"StartInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"AdditionalInfo":{"locationName":"additionalInfo"},"DryRun":{"locationName":"dryRun","type":"boolean"}}},"output":{"type":"structure","members":{"StartingInstances":{"shape":"Sj3","locationName":"instancesSet"}}},"http":{}},"StopInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"},"Force":{"locationName":"force","type":"boolean"}}},"output":{"type":"structure","members":{"StoppingInstances":{"shape":"Sj3","locationName":"instancesSet"}}},"http":{}},"TerminateInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"}}},"output":{"type":"structure","members":{"TerminatingInstances":{"shape":"Sj3","locationName":"instancesSet"}}},"http":{}},"UnassignPrivateIpAddresses":{"input":{"type":"structure","required":["NetworkInterfaceId","PrivateIpAddresses"],"members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"PrivateIpAddresses":{"shape":"Sg","locationName":"privateIpAddress"}}},"http":{}},"UnmonitorInstances":{"input":{"type":"structure","required":["InstanceIds"],"members":{"DryRun":{"locationName":"dryRun","type":"boolean"},"InstanceIds":{"shape":"S7x","locationName":"InstanceId"}}},"output":{"type":"structure","members":{"InstanceMonitorings":{"shape":"Shy","locationName":"instancesSet"}}},"http":{}}},"shapes":{"S5":{"type":"structure","members":{"AccepterVpcInfo":{"shape":"S6","locationName":"accepterVpcInfo"},"ExpirationTime":{"locationName":"expirationTime","type":"timestamp"},"RequesterVpcInfo":{"shape":"S6","locationName":"requesterVpcInfo"},"Status":{"locationName":"status","type":"structure","members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}},"Tags":{"shape":"Sa","locationName":"tagSet"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"}}},"S6":{"type":"structure","members":{"CidrBlock":{"locationName":"cidrBlock"},"OwnerId":{"locationName":"ownerId"},"VpcId":{"locationName":"vpcId"}}},"Sa":{"type":"list","member":{"locationName":"item","type":"structure","members":{"Key":{"locationName":"key"},"Value":{"locationName":"value"}}}},"Sg":{"type":"list","member":{"locationName":"PrivateIpAddress"}},"So":{"type":"list","member":{"locationName":"groupId"}},"Su":{"type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"InstanceId":{"locationName":"instanceId"},"Device":{"locationName":"device"},"State":{"locationName":"status"},"AttachTime":{"locationName":"attachTime","type":"timestamp"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}},"Sy":{"type":"structure","members":{"VpcId":{"locationName":"vpcId"},"State":{"locationName":"state"}}},"S11":{"type":"list","member":{"locationName":"item","type":"structure","members":{"IpProtocol":{"locationName":"ipProtocol"},"FromPort":{"locationName":"fromPort","type":"integer"},"ToPort":{"locationName":"toPort","type":"integer"},"UserIdGroupPairs":{"locationName":"groups","type":"list","member":{"locationName":"item","type":"structure","members":{"UserId":{"locationName":"userId"},"GroupName":{"locationName":"groupName"},"GroupId":{"locationName":"groupId"}}}},"IpRanges":{"locationName":"ipRanges","type":"list","member":{"locationName":"item","type":"structure","members":{"CidrIp":{"locationName":"cidrIp"}}}},"PrefixListIds":{"locationName":"prefixListIds","type":"list","member":{"locationName":"item","type":"structure","members":{"PrefixListId":{"locationName":"prefixListId"}}}}}}},"S1b":{"type":"structure","members":{"S3":{"type":"structure","members":{"Bucket":{"locationName":"bucket"},"Prefix":{"locationName":"prefix"},"AWSAccessKeyId":{},"UploadPolicy":{"locationName":"uploadPolicy","type":"blob"},"UploadPolicySignature":{"locationName":"uploadPolicySignature"}}}}},"S1f":{"type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"BundleId":{"locationName":"bundleId"},"State":{"locationName":"state"},"StartTime":{"locationName":"startTime","type":"timestamp"},"UpdateTime":{"locationName":"updateTime","type":"timestamp"},"Storage":{"shape":"S1b","locationName":"storage"},"Progress":{"locationName":"progress"},"BundleTaskError":{"locationName":"error","type":"structure","members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}}}},"S1q":{"type":"list","member":{"locationName":"item","type":"structure","members":{"ReservedInstancesListingId":{"locationName":"reservedInstancesListingId"},"ReservedInstancesId":{"locationName":"reservedInstancesId"},"CreateDate":{"locationName":"createDate","type":"timestamp"},"UpdateDate":{"locationName":"updateDate","type":"timestamp"},"Status":{"locationName":"status"},"StatusMessage":{"locationName":"statusMessage"},"InstanceCounts":{"locationName":"instanceCounts","type":"list","member":{"locationName":"item","type":"structure","members":{"State":{"locationName":"state"},"InstanceCount":{"locationName":"instanceCount","type":"integer"}}}},"PriceSchedules":{"locationName":"priceSchedules","type":"list","member":{"locationName":"item","type":"structure","members":{"Term":{"locationName":"term","type":"long"},"Price":{"locationName":"price","type":"double"},"CurrencyCode":{"locationName":"currencyCode"},"Active":{"locationName":"active","type":"boolean"}}}},"Tags":{"shape":"Sa","locationName":"tagSet"},"ClientToken":{"locationName":"clientToken"}}}},"S22":{"type":"list","member":{"locationName":"item"}},"S2c":{"type":"list","member":{"locationName":"SpotInstanceRequestId"}},"S2q":{"type":"structure","members":{"CustomerGatewayId":{"locationName":"customerGatewayId"},"State":{"locationName":"state"},"Type":{"locationName":"type"},"IpAddress":{"locationName":"ipAddress"},"BgpAsn":{"locationName":"bgpAsn"},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S2v":{"type":"structure","members":{"DhcpOptionsId":{"locationName":"dhcpOptionsId"},"DhcpConfigurations":{"locationName":"dhcpConfigurationSet","type":"list","member":{"locationName":"item","type":"structure","members":{"Key":{"locationName":"key"},"Values":{"locationName":"valueSet","type":"list","member":{"shape":"S2z","locationName":"item"}}}}},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S2z":{"type":"structure","members":{"Value":{"locationName":"value"}}},"S34":{"type":"list","member":{"locationName":"item","type":"structure","required":["Error"],"members":{"ResourceId":{"locationName":"resourceId"},"Error":{"locationName":"error","type":"structure","required":["Code","Message"],"members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}}}}},"S38":{"type":"list","member":{"shape":"S39","locationName":"BlockDeviceMapping"}},"S39":{"type":"structure","members":{"VirtualName":{"locationName":"virtualName"},"DeviceName":{"locationName":"deviceName"},"Ebs":{"locationName":"ebs","type":"structure","members":{"SnapshotId":{"locationName":"snapshotId"},"VolumeSize":{"locationName":"volumeSize","type":"integer"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"},"VolumeType":{"locationName":"volumeType"},"Iops":{"locationName":"iops","type":"integer"},"Encrypted":{"locationName":"encrypted","type":"boolean"}}},"NoDevice":{"locationName":"noDevice"}}},"S3j":{"type":"structure","members":{"ExportTaskId":{"locationName":"exportTaskId"},"Description":{"locationName":"description"},"State":{"locationName":"state"},"StatusMessage":{"locationName":"statusMessage"},"InstanceExportDetails":{"locationName":"instanceExport","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"TargetEnvironment":{"locationName":"targetEnvironment"}}},"ExportToS3Task":{"locationName":"exportToS3","type":"structure","members":{"DiskImageFormat":{"locationName":"diskImageFormat"},"ContainerFormat":{"locationName":"containerFormat"},"S3Bucket":{"locationName":"s3Bucket"},"S3Key":{"locationName":"s3Key"}}}}},"S3p":{"type":"structure","members":{"InternetGatewayId":{"locationName":"internetGatewayId"},"Attachments":{"locationName":"attachmentSet","type":"list","member":{"locationName":"item","type":"structure","members":{"VpcId":{"locationName":"vpcId"},"State":{"locationName":"state"}}}},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S3w":{"type":"structure","members":{"NetworkAclId":{"locationName":"networkAclId"},"VpcId":{"locationName":"vpcId"},"IsDefault":{"locationName":"default","type":"boolean"},"Entries":{"locationName":"entrySet","type":"list","member":{"locationName":"item","type":"structure","members":{"RuleNumber":{"locationName":"ruleNumber","type":"integer"},"Protocol":{"locationName":"protocol"},"RuleAction":{"locationName":"ruleAction"},"Egress":{"locationName":"egress","type":"boolean"},"CidrBlock":{"locationName":"cidrBlock"},"IcmpTypeCode":{"shape":"S40","locationName":"icmpTypeCode"},"PortRange":{"shape":"S41","locationName":"portRange"}}}},"Associations":{"locationName":"associationSet","type":"list","member":{"locationName":"item","type":"structure","members":{"NetworkAclAssociationId":{"locationName":"networkAclAssociationId"},"NetworkAclId":{"locationName":"networkAclId"},"SubnetId":{"locationName":"subnetId"}}}},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S40":{"type":"structure","members":{"Type":{"locationName":"type","type":"integer"},"Code":{"locationName":"code","type":"integer"}}},"S41":{"type":"structure","members":{"From":{"locationName":"from","type":"integer"},"To":{"locationName":"to","type":"integer"}}},"S46":{"type":"list","member":{"locationName":"SecurityGroupId"}},"S47":{"type":"list","member":{"locationName":"item","type":"structure","required":["PrivateIpAddress"],"members":{"PrivateIpAddress":{"locationName":"privateIpAddress"},"Primary":{"locationName":"primary","type":"boolean"}}}},"S4a":{"type":"structure","members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"SubnetId":{"locationName":"subnetId"},"VpcId":{"locationName":"vpcId"},"AvailabilityZone":{"locationName":"availabilityZone"},"Description":{"locationName":"description"},"OwnerId":{"locationName":"ownerId"},"RequesterId":{"locationName":"requesterId"},"RequesterManaged":{"locationName":"requesterManaged","type":"boolean"},"Status":{"locationName":"status"},"MacAddress":{"locationName":"macAddress"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"PrivateDnsName":{"locationName":"privateDnsName"},"SourceDestCheck":{"locationName":"sourceDestCheck","type":"boolean"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Attachment":{"shape":"S4e","locationName":"attachment"},"Association":{"shape":"S4f","locationName":"association"},"TagSet":{"shape":"Sa","locationName":"tagSet"},"PrivateIpAddresses":{"locationName":"privateIpAddressesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"PrivateIpAddress":{"locationName":"privateIpAddress"},"PrivateDnsName":{"locationName":"privateDnsName"},"Primary":{"locationName":"primary","type":"boolean"},"Association":{"shape":"S4f","locationName":"association"}}}}}},"S4c":{"type":"list","member":{"locationName":"item","type":"structure","members":{"GroupName":{"locationName":"groupName"},"GroupId":{"locationName":"groupId"}}}},"S4e":{"type":"structure","members":{"AttachmentId":{"locationName":"attachmentId"},"InstanceId":{"locationName":"instanceId"},"InstanceOwnerId":{"locationName":"instanceOwnerId"},"DeviceIndex":{"locationName":"deviceIndex","type":"integer"},"Status":{"locationName":"status"},"AttachTime":{"locationName":"attachTime","type":"timestamp"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}},"S4f":{"type":"structure","members":{"PublicIp":{"locationName":"publicIp"},"PublicDnsName":{"locationName":"publicDnsName"},"IpOwnerId":{"locationName":"ipOwnerId"},"AllocationId":{"locationName":"allocationId"},"AssociationId":{"locationName":"associationId"}}},"S4s":{"type":"structure","members":{"RouteTableId":{"locationName":"routeTableId"},"VpcId":{"locationName":"vpcId"},"Routes":{"locationName":"routeSet","type":"list","member":{"locationName":"item","type":"structure","members":{"DestinationCidrBlock":{"locationName":"destinationCidrBlock"},"DestinationPrefixListId":{"locationName":"destinationPrefixListId"},"GatewayId":{"locationName":"gatewayId"},"InstanceId":{"locationName":"instanceId"},"InstanceOwnerId":{"locationName":"instanceOwnerId"},"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"VpcPeeringConnectionId":{"locationName":"vpcPeeringConnectionId"},"State":{"locationName":"state"},"Origin":{"locationName":"origin"}}}},"Associations":{"locationName":"associationSet","type":"list","member":{"locationName":"item","type":"structure","members":{"RouteTableAssociationId":{"locationName":"routeTableAssociationId"},"RouteTableId":{"locationName":"routeTableId"},"SubnetId":{"locationName":"subnetId"},"Main":{"locationName":"main","type":"boolean"}}}},"Tags":{"shape":"Sa","locationName":"tagSet"},"PropagatingVgws":{"locationName":"propagatingVgwSet","type":"list","member":{"locationName":"item","type":"structure","members":{"GatewayId":{"locationName":"gatewayId"}}}}}},"S54":{"type":"structure","members":{"SnapshotId":{"locationName":"snapshotId"},"VolumeId":{"locationName":"volumeId"},"State":{"locationName":"status"},"StateMessage":{"locationName":"statusMessage"},"StartTime":{"locationName":"startTime","type":"timestamp"},"Progress":{"locationName":"progress"},"OwnerId":{"locationName":"ownerId"},"Description":{"locationName":"description"},"VolumeSize":{"locationName":"volumeSize","type":"integer"},"OwnerAlias":{"locationName":"ownerAlias"},"Tags":{"shape":"Sa","locationName":"tagSet"},"Encrypted":{"locationName":"encrypted","type":"boolean"},"KmsKeyId":{"locationName":"kmsKeyId"},"DataEncryptionKeyId":{"locationName":"dataEncryptionKeyId"}}},"S58":{"type":"structure","members":{"OwnerId":{"locationName":"ownerId"},"Bucket":{"locationName":"bucket"},"Prefix":{"locationName":"prefix"},"State":{"locationName":"state"},"Fault":{"shape":"S5a","locationName":"fault"}}},"S5a":{"type":"structure","members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}},"S5d":{"type":"structure","members":{"SubnetId":{"locationName":"subnetId"},"State":{"locationName":"state"},"VpcId":{"locationName":"vpcId"},"CidrBlock":{"locationName":"cidrBlock"},"AvailableIpAddressCount":{"locationName":"availableIpAddressCount","type":"integer"},"AvailabilityZone":{"locationName":"availabilityZone"},"DefaultForAz":{"locationName":"defaultForAz","type":"boolean"},"MapPublicIpOnLaunch":{"locationName":"mapPublicIpOnLaunch","type":"boolean"},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S5g":{"type":"list","member":{}},"S5i":{"type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"Size":{"locationName":"size","type":"integer"},"SnapshotId":{"locationName":"snapshotId"},"AvailabilityZone":{"locationName":"availabilityZone"},"State":{"locationName":"status"},"CreateTime":{"locationName":"createTime","type":"timestamp"},"Attachments":{"locationName":"attachmentSet","type":"list","member":{"shape":"Su","locationName":"item"}},"Tags":{"shape":"Sa","locationName":"tagSet"},"VolumeType":{"locationName":"volumeType"},"Iops":{"locationName":"iops","type":"integer"},"Encrypted":{"locationName":"encrypted","type":"boolean"},"KmsKeyId":{"locationName":"kmsKeyId"}}},"S5o":{"type":"structure","members":{"VpcId":{"locationName":"vpcId"},"State":{"locationName":"state"},"CidrBlock":{"locationName":"cidrBlock"},"DhcpOptionsId":{"locationName":"dhcpOptionsId"},"Tags":{"shape":"Sa","locationName":"tagSet"},"InstanceTenancy":{"locationName":"instanceTenancy"},"IsDefault":{"locationName":"isDefault","type":"boolean"}}},"S5s":{"type":"structure","members":{"VpcEndpointId":{"locationName":"vpcEndpointId"},"VpcId":{"locationName":"vpcId"},"ServiceName":{"locationName":"serviceName"},"State":{"locationName":"state"},"PolicyDocument":{"locationName":"policyDocument"},"RouteTableIds":{"shape":"S22","locationName":"routeTableIdSet"},"CreationTimestamp":{"locationName":"creationTimestamp","type":"timestamp"}}},"S5z":{"type":"structure","members":{"VpnConnectionId":{"locationName":"vpnConnectionId"},"State":{"locationName":"state"},"CustomerGatewayConfiguration":{"locationName":"customerGatewayConfiguration"},"Type":{"locationName":"type"},"CustomerGatewayId":{"locationName":"customerGatewayId"},"VpnGatewayId":{"locationName":"vpnGatewayId"},"Tags":{"shape":"Sa","locationName":"tagSet"},"VgwTelemetry":{"locationName":"vgwTelemetry","type":"list","member":{"locationName":"item","type":"structure","members":{"OutsideIpAddress":{"locationName":"outsideIpAddress"},"Status":{"locationName":"status"},"LastStatusChange":{"locationName":"lastStatusChange","type":"timestamp"},"StatusMessage":{"locationName":"statusMessage"},"AcceptedRouteCount":{"locationName":"acceptedRouteCount","type":"integer"}}}},"Options":{"locationName":"options","type":"structure","members":{"StaticRoutesOnly":{"locationName":"staticRoutesOnly","type":"boolean"}}},"Routes":{"locationName":"routes","type":"list","member":{"locationName":"item","type":"structure","members":{"DestinationCidrBlock":{"locationName":"destinationCidrBlock"},"Source":{"locationName":"source"},"State":{"locationName":"state"}}}}}},"S6b":{"type":"structure","members":{"VpnGatewayId":{"locationName":"vpnGatewayId"},"State":{"locationName":"state"},"Type":{"locationName":"type"},"AvailabilityZone":{"locationName":"availabilityZone"},"VpcAttachments":{"locationName":"attachments","type":"list","member":{"shape":"Sy","locationName":"item"}},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S7e":{"type":"list","member":{"locationName":"Filter","type":"structure","members":{"Name":{},"Values":{"shape":"S22","locationName":"Value"}}}},"S7x":{"type":"list","member":{"locationName":"InstanceId"}},"S85":{"type":"structure","required":["ConversionTaskId","State"],"members":{"ConversionTaskId":{"locationName":"conversionTaskId"},"ExpirationTime":{"locationName":"expirationTime"},"ImportInstance":{"locationName":"importInstance","type":"structure","required":["Volumes"],"members":{"Volumes":{"locationName":"volumes","type":"list","member":{"locationName":"item","type":"structure","required":["BytesConverted","AvailabilityZone","Image","Volume","Status"],"members":{"BytesConverted":{"locationName":"bytesConverted","type":"long"},"AvailabilityZone":{"locationName":"availabilityZone"},"Image":{"shape":"S89","locationName":"image"},"Volume":{"shape":"S8a","locationName":"volume"},"Status":{"locationName":"status"},"StatusMessage":{"locationName":"statusMessage"},"Description":{"locationName":"description"}}}},"InstanceId":{"locationName":"instanceId"},"Platform":{"locationName":"platform"},"Description":{"locationName":"description"}}},"ImportVolume":{"locationName":"importVolume","type":"structure","required":["BytesConverted","AvailabilityZone","Image","Volume"],"members":{"BytesConverted":{"locationName":"bytesConverted","type":"long"},"AvailabilityZone":{"locationName":"availabilityZone"},"Description":{"locationName":"description"},"Image":{"shape":"S89","locationName":"image"},"Volume":{"shape":"S8a","locationName":"volume"}}},"State":{"locationName":"state"},"StatusMessage":{"locationName":"statusMessage"},"Tags":{"shape":"Sa","locationName":"tagSet"}}},"S89":{"type":"structure","required":["Format","Size","ImportManifestUrl"],"members":{"Format":{"locationName":"format"},"Size":{"locationName":"size","type":"long"},"ImportManifestUrl":{"locationName":"importManifestUrl"},"Checksum":{"locationName":"checksum"}}},"S8a":{"type":"structure","required":["Id"],"members":{"Size":{"locationName":"size","type":"long"},"Id":{"locationName":"id"}}},"S8x":{"type":"list","member":{"locationName":"item","type":"structure","members":{"UserId":{"locationName":"userId"},"Group":{"locationName":"group"}}}},"S90":{"type":"list","member":{"locationName":"item","type":"structure","members":{"ProductCodeId":{"locationName":"productCode"},"ProductCodeType":{"locationName":"type"}}}},"S93":{"type":"list","member":{"shape":"S39","locationName":"item"}},"S96":{"type":"list","member":{"locationName":"Owner"}},"S9e":{"type":"structure","members":{"Code":{"locationName":"code"},"Message":{"locationName":"message"}}},"S9j":{"type":"list","member":{"locationName":"ImportTaskId"}},"S9n":{"type":"list","member":{"locationName":"item","type":"structure","members":{"DiskImageSize":{"locationName":"diskImageSize","type":"double"},"Description":{"locationName":"description"},"Format":{"locationName":"format"},"Url":{"locationName":"url"},"UserBucket":{"shape":"S9p","locationName":"userBucket"},"DeviceName":{"locationName":"deviceName"},"SnapshotId":{"locationName":"snapshotId"},"Progress":{"locationName":"progress"},"StatusMessage":{"locationName":"statusMessage"},"Status":{"locationName":"status"}}}},"S9p":{"type":"structure","members":{"S3Bucket":{"locationName":"s3Bucket"},"S3Key":{"locationName":"s3Key"}}},"S9u":{"type":"structure","members":{"DiskImageSize":{"locationName":"diskImageSize","type":"double"},"Description":{"locationName":"description"},"Format":{"locationName":"format"},"Url":{"locationName":"url"},"UserBucket":{"shape":"S9p","locationName":"userBucket"},"SnapshotId":{"locationName":"snapshotId"},"Progress":{"locationName":"progress"},"StatusMessage":{"locationName":"statusMessage"},"Status":{"locationName":"status"}}},"S9y":{"type":"structure","members":{"Value":{"locationName":"value","type":"boolean"}}},"S9z":{"type":"list","member":{"locationName":"item","type":"structure","members":{"DeviceName":{"locationName":"deviceName"},"Ebs":{"locationName":"ebs","type":"structure","members":{"VolumeId":{"locationName":"volumeId"},"Status":{"locationName":"status"},"AttachTime":{"locationName":"attachTime","type":"timestamp"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}}}}},"Sa9":{"type":"structure","members":{"Code":{"locationName":"code","type":"integer"},"Name":{"locationName":"name"}}},"Sab":{"type":"structure","members":{"Status":{"locationName":"status"},"Details":{"locationName":"details","type":"list","member":{"locationName":"item","type":"structure","members":{"Name":{"locationName":"name"},"Status":{"locationName":"status"},"ImpairedSince":{"locationName":"impairedSince","type":"timestamp"}}}}}},"Sak":{"type":"structure","members":{"ReservationId":{"locationName":"reservationId"},"OwnerId":{"locationName":"ownerId"},"RequesterId":{"locationName":"requesterId"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Instances":{"locationName":"instancesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"ImageId":{"locationName":"imageId"},"State":{"shape":"Sa9","locationName":"instanceState"},"PrivateDnsName":{"locationName":"privateDnsName"},"PublicDnsName":{"locationName":"dnsName"},"StateTransitionReason":{"locationName":"reason"},"KeyName":{"locationName":"keyName"},"AmiLaunchIndex":{"locationName":"amiLaunchIndex","type":"integer"},"ProductCodes":{"shape":"S90","locationName":"productCodes"},"InstanceType":{"locationName":"instanceType"},"LaunchTime":{"locationName":"launchTime","type":"timestamp"},"Placement":{"shape":"Sao","locationName":"placement"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"Platform":{"locationName":"platform"},"Monitoring":{"shape":"Sap","locationName":"monitoring"},"SubnetId":{"locationName":"subnetId"},"VpcId":{"locationName":"vpcId"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"PublicIpAddress":{"locationName":"ipAddress"},"StateReason":{"shape":"S9e","locationName":"stateReason"},"Architecture":{"locationName":"architecture"},"RootDeviceType":{"locationName":"rootDeviceType"},"RootDeviceName":{"locationName":"rootDeviceName"},"BlockDeviceMappings":{"shape":"S9z","locationName":"blockDeviceMapping"},"VirtualizationType":{"locationName":"virtualizationType"},"InstanceLifecycle":{"locationName":"instanceLifecycle"},"SpotInstanceRequestId":{"locationName":"spotInstanceRequestId"},"ClientToken":{"locationName":"clientToken"},"Tags":{"shape":"Sa","locationName":"tagSet"},"SecurityGroups":{"shape":"S4c","locationName":"groupSet"},"SourceDestCheck":{"locationName":"sourceDestCheck","type":"boolean"},"Hypervisor":{"locationName":"hypervisor"},"NetworkInterfaces":{"locationName":"networkInterfaceSet","type":"list","member":{"locationName":"item","type":"structure","members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"SubnetId":{"locationName":"subnetId"},"VpcId":{"locationName":"vpcId"},"Description":{"locationName":"description"},"OwnerId":{"locationName":"ownerId"},"Status":{"locationName":"status"},"MacAddress":{"locationName":"macAddress"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"PrivateDnsName":{"locationName":"privateDnsName"},"SourceDestCheck":{"locationName":"sourceDestCheck","type":"boolean"},"Groups":{"shape":"S4c","locationName":"groupSet"},"Attachment":{"locationName":"attachment","type":"structure","members":{"AttachmentId":{"locationName":"attachmentId"},"DeviceIndex":{"locationName":"deviceIndex","type":"integer"},"Status":{"locationName":"status"},"AttachTime":{"locationName":"attachTime","type":"timestamp"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"}}},"Association":{"shape":"Sav","locationName":"association"},"PrivateIpAddresses":{"locationName":"privateIpAddressesSet","type":"list","member":{"locationName":"item","type":"structure","members":{"PrivateIpAddress":{"locationName":"privateIpAddress"},"PrivateDnsName":{"locationName":"privateDnsName"},"Primary":{"locationName":"primary","type":"boolean"},"Association":{"shape":"Sav","locationName":"association"}}}}}}},"IamInstanceProfile":{"locationName":"iamInstanceProfile","type":"structure","members":{"Arn":{"locationName":"arn"},"Id":{"locationName":"id"}}},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"},"SriovNetSupport":{"locationName":"sriovNetSupport"}}}}}},"Sao":{"type":"structure","members":{"AvailabilityZone":{"locationName":"availabilityZone"},"GroupName":{"locationName":"groupName"},"Tenancy":{"locationName":"tenancy"}}},"Sap":{"type":"structure","members":{"State":{"locationName":"state"}}},"Sav":{"type":"structure","members":{"PublicIp":{"locationName":"publicIp"},"PublicDnsName":{"locationName":"publicDnsName"},"IpOwnerId":{"locationName":"ipOwnerId"}}},"Sc2":{"type":"list","member":{"locationName":"ReservedInstancesId"}},"Sca":{"type":"list","member":{"locationName":"item","type":"structure","members":{"Frequency":{"locationName":"frequency"},"Amount":{"locationName":"amount","type":"double"}}}},"Sco":{"type":"structure","members":{"AvailabilityZone":{"locationName":"availabilityZone"},"Platform":{"locationName":"platform"},"InstanceCount":{"locationName":"instanceCount","type":"integer"},"InstanceType":{"locationName":"instanceType"}}},"Sd0":{"type":"list","member":{"locationName":"GroupName"}},"Sd7":{"type":"list","member":{"locationName":"item","type":"structure","members":{"UserId":{"locationName":"userId"},"Group":{"locationName":"group"}}}},"Sdu":{"type":"structure","required":["SpotPrice","TargetCapacity","IamFleetRole","LaunchSpecifications"],"members":{"ClientToken":{"locationName":"clientToken"},"SpotPrice":{"locationName":"spotPrice"},"TargetCapacity":{"locationName":"targetCapacity","type":"integer"},"ValidFrom":{"locationName":"validFrom","type":"timestamp"},"ValidUntil":{"locationName":"validUntil","type":"timestamp"},"TerminateInstancesWithExpiration":{"locationName":"terminateInstancesWithExpiration","type":"boolean"},"IamFleetRole":{"locationName":"iamFleetRole"},"LaunchSpecifications":{"locationName":"launchSpecifications","type":"list","member":{"locationName":"item","type":"structure","members":{"ImageId":{"locationName":"imageId"},"KeyName":{"locationName":"keyName"},"SecurityGroups":{"shape":"S4c","locationName":"groupSet"},"UserData":{"locationName":"userData"},"AddressingType":{"locationName":"addressingType"},"InstanceType":{"locationName":"instanceType"},"Placement":{"shape":"Sdx","locationName":"placement"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"},"Monitoring":{"locationName":"monitoring","type":"structure","members":{"Enabled":{"locationName":"enabled","type":"boolean"}}},"SubnetId":{"locationName":"subnetId"},"NetworkInterfaces":{"shape":"Sdz","locationName":"networkInterfaceSet"},"IamInstanceProfile":{"shape":"Se1","locationName":"iamInstanceProfile"},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"},"WeightedCapacity":{"locationName":"weightedCapacity","type":"double"},"SpotPrice":{"locationName":"spotPrice"}}}},"AllocationStrategy":{"locationName":"allocationStrategy"}}},"Sdx":{"type":"structure","members":{"AvailabilityZone":{"locationName":"availabilityZone"},"GroupName":{"locationName":"groupName"}}},"Sdz":{"type":"list","member":{"locationName":"item","type":"structure","members":{"NetworkInterfaceId":{"locationName":"networkInterfaceId"},"DeviceIndex":{"locationName":"deviceIndex","type":"integer"},"SubnetId":{"locationName":"subnetId"},"Description":{"locationName":"description"},"PrivateIpAddress":{"locationName":"privateIpAddress"},"Groups":{"shape":"S46","locationName":"SecurityGroupId"},"DeleteOnTermination":{"locationName":"deleteOnTermination","type":"boolean"},"PrivateIpAddresses":{"shape":"S47","locationName":"privateIpAddressesSet","queryName":"PrivateIpAddresses"},"SecondaryPrivateIpAddressCount":{"locationName":"secondaryPrivateIpAddressCount","type":"integer"},"AssociatePublicIpAddress":{"locationName":"associatePublicIpAddress","type":"boolean"}}}},"Se1":{"type":"structure","members":{"Arn":{"locationName":"arn"},"Name":{"locationName":"name"}}},"Se5":{"type":"list","member":{"locationName":"item","type":"structure","members":{"SpotInstanceRequestId":{"locationName":"spotInstanceRequestId"},"SpotPrice":{"locationName":"spotPrice"},"Type":{"locationName":"type"},"State":{"locationName":"state"},"Fault":{"shape":"S5a","locationName":"fault"},"Status":{"locationName":"status","type":"structure","members":{"Code":{"locationName":"code"},"UpdateTime":{"locationName":"updateTime","type":"timestamp"},"Message":{"locationName":"message"}}},"ValidFrom":{"locationName":"validFrom","type":"timestamp"},"ValidUntil":{"locationName":"validUntil","type":"timestamp"},"LaunchGroup":{"locationName":"launchGroup"},"AvailabilityZoneGroup":{"locationName":"availabilityZoneGroup"},"LaunchSpecification":{"locationName":"launchSpecification","type":"structure","members":{"ImageId":{"locationName":"imageId"},"KeyName":{"locationName":"keyName"},"SecurityGroups":{"shape":"S4c","locationName":"groupSet"},"UserData":{"locationName":"userData"},"AddressingType":{"locationName":"addressingType"},"InstanceType":{"locationName":"instanceType"},"Placement":{"shape":"Sdx","locationName":"placement"},"KernelId":{"locationName":"kernelId"},"RamdiskId":{"locationName":"ramdiskId"},"BlockDeviceMappings":{"shape":"S93","locationName":"blockDeviceMapping"},"SubnetId":{"locationName":"subnetId"},"NetworkInterfaces":{"shape":"Sdz","locationName":"networkInterfaceSet"},"IamInstanceProfile":{"shape":"Se1","locationName":"iamInstanceProfile"},"EbsOptimized":{"locationName":"ebsOptimized","type":"boolean"},"Monitoring":{"shape":"Seb","locationName":"monitoring"}}},"InstanceId":{"locationName":"instanceId"},"CreateTime":{"locationName":"createTime","type":"timestamp"},"ProductDescription":{"locationName":"productDescription"},"Tags":{"shape":"Sa","locationName":"tagSet"},"LaunchedAvailabilityZone":{"locationName":"launchedAvailabilityZone"}}}},"Seb":{"type":"structure","required":["Enabled"],"members":{"Enabled":{"locationName":"enabled","type":"boolean"}}},"Sev":{"type":"list","member":{"locationName":"VolumeId"}},"Sgp":{"type":"structure","members":{"S3Bucket":{},"S3Key":{}}},"Sgq":{"type":"structure","members":{"UploadStart":{"type":"timestamp"},"UploadEnd":{"type":"timestamp"},"UploadSize":{"type":"double"},"Comment":{}}},"Sgu":{"type":"list","member":{"locationName":"SecurityGroup"}},"Sgz":{"type":"structure","required":["Format","Bytes","ImportManifestUrl"],"members":{"Format":{"locationName":"format"},"Bytes":{"locationName":"bytes","type":"long"},"ImportManifestUrl":{"locationName":"importManifestUrl"}}},"Sh0":{"type":"structure","required":["Size"],"members":{"Size":{"locationName":"size","type":"long"}}},"Shb":{"type":"list","member":{"locationName":"UserId"}},"Shy":{"type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"Monitoring":{"shape":"Sap","locationName":"monitoring"}}}},"Sj3":{"type":"list","member":{"locationName":"item","type":"structure","members":{"InstanceId":{"locationName":"instanceId"},"CurrentState":{"shape":"Sa9","locationName":"currentState"},"PreviousState":{"shape":"Sa9","locationName":"previousState"}}}}},"examples":{},"paginators":{"DescribeAccountAttributes":{"result_key":"AccountAttributes"},"DescribeAddresses":{"result_key":"Addresses"},"DescribeAvailabilityZones":{"result_key":"AvailabilityZones"},"DescribeBundleTasks":{"result_key":"BundleTasks"},"DescribeConversionTasks":{"result_key":"ConversionTasks"},"DescribeCustomerGateways":{"result_key":"CustomerGateways"},"DescribeDhcpOptions":{"result_key":"DhcpOptions"},"DescribeExportTasks":{"result_key":"ExportTasks"},"DescribeImages":{"result_key":"Images"},"DescribeInstanceStatus":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"InstanceStatuses"},"DescribeInstances":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"Reservations"},"DescribeInternetGateways":{"result_key":"InternetGateways"},"DescribeKeyPairs":{"result_key":"KeyPairs"},"DescribeNetworkAcls":{"result_key":"NetworkAcls"},"DescribeNetworkInterfaces":{"result_key":"NetworkInterfaces"},"DescribePlacementGroups":{"result_key":"PlacementGroups"},"DescribeRegions":{"result_key":"Regions"},"DescribeReservedInstances":{"result_key":"ReservedInstances"},"DescribeReservedInstancesListings":{"result_key":"ReservedInstancesListings"},"DescribeReservedInstancesOfferings":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"ReservedInstancesOfferings"},"DescribeReservedInstancesModifications":{"input_token":"NextToken","output_token":"NextToken","result_key":"ReservedInstancesModifications"},"DescribeRouteTables":{"result_key":"RouteTables"},"DescribeSecurityGroups":{"result_key":"SecurityGroups"},"DescribeSnapshots":{"input_token":"NextToken","output_token":"NextToken","result_key":"Snapshots"},"DescribeSpotInstanceRequests":{"result_key":"SpotInstanceRequests"},"DescribeSpotPriceHistory":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"SpotPriceHistory"},"DescribeSubnets":{"result_key":"Subnets"},"DescribeTags":{"result_key":"Tags"},"DescribeVolumeStatus":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"VolumeStatuses"},"DescribeVolumes":{"input_token":"NextToken","output_token":"NextToken","limit_key":"MaxResults","result_key":"Volumes"},"DescribeVpcs":{"result_key":"Vpcs"},"DescribeVpnConnections":{"result_key":"VpnConnections"},"DescribeVpnGateways":{"result_key":"VpnGateways"}},"waiters":{"__default__":{"interval":15,"max_attempts":40,"acceptor_type":"output"},"__InstanceState":{"operation":"DescribeInstances","acceptor_path":"Reservations[].Instances[].State.Name"},"__InstanceStatus":{"operation":"DescribeInstanceStatus","success_value":"ok"},"SystemStatusOk":{"extends":"__InstanceStatus","acceptor_path":"InstanceStatuses[].SystemStatus.Status"},"InstanceStatusOk":{"extends":"__InstanceStatus","acceptor_path":"InstanceStatuses[].InstanceStatus.Status"},"ImageAvailable":{"operation":"DescribeImages","acceptor_path":"Images[].State","success_value":"available","failure_value":["failed"]},"InstanceRunning":{"extends":"__InstanceState","success_value":"running","failure_value":["shutting-down","terminated","stopping"]},"InstanceStopped":{"extends":"__InstanceState","success_value":"stopped","failure_value":["pending","terminated"]},"InstanceTerminated":{"extends":"__InstanceState","success_value":"terminated","failure_value":["pending","stopping"]},"__ExportTaskState":{"operation":"DescribeExportTasks","acceptor_path":"ExportTasks[].State"},"ExportTaskCompleted":{"extends":"__ExportTaskState","success_value":"completed"},"ExportTaskCancelled":{"extends":"__ExportTaskState","success_value":"cancelled"},"SnapshotCompleted":{"operation":"DescribeSnapshots","success_path":"Snapshots[].State","success_value":"completed"},"SubnetAvailable":{"operation":"DescribeSubnets","success_path":"Subnets[].State","success_value":"available"},"__VolumeStatus":{"operation":"DescribeVolumes","acceptor_path":"Volumes[].State"},"VolumeAvailable":{"extends":"__VolumeStatus","success_value":"available","failure_value":["deleted"]},"VolumeInUse":{"extends":"__VolumeStatus","success_value":"in-use","failure_value":["deleted"]},"VolumeDeleted":{"extends":"__VolumeStatus","success_type":"error","success_value":"InvalidVolume.NotFound"},"VpcAvailable":{"operation":"DescribeVpcs","success_path":"Vpcs[].State","success_value":"available"},"__VpnConnectionState":{"operation":"DescribeVpnConnections","acceptor_path":"VpnConnections[].State"},"VpnConnectionAvailable":{"extends":"__VpnConnectionState","success_value":"available","failure_value":["deleting","deleted"]},"VpnConnectionDeleted":{"extends":"__VpnConnectionState","success_value":"deleted","failure_value":["pending"]},"BundleTaskComplete":{"operation":"DescribeBundleTasks","acceptor_path":"BundleTasks[].State","success_value":"complete","failure_value":["failed"]},"__ConversionTaskState":{"operation":"DescribeConversionTasks","acceptor_path":"ConversionTasks[].State"},"ConversionTaskCompleted":{"extends":"__ConversionTaskState","success_value":"completed","failure_value":["cancelled","cancelling"]},"ConversionTaskCancelled":{"extends":"__ConversionTaskState","success_value":"cancelled"},"__CustomerGatewayState":{"operation":"DescribeCustomerGateways","acceptor_path":"CustomerGateways[].State"},"CustomerGatewayAvailable":{"extends":"__CustomerGatewayState","success_value":"available","failure_value":["deleted","deleting"]},"ConversionTaskDeleted":{"extends":"__CustomerGatewayState","success_value":"deleted"},"__SpotInstanceRequestState":{"operation":"DescribeSpotInstanceRequests","acceptor_path":"SpotInstanceRequests[].Status.Code"},"SpotInstanceRequestFulfilled":{"extends":"__SpotInstanceRequestState","success_value":"fulfilled","failure_value":["schedule-expired","canceled-before-fulfillment","bad-parameters","system-error"]}}};
 AWS.apiLoader.services['elastictranscoder'] = {};
 AWS.ElasticTranscoder = AWS.Service.defineService('elastictranscoder', [ '2012-09-25' ]);
 
@@ -64,7 +64,7 @@ AWS.apiLoader.services['elastictranscoder']['2012-09-25'] = {"version":"2.0","me
 AWS.apiLoader.services['kinesis'] = {};
 AWS.Kinesis = AWS.Service.defineService('kinesis', [ '2013-12-02' ]);
 
-AWS.apiLoader.services['kinesis']['2013-12-02'] = {"version":"2.0","metadata":{"apiVersion":"2013-12-02","endpointPrefix":"kinesis","jsonVersion":"1.1","serviceAbbreviation":"Kinesis","serviceFullName":"Amazon Kinesis","signatureVersion":"v4","targetPrefix":"Kinesis_20131202","protocol":"json"},"operations":{"AddTagsToStream":{"input":{"type":"structure","required":["StreamName","Tags"],"members":{"StreamName":{},"Tags":{"type":"map","key":{},"value":{}}}},"http":{}},"CreateStream":{"input":{"type":"structure","required":["StreamName","ShardCount"],"members":{"StreamName":{},"ShardCount":{"type":"integer"}}},"http":{}},"DeleteStream":{"input":{"type":"structure","required":["StreamName"],"members":{"StreamName":{}}},"http":{}},"DescribeStream":{"input":{"type":"structure","required":["StreamName"],"members":{"StreamName":{},"Limit":{"type":"integer"},"ExclusiveStartShardId":{}}},"output":{"type":"structure","required":["StreamDescription"],"members":{"StreamDescription":{"type":"structure","required":["StreamName","StreamARN","StreamStatus","Shards","HasMoreShards"],"members":{"StreamName":{},"StreamARN":{},"StreamStatus":{},"Shards":{"type":"list","member":{"type":"structure","required":["ShardId","HashKeyRange","SequenceNumberRange"],"members":{"ShardId":{},"ParentShardId":{},"AdjacentParentShardId":{},"HashKeyRange":{"type":"structure","required":["StartingHashKey","EndingHashKey"],"members":{"StartingHashKey":{},"EndingHashKey":{}}},"SequenceNumberRange":{"type":"structure","required":["StartingSequenceNumber"],"members":{"StartingSequenceNumber":{},"EndingSequenceNumber":{}}}}}},"HasMoreShards":{"type":"boolean"}}}}},"http":{}},"GetRecords":{"input":{"type":"structure","required":["ShardIterator"],"members":{"ShardIterator":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","required":["Records"],"members":{"Records":{"type":"list","member":{"type":"structure","required":["SequenceNumber","Data","PartitionKey"],"members":{"SequenceNumber":{},"Data":{"type":"blob"},"PartitionKey":{}}}},"NextShardIterator":{},"MillisBehindLatest":{"type":"long"}}},"http":{}},"GetShardIterator":{"input":{"type":"structure","required":["StreamName","ShardId","ShardIteratorType"],"members":{"StreamName":{},"ShardId":{},"ShardIteratorType":{},"StartingSequenceNumber":{}}},"output":{"type":"structure","members":{"ShardIterator":{}}},"http":{}},"ListStreams":{"input":{"type":"structure","members":{"Limit":{"type":"integer"},"ExclusiveStartStreamName":{}}},"output":{"type":"structure","required":["StreamNames","HasMoreStreams"],"members":{"StreamNames":{"type":"list","member":{}},"HasMoreStreams":{"type":"boolean"}}},"http":{}},"ListTagsForStream":{"input":{"type":"structure","required":["StreamName"],"members":{"StreamName":{},"ExclusiveStartTagKey":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","required":["Tags","HasMoreTags"],"members":{"Tags":{"type":"list","member":{"type":"structure","required":["Key"],"members":{"Key":{},"Value":{}}}},"HasMoreTags":{"type":"boolean"}}},"http":{}},"MergeShards":{"input":{"type":"structure","required":["StreamName","ShardToMerge","AdjacentShardToMerge"],"members":{"StreamName":{},"ShardToMerge":{},"AdjacentShardToMerge":{}}},"http":{}},"PutRecord":{"input":{"type":"structure","required":["StreamName","Data","PartitionKey"],"members":{"StreamName":{},"Data":{"type":"blob"},"PartitionKey":{},"ExplicitHashKey":{},"SequenceNumberForOrdering":{}}},"output":{"type":"structure","required":["ShardId","SequenceNumber"],"members":{"ShardId":{},"SequenceNumber":{}}},"http":{}},"PutRecords":{"input":{"type":"structure","required":["Records","StreamName"],"members":{"Records":{"type":"list","member":{"type":"structure","required":["Data","PartitionKey"],"members":{"Data":{"type":"blob"},"ExplicitHashKey":{},"PartitionKey":{}}}},"StreamName":{}}},"output":{"type":"structure","required":["Records"],"members":{"FailedRecordCount":{"type":"integer"},"Records":{"type":"list","member":{"type":"structure","members":{"SequenceNumber":{},"ShardId":{},"ErrorCode":{},"ErrorMessage":{}}}}}},"http":{}},"RemoveTagsFromStream":{"input":{"type":"structure","required":["StreamName","TagKeys"],"members":{"StreamName":{},"TagKeys":{"type":"list","member":{}}}},"http":{}},"SplitShard":{"input":{"type":"structure","required":["StreamName","ShardToSplit","NewStartingHashKey"],"members":{"StreamName":{},"ShardToSplit":{},"NewStartingHashKey":{}}},"http":{}}},"shapes":{},"paginators":{"DescribeStream":{"input_token":"ExclusiveStartShardId","limit_key":"Limit","more_results":"StreamDescription.HasMoreShards","output_token":"StreamDescription.Shards[-1].ShardId","result_key":"StreamDescription.Shards"},"ListStreams":{"input_token":"ExclusiveStartStreamName","limit_key":"Limit","more_results":"HasMoreStreams","output_token":"StreamNames[-1]","result_key":"StreamNames"}}};
+AWS.apiLoader.services['kinesis']['2013-12-02'] = {"version":"2.0","metadata":{"apiVersion":"2013-12-02","endpointPrefix":"kinesis","jsonVersion":"1.1","serviceAbbreviation":"Kinesis","serviceFullName":"Amazon Kinesis","signatureVersion":"v4","targetPrefix":"Kinesis_20131202","protocol":"json"},"operations":{"AddTagsToStream":{"input":{"type":"structure","required":["StreamName","Tags"],"members":{"StreamName":{},"Tags":{"type":"map","key":{},"value":{}}}},"http":{}},"CreateStream":{"input":{"type":"structure","required":["StreamName","ShardCount"],"members":{"StreamName":{},"ShardCount":{"type":"integer"}}},"http":{}},"DeleteStream":{"input":{"type":"structure","required":["StreamName"],"members":{"StreamName":{}}},"http":{}},"DescribeStream":{"input":{"type":"structure","required":["StreamName"],"members":{"StreamName":{},"Limit":{"type":"integer"},"ExclusiveStartShardId":{}}},"output":{"type":"structure","required":["StreamDescription"],"members":{"StreamDescription":{"type":"structure","required":["StreamName","StreamARN","StreamStatus","Shards","HasMoreShards"],"members":{"StreamName":{},"StreamARN":{},"StreamStatus":{},"Shards":{"type":"list","member":{"type":"structure","required":["ShardId","HashKeyRange","SequenceNumberRange"],"members":{"ShardId":{},"ParentShardId":{},"AdjacentParentShardId":{},"HashKeyRange":{"type":"structure","required":["StartingHashKey","EndingHashKey"],"members":{"StartingHashKey":{},"EndingHashKey":{}}},"SequenceNumberRange":{"type":"structure","required":["StartingSequenceNumber"],"members":{"StartingSequenceNumber":{},"EndingSequenceNumber":{}}}}}},"HasMoreShards":{"type":"boolean"}}}}},"http":{}},"GetRecords":{"input":{"type":"structure","required":["ShardIterator"],"members":{"ShardIterator":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","required":["Records"],"members":{"Records":{"type":"list","member":{"type":"structure","required":["SequenceNumber","Data","PartitionKey"],"members":{"SequenceNumber":{},"ApproximateArrivalTimestamp":{"type":"timestamp"},"Data":{"type":"blob"},"PartitionKey":{}}}},"NextShardIterator":{},"MillisBehindLatest":{"type":"long"}}},"http":{}},"GetShardIterator":{"input":{"type":"structure","required":["StreamName","ShardId","ShardIteratorType"],"members":{"StreamName":{},"ShardId":{},"ShardIteratorType":{},"StartingSequenceNumber":{}}},"output":{"type":"structure","members":{"ShardIterator":{}}},"http":{}},"ListStreams":{"input":{"type":"structure","members":{"Limit":{"type":"integer"},"ExclusiveStartStreamName":{}}},"output":{"type":"structure","required":["StreamNames","HasMoreStreams"],"members":{"StreamNames":{"type":"list","member":{}},"HasMoreStreams":{"type":"boolean"}}},"http":{}},"ListTagsForStream":{"input":{"type":"structure","required":["StreamName"],"members":{"StreamName":{},"ExclusiveStartTagKey":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","required":["Tags","HasMoreTags"],"members":{"Tags":{"type":"list","member":{"type":"structure","required":["Key"],"members":{"Key":{},"Value":{}}}},"HasMoreTags":{"type":"boolean"}}},"http":{}},"MergeShards":{"input":{"type":"structure","required":["StreamName","ShardToMerge","AdjacentShardToMerge"],"members":{"StreamName":{},"ShardToMerge":{},"AdjacentShardToMerge":{}}},"http":{}},"PutRecord":{"input":{"type":"structure","required":["StreamName","Data","PartitionKey"],"members":{"StreamName":{},"Data":{"type":"blob"},"PartitionKey":{},"ExplicitHashKey":{},"SequenceNumberForOrdering":{}}},"output":{"type":"structure","required":["ShardId","SequenceNumber"],"members":{"ShardId":{},"SequenceNumber":{}}},"http":{}},"PutRecords":{"input":{"type":"structure","required":["Records","StreamName"],"members":{"Records":{"type":"list","member":{"type":"structure","required":["Data","PartitionKey"],"members":{"Data":{"type":"blob"},"ExplicitHashKey":{},"PartitionKey":{}}}},"StreamName":{}}},"output":{"type":"structure","required":["Records"],"members":{"FailedRecordCount":{"type":"integer"},"Records":{"type":"list","member":{"type":"structure","members":{"SequenceNumber":{},"ShardId":{},"ErrorCode":{},"ErrorMessage":{}}}}}},"http":{}},"RemoveTagsFromStream":{"input":{"type":"structure","required":["StreamName","TagKeys"],"members":{"StreamName":{},"TagKeys":{"type":"list","member":{}}}},"http":{}},"SplitShard":{"input":{"type":"structure","required":["StreamName","ShardToSplit","NewStartingHashKey"],"members":{"StreamName":{},"ShardToSplit":{},"NewStartingHashKey":{}}},"http":{}}},"shapes":{},"examples":{},"paginators":{"DescribeStream":{"input_token":"ExclusiveStartShardId","limit_key":"Limit","more_results":"StreamDescription.HasMoreShards","output_token":"StreamDescription.Shards[-1].ShardId","result_key":"StreamDescription.Shards"},"ListStreams":{"input_token":"ExclusiveStartStreamName","limit_key":"Limit","more_results":"HasMoreStreams","output_token":"StreamNames[-1]","result_key":"StreamNames"}}};
 AWS.apiLoader.services['lambda'] = {};
 AWS.Lambda = AWS.Service.defineService('lambda', [ '2014-11-11', '2015-03-31' ]);
 
@@ -73,7 +73,7 @@ AWS.apiLoader.services['machinelearning'] = {};
 AWS.MachineLearning = AWS.Service.defineService('machinelearning', [ '2014-12-12' ]);
 require('./services/machinelearning');
 
-AWS.apiLoader.services['machinelearning']['2014-12-12'] = {"version":"2.0","metadata":{"apiVersion":"2014-12-12","endpointPrefix":"machinelearning","jsonVersion":"1.1","serviceFullName":"Amazon Machine Learning","signatureVersion":"v4","targetPrefix":"AmazonML_20141212","protocol":"json"},"operations":{"CreateBatchPrediction":{"input":{"type":"structure","required":["BatchPredictionId","MLModelId","BatchPredictionDataSourceId","OutputUri"],"members":{"BatchPredictionId":{},"BatchPredictionName":{},"MLModelId":{},"BatchPredictionDataSourceId":{},"OutputUri":{}}},"output":{"type":"structure","members":{"BatchPredictionId":{}}},"http":{}},"CreateDataSourceFromRDS":{"input":{"type":"structure","required":["DataSourceId","RDSData","RoleARN"],"members":{"DataSourceId":{},"DataSourceName":{},"RDSData":{"type":"structure","required":["DatabaseInformation","SelectSqlQuery","DatabaseCredentials","S3StagingLocation","ResourceRole","ServiceRole","SubnetId","SecurityGroupIds"],"members":{"DatabaseInformation":{"shape":"S8"},"SelectSqlQuery":{},"DatabaseCredentials":{"type":"structure","required":["Username","Password"],"members":{"Username":{},"Password":{}}},"S3StagingLocation":{},"DataRearrangement":{},"DataSchema":{},"DataSchemaUri":{},"ResourceRole":{},"ServiceRole":{},"SubnetId":{},"SecurityGroupIds":{"type":"list","member":{}}}},"RoleARN":{},"ComputeStatistics":{"type":"boolean"}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"CreateDataSourceFromRedshift":{"input":{"type":"structure","required":["DataSourceId","DataSpec","RoleARN"],"members":{"DataSourceId":{},"DataSourceName":{},"DataSpec":{"type":"structure","required":["DatabaseInformation","SelectSqlQuery","DatabaseCredentials","S3StagingLocation"],"members":{"DatabaseInformation":{"shape":"Sr"},"SelectSqlQuery":{},"DatabaseCredentials":{"type":"structure","required":["Username","Password"],"members":{"Username":{},"Password":{}}},"S3StagingLocation":{},"DataRearrangement":{},"DataSchema":{},"DataSchemaUri":{}}},"RoleARN":{},"ComputeStatistics":{"type":"boolean"}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"CreateDataSourceFromS3":{"input":{"type":"structure","required":["DataSourceId","DataSpec"],"members":{"DataSourceId":{},"DataSourceName":{},"DataSpec":{"type":"structure","required":["DataLocationS3"],"members":{"DataLocationS3":{},"DataRearrangement":{},"DataSchema":{},"DataSchemaLocationS3":{}}},"ComputeStatistics":{"type":"boolean"}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"CreateEvaluation":{"input":{"type":"structure","required":["EvaluationId","MLModelId","EvaluationDataSourceId"],"members":{"EvaluationId":{},"EvaluationName":{},"MLModelId":{},"EvaluationDataSourceId":{}}},"output":{"type":"structure","members":{"EvaluationId":{}}},"http":{}},"CreateMLModel":{"input":{"type":"structure","required":["MLModelId","MLModelType","TrainingDataSourceId"],"members":{"MLModelId":{},"MLModelName":{},"MLModelType":{},"Parameters":{"shape":"S16"},"TrainingDataSourceId":{},"Recipe":{},"RecipeUri":{}}},"output":{"type":"structure","members":{"MLModelId":{}}},"http":{}},"CreateRealtimeEndpoint":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{}}},"output":{"type":"structure","members":{"MLModelId":{},"RealtimeEndpointInfo":{"shape":"S1c"}}},"http":{}},"DeleteBatchPrediction":{"input":{"type":"structure","required":["BatchPredictionId"],"members":{"BatchPredictionId":{}}},"output":{"type":"structure","members":{"BatchPredictionId":{}}},"http":{}},"DeleteDataSource":{"input":{"type":"structure","required":["DataSourceId"],"members":{"DataSourceId":{}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"DeleteEvaluation":{"input":{"type":"structure","required":["EvaluationId"],"members":{"EvaluationId":{}}},"output":{"type":"structure","members":{"EvaluationId":{}}},"http":{}},"DeleteMLModel":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{}}},"output":{"type":"structure","members":{"MLModelId":{}}},"http":{}},"DeleteRealtimeEndpoint":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{}}},"output":{"type":"structure","members":{"MLModelId":{},"RealtimeEndpointInfo":{"shape":"S1c"}}},"http":{}},"DescribeBatchPredictions":{"input":{"type":"structure","members":{"FilterVariable":{},"EQ":{},"GT":{},"LT":{},"GE":{},"LE":{},"NE":{},"Prefix":{},"SortOrder":{},"NextToken":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","members":{"Results":{"type":"list","member":{"type":"structure","members":{"BatchPredictionId":{},"MLModelId":{},"BatchPredictionDataSourceId":{},"InputDataLocationS3":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"OutputUri":{},"Message":{}}}},"NextToken":{}}},"http":{}},"DescribeDataSources":{"input":{"type":"structure","members":{"FilterVariable":{},"EQ":{},"GT":{},"LT":{},"GE":{},"LE":{},"NE":{},"Prefix":{},"SortOrder":{},"NextToken":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","members":{"Results":{"type":"list","member":{"type":"structure","members":{"DataSourceId":{},"DataLocationS3":{},"DataRearrangement":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"DataSizeInBytes":{"type":"long"},"NumberOfFiles":{"type":"long"},"Name":{},"Status":{},"Message":{},"RedshiftMetadata":{"shape":"S28"},"RDSMetadata":{"shape":"S29"},"RoleARN":{},"ComputeStatistics":{"type":"boolean"}}}},"NextToken":{}}},"http":{}},"DescribeEvaluations":{"input":{"type":"structure","members":{"FilterVariable":{},"EQ":{},"GT":{},"LT":{},"GE":{},"LE":{},"NE":{},"Prefix":{},"SortOrder":{},"NextToken":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","members":{"Results":{"type":"list","member":{"type":"structure","members":{"EvaluationId":{},"MLModelId":{},"EvaluationDataSourceId":{},"InputDataLocationS3":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"PerformanceMetrics":{"shape":"S2g"},"Message":{}}}},"NextToken":{}}},"http":{}},"DescribeMLModels":{"input":{"type":"structure","members":{"FilterVariable":{},"EQ":{},"GT":{},"LT":{},"GE":{},"LE":{},"NE":{},"Prefix":{},"SortOrder":{},"NextToken":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","members":{"Results":{"type":"list","member":{"type":"structure","members":{"MLModelId":{},"TrainingDataSourceId":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"SizeInBytes":{"type":"long"},"EndpointInfo":{"shape":"S1c"},"TrainingParameters":{"shape":"S16"},"InputDataLocationS3":{},"Algorithm":{},"MLModelType":{},"ScoreThreshold":{"type":"float"},"ScoreThresholdLastUpdatedAt":{"type":"timestamp"},"Message":{}}}},"NextToken":{}}},"http":{}},"GetBatchPrediction":{"input":{"type":"structure","required":["BatchPredictionId"],"members":{"BatchPredictionId":{}}},"output":{"type":"structure","members":{"BatchPredictionId":{},"MLModelId":{},"BatchPredictionDataSourceId":{},"InputDataLocationS3":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"OutputUri":{},"LogUri":{},"Message":{}}},"http":{}},"GetDataSource":{"input":{"type":"structure","required":["DataSourceId"],"members":{"DataSourceId":{},"Verbose":{"type":"boolean"}}},"output":{"type":"structure","members":{"DataSourceId":{},"DataLocationS3":{},"DataRearrangement":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"DataSizeInBytes":{"type":"long"},"NumberOfFiles":{"type":"long"},"Name":{},"Status":{},"LogUri":{},"Message":{},"RedshiftMetadata":{"shape":"S28"},"RDSMetadata":{"shape":"S29"},"RoleARN":{},"ComputeStatistics":{"type":"boolean"},"DataSourceSchema":{}}},"http":{}},"GetEvaluation":{"input":{"type":"structure","required":["EvaluationId"],"members":{"EvaluationId":{}}},"output":{"type":"structure","members":{"EvaluationId":{},"MLModelId":{},"EvaluationDataSourceId":{},"InputDataLocationS3":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"PerformanceMetrics":{"shape":"S2g"},"LogUri":{},"Message":{}}},"http":{}},"GetMLModel":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{},"Verbose":{"type":"boolean"}}},"output":{"type":"structure","members":{"MLModelId":{},"TrainingDataSourceId":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"SizeInBytes":{"type":"long"},"EndpointInfo":{"shape":"S1c"},"TrainingParameters":{"shape":"S16"},"InputDataLocationS3":{},"MLModelType":{},"ScoreThreshold":{"type":"float"},"ScoreThresholdLastUpdatedAt":{"type":"timestamp"},"LogUri":{},"Message":{},"Recipe":{},"Schema":{}}},"http":{}},"Predict":{"input":{"type":"structure","required":["MLModelId","Record","PredictEndpoint"],"members":{"MLModelId":{},"Record":{"type":"map","key":{},"value":{}},"PredictEndpoint":{}}},"output":{"type":"structure","members":{"Prediction":{"type":"structure","members":{"predictedLabel":{},"predictedValue":{"type":"float"},"predictedScores":{"type":"map","key":{},"value":{"type":"float"}},"details":{"type":"map","key":{},"value":{}}}}}},"http":{}},"UpdateBatchPrediction":{"input":{"type":"structure","required":["BatchPredictionId","BatchPredictionName"],"members":{"BatchPredictionId":{},"BatchPredictionName":{}}},"output":{"type":"structure","members":{"BatchPredictionId":{}}},"http":{}},"UpdateDataSource":{"input":{"type":"structure","required":["DataSourceId","DataSourceName"],"members":{"DataSourceId":{},"DataSourceName":{}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"UpdateEvaluation":{"input":{"type":"structure","required":["EvaluationId","EvaluationName"],"members":{"EvaluationId":{},"EvaluationName":{}}},"output":{"type":"structure","members":{"EvaluationId":{}}},"http":{}},"UpdateMLModel":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{},"MLModelName":{},"ScoreThreshold":{"type":"float"}}},"output":{"type":"structure","members":{"MLModelId":{}}},"http":{}}},"shapes":{"S8":{"type":"structure","required":["InstanceIdentifier","DatabaseName"],"members":{"InstanceIdentifier":{},"DatabaseName":{}}},"Sr":{"type":"structure","required":["DatabaseName","ClusterIdentifier"],"members":{"DatabaseName":{},"ClusterIdentifier":{}}},"S16":{"type":"map","key":{},"value":{}},"S1c":{"type":"structure","members":{"PeakRequestsPerSecond":{"type":"integer"},"CreatedAt":{"type":"timestamp"},"EndpointUrl":{},"EndpointStatus":{}}},"S28":{"type":"structure","members":{"RedshiftDatabase":{"shape":"Sr"},"DatabaseUserName":{},"SelectSqlQuery":{}}},"S29":{"type":"structure","members":{"Database":{"shape":"S8"},"DatabaseUserName":{},"SelectSqlQuery":{},"ResourceRole":{},"ServiceRole":{},"DataPipelineId":{}}},"S2g":{"type":"structure","members":{"Properties":{"type":"map","key":{},"value":{}}}}},"paginators":{"DescribeBatchPredictions":{"limit_key":"Limit","output_token":"NextToken","input_token":"NextToken","result_key":"Results"},"DescribeDataSources":{"limit_key":"Limit","output_token":"NextToken","input_token":"NextToken","result_key":"Results"},"DescribeEvaluations":{"limit_key":"Limit","output_token":"NextToken","input_token":"NextToken","result_key":"Results"},"DescribeMLModels":{"limit_key":"Limit","output_token":"NextToken","input_token":"NextToken","result_key":"Results"}}};
+AWS.apiLoader.services['machinelearning']['2014-12-12'] = {"version":"2.0","metadata":{"apiVersion":"2014-12-12","endpointPrefix":"machinelearning","jsonVersion":"1.1","serviceFullName":"Amazon Machine Learning","signatureVersion":"v4","targetPrefix":"AmazonML_20141212","protocol":"json"},"operations":{"CreateBatchPrediction":{"input":{"type":"structure","required":["BatchPredictionId","MLModelId","BatchPredictionDataSourceId","OutputUri"],"members":{"BatchPredictionId":{},"BatchPredictionName":{},"MLModelId":{},"BatchPredictionDataSourceId":{},"OutputUri":{}}},"output":{"type":"structure","members":{"BatchPredictionId":{}}},"http":{}},"CreateDataSourceFromRDS":{"input":{"type":"structure","required":["DataSourceId","RDSData","RoleARN"],"members":{"DataSourceId":{},"DataSourceName":{},"RDSData":{"type":"structure","required":["DatabaseInformation","SelectSqlQuery","DatabaseCredentials","S3StagingLocation","ResourceRole","ServiceRole","SubnetId","SecurityGroupIds"],"members":{"DatabaseInformation":{"shape":"S8"},"SelectSqlQuery":{},"DatabaseCredentials":{"type":"structure","required":["Username","Password"],"members":{"Username":{},"Password":{}}},"S3StagingLocation":{},"DataRearrangement":{},"DataSchema":{},"DataSchemaUri":{},"ResourceRole":{},"ServiceRole":{},"SubnetId":{},"SecurityGroupIds":{"type":"list","member":{}}}},"RoleARN":{},"ComputeStatistics":{"type":"boolean"}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"CreateDataSourceFromRedshift":{"input":{"type":"structure","required":["DataSourceId","DataSpec","RoleARN"],"members":{"DataSourceId":{},"DataSourceName":{},"DataSpec":{"type":"structure","required":["DatabaseInformation","SelectSqlQuery","DatabaseCredentials","S3StagingLocation"],"members":{"DatabaseInformation":{"shape":"Sr"},"SelectSqlQuery":{},"DatabaseCredentials":{"type":"structure","required":["Username","Password"],"members":{"Username":{},"Password":{}}},"S3StagingLocation":{},"DataRearrangement":{},"DataSchema":{},"DataSchemaUri":{}}},"RoleARN":{},"ComputeStatistics":{"type":"boolean"}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"CreateDataSourceFromS3":{"input":{"type":"structure","required":["DataSourceId","DataSpec"],"members":{"DataSourceId":{},"DataSourceName":{},"DataSpec":{"type":"structure","required":["DataLocationS3"],"members":{"DataLocationS3":{},"DataRearrangement":{},"DataSchema":{},"DataSchemaLocationS3":{}}},"ComputeStatistics":{"type":"boolean"}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"CreateEvaluation":{"input":{"type":"structure","required":["EvaluationId","MLModelId","EvaluationDataSourceId"],"members":{"EvaluationId":{},"EvaluationName":{},"MLModelId":{},"EvaluationDataSourceId":{}}},"output":{"type":"structure","members":{"EvaluationId":{}}},"http":{}},"CreateMLModel":{"input":{"type":"structure","required":["MLModelId","MLModelType","TrainingDataSourceId"],"members":{"MLModelId":{},"MLModelName":{},"MLModelType":{},"Parameters":{"shape":"S16"},"TrainingDataSourceId":{},"Recipe":{},"RecipeUri":{}}},"output":{"type":"structure","members":{"MLModelId":{}}},"http":{}},"CreateRealtimeEndpoint":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{}}},"output":{"type":"structure","members":{"MLModelId":{},"RealtimeEndpointInfo":{"shape":"S1c"}}},"http":{}},"DeleteBatchPrediction":{"input":{"type":"structure","required":["BatchPredictionId"],"members":{"BatchPredictionId":{}}},"output":{"type":"structure","members":{"BatchPredictionId":{}}},"http":{}},"DeleteDataSource":{"input":{"type":"structure","required":["DataSourceId"],"members":{"DataSourceId":{}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"DeleteEvaluation":{"input":{"type":"structure","required":["EvaluationId"],"members":{"EvaluationId":{}}},"output":{"type":"structure","members":{"EvaluationId":{}}},"http":{}},"DeleteMLModel":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{}}},"output":{"type":"structure","members":{"MLModelId":{}}},"http":{}},"DeleteRealtimeEndpoint":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{}}},"output":{"type":"structure","members":{"MLModelId":{},"RealtimeEndpointInfo":{"shape":"S1c"}}},"http":{}},"DescribeBatchPredictions":{"input":{"type":"structure","members":{"FilterVariable":{},"EQ":{},"GT":{},"LT":{},"GE":{},"LE":{},"NE":{},"Prefix":{},"SortOrder":{},"NextToken":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","members":{"Results":{"type":"list","member":{"type":"structure","members":{"BatchPredictionId":{},"MLModelId":{},"BatchPredictionDataSourceId":{},"InputDataLocationS3":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"OutputUri":{},"Message":{}}}},"NextToken":{}}},"http":{}},"DescribeDataSources":{"input":{"type":"structure","members":{"FilterVariable":{},"EQ":{},"GT":{},"LT":{},"GE":{},"LE":{},"NE":{},"Prefix":{},"SortOrder":{},"NextToken":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","members":{"Results":{"type":"list","member":{"type":"structure","members":{"DataSourceId":{},"DataLocationS3":{},"DataRearrangement":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"DataSizeInBytes":{"type":"long"},"NumberOfFiles":{"type":"long"},"Name":{},"Status":{},"Message":{},"RedshiftMetadata":{"shape":"S28"},"RDSMetadata":{"shape":"S29"},"RoleARN":{},"ComputeStatistics":{"type":"boolean"}}}},"NextToken":{}}},"http":{}},"DescribeEvaluations":{"input":{"type":"structure","members":{"FilterVariable":{},"EQ":{},"GT":{},"LT":{},"GE":{},"LE":{},"NE":{},"Prefix":{},"SortOrder":{},"NextToken":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","members":{"Results":{"type":"list","member":{"type":"structure","members":{"EvaluationId":{},"MLModelId":{},"EvaluationDataSourceId":{},"InputDataLocationS3":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"PerformanceMetrics":{"shape":"S2g"},"Message":{}}}},"NextToken":{}}},"http":{}},"DescribeMLModels":{"input":{"type":"structure","members":{"FilterVariable":{},"EQ":{},"GT":{},"LT":{},"GE":{},"LE":{},"NE":{},"Prefix":{},"SortOrder":{},"NextToken":{},"Limit":{"type":"integer"}}},"output":{"type":"structure","members":{"Results":{"type":"list","member":{"type":"structure","members":{"MLModelId":{},"TrainingDataSourceId":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"SizeInBytes":{"type":"long"},"EndpointInfo":{"shape":"S1c"},"TrainingParameters":{"shape":"S16"},"InputDataLocationS3":{},"Algorithm":{},"MLModelType":{},"ScoreThreshold":{"type":"float"},"ScoreThresholdLastUpdatedAt":{"type":"timestamp"},"Message":{}}}},"NextToken":{}}},"http":{}},"GetBatchPrediction":{"input":{"type":"structure","required":["BatchPredictionId"],"members":{"BatchPredictionId":{}}},"output":{"type":"structure","members":{"BatchPredictionId":{},"MLModelId":{},"BatchPredictionDataSourceId":{},"InputDataLocationS3":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"OutputUri":{},"LogUri":{},"Message":{}}},"http":{}},"GetDataSource":{"input":{"type":"structure","required":["DataSourceId"],"members":{"DataSourceId":{},"Verbose":{"type":"boolean"}}},"output":{"type":"structure","members":{"DataSourceId":{},"DataLocationS3":{},"DataRearrangement":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"DataSizeInBytes":{"type":"long"},"NumberOfFiles":{"type":"long"},"Name":{},"Status":{},"LogUri":{},"Message":{},"RedshiftMetadata":{"shape":"S28"},"RDSMetadata":{"shape":"S29"},"RoleARN":{},"ComputeStatistics":{"type":"boolean"},"DataSourceSchema":{}}},"http":{}},"GetEvaluation":{"input":{"type":"structure","required":["EvaluationId"],"members":{"EvaluationId":{}}},"output":{"type":"structure","members":{"EvaluationId":{},"MLModelId":{},"EvaluationDataSourceId":{},"InputDataLocationS3":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"PerformanceMetrics":{"shape":"S2g"},"LogUri":{},"Message":{}}},"http":{}},"GetMLModel":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{},"Verbose":{"type":"boolean"}}},"output":{"type":"structure","members":{"MLModelId":{},"TrainingDataSourceId":{},"CreatedByIamUser":{},"CreatedAt":{"type":"timestamp"},"LastUpdatedAt":{"type":"timestamp"},"Name":{},"Status":{},"SizeInBytes":{"type":"long"},"EndpointInfo":{"shape":"S1c"},"TrainingParameters":{"shape":"S16"},"InputDataLocationS3":{},"MLModelType":{},"ScoreThreshold":{"type":"float"},"ScoreThresholdLastUpdatedAt":{"type":"timestamp"},"LogUri":{},"Message":{},"Recipe":{},"Schema":{}}},"http":{}},"Predict":{"input":{"type":"structure","required":["MLModelId","Record","PredictEndpoint"],"members":{"MLModelId":{},"Record":{"type":"map","key":{},"value":{}},"PredictEndpoint":{}}},"output":{"type":"structure","members":{"Prediction":{"type":"structure","members":{"predictedLabel":{},"predictedValue":{"type":"float"},"predictedScores":{"type":"map","key":{},"value":{"type":"float"}},"details":{"type":"map","key":{},"value":{}}}}}},"http":{}},"UpdateBatchPrediction":{"input":{"type":"structure","required":["BatchPredictionId","BatchPredictionName"],"members":{"BatchPredictionId":{},"BatchPredictionName":{}}},"output":{"type":"structure","members":{"BatchPredictionId":{}}},"http":{}},"UpdateDataSource":{"input":{"type":"structure","required":["DataSourceId","DataSourceName"],"members":{"DataSourceId":{},"DataSourceName":{}}},"output":{"type":"structure","members":{"DataSourceId":{}}},"http":{}},"UpdateEvaluation":{"input":{"type":"structure","required":["EvaluationId","EvaluationName"],"members":{"EvaluationId":{},"EvaluationName":{}}},"output":{"type":"structure","members":{"EvaluationId":{}}},"http":{}},"UpdateMLModel":{"input":{"type":"structure","required":["MLModelId"],"members":{"MLModelId":{},"MLModelName":{},"ScoreThreshold":{"type":"float"}}},"output":{"type":"structure","members":{"MLModelId":{}}},"http":{}}},"shapes":{"S8":{"type":"structure","required":["InstanceIdentifier","DatabaseName"],"members":{"InstanceIdentifier":{},"DatabaseName":{}}},"Sr":{"type":"structure","required":["DatabaseName","ClusterIdentifier"],"members":{"DatabaseName":{},"ClusterIdentifier":{}}},"S16":{"type":"map","key":{},"value":{}},"S1c":{"type":"structure","members":{"PeakRequestsPerSecond":{"type":"integer"},"CreatedAt":{"type":"timestamp"},"EndpointUrl":{},"EndpointStatus":{}}},"S28":{"type":"structure","members":{"RedshiftDatabase":{"shape":"Sr"},"DatabaseUserName":{},"SelectSqlQuery":{}}},"S29":{"type":"structure","members":{"Database":{"shape":"S8"},"DatabaseUserName":{},"SelectSqlQuery":{},"ResourceRole":{},"ServiceRole":{},"DataPipelineId":{}}},"S2g":{"type":"structure","members":{"Properties":{"type":"map","key":{},"value":{}}}}},"examples":{},"paginators":{"DescribeBatchPredictions":{"limit_key":"Limit","output_token":"NextToken","input_token":"NextToken","result_key":"Results"},"DescribeDataSources":{"limit_key":"Limit","output_token":"NextToken","input_token":"NextToken","result_key":"Results"},"DescribeEvaluations":{"limit_key":"Limit","output_token":"NextToken","input_token":"NextToken","result_key":"Results"},"DescribeMLModels":{"limit_key":"Limit","output_token":"NextToken","input_token":"NextToken","result_key":"Results"}}};
 AWS.apiLoader.services['mobileanalytics'] = {};
 AWS.MobileAnalytics = AWS.Service.defineService('mobileanalytics', [ '2014-06-05' ]);
 
@@ -86,7 +86,7 @@ AWS.apiLoader.services['s3'] = {};
 AWS.S3 = AWS.Service.defineService('s3', [ '2006-03-01' ]);
 require('./services/s3');
 
-AWS.apiLoader.services['s3']['2006-03-01'] = {"version":"2.0","metadata":{"apiVersion":"2006-03-01","checksumFormat":"md5","endpointPrefix":"s3","globalEndpoint":"s3.amazonaws.com","serviceAbbreviation":"Amazon S3","serviceFullName":"Amazon Simple Storage Service","signatureVersion":"s3","timestampFormat":"rfc822","protocol":"rest-xml"},"operations":{"AbortMultipartUpload":{"http":{"method":"DELETE","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key","UploadId"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"UploadId":{"location":"querystring","locationName":"uploadId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"CompleteMultipartUpload":{"http":{"requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key","UploadId"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"MultipartUpload":{"locationName":"CompleteMultipartUpload","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"type":"structure","members":{"Parts":{"locationName":"Part","type":"list","member":{"type":"structure","members":{"ETag":{},"PartNumber":{"type":"integer"}}},"flattened":true}}},"UploadId":{"location":"querystring","locationName":"uploadId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"MultipartUpload"},"output":{"type":"structure","members":{"Location":{},"Bucket":{},"Key":{},"Expiration":{"location":"header","locationName":"x-amz-expiration"},"ETag":{},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"CopyObject":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","CopySource","Key"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"Bucket":{"location":"uri","locationName":"Bucket"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentType":{"location":"header","locationName":"Content-Type"},"CopySource":{"location":"header","locationName":"x-amz-copy-source"},"CopySourceIfMatch":{"location":"header","locationName":"x-amz-copy-source-if-match"},"CopySourceIfModifiedSince":{"location":"header","locationName":"x-amz-copy-source-if-modified-since","type":"timestamp"},"CopySourceIfNoneMatch":{"location":"header","locationName":"x-amz-copy-source-if-none-match"},"CopySourceIfUnmodifiedSince":{"location":"header","locationName":"x-amz-copy-source-if-unmodified-since","type":"timestamp"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"},"Key":{"location":"uri","locationName":"Key"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"MetadataDirective":{"location":"header","locationName":"x-amz-metadata-directive"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"CopySourceSSECustomerAlgorithm":{"location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-algorithm"},"CopySourceSSECustomerKey":{"shape":"S1b","location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-key"},"CopySourceSSECustomerKeyMD5":{"location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"CopyObjectResult":{"type":"structure","members":{"ETag":{},"LastModified":{"type":"timestamp"}}},"Expiration":{"location":"header","locationName":"x-amz-expiration"},"CopySourceVersionId":{"location":"header","locationName":"x-amz-copy-source-version-id"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}},"payload":"CopyObjectResult"},"alias":"PutObjectCopy"},"CreateBucket":{"http":{"method":"PUT","requestUri":"/{Bucket}"},"input":{"type":"structure","required":["Bucket"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"Bucket":{"location":"uri","locationName":"Bucket"},"CreateBucketConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"CreateBucketConfiguration","type":"structure","members":{"LocationConstraint":{}}},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWrite":{"location":"header","locationName":"x-amz-grant-write"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"}},"payload":"CreateBucketConfiguration"},"output":{"type":"structure","members":{"Location":{"location":"header","locationName":"Location"}}},"alias":"PutBucket"},"CreateMultipartUpload":{"http":{"requestUri":"/{Bucket}/{Key+}?uploads"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"Bucket":{"location":"uri","locationName":"Bucket"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentType":{"location":"header","locationName":"Content-Type"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"},"Key":{"location":"uri","locationName":"Key"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Bucket":{"locationName":"Bucket"},"Key":{},"UploadId":{},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}},"alias":"InitiateMultipartUpload"},"DeleteBucket":{"http":{"method":"DELETE","requestUri":"/{Bucket}"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketCors":{"http":{"method":"DELETE","requestUri":"/{Bucket}?cors"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketLifecycle":{"http":{"method":"DELETE","requestUri":"/{Bucket}?lifecycle"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketPolicy":{"http":{"method":"DELETE","requestUri":"/{Bucket}?policy"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketReplication":{"http":{"method":"DELETE","requestUri":"/{Bucket}?replication"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketTagging":{"http":{"method":"DELETE","requestUri":"/{Bucket}?tagging"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketWebsite":{"http":{"method":"DELETE","requestUri":"/{Bucket}?website"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteObject":{"http":{"method":"DELETE","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"MFA":{"location":"header","locationName":"x-amz-mfa"},"VersionId":{"location":"querystring","locationName":"versionId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"DeleteMarker":{"location":"header","locationName":"x-amz-delete-marker","type":"boolean"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"DeleteObjects":{"http":{"requestUri":"/{Bucket}?delete"},"input":{"type":"structure","required":["Bucket","Delete"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Delete":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"Delete","type":"structure","required":["Objects"],"members":{"Objects":{"locationName":"Object","type":"list","member":{"type":"structure","required":["Key"],"members":{"Key":{},"VersionId":{}}},"flattened":true},"Quiet":{"type":"boolean"}}},"MFA":{"location":"header","locationName":"x-amz-mfa"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"Delete"},"output":{"type":"structure","members":{"Deleted":{"type":"list","member":{"type":"structure","members":{"Key":{},"VersionId":{},"DeleteMarker":{"type":"boolean"},"DeleteMarkerVersionId":{}}},"flattened":true},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"},"Errors":{"locationName":"Error","type":"list","member":{"type":"structure","members":{"Key":{},"VersionId":{},"Code":{},"Message":{}}},"flattened":true}}},"alias":"DeleteMultipleObjects"},"GetBucketAcl":{"http":{"method":"GET","requestUri":"/{Bucket}?acl"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Owner":{"shape":"S2f"},"Grants":{"shape":"S2i","locationName":"AccessControlList"}}}},"GetBucketCors":{"http":{"method":"GET","requestUri":"/{Bucket}?cors"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"CORSRules":{"shape":"S2r","locationName":"CORSRule"}}}},"GetBucketLifecycle":{"http":{"method":"GET","requestUri":"/{Bucket}?lifecycle"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Rules":{"shape":"S34","locationName":"Rule"}}}},"GetBucketLocation":{"http":{"method":"GET","requestUri":"/{Bucket}?location"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"LocationConstraint":{}}}},"GetBucketLogging":{"http":{"method":"GET","requestUri":"/{Bucket}?logging"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"LoggingEnabled":{"shape":"S3j"}}}},"GetBucketNotification":{"http":{"method":"GET","requestUri":"/{Bucket}?notification"},"input":{"shape":"S3p"},"output":{"shape":"S3q"},"deprecated":true},"GetBucketNotificationConfiguration":{"http":{"method":"GET","requestUri":"/{Bucket}?notification"},"input":{"shape":"S3p"},"output":{"shape":"S41"}},"GetBucketPolicy":{"http":{"method":"GET","requestUri":"/{Bucket}?policy"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Policy":{}},"payload":"Policy"}},"GetBucketReplication":{"http":{"method":"GET","requestUri":"/{Bucket}?replication"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"ReplicationConfiguration":{"shape":"S4k"}},"payload":"ReplicationConfiguration"}},"GetBucketRequestPayment":{"http":{"method":"GET","requestUri":"/{Bucket}?requestPayment"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Payer":{}}}},"GetBucketTagging":{"http":{"method":"GET","requestUri":"/{Bucket}?tagging"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","required":["TagSet"],"members":{"TagSet":{"shape":"S4v"}}}},"GetBucketVersioning":{"http":{"method":"GET","requestUri":"/{Bucket}?versioning"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Status":{},"MFADelete":{"locationName":"MfaDelete"}}}},"GetBucketWebsite":{"http":{"method":"GET","requestUri":"/{Bucket}?website"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"RedirectAllRequestsTo":{"shape":"S54"},"IndexDocument":{"shape":"S57"},"ErrorDocument":{"shape":"S59"},"RoutingRules":{"shape":"S5a"}}}},"GetObject":{"http":{"method":"GET","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"IfMatch":{"location":"header","locationName":"If-Match"},"IfModifiedSince":{"location":"header","locationName":"If-Modified-Since","type":"timestamp"},"IfNoneMatch":{"location":"header","locationName":"If-None-Match"},"IfUnmodifiedSince":{"location":"header","locationName":"If-Unmodified-Since","type":"timestamp"},"Key":{"location":"uri","locationName":"Key"},"Range":{"location":"header","locationName":"Range"},"ResponseCacheControl":{"location":"querystring","locationName":"response-cache-control"},"ResponseContentDisposition":{"location":"querystring","locationName":"response-content-disposition"},"ResponseContentEncoding":{"location":"querystring","locationName":"response-content-encoding"},"ResponseContentLanguage":{"location":"querystring","locationName":"response-content-language"},"ResponseContentType":{"location":"querystring","locationName":"response-content-type"},"ResponseExpires":{"location":"querystring","locationName":"response-expires","type":"timestamp"},"VersionId":{"location":"querystring","locationName":"versionId"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Body":{"streaming":true,"type":"blob"},"DeleteMarker":{"location":"header","locationName":"x-amz-delete-marker","type":"boolean"},"AcceptRanges":{"location":"header","locationName":"accept-ranges"},"Expiration":{"location":"header","locationName":"x-amz-expiration"},"Restore":{"location":"header","locationName":"x-amz-restore"},"LastModified":{"location":"header","locationName":"Last-Modified","type":"timestamp"},"ContentLength":{"location":"header","locationName":"Content-Length","type":"integer"},"ETag":{"location":"header","locationName":"ETag"},"MissingMeta":{"location":"header","locationName":"x-amz-missing-meta","type":"integer"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentRange":{"location":"header","locationName":"Content-Range"},"ContentType":{"location":"header","locationName":"Content-Type"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"},"ReplicationStatus":{"location":"header","locationName":"x-amz-replication-status"}},"payload":"Body"}},"GetObjectAcl":{"http":{"method":"GET","requestUri":"/{Bucket}/{Key+}?acl"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"VersionId":{"location":"querystring","locationName":"versionId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Owner":{"shape":"S2f"},"Grants":{"shape":"S2i","locationName":"AccessControlList"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"GetObjectTorrent":{"http":{"method":"GET","requestUri":"/{Bucket}/{Key+}?torrent"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Body":{"streaming":true,"type":"blob"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}},"payload":"Body"}},"HeadBucket":{"http":{"method":"HEAD","requestUri":"/{Bucket}"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"HeadObject":{"http":{"method":"HEAD","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"IfMatch":{"location":"header","locationName":"If-Match"},"IfModifiedSince":{"location":"header","locationName":"If-Modified-Since","type":"timestamp"},"IfNoneMatch":{"location":"header","locationName":"If-None-Match"},"IfUnmodifiedSince":{"location":"header","locationName":"If-Unmodified-Since","type":"timestamp"},"Key":{"location":"uri","locationName":"Key"},"Range":{"location":"header","locationName":"Range"},"VersionId":{"location":"querystring","locationName":"versionId"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"DeleteMarker":{"location":"header","locationName":"x-amz-delete-marker","type":"boolean"},"AcceptRanges":{"location":"header","locationName":"accept-ranges"},"Expiration":{"location":"header","locationName":"x-amz-expiration"},"Restore":{"location":"header","locationName":"x-amz-restore"},"LastModified":{"location":"header","locationName":"Last-Modified","type":"timestamp"},"ContentLength":{"location":"header","locationName":"Content-Length","type":"integer"},"ETag":{"location":"header","locationName":"ETag"},"MissingMeta":{"location":"header","locationName":"x-amz-missing-meta","type":"integer"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentType":{"location":"header","locationName":"Content-Type"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"},"ReplicationStatus":{"location":"header","locationName":"x-amz-replication-status"}}}},"ListBuckets":{"http":{"method":"GET"},"output":{"type":"structure","members":{"Buckets":{"type":"list","member":{"locationName":"Bucket","type":"structure","members":{"Name":{},"CreationDate":{"type":"timestamp"}}}},"Owner":{"shape":"S2f"}}},"alias":"GetService"},"ListMultipartUploads":{"http":{"method":"GET","requestUri":"/{Bucket}?uploads"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Delimiter":{"location":"querystring","locationName":"delimiter"},"EncodingType":{"location":"querystring","locationName":"encoding-type"},"KeyMarker":{"location":"querystring","locationName":"key-marker"},"MaxUploads":{"location":"querystring","locationName":"max-uploads","type":"integer"},"Prefix":{"location":"querystring","locationName":"prefix"},"UploadIdMarker":{"location":"querystring","locationName":"upload-id-marker"}}},"output":{"type":"structure","members":{"Bucket":{},"KeyMarker":{},"UploadIdMarker":{},"NextKeyMarker":{},"Prefix":{},"Delimiter":{},"NextUploadIdMarker":{},"MaxUploads":{"type":"integer"},"IsTruncated":{"type":"boolean"},"Uploads":{"locationName":"Upload","type":"list","member":{"type":"structure","members":{"UploadId":{},"Key":{},"Initiated":{"type":"timestamp"},"StorageClass":{},"Owner":{"shape":"S2f"},"Initiator":{"shape":"S6r"}}},"flattened":true},"CommonPrefixes":{"shape":"S6s"},"EncodingType":{}}}},"ListObjectVersions":{"http":{"method":"GET","requestUri":"/{Bucket}?versions"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Delimiter":{"location":"querystring","locationName":"delimiter"},"EncodingType":{"location":"querystring","locationName":"encoding-type"},"KeyMarker":{"location":"querystring","locationName":"key-marker"},"MaxKeys":{"location":"querystring","locationName":"max-keys","type":"integer"},"Prefix":{"location":"querystring","locationName":"prefix"},"VersionIdMarker":{"location":"querystring","locationName":"version-id-marker"}}},"output":{"type":"structure","members":{"IsTruncated":{"type":"boolean"},"KeyMarker":{},"VersionIdMarker":{},"NextKeyMarker":{},"NextVersionIdMarker":{},"Versions":{"locationName":"Version","type":"list","member":{"type":"structure","members":{"ETag":{},"Size":{"type":"integer"},"StorageClass":{},"Key":{},"VersionId":{},"IsLatest":{"type":"boolean"},"LastModified":{"type":"timestamp"},"Owner":{"shape":"S2f"}}},"flattened":true},"DeleteMarkers":{"locationName":"DeleteMarker","type":"list","member":{"type":"structure","members":{"Owner":{"shape":"S2f"},"Key":{},"VersionId":{},"IsLatest":{"type":"boolean"},"LastModified":{"type":"timestamp"}}},"flattened":true},"Name":{},"Prefix":{},"Delimiter":{},"MaxKeys":{"type":"integer"},"CommonPrefixes":{"shape":"S6s"},"EncodingType":{}}},"alias":"GetBucketObjectVersions"},"ListObjects":{"http":{"method":"GET","requestUri":"/{Bucket}"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Delimiter":{"location":"querystring","locationName":"delimiter"},"EncodingType":{"location":"querystring","locationName":"encoding-type"},"Marker":{"location":"querystring","locationName":"marker"},"MaxKeys":{"location":"querystring","locationName":"max-keys","type":"integer"},"Prefix":{"location":"querystring","locationName":"prefix"}}},"output":{"type":"structure","members":{"IsTruncated":{"type":"boolean"},"Marker":{},"NextMarker":{},"Contents":{"type":"list","member":{"type":"structure","members":{"Key":{},"LastModified":{"type":"timestamp"},"ETag":{},"Size":{"type":"integer"},"StorageClass":{},"Owner":{"shape":"S2f"}}},"flattened":true},"Name":{},"Prefix":{},"Delimiter":{},"MaxKeys":{"type":"integer"},"CommonPrefixes":{"shape":"S6s"},"EncodingType":{}}},"alias":"GetBucket"},"ListParts":{"http":{"method":"GET","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key","UploadId"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"MaxParts":{"location":"querystring","locationName":"max-parts","type":"integer"},"PartNumberMarker":{"location":"querystring","locationName":"part-number-marker","type":"integer"},"UploadId":{"location":"querystring","locationName":"uploadId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Bucket":{},"Key":{},"UploadId":{},"PartNumberMarker":{"type":"integer"},"NextPartNumberMarker":{"type":"integer"},"MaxParts":{"type":"integer"},"IsTruncated":{"type":"boolean"},"Parts":{"locationName":"Part","type":"list","member":{"type":"structure","members":{"PartNumber":{"type":"integer"},"LastModified":{"type":"timestamp"},"ETag":{},"Size":{"type":"integer"}}},"flattened":true},"Initiator":{"shape":"S6r"},"Owner":{"shape":"S2f"},"StorageClass":{},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"PutBucketAcl":{"http":{"method":"PUT","requestUri":"/{Bucket}?acl"},"input":{"type":"structure","required":["Bucket"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"AccessControlPolicy":{"shape":"S7l","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"AccessControlPolicy"},"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWrite":{"location":"header","locationName":"x-amz-grant-write"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"}},"payload":"AccessControlPolicy"}},"PutBucketCors":{"http":{"method":"PUT","requestUri":"/{Bucket}?cors"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"CORSConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"CORSConfiguration","type":"structure","members":{"CORSRules":{"shape":"S2r","locationName":"CORSRule"}}},"ContentMD5":{"location":"header","locationName":"Content-MD5"}},"payload":"CORSConfiguration"}},"PutBucketLifecycle":{"http":{"method":"PUT","requestUri":"/{Bucket}?lifecycle"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"LifecycleConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"LifecycleConfiguration","type":"structure","required":["Rules"],"members":{"Rules":{"shape":"S34","locationName":"Rule"}}}},"payload":"LifecycleConfiguration"}},"PutBucketLogging":{"http":{"method":"PUT","requestUri":"/{Bucket}?logging"},"input":{"type":"structure","required":["Bucket","BucketLoggingStatus"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"BucketLoggingStatus":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"BucketLoggingStatus","type":"structure","members":{"LoggingEnabled":{"shape":"S3j"}}},"ContentMD5":{"location":"header","locationName":"Content-MD5"}},"payload":"BucketLoggingStatus"}},"PutBucketNotification":{"http":{"method":"PUT","requestUri":"/{Bucket}?notification"},"input":{"type":"structure","required":["Bucket","NotificationConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"NotificationConfiguration":{"shape":"S3q","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"NotificationConfiguration"}},"payload":"NotificationConfiguration"},"deprecated":true},"PutBucketNotificationConfiguration":{"http":{"method":"PUT","requestUri":"/{Bucket}?notification"},"input":{"type":"structure","required":["Bucket","NotificationConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"NotificationConfiguration":{"shape":"S41","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"NotificationConfiguration"}},"payload":"NotificationConfiguration"}},"PutBucketPolicy":{"http":{"method":"PUT","requestUri":"/{Bucket}?policy"},"input":{"type":"structure","required":["Bucket","Policy"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"Policy":{}},"payload":"Policy"}},"PutBucketReplication":{"http":{"method":"PUT","requestUri":"/{Bucket}?replication"},"input":{"type":"structure","required":["Bucket","ReplicationConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"ReplicationConfiguration":{"shape":"S4k","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"ReplicationConfiguration"}},"payload":"ReplicationConfiguration"}},"PutBucketRequestPayment":{"http":{"method":"PUT","requestUri":"/{Bucket}?requestPayment"},"input":{"type":"structure","required":["Bucket","RequestPaymentConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"RequestPaymentConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"RequestPaymentConfiguration","type":"structure","required":["Payer"],"members":{"Payer":{}}}},"payload":"RequestPaymentConfiguration"}},"PutBucketTagging":{"http":{"method":"PUT","requestUri":"/{Bucket}?tagging"},"input":{"type":"structure","required":["Bucket","Tagging"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"Tagging":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"Tagging","type":"structure","required":["TagSet"],"members":{"TagSet":{"shape":"S4v"}}}},"payload":"Tagging"}},"PutBucketVersioning":{"http":{"method":"PUT","requestUri":"/{Bucket}?versioning"},"input":{"type":"structure","required":["Bucket","VersioningConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"MFA":{"location":"header","locationName":"x-amz-mfa"},"VersioningConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"VersioningConfiguration","type":"structure","members":{"MFADelete":{"locationName":"MfaDelete"},"Status":{}}}},"payload":"VersioningConfiguration"}},"PutBucketWebsite":{"http":{"method":"PUT","requestUri":"/{Bucket}?website"},"input":{"type":"structure","required":["Bucket","WebsiteConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"WebsiteConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"WebsiteConfiguration","type":"structure","members":{"ErrorDocument":{"shape":"S59"},"IndexDocument":{"shape":"S57"},"RedirectAllRequestsTo":{"shape":"S54"},"RoutingRules":{"shape":"S5a"}}}},"payload":"WebsiteConfiguration"}},"PutObject":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"Body":{"streaming":true,"type":"blob"},"Bucket":{"location":"uri","locationName":"Bucket"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentLength":{"location":"header","locationName":"Content-Length","type":"integer"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"ContentType":{"location":"header","locationName":"Content-Type"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"},"Key":{"location":"uri","locationName":"Key"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"Body"},"output":{"type":"structure","members":{"Expiration":{"location":"header","locationName":"x-amz-expiration"},"ETag":{"location":"header","locationName":"ETag"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"PutObjectAcl":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}?acl"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"AccessControlPolicy":{"shape":"S7l","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"AccessControlPolicy"},"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWrite":{"location":"header","locationName":"x-amz-grant-write"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"},"Key":{"location":"uri","locationName":"Key"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"AccessControlPolicy"},"output":{"type":"structure","members":{"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"RestoreObject":{"http":{"requestUri":"/{Bucket}/{Key+}?restore"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"VersionId":{"location":"querystring","locationName":"versionId"},"RestoreRequest":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"RestoreRequest","type":"structure","required":["Days"],"members":{"Days":{"type":"integer"}}},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"RestoreRequest"},"output":{"type":"structure","members":{"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}},"alias":"PostObjectRestore"},"UploadPart":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key","PartNumber","UploadId"],"members":{"Body":{"streaming":true,"type":"blob"},"Bucket":{"location":"uri","locationName":"Bucket"},"ContentLength":{"location":"header","locationName":"Content-Length","type":"integer"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"Key":{"location":"uri","locationName":"Key"},"PartNumber":{"location":"querystring","locationName":"partNumber","type":"integer"},"UploadId":{"location":"querystring","locationName":"uploadId"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"Body"},"output":{"type":"structure","members":{"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"ETag":{"location":"header","locationName":"ETag"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"UploadPartCopy":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","CopySource","Key","PartNumber","UploadId"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"CopySource":{"location":"header","locationName":"x-amz-copy-source"},"CopySourceIfMatch":{"location":"header","locationName":"x-amz-copy-source-if-match"},"CopySourceIfModifiedSince":{"location":"header","locationName":"x-amz-copy-source-if-modified-since","type":"timestamp"},"CopySourceIfNoneMatch":{"location":"header","locationName":"x-amz-copy-source-if-none-match"},"CopySourceIfUnmodifiedSince":{"location":"header","locationName":"x-amz-copy-source-if-unmodified-since","type":"timestamp"},"CopySourceRange":{"location":"header","locationName":"x-amz-copy-source-range"},"Key":{"location":"uri","locationName":"Key"},"PartNumber":{"location":"querystring","locationName":"partNumber","type":"integer"},"UploadId":{"location":"querystring","locationName":"uploadId"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"CopySourceSSECustomerAlgorithm":{"location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-algorithm"},"CopySourceSSECustomerKey":{"shape":"S1b","location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-key"},"CopySourceSSECustomerKeyMD5":{"location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"CopySourceVersionId":{"location":"header","locationName":"x-amz-copy-source-version-id"},"CopyPartResult":{"type":"structure","members":{"ETag":{},"LastModified":{"type":"timestamp"}}},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}},"payload":"CopyPartResult"}}},"shapes":{"Sj":{"type":"string","sensitive":true},"S11":{"type":"map","key":{},"value":{}},"S18":{"type":"blob","sensitive":true},"S1b":{"type":"blob","sensitive":true},"S2f":{"type":"structure","members":{"DisplayName":{},"ID":{}}},"S2i":{"type":"list","member":{"locationName":"Grant","type":"structure","members":{"Grantee":{"shape":"S2k"},"Permission":{}}}},"S2k":{"type":"structure","required":["Type"],"members":{"DisplayName":{},"EmailAddress":{},"ID":{},"Type":{"xmlAttribute":true,"locationName":"xsi:type"},"URI":{}},"xmlNamespace":{"prefix":"xsi","uri":"http://www.w3.org/2001/XMLSchema-instance"}},"S2r":{"type":"list","member":{"type":"structure","members":{"AllowedHeaders":{"locationName":"AllowedHeader","type":"list","member":{},"flattened":true},"AllowedMethods":{"locationName":"AllowedMethod","type":"list","member":{},"flattened":true},"AllowedOrigins":{"locationName":"AllowedOrigin","type":"list","member":{},"flattened":true},"ExposeHeaders":{"locationName":"ExposeHeader","type":"list","member":{},"flattened":true},"MaxAgeSeconds":{"type":"integer"}}},"flattened":true},"S34":{"type":"list","member":{"type":"structure","required":["Prefix","Status"],"members":{"Expiration":{"type":"structure","members":{"Date":{"shape":"S37"},"Days":{"type":"integer"}}},"ID":{},"Prefix":{},"Status":{},"Transition":{"type":"structure","members":{"Date":{"shape":"S37"},"Days":{"type":"integer"},"StorageClass":{}}},"NoncurrentVersionTransition":{"type":"structure","members":{"NoncurrentDays":{"type":"integer"},"StorageClass":{}}},"NoncurrentVersionExpiration":{"type":"structure","members":{"NoncurrentDays":{"type":"integer"}}}}},"flattened":true},"S37":{"type":"timestamp","timestampFormat":"iso8601"},"S3j":{"type":"structure","members":{"TargetBucket":{},"TargetGrants":{"type":"list","member":{"locationName":"Grant","type":"structure","members":{"Grantee":{"shape":"S2k"},"Permission":{}}}},"TargetPrefix":{}}},"S3p":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"S3q":{"type":"structure","members":{"TopicConfiguration":{"type":"structure","members":{"Id":{},"Events":{"shape":"S3t","locationName":"Event"},"Event":{"deprecated":true},"Topic":{}}},"QueueConfiguration":{"type":"structure","members":{"Id":{},"Event":{"deprecated":true},"Events":{"shape":"S3t","locationName":"Event"},"Queue":{}}},"CloudFunctionConfiguration":{"type":"structure","members":{"Id":{},"Event":{"deprecated":true},"Events":{"shape":"S3t","locationName":"Event"},"CloudFunction":{},"InvocationRole":{}}}}},"S3t":{"type":"list","member":{},"flattened":true},"S41":{"type":"structure","members":{"TopicConfigurations":{"locationName":"TopicConfiguration","type":"list","member":{"type":"structure","required":["TopicArn","Events"],"members":{"Id":{},"TopicArn":{"locationName":"Topic"},"Events":{"shape":"S3t","locationName":"Event"},"Filter":{"shape":"S44"}}},"flattened":true},"QueueConfigurations":{"locationName":"QueueConfiguration","type":"list","member":{"type":"structure","required":["QueueArn","Events"],"members":{"Id":{},"QueueArn":{"locationName":"Queue"},"Events":{"shape":"S3t","locationName":"Event"},"Filter":{"shape":"S44"}}},"flattened":true},"LambdaFunctionConfigurations":{"locationName":"CloudFunctionConfiguration","type":"list","member":{"type":"structure","required":["LambdaFunctionArn","Events"],"members":{"Id":{},"LambdaFunctionArn":{"locationName":"CloudFunction"},"Events":{"shape":"S3t","locationName":"Event"},"Filter":{"shape":"S44"}}},"flattened":true}}},"S44":{"type":"structure","members":{"Key":{"locationName":"S3Key","type":"structure","members":{"FilterRules":{"locationName":"FilterRule","type":"list","member":{"type":"structure","members":{"Name":{},"Value":{}}},"flattened":true}}}}},"S4k":{"type":"structure","required":["Role","Rules"],"members":{"Role":{},"Rules":{"locationName":"Rule","type":"list","member":{"type":"structure","required":["Prefix","Status","Destination"],"members":{"ID":{},"Prefix":{},"Status":{},"Destination":{"type":"structure","required":["Bucket"],"members":{"Bucket":{}}}}},"flattened":true}}},"S4v":{"type":"list","member":{"locationName":"Tag","type":"structure","required":["Key","Value"],"members":{"Key":{},"Value":{}}}},"S54":{"type":"structure","required":["HostName"],"members":{"HostName":{},"Protocol":{}}},"S57":{"type":"structure","required":["Suffix"],"members":{"Suffix":{}}},"S59":{"type":"structure","required":["Key"],"members":{"Key":{}}},"S5a":{"type":"list","member":{"locationName":"RoutingRule","type":"structure","required":["Redirect"],"members":{"Condition":{"type":"structure","members":{"HttpErrorCodeReturnedEquals":{},"KeyPrefixEquals":{}}},"Redirect":{"type":"structure","members":{"HostName":{},"HttpRedirectCode":{},"Protocol":{},"ReplaceKeyPrefixWith":{},"ReplaceKeyWith":{}}}}}},"S6r":{"type":"structure","members":{"ID":{},"DisplayName":{}}},"S6s":{"type":"list","member":{"type":"structure","members":{"Prefix":{}}},"flattened":true},"S7l":{"type":"structure","members":{"Grants":{"shape":"S2i","locationName":"AccessControlList"},"Owner":{"shape":"S2f"}}}},"examples":{},"paginators":{"ListBuckets":{"result_key":"Buckets"},"ListMultipartUploads":{"limit_key":"MaxUploads","more_results":"IsTruncated","output_token":["NextKeyMarker","NextUploadIdMarker"],"input_token":["KeyMarker","UploadIdMarker"],"result_key":["Uploads","CommonPrefixes"]},"ListObjectVersions":{"more_results":"IsTruncated","limit_key":"MaxKeys","output_token":["NextKeyMarker","NextVersionIdMarker"],"input_token":["KeyMarker","VersionIdMarker"],"result_key":["Versions","DeleteMarkers","CommonPrefixes"]},"ListObjects":{"more_results":"IsTruncated","limit_key":"MaxKeys","output_token":"NextMarker || Contents[-1].Key","input_token":"Marker","result_key":["Contents","CommonPrefixes"]},"ListParts":{"more_results":"IsTruncated","limit_key":"MaxParts","output_token":"NextPartNumberMarker","input_token":"PartNumberMarker","result_key":"Parts"}},"waiters":{"__default__":{"interval":5,"max_attempts":20},"BucketExists":{"operation":"HeadBucket","ignore_errors":[404],"success_type":"output"},"BucketNotExists":{"operation":"HeadBucket","success_type":"error","success_value":404},"ObjectExists":{"operation":"HeadObject","ignore_errors":[404],"success_type":"output"},"ObjectNotExists":{"operation":"HeadObject","success_type":"error","success_value":404}}};
+AWS.apiLoader.services['s3']['2006-03-01'] = {"version":"2.0","metadata":{"apiVersion":"2006-03-01","checksumFormat":"md5","endpointPrefix":"s3","globalEndpoint":"s3.amazonaws.com","serviceAbbreviation":"Amazon S3","serviceFullName":"Amazon Simple Storage Service","signatureVersion":"s3","timestampFormat":"rfc822","protocol":"rest-xml"},"operations":{"AbortMultipartUpload":{"http":{"method":"DELETE","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key","UploadId"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"UploadId":{"location":"querystring","locationName":"uploadId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"CompleteMultipartUpload":{"http":{"requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key","UploadId"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"MultipartUpload":{"locationName":"CompleteMultipartUpload","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"type":"structure","members":{"Parts":{"locationName":"Part","type":"list","member":{"type":"structure","members":{"ETag":{},"PartNumber":{"type":"integer"}}},"flattened":true}}},"UploadId":{"location":"querystring","locationName":"uploadId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"MultipartUpload"},"output":{"type":"structure","members":{"Location":{},"Bucket":{},"Key":{},"Expiration":{"location":"header","locationName":"x-amz-expiration"},"ETag":{},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"CopyObject":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","CopySource","Key"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"Bucket":{"location":"uri","locationName":"Bucket"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentType":{"location":"header","locationName":"Content-Type"},"CopySource":{"location":"header","locationName":"x-amz-copy-source"},"CopySourceIfMatch":{"location":"header","locationName":"x-amz-copy-source-if-match"},"CopySourceIfModifiedSince":{"location":"header","locationName":"x-amz-copy-source-if-modified-since","type":"timestamp"},"CopySourceIfNoneMatch":{"location":"header","locationName":"x-amz-copy-source-if-none-match"},"CopySourceIfUnmodifiedSince":{"location":"header","locationName":"x-amz-copy-source-if-unmodified-since","type":"timestamp"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"},"Key":{"location":"uri","locationName":"Key"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"MetadataDirective":{"location":"header","locationName":"x-amz-metadata-directive"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"CopySourceSSECustomerAlgorithm":{"location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-algorithm"},"CopySourceSSECustomerKey":{"shape":"S1b","location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-key"},"CopySourceSSECustomerKeyMD5":{"location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"CopyObjectResult":{"type":"structure","members":{"ETag":{},"LastModified":{"type":"timestamp"}}},"Expiration":{"location":"header","locationName":"x-amz-expiration"},"CopySourceVersionId":{"location":"header","locationName":"x-amz-copy-source-version-id"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}},"payload":"CopyObjectResult"},"alias":"PutObjectCopy"},"CreateBucket":{"http":{"method":"PUT","requestUri":"/{Bucket}"},"input":{"type":"structure","required":["Bucket"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"Bucket":{"location":"uri","locationName":"Bucket"},"CreateBucketConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"CreateBucketConfiguration","type":"structure","members":{"LocationConstraint":{}}},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWrite":{"location":"header","locationName":"x-amz-grant-write"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"}},"payload":"CreateBucketConfiguration"},"output":{"type":"structure","members":{"Location":{"location":"header","locationName":"Location"}}},"alias":"PutBucket"},"CreateMultipartUpload":{"http":{"requestUri":"/{Bucket}/{Key+}?uploads"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"Bucket":{"location":"uri","locationName":"Bucket"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentType":{"location":"header","locationName":"Content-Type"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"},"Key":{"location":"uri","locationName":"Key"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Bucket":{"locationName":"Bucket"},"Key":{},"UploadId":{},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}},"alias":"InitiateMultipartUpload"},"DeleteBucket":{"http":{"method":"DELETE","requestUri":"/{Bucket}"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketCors":{"http":{"method":"DELETE","requestUri":"/{Bucket}?cors"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketLifecycle":{"http":{"method":"DELETE","requestUri":"/{Bucket}?lifecycle"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketPolicy":{"http":{"method":"DELETE","requestUri":"/{Bucket}?policy"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketReplication":{"http":{"method":"DELETE","requestUri":"/{Bucket}?replication"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketTagging":{"http":{"method":"DELETE","requestUri":"/{Bucket}?tagging"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteBucketWebsite":{"http":{"method":"DELETE","requestUri":"/{Bucket}?website"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"DeleteObject":{"http":{"method":"DELETE","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"MFA":{"location":"header","locationName":"x-amz-mfa"},"VersionId":{"location":"querystring","locationName":"versionId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"DeleteMarker":{"location":"header","locationName":"x-amz-delete-marker","type":"boolean"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"DeleteObjects":{"http":{"requestUri":"/{Bucket}?delete"},"input":{"type":"structure","required":["Bucket","Delete"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Delete":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"Delete","type":"structure","required":["Objects"],"members":{"Objects":{"locationName":"Object","type":"list","member":{"type":"structure","required":["Key"],"members":{"Key":{},"VersionId":{}}},"flattened":true},"Quiet":{"type":"boolean"}}},"MFA":{"location":"header","locationName":"x-amz-mfa"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"Delete"},"output":{"type":"structure","members":{"Deleted":{"type":"list","member":{"type":"structure","members":{"Key":{},"VersionId":{},"DeleteMarker":{"type":"boolean"},"DeleteMarkerVersionId":{}}},"flattened":true},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"},"Errors":{"locationName":"Error","type":"list","member":{"type":"structure","members":{"Key":{},"VersionId":{},"Code":{},"Message":{}}},"flattened":true}}},"alias":"DeleteMultipleObjects"},"GetBucketAcl":{"http":{"method":"GET","requestUri":"/{Bucket}?acl"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Owner":{"shape":"S2f"},"Grants":{"shape":"S2i","locationName":"AccessControlList"}}}},"GetBucketCors":{"http":{"method":"GET","requestUri":"/{Bucket}?cors"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"CORSRules":{"shape":"S2r","locationName":"CORSRule"}}}},"GetBucketLifecycle":{"http":{"method":"GET","requestUri":"/{Bucket}?lifecycle"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Rules":{"shape":"S34","locationName":"Rule"}}},"deprecated":true},"GetBucketLifecycleConfiguration":{"http":{"method":"GET","requestUri":"/{Bucket}?lifecycle"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Rules":{"shape":"S3h","locationName":"Rule"}}}},"GetBucketLocation":{"http":{"method":"GET","requestUri":"/{Bucket}?location"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"LocationConstraint":{}}}},"GetBucketLogging":{"http":{"method":"GET","requestUri":"/{Bucket}?logging"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"LoggingEnabled":{"shape":"S3p"}}}},"GetBucketNotification":{"http":{"method":"GET","requestUri":"/{Bucket}?notification"},"input":{"shape":"S3v"},"output":{"shape":"S3w"},"deprecated":true},"GetBucketNotificationConfiguration":{"http":{"method":"GET","requestUri":"/{Bucket}?notification"},"input":{"shape":"S3v"},"output":{"shape":"S47"}},"GetBucketPolicy":{"http":{"method":"GET","requestUri":"/{Bucket}?policy"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Policy":{}},"payload":"Policy"}},"GetBucketReplication":{"http":{"method":"GET","requestUri":"/{Bucket}?replication"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"ReplicationConfiguration":{"shape":"S4q"}},"payload":"ReplicationConfiguration"}},"GetBucketRequestPayment":{"http":{"method":"GET","requestUri":"/{Bucket}?requestPayment"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Payer":{}}}},"GetBucketTagging":{"http":{"method":"GET","requestUri":"/{Bucket}?tagging"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","required":["TagSet"],"members":{"TagSet":{"shape":"S51"}}}},"GetBucketVersioning":{"http":{"method":"GET","requestUri":"/{Bucket}?versioning"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"Status":{},"MFADelete":{"locationName":"MfaDelete"}}}},"GetBucketWebsite":{"http":{"method":"GET","requestUri":"/{Bucket}?website"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"output":{"type":"structure","members":{"RedirectAllRequestsTo":{"shape":"S5a"},"IndexDocument":{"shape":"S5d"},"ErrorDocument":{"shape":"S5f"},"RoutingRules":{"shape":"S5g"}}}},"GetObject":{"http":{"method":"GET","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"IfMatch":{"location":"header","locationName":"If-Match"},"IfModifiedSince":{"location":"header","locationName":"If-Modified-Since","type":"timestamp"},"IfNoneMatch":{"location":"header","locationName":"If-None-Match"},"IfUnmodifiedSince":{"location":"header","locationName":"If-Unmodified-Since","type":"timestamp"},"Key":{"location":"uri","locationName":"Key"},"Range":{"location":"header","locationName":"Range"},"ResponseCacheControl":{"location":"querystring","locationName":"response-cache-control"},"ResponseContentDisposition":{"location":"querystring","locationName":"response-content-disposition"},"ResponseContentEncoding":{"location":"querystring","locationName":"response-content-encoding"},"ResponseContentLanguage":{"location":"querystring","locationName":"response-content-language"},"ResponseContentType":{"location":"querystring","locationName":"response-content-type"},"ResponseExpires":{"location":"querystring","locationName":"response-expires","type":"timestamp"},"VersionId":{"location":"querystring","locationName":"versionId"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Body":{"streaming":true,"type":"blob"},"DeleteMarker":{"location":"header","locationName":"x-amz-delete-marker","type":"boolean"},"AcceptRanges":{"location":"header","locationName":"accept-ranges"},"Expiration":{"location":"header","locationName":"x-amz-expiration"},"Restore":{"location":"header","locationName":"x-amz-restore"},"LastModified":{"location":"header","locationName":"Last-Modified","type":"timestamp"},"ContentLength":{"location":"header","locationName":"Content-Length","type":"integer"},"ETag":{"location":"header","locationName":"ETag"},"MissingMeta":{"location":"header","locationName":"x-amz-missing-meta","type":"integer"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentRange":{"location":"header","locationName":"Content-Range"},"ContentType":{"location":"header","locationName":"Content-Type"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"},"ReplicationStatus":{"location":"header","locationName":"x-amz-replication-status"}},"payload":"Body"}},"GetObjectAcl":{"http":{"method":"GET","requestUri":"/{Bucket}/{Key+}?acl"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"VersionId":{"location":"querystring","locationName":"versionId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Owner":{"shape":"S2f"},"Grants":{"shape":"S2i","locationName":"AccessControlList"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"GetObjectTorrent":{"http":{"method":"GET","requestUri":"/{Bucket}/{Key+}?torrent"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Body":{"streaming":true,"type":"blob"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}},"payload":"Body"}},"HeadBucket":{"http":{"method":"HEAD","requestUri":"/{Bucket}"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}}},"HeadObject":{"http":{"method":"HEAD","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"IfMatch":{"location":"header","locationName":"If-Match"},"IfModifiedSince":{"location":"header","locationName":"If-Modified-Since","type":"timestamp"},"IfNoneMatch":{"location":"header","locationName":"If-None-Match"},"IfUnmodifiedSince":{"location":"header","locationName":"If-Unmodified-Since","type":"timestamp"},"Key":{"location":"uri","locationName":"Key"},"Range":{"location":"header","locationName":"Range"},"VersionId":{"location":"querystring","locationName":"versionId"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"DeleteMarker":{"location":"header","locationName":"x-amz-delete-marker","type":"boolean"},"AcceptRanges":{"location":"header","locationName":"accept-ranges"},"Expiration":{"location":"header","locationName":"x-amz-expiration"},"Restore":{"location":"header","locationName":"x-amz-restore"},"LastModified":{"location":"header","locationName":"Last-Modified","type":"timestamp"},"ContentLength":{"location":"header","locationName":"Content-Length","type":"integer"},"ETag":{"location":"header","locationName":"ETag"},"MissingMeta":{"location":"header","locationName":"x-amz-missing-meta","type":"integer"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentType":{"location":"header","locationName":"Content-Type"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"},"ReplicationStatus":{"location":"header","locationName":"x-amz-replication-status"}}}},"ListBuckets":{"http":{"method":"GET"},"output":{"type":"structure","members":{"Buckets":{"type":"list","member":{"locationName":"Bucket","type":"structure","members":{"Name":{},"CreationDate":{"type":"timestamp"}}}},"Owner":{"shape":"S2f"}}},"alias":"GetService"},"ListMultipartUploads":{"http":{"method":"GET","requestUri":"/{Bucket}?uploads"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Delimiter":{"location":"querystring","locationName":"delimiter"},"EncodingType":{"location":"querystring","locationName":"encoding-type"},"KeyMarker":{"location":"querystring","locationName":"key-marker"},"MaxUploads":{"location":"querystring","locationName":"max-uploads","type":"integer"},"Prefix":{"location":"querystring","locationName":"prefix"},"UploadIdMarker":{"location":"querystring","locationName":"upload-id-marker"}}},"output":{"type":"structure","members":{"Bucket":{},"KeyMarker":{},"UploadIdMarker":{},"NextKeyMarker":{},"Prefix":{},"Delimiter":{},"NextUploadIdMarker":{},"MaxUploads":{"type":"integer"},"IsTruncated":{"type":"boolean"},"Uploads":{"locationName":"Upload","type":"list","member":{"type":"structure","members":{"UploadId":{},"Key":{},"Initiated":{"type":"timestamp"},"StorageClass":{},"Owner":{"shape":"S2f"},"Initiator":{"shape":"S6x"}}},"flattened":true},"CommonPrefixes":{"shape":"S6y"},"EncodingType":{}}}},"ListObjectVersions":{"http":{"method":"GET","requestUri":"/{Bucket}?versions"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Delimiter":{"location":"querystring","locationName":"delimiter"},"EncodingType":{"location":"querystring","locationName":"encoding-type"},"KeyMarker":{"location":"querystring","locationName":"key-marker"},"MaxKeys":{"location":"querystring","locationName":"max-keys","type":"integer"},"Prefix":{"location":"querystring","locationName":"prefix"},"VersionIdMarker":{"location":"querystring","locationName":"version-id-marker"}}},"output":{"type":"structure","members":{"IsTruncated":{"type":"boolean"},"KeyMarker":{},"VersionIdMarker":{},"NextKeyMarker":{},"NextVersionIdMarker":{},"Versions":{"locationName":"Version","type":"list","member":{"type":"structure","members":{"ETag":{},"Size":{"type":"integer"},"StorageClass":{},"Key":{},"VersionId":{},"IsLatest":{"type":"boolean"},"LastModified":{"type":"timestamp"},"Owner":{"shape":"S2f"}}},"flattened":true},"DeleteMarkers":{"locationName":"DeleteMarker","type":"list","member":{"type":"structure","members":{"Owner":{"shape":"S2f"},"Key":{},"VersionId":{},"IsLatest":{"type":"boolean"},"LastModified":{"type":"timestamp"}}},"flattened":true},"Name":{},"Prefix":{},"Delimiter":{},"MaxKeys":{"type":"integer"},"CommonPrefixes":{"shape":"S6y"},"EncodingType":{}}},"alias":"GetBucketObjectVersions"},"ListObjects":{"http":{"method":"GET","requestUri":"/{Bucket}"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Delimiter":{"location":"querystring","locationName":"delimiter"},"EncodingType":{"location":"querystring","locationName":"encoding-type"},"Marker":{"location":"querystring","locationName":"marker"},"MaxKeys":{"location":"querystring","locationName":"max-keys","type":"integer"},"Prefix":{"location":"querystring","locationName":"prefix"}}},"output":{"type":"structure","members":{"IsTruncated":{"type":"boolean"},"Marker":{},"NextMarker":{},"Contents":{"type":"list","member":{"type":"structure","members":{"Key":{},"LastModified":{"type":"timestamp"},"ETag":{},"Size":{"type":"integer"},"StorageClass":{},"Owner":{"shape":"S2f"}}},"flattened":true},"Name":{},"Prefix":{},"Delimiter":{},"MaxKeys":{"type":"integer"},"CommonPrefixes":{"shape":"S6y"},"EncodingType":{}}},"alias":"GetBucket"},"ListParts":{"http":{"method":"GET","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key","UploadId"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"MaxParts":{"location":"querystring","locationName":"max-parts","type":"integer"},"PartNumberMarker":{"location":"querystring","locationName":"part-number-marker","type":"integer"},"UploadId":{"location":"querystring","locationName":"uploadId"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"Bucket":{},"Key":{},"UploadId":{},"PartNumberMarker":{"type":"integer"},"NextPartNumberMarker":{"type":"integer"},"MaxParts":{"type":"integer"},"IsTruncated":{"type":"boolean"},"Parts":{"locationName":"Part","type":"list","member":{"type":"structure","members":{"PartNumber":{"type":"integer"},"LastModified":{"type":"timestamp"},"ETag":{},"Size":{"type":"integer"}}},"flattened":true},"Initiator":{"shape":"S6x"},"Owner":{"shape":"S2f"},"StorageClass":{},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"PutBucketAcl":{"http":{"method":"PUT","requestUri":"/{Bucket}?acl"},"input":{"type":"structure","required":["Bucket"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"AccessControlPolicy":{"shape":"S7r","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"AccessControlPolicy"},"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWrite":{"location":"header","locationName":"x-amz-grant-write"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"}},"payload":"AccessControlPolicy"}},"PutBucketCors":{"http":{"method":"PUT","requestUri":"/{Bucket}?cors"},"input":{"type":"structure","required":["Bucket","CORSConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"CORSConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"CORSConfiguration","type":"structure","required":["CORSRules"],"members":{"CORSRules":{"shape":"S2r","locationName":"CORSRule"}}},"ContentMD5":{"location":"header","locationName":"Content-MD5"}},"payload":"CORSConfiguration"}},"PutBucketLifecycle":{"http":{"method":"PUT","requestUri":"/{Bucket}?lifecycle"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"LifecycleConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"LifecycleConfiguration","type":"structure","required":["Rules"],"members":{"Rules":{"shape":"S34","locationName":"Rule"}}}},"payload":"LifecycleConfiguration"},"deprecated":true},"PutBucketLifecycleConfiguration":{"http":{"method":"PUT","requestUri":"/{Bucket}?lifecycle"},"input":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"LifecycleConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"LifecycleConfiguration","type":"structure","required":["Rules"],"members":{"Rules":{"shape":"S3h","locationName":"Rule"}}}},"payload":"LifecycleConfiguration"}},"PutBucketLogging":{"http":{"method":"PUT","requestUri":"/{Bucket}?logging"},"input":{"type":"structure","required":["Bucket","BucketLoggingStatus"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"BucketLoggingStatus":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"BucketLoggingStatus","type":"structure","members":{"LoggingEnabled":{"shape":"S3p"}}},"ContentMD5":{"location":"header","locationName":"Content-MD5"}},"payload":"BucketLoggingStatus"}},"PutBucketNotification":{"http":{"method":"PUT","requestUri":"/{Bucket}?notification"},"input":{"type":"structure","required":["Bucket","NotificationConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"NotificationConfiguration":{"shape":"S3w","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"NotificationConfiguration"}},"payload":"NotificationConfiguration"},"deprecated":true},"PutBucketNotificationConfiguration":{"http":{"method":"PUT","requestUri":"/{Bucket}?notification"},"input":{"type":"structure","required":["Bucket","NotificationConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"NotificationConfiguration":{"shape":"S47","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"NotificationConfiguration"}},"payload":"NotificationConfiguration"}},"PutBucketPolicy":{"http":{"method":"PUT","requestUri":"/{Bucket}?policy"},"input":{"type":"structure","required":["Bucket","Policy"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"Policy":{}},"payload":"Policy"}},"PutBucketReplication":{"http":{"method":"PUT","requestUri":"/{Bucket}?replication"},"input":{"type":"structure","required":["Bucket","ReplicationConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"ReplicationConfiguration":{"shape":"S4q","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"ReplicationConfiguration"}},"payload":"ReplicationConfiguration"}},"PutBucketRequestPayment":{"http":{"method":"PUT","requestUri":"/{Bucket}?requestPayment"},"input":{"type":"structure","required":["Bucket","RequestPaymentConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"RequestPaymentConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"RequestPaymentConfiguration","type":"structure","required":["Payer"],"members":{"Payer":{}}}},"payload":"RequestPaymentConfiguration"}},"PutBucketTagging":{"http":{"method":"PUT","requestUri":"/{Bucket}?tagging"},"input":{"type":"structure","required":["Bucket","Tagging"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"Tagging":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"Tagging","type":"structure","required":["TagSet"],"members":{"TagSet":{"shape":"S51"}}}},"payload":"Tagging"}},"PutBucketVersioning":{"http":{"method":"PUT","requestUri":"/{Bucket}?versioning"},"input":{"type":"structure","required":["Bucket","VersioningConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"MFA":{"location":"header","locationName":"x-amz-mfa"},"VersioningConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"VersioningConfiguration","type":"structure","members":{"MFADelete":{"locationName":"MfaDelete"},"Status":{}}}},"payload":"VersioningConfiguration"}},"PutBucketWebsite":{"http":{"method":"PUT","requestUri":"/{Bucket}?website"},"input":{"type":"structure","required":["Bucket","WebsiteConfiguration"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"WebsiteConfiguration":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"WebsiteConfiguration","type":"structure","members":{"ErrorDocument":{"shape":"S5f"},"IndexDocument":{"shape":"S5d"},"RedirectAllRequestsTo":{"shape":"S5a"},"RoutingRules":{"shape":"S5g"}}}},"payload":"WebsiteConfiguration"}},"PutObject":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"Body":{"streaming":true,"type":"blob"},"Bucket":{"location":"uri","locationName":"Bucket"},"CacheControl":{"location":"header","locationName":"Cache-Control"},"ContentDisposition":{"location":"header","locationName":"Content-Disposition"},"ContentEncoding":{"location":"header","locationName":"Content-Encoding"},"ContentLanguage":{"location":"header","locationName":"Content-Language"},"ContentLength":{"location":"header","locationName":"Content-Length","type":"integer"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"ContentType":{"location":"header","locationName":"Content-Type"},"Expires":{"location":"header","locationName":"Expires","type":"timestamp"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"},"Key":{"location":"uri","locationName":"Key"},"Metadata":{"shape":"S11","location":"headers","locationName":"x-amz-meta-"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"StorageClass":{"location":"header","locationName":"x-amz-storage-class"},"WebsiteRedirectLocation":{"location":"header","locationName":"x-amz-website-redirect-location"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"Body"},"output":{"type":"structure","members":{"Expiration":{"location":"header","locationName":"x-amz-expiration"},"ETag":{"location":"header","locationName":"ETag"},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"VersionId":{"location":"header","locationName":"x-amz-version-id"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"PutObjectAcl":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}?acl"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"ACL":{"location":"header","locationName":"x-amz-acl"},"AccessControlPolicy":{"shape":"S7r","xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"AccessControlPolicy"},"Bucket":{"location":"uri","locationName":"Bucket"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"GrantFullControl":{"location":"header","locationName":"x-amz-grant-full-control"},"GrantRead":{"location":"header","locationName":"x-amz-grant-read"},"GrantReadACP":{"location":"header","locationName":"x-amz-grant-read-acp"},"GrantWrite":{"location":"header","locationName":"x-amz-grant-write"},"GrantWriteACP":{"location":"header","locationName":"x-amz-grant-write-acp"},"Key":{"location":"uri","locationName":"Key"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"AccessControlPolicy"},"output":{"type":"structure","members":{"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"RestoreObject":{"http":{"requestUri":"/{Bucket}/{Key+}?restore"},"input":{"type":"structure","required":["Bucket","Key"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"Key":{"location":"uri","locationName":"Key"},"VersionId":{"location":"querystring","locationName":"versionId"},"RestoreRequest":{"xmlNamespace":{"uri":"http://s3.amazonaws.com/doc/2006-03-01/"},"locationName":"RestoreRequest","type":"structure","required":["Days"],"members":{"Days":{"type":"integer"}}},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"RestoreRequest"},"output":{"type":"structure","members":{"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}},"alias":"PostObjectRestore"},"UploadPart":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","Key","PartNumber","UploadId"],"members":{"Body":{"streaming":true,"type":"blob"},"Bucket":{"location":"uri","locationName":"Bucket"},"ContentLength":{"location":"header","locationName":"Content-Length","type":"integer"},"ContentMD5":{"location":"header","locationName":"Content-MD5"},"Key":{"location":"uri","locationName":"Key"},"PartNumber":{"location":"querystring","locationName":"partNumber","type":"integer"},"UploadId":{"location":"querystring","locationName":"uploadId"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}},"payload":"Body"},"output":{"type":"structure","members":{"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"ETag":{"location":"header","locationName":"ETag"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}}}},"UploadPartCopy":{"http":{"method":"PUT","requestUri":"/{Bucket}/{Key+}"},"input":{"type":"structure","required":["Bucket","CopySource","Key","PartNumber","UploadId"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"},"CopySource":{"location":"header","locationName":"x-amz-copy-source"},"CopySourceIfMatch":{"location":"header","locationName":"x-amz-copy-source-if-match"},"CopySourceIfModifiedSince":{"location":"header","locationName":"x-amz-copy-source-if-modified-since","type":"timestamp"},"CopySourceIfNoneMatch":{"location":"header","locationName":"x-amz-copy-source-if-none-match"},"CopySourceIfUnmodifiedSince":{"location":"header","locationName":"x-amz-copy-source-if-unmodified-since","type":"timestamp"},"CopySourceRange":{"location":"header","locationName":"x-amz-copy-source-range"},"Key":{"location":"uri","locationName":"Key"},"PartNumber":{"location":"querystring","locationName":"partNumber","type":"integer"},"UploadId":{"location":"querystring","locationName":"uploadId"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKey":{"shape":"S18","location":"header","locationName":"x-amz-server-side-encryption-customer-key"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"CopySourceSSECustomerAlgorithm":{"location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-algorithm"},"CopySourceSSECustomerKey":{"shape":"S1b","location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-key"},"CopySourceSSECustomerKeyMD5":{"location":"header","locationName":"x-amz-copy-source-server-side-encryption-customer-key-MD5"},"RequestPayer":{"location":"header","locationName":"x-amz-request-payer"}}},"output":{"type":"structure","members":{"CopySourceVersionId":{"location":"header","locationName":"x-amz-copy-source-version-id"},"CopyPartResult":{"type":"structure","members":{"ETag":{},"LastModified":{"type":"timestamp"}}},"ServerSideEncryption":{"location":"header","locationName":"x-amz-server-side-encryption"},"SSECustomerAlgorithm":{"location":"header","locationName":"x-amz-server-side-encryption-customer-algorithm"},"SSECustomerKeyMD5":{"location":"header","locationName":"x-amz-server-side-encryption-customer-key-MD5"},"SSEKMSKeyId":{"shape":"Sj","location":"header","locationName":"x-amz-server-side-encryption-aws-kms-key-id"},"RequestCharged":{"location":"header","locationName":"x-amz-request-charged"}},"payload":"CopyPartResult"}}},"shapes":{"Sj":{"type":"string","sensitive":true},"S11":{"type":"map","key":{},"value":{}},"S18":{"type":"blob","sensitive":true},"S1b":{"type":"blob","sensitive":true},"S2f":{"type":"structure","members":{"DisplayName":{},"ID":{}}},"S2i":{"type":"list","member":{"locationName":"Grant","type":"structure","members":{"Grantee":{"shape":"S2k"},"Permission":{}}}},"S2k":{"type":"structure","required":["Type"],"members":{"DisplayName":{},"EmailAddress":{},"ID":{},"Type":{"xmlAttribute":true,"locationName":"xsi:type"},"URI":{}},"xmlNamespace":{"prefix":"xsi","uri":"http://www.w3.org/2001/XMLSchema-instance"}},"S2r":{"type":"list","member":{"type":"structure","required":["AllowedMethods","AllowedOrigins"],"members":{"AllowedHeaders":{"locationName":"AllowedHeader","type":"list","member":{},"flattened":true},"AllowedMethods":{"locationName":"AllowedMethod","type":"list","member":{},"flattened":true},"AllowedOrigins":{"locationName":"AllowedOrigin","type":"list","member":{},"flattened":true},"ExposeHeaders":{"locationName":"ExposeHeader","type":"list","member":{},"flattened":true},"MaxAgeSeconds":{"type":"integer"}}},"flattened":true},"S34":{"type":"list","member":{"type":"structure","required":["Prefix","Status"],"members":{"Expiration":{"shape":"S36"},"ID":{},"Prefix":{},"Status":{},"Transition":{"shape":"S3b"},"NoncurrentVersionTransition":{"shape":"S3d"},"NoncurrentVersionExpiration":{"shape":"S3e"}}},"flattened":true},"S36":{"type":"structure","members":{"Date":{"shape":"S37"},"Days":{"type":"integer"}}},"S37":{"type":"timestamp","timestampFormat":"iso8601"},"S3b":{"type":"structure","members":{"Date":{"shape":"S37"},"Days":{"type":"integer"},"StorageClass":{}}},"S3d":{"type":"structure","members":{"NoncurrentDays":{"type":"integer"},"StorageClass":{}}},"S3e":{"type":"structure","members":{"NoncurrentDays":{"type":"integer"}}},"S3h":{"type":"list","member":{"type":"structure","required":["Prefix","Status"],"members":{"Expiration":{"shape":"S36"},"ID":{},"Prefix":{},"Status":{},"Transitions":{"locationName":"Transition","type":"list","member":{"shape":"S3b"},"flattened":true},"NoncurrentVersionTransitions":{"locationName":"NoncurrentVersionTransition","type":"list","member":{"shape":"S3d"},"flattened":true},"NoncurrentVersionExpiration":{"shape":"S3e"}}},"flattened":true},"S3p":{"type":"structure","members":{"TargetBucket":{},"TargetGrants":{"type":"list","member":{"locationName":"Grant","type":"structure","members":{"Grantee":{"shape":"S2k"},"Permission":{}}}},"TargetPrefix":{}}},"S3v":{"type":"structure","required":["Bucket"],"members":{"Bucket":{"location":"uri","locationName":"Bucket"}}},"S3w":{"type":"structure","members":{"TopicConfiguration":{"type":"structure","members":{"Id":{},"Events":{"shape":"S3z","locationName":"Event"},"Event":{"deprecated":true},"Topic":{}}},"QueueConfiguration":{"type":"structure","members":{"Id":{},"Event":{"deprecated":true},"Events":{"shape":"S3z","locationName":"Event"},"Queue":{}}},"CloudFunctionConfiguration":{"type":"structure","members":{"Id":{},"Event":{"deprecated":true},"Events":{"shape":"S3z","locationName":"Event"},"CloudFunction":{},"InvocationRole":{}}}}},"S3z":{"type":"list","member":{},"flattened":true},"S47":{"type":"structure","members":{"TopicConfigurations":{"locationName":"TopicConfiguration","type":"list","member":{"type":"structure","required":["TopicArn","Events"],"members":{"Id":{},"TopicArn":{"locationName":"Topic"},"Events":{"shape":"S3z","locationName":"Event"},"Filter":{"shape":"S4a"}}},"flattened":true},"QueueConfigurations":{"locationName":"QueueConfiguration","type":"list","member":{"type":"structure","required":["QueueArn","Events"],"members":{"Id":{},"QueueArn":{"locationName":"Queue"},"Events":{"shape":"S3z","locationName":"Event"},"Filter":{"shape":"S4a"}}},"flattened":true},"LambdaFunctionConfigurations":{"locationName":"CloudFunctionConfiguration","type":"list","member":{"type":"structure","required":["LambdaFunctionArn","Events"],"members":{"Id":{},"LambdaFunctionArn":{"locationName":"CloudFunction"},"Events":{"shape":"S3z","locationName":"Event"},"Filter":{"shape":"S4a"}}},"flattened":true}}},"S4a":{"type":"structure","members":{"Key":{"locationName":"S3Key","type":"structure","members":{"FilterRules":{"locationName":"FilterRule","type":"list","member":{"type":"structure","members":{"Name":{},"Value":{}}},"flattened":true}}}}},"S4q":{"type":"structure","required":["Role","Rules"],"members":{"Role":{},"Rules":{"locationName":"Rule","type":"list","member":{"type":"structure","required":["Prefix","Status","Destination"],"members":{"ID":{},"Prefix":{},"Status":{},"Destination":{"type":"structure","required":["Bucket"],"members":{"Bucket":{},"StorageClass":{}}}}},"flattened":true}}},"S51":{"type":"list","member":{"locationName":"Tag","type":"structure","required":["Key","Value"],"members":{"Key":{},"Value":{}}}},"S5a":{"type":"structure","required":["HostName"],"members":{"HostName":{},"Protocol":{}}},"S5d":{"type":"structure","required":["Suffix"],"members":{"Suffix":{}}},"S5f":{"type":"structure","required":["Key"],"members":{"Key":{}}},"S5g":{"type":"list","member":{"locationName":"RoutingRule","type":"structure","required":["Redirect"],"members":{"Condition":{"type":"structure","members":{"HttpErrorCodeReturnedEquals":{},"KeyPrefixEquals":{}}},"Redirect":{"type":"structure","members":{"HostName":{},"HttpRedirectCode":{},"Protocol":{},"ReplaceKeyPrefixWith":{},"ReplaceKeyWith":{}}}}}},"S6x":{"type":"structure","members":{"ID":{},"DisplayName":{}}},"S6y":{"type":"list","member":{"type":"structure","members":{"Prefix":{}}},"flattened":true},"S7r":{"type":"structure","members":{"Grants":{"shape":"S2i","locationName":"AccessControlList"},"Owner":{"shape":"S2f"}}}},"examples":{},"paginators":{"ListBuckets":{"result_key":"Buckets"},"ListMultipartUploads":{"limit_key":"MaxUploads","more_results":"IsTruncated","output_token":["NextKeyMarker","NextUploadIdMarker"],"input_token":["KeyMarker","UploadIdMarker"],"result_key":["Uploads","CommonPrefixes"]},"ListObjectVersions":{"more_results":"IsTruncated","limit_key":"MaxKeys","output_token":["NextKeyMarker","NextVersionIdMarker"],"input_token":["KeyMarker","VersionIdMarker"],"result_key":["Versions","DeleteMarkers","CommonPrefixes"]},"ListObjects":{"more_results":"IsTruncated","limit_key":"MaxKeys","output_token":"NextMarker || Contents[-1].Key","input_token":"Marker","result_key":["Contents","CommonPrefixes"]},"ListParts":{"more_results":"IsTruncated","limit_key":"MaxParts","output_token":"NextPartNumberMarker","input_token":"PartNumberMarker","result_key":"Parts"}},"waiters":{"__default__":{"interval":5,"max_attempts":20},"BucketExists":{"operation":"HeadBucket","ignore_errors":[404],"success_type":"output"},"BucketNotExists":{"operation":"HeadBucket","success_type":"error","success_value":404},"ObjectExists":{"operation":"HeadObject","ignore_errors":[404],"success_type":"output"},"ObjectNotExists":{"operation":"HeadObject","success_type":"error","success_value":404}}};
 AWS.apiLoader.services['sns'] = {};
 AWS.SNS = AWS.Service.defineService('sns', [ '2010-03-31' ]);
 
@@ -102,7 +102,7 @@ require('./services/sts');
 
 AWS.apiLoader.services['sts']['2011-06-15'] = {"version":"2.0","metadata":{"apiVersion":"2011-06-15","endpointPrefix":"sts","globalEndpoint":"sts.amazonaws.com","serviceAbbreviation":"AWS STS","serviceFullName":"AWS Security Token Service","signatureVersion":"v4","xmlNamespace":"https://sts.amazonaws.com/doc/2011-06-15/","protocol":"query"},"operations":{"AssumeRole":{"input":{"type":"structure","required":["RoleArn","RoleSessionName"],"members":{"RoleArn":{},"RoleSessionName":{},"Policy":{},"DurationSeconds":{"type":"integer"},"ExternalId":{},"SerialNumber":{},"TokenCode":{}}},"output":{"resultWrapper":"AssumeRoleResult","type":"structure","members":{"Credentials":{"shape":"Sa"},"AssumedRoleUser":{"shape":"Sf"},"PackedPolicySize":{"type":"integer"}}},"http":{}},"AssumeRoleWithSAML":{"input":{"type":"structure","required":["RoleArn","PrincipalArn","SAMLAssertion"],"members":{"RoleArn":{},"PrincipalArn":{},"SAMLAssertion":{},"Policy":{},"DurationSeconds":{"type":"integer"}}},"output":{"resultWrapper":"AssumeRoleWithSAMLResult","type":"structure","members":{"Credentials":{"shape":"Sa"},"AssumedRoleUser":{"shape":"Sf"},"PackedPolicySize":{"type":"integer"},"Subject":{},"SubjectType":{},"Issuer":{},"Audience":{},"NameQualifier":{}}},"http":{}},"AssumeRoleWithWebIdentity":{"input":{"type":"structure","required":["RoleArn","RoleSessionName","WebIdentityToken"],"members":{"RoleArn":{},"RoleSessionName":{},"WebIdentityToken":{},"ProviderId":{},"Policy":{},"DurationSeconds":{"type":"integer"}}},"output":{"resultWrapper":"AssumeRoleWithWebIdentityResult","type":"structure","members":{"Credentials":{"shape":"Sa"},"SubjectFromWebIdentityToken":{},"AssumedRoleUser":{"shape":"Sf"},"PackedPolicySize":{"type":"integer"},"Provider":{},"Audience":{}}},"http":{}},"DecodeAuthorizationMessage":{"input":{"type":"structure","required":["EncodedMessage"],"members":{"EncodedMessage":{}}},"output":{"resultWrapper":"DecodeAuthorizationMessageResult","type":"structure","members":{"DecodedMessage":{}}},"http":{}},"GetFederationToken":{"input":{"type":"structure","required":["Name"],"members":{"Name":{},"Policy":{},"DurationSeconds":{"type":"integer"}}},"output":{"resultWrapper":"GetFederationTokenResult","type":"structure","members":{"Credentials":{"shape":"Sa"},"FederatedUser":{"type":"structure","required":["FederatedUserId","Arn"],"members":{"FederatedUserId":{},"Arn":{}}},"PackedPolicySize":{"type":"integer"}}},"http":{}},"GetSessionToken":{"input":{"type":"structure","members":{"DurationSeconds":{"type":"integer"},"SerialNumber":{},"TokenCode":{}}},"output":{"resultWrapper":"GetSessionTokenResult","type":"structure","members":{"Credentials":{"shape":"Sa"}}},"http":{}}},"shapes":{"Sa":{"type":"structure","required":["AccessKeyId","SecretAccessKey","SessionToken","Expiration"],"members":{"AccessKeyId":{},"SecretAccessKey":{},"SessionToken":{},"Expiration":{"type":"timestamp"}}},"Sf":{"type":"structure","required":["AssumedRoleId","Arn"],"members":{"AssumedRoleId":{},"Arn":{}}}}};
 
-},{"./core":3,"./http/xhr":12,"./services/cognitoidentity":36,"./services/dynamodb":37,"./services/ec2":38,"./services/machinelearning":39,"./services/s3":40,"./services/sqs":41,"./services/sts":42,"./xml/browser_parser":52}],2:[function(require,module,exports){
+},{"./core":3,"./http/xhr":17,"./services/cognitoidentity":41,"./services/dynamodb":42,"./services/ec2":43,"./services/machinelearning":44,"./services/s3":45,"./services/sqs":46,"./services/sts":47,"./xml/browser_parser":57}],2:[function(require,module,exports){
 var AWS = require('./core');
 require('./credentials');
 require('./credentials/credential_provider_chain');
@@ -153,6 +153,11 @@ require('./credentials/credential_provider_chain');
  *   @return [Boolean] whether types are converted when parsing response data.
  *     Currently only supported for JSON based services. Turning this off may
  *     improve performance on large response payloads. Defaults to `true`.
+ *
+ * @!attribute correctClockSkew
+ *   @return [Boolean] whether to apply a clock skew correction and retry
+ *     requests that fail because of an skewed client clock. Defaults to
+ *     `false`.
  *
  * @!attribute sslEnabled
  *   @return [Boolean] whether SSL is enabled for requests
@@ -242,6 +247,9 @@ AWS.Config = AWS.util.inherit({
    *     when parsing response data. Currently only supported for JSON based
    *     services. Turning this off may improve performance on large response
    *     payloads. Defaults to `true`.
+   * @option options correctClockSkew [Boolean] whether to apply a clock skew
+   *     correction and retry requests that fail because of an skewed client
+   *     clock. Defaults to `false`.
    * @option options s3ForcePathStyle [Boolean] whether to force path
    *   style URLs for S3 objects.
    * @option options s3BucketEndpoint [Boolean] whether the provided endpoint
@@ -493,6 +501,7 @@ AWS.Config = AWS.util.inherit({
     s3BucketEndpoint: false,
     computeChecksums: true,
     convertResponseTypes: true,
+    correctClockSkew: false,
     dynamoDbCrc32: true,
     systemClockOffset: 0,
     signatureVersion: null
@@ -540,7 +549,7 @@ AWS.util.update(AWS, {
   /**
    * @constant
    */
-  VERSION: '2.1.49',
+  VERSION: '2.2.3',
 
   /**
    * @api private
@@ -629,7 +638,7 @@ require('./param_validator');
  */
 AWS.events = new AWS.SequentialExecutor();
 
-},{"./config":2,"./credentials":4,"./credentials/cognito_identity_credentials":5,"./credentials/credential_provider_chain":6,"./credentials/saml_credentials":7,"./credentials/temporary_credentials":8,"./credentials/web_identity_credentials":9,"./event_listeners":10,"./http":11,"./json/builder":13,"./json/parser":14,"./model/api":15,"./model/operation":17,"./model/paginator":18,"./model/resource_waiter":19,"./model/shape":20,"./param_validator":21,"./protocol/json":22,"./protocol/query":23,"./protocol/rest":24,"./protocol/rest_json":25,"./protocol/rest_xml":26,"./request":30,"./resource_waiter":31,"./response":32,"./sequential_executor":34,"./service":35,"./signers/request_signer":44,"./util":51,"./xml/builder":53}],4:[function(require,module,exports){
+},{"./config":2,"./credentials":4,"./credentials/cognito_identity_credentials":5,"./credentials/credential_provider_chain":6,"./credentials/saml_credentials":7,"./credentials/temporary_credentials":8,"./credentials/web_identity_credentials":9,"./event_listeners":15,"./http":16,"./json/builder":18,"./json/parser":19,"./model/api":20,"./model/operation":22,"./model/paginator":23,"./model/resource_waiter":24,"./model/shape":25,"./param_validator":26,"./protocol/json":27,"./protocol/query":28,"./protocol/rest":29,"./protocol/rest_json":30,"./protocol/rest_xml":31,"./request":35,"./resource_waiter":36,"./response":37,"./sequential_executor":39,"./service":40,"./signers/request_signer":49,"./util":56,"./xml/builder":58}],4:[function(require,module,exports){
 var AWS = require('./core');
 
 /**
@@ -1505,6 +1514,769 @@ AWS.WebIdentityCredentials = AWS.util.inherit(AWS.Credentials, {
 });
 
 },{"../core":3}],10:[function(require,module,exports){
+var util = require('../core').util;
+var typeOf = require('./types').typeOf;
+var DynamoDBSet = require('./set');
+
+function convertInput(data) {
+  if (typeOf(data) === 'Object') {
+    var map = {M: {}};
+    for (var key in data) {
+      map['M'][key] = convertInput(data[key]);
+    }
+    return map;
+  } else if (typeOf(data) === 'Array') {
+    var list = {L: []};
+    for (var i = 0; i < data.length; i++) {
+      list['L'].push(convertInput(data[i]));
+    }
+    return list;
+  } else if (typeOf(data) === 'Set') {
+    return formatSet(data);
+  } else if (typeOf(data) === 'String') {
+    return { 'S': data };
+  } else if (typeOf(data) === 'Number') {
+    return { 'N': data.toString() };
+  } else if (typeOf(data) === 'Binary') {
+    return { 'B': data };
+  } else if (typeOf(data) === 'Boolean') {
+    return {'BOOL': data};
+  } else if (typeOf(data) === 'null') {
+    return {'NULL': true};
+  }
+}
+
+function formatSet(data) {
+  var map = {};
+  switch (data.type) {
+    case 'String': map['SS'] = data.values; break;
+    case 'Binary': map['BS'] = data.values; break;
+    case 'Number': map['NS'] = data.values.map(function (value) {
+      return value.toString();
+    });
+  }
+  return map;
+}
+
+function convertOutput(data) {
+  var list, map, i;
+  for (var type in data) {
+    var values = data[type];
+    if (type === 'M') {
+      map = {};
+      for (var key in values) {
+        map[key] = convertOutput(values[key]);
+      }
+      return map;
+    } else if (type === 'L') {
+      list = [];
+      for (i = 0; i < values.length; i++) {
+        list.push(convertOutput(values[i]));
+      }
+      return list;
+    } else if (type === 'SS') {
+      list = [];
+      for (i = 0; i < values.length; i++) {
+        list.push(values[i] + '');
+      }
+      return new DynamoDBSet(list);
+    } else if (type === 'NS') {
+      list = [];
+      for (i = 0; i < values.length; i++) {
+        list.push(Number(values[i]));
+      }
+      return new DynamoDBSet(list);
+    } else if (type === 'BS') {
+      list = [];
+      for (i = 0; i < values.length; i++) {
+        list.push(new util.Buffer(values[i]));
+      }
+      return new DynamoDBSet(list);
+    } else if (type === 'S') {
+      return values + '';
+    } else if (type === 'N') {
+      return Number(values);
+    } else if (type === 'B') {
+      return new util.Buffer(values);
+    } else if (type === 'BOOL') {
+      return (values === 'true' || values === 'TRUE' || values === true);
+    } else if (type === 'NULL') {
+      return null;
+    }
+  }
+}
+
+module.exports = {
+  input: convertInput,
+  output: convertOutput
+};
+
+},{"../core":3,"./set":12,"./types":14}],11:[function(require,module,exports){
+var AWS = require('../core');
+var Translator = require('./translator');
+var DynamoDBSet = require('./set');
+
+/**
+ * The document client simplifies working with items in Amazon DynamoDB
+ * by abstracting away the notion of attribute values. This abstraction
+ * annotates native JavaScript types supplied as input parameters, as well
+ * as converts annotated response data to native JavaScript types.
+ *
+ * ## Marshalling Input and Unmarshalling Response Data
+ *
+ * The document client affords developers the use of native JavaScript types
+ * instead of `AttributeValue`s to simplify the JavaScript development
+ * experience with Amazon DynamoDB. JavaScript objects passed in as parameters
+ * are marshalled into `AttributeValue` shapes required by Amazon DynamoDB.
+ * Responses from DynamoDB are unmarshalled into plain JavaScript objects
+ * by the `DocumentClient`. The `DocumentClient`, does not accept
+ * `AttributeValue`s in favor of native JavaScript types.
+ *
+ * |                             JavaScript Type                            | DynamoDB AttributeValue |
+ * |:----------------------------------------------------------------------:|-------------------------|
+ * | String                                                                 | S                       |
+ * | Number                                                                 | N                       |
+ * | Boolean                                                                | BOOL                    |
+ * | null                                                                   | NULL                    |
+ * | Array                                                                  | L                       |
+ * | Object                                                                 | M                       |
+ * | Buffer, File, Blob, ArrayBuffer, DataView, and JavaScript typed arrays | B                       |
+ *
+ * ## Support for Sets
+ *
+ * The `DocumentClient` offers a convenient way to create sets from
+ * JavaScript Arrays. The type of set is inferred from the first element
+ * in the array. DynamoDB supports string, number, and binary sets. To
+ * learn more about supported types see the
+ * [Amazon DynamoDB Data Model Documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DataModel.html)
+ * For more information see {AWS.DynamoDB.DocumentClient.createSet}
+ *
+ */
+AWS.DynamoDB.DocumentClient = AWS.util.inherit({
+
+  /**
+   * Creates a DynamoDB document client with a set of configuration options.
+   *
+   * @option options params [map] An optional map of parameters to bind to every
+   *   request sent by this service object.
+   * @option options service [AWS.DynamoDB] An optional pre-configured instance
+   *  of the AWS.DynamoDB service object to use for requests. The object may
+   *  bound parameters used by the document client.
+   * @see AWS.DynamoDB.constructor
+   *
+   */
+  constructor: function DocumentClient(options) {
+    var self = this;
+    self.options = options || {};
+    self.configure(self.options);
+  },
+
+  /**
+   * @api private
+   */
+  configure: function configure(options) {
+    var self = this;
+    self.service = options.service;
+    self.bindServiceObject(options);
+    self.attrValue =
+      self.service.api.operations.putItem.input.members.Item.value.shape;
+  },
+
+  /**
+   * @api private
+   */
+  bindServiceObject: function bindServiceObject(options) {
+    var self = this;
+    options = options || {};
+
+    if (!self.service) {
+      self.service = new AWS.DynamoDB(options);
+    } else {
+      var config = AWS.util.copy(self.service.config);
+      self.service = new self.service.constructor.__super__(config);
+      self.service.config.params =
+        AWS.util.merge(self.service.config.params || {}, options.params);
+    }
+  },
+
+  /**
+   * Returns the attributes of one or more items from one or more tables
+   * by delegating to `AWS.DynamoDB.batchGetItem()`.
+   *
+   * Supply the same parameters as {AWS.DynamoDB.batchGetItem} with
+   * `AttributeValue`s substituted by native JavaScript types.
+   *
+   * @see AWS.DynamoDB.batchGetItem
+   * @example Get items from multiple tables
+   *  var params = {
+   *    RequestItems: {
+   *      'Table-1': {
+   *        Keys: [
+   *          {
+   *             HashKey: 'haskey',
+   *             NumberRangeKey: 1
+   *          }
+   *        ]
+   *      },
+   *      'Table-2': {
+   *        Keys: [
+   *          { foo: 'bar' },
+   *        ]
+   *      }
+   *    }
+   *  };
+   *
+   *  var docClient = new AWS.DynamoDB.DocumentClient();
+   *
+   *  docClient.batchGet(params, function(err, data) {
+   *    if (err) console.log(err);
+   *    else console.log(data);
+   *  });
+   *
+   */
+  batchGet: function(input, callback) {
+    var self = this;
+    var translator = self.getTranslator();
+    var inputShape = self.service.api.operations.batchGetItem.input;
+    var outputShape = self.service.api.operations.batchGetItem.output;
+    var params = translator.translateInput(input, inputShape);
+    var request = self.service.batchGetItem(params);
+    self.setupRequest(request, outputShape, translator);
+    if (typeof callback === 'function') {
+      request.send(callback);
+    }
+    return request;
+  },
+
+  /**
+   * Puts or deletes multiple items in one or more tables by delegating
+   * to `AWS.DynamoDB.batchWriteItem()`.
+   *
+   * Supply the same parameters as {AWS.DynamoDB.batchWriteItem} with
+   * `AttributeValue`s substituted by native JavaScript types.
+   *
+   * @see AWS.DynamoDB.batchWriteItem
+   * @example Write to and delete from a table
+   *  var params = {
+   *    RequestItems: {
+   *      'Table-1': [
+   *        {
+   *          DeleteRequest: {
+   *            Key: { HashKey: 'someKey' }
+   *          }
+   *        },
+   *        {
+   *          PutRequest: {
+   *            Item: {
+   *              HashKey: 'anotherKey',
+   *              NumAttribute: 1,
+   *              BoolAttribute: true,
+   *              ListAttribute: [1, 'two', false],
+   *              MapAttribute: { foo: 'bar' }
+   *            }
+   *          }
+   *        }
+   *      ]
+   *    }
+   *  };
+   *
+   *  var docClient = new AWS.DynamoDB.DocumentClient();
+   *
+   *  docClient.batchWrite(params, function(err, data) {
+   *    if (err) console.log(err);
+   *    else console.log(data);
+   *  });
+   *
+   */
+  batchWrite: function(input, callback) {
+    var self = this;
+    var translator = self.getTranslator();
+    var inputShape = self.service.api.operations.batchWriteItem.input;
+    var outputShape = self.service.api.operations.batchWriteItem.output;
+    var params = translator.translateInput(input, inputShape);
+    var request = self.service.batchWriteItem(params);
+    self.setupRequest(request, outputShape, translator);
+    if (typeof callback === 'function') {
+      request.send(callback);
+    }
+    return request;
+  },
+
+  /**
+   * Deletes a single item in a table by primary key by delegating to
+   * `AWS.DynamoDB.deleteItem()`
+   *
+   * Supply the same parameters as {AWS.DynamoDB.deleteItem} with
+   * `AttributeValue`s substituted by native JavaScript types.
+   *
+   * @see AWS.DynamoDB.deleteItem
+   * @example Delete an item from a table
+   *  var params = {
+   *    TableName = 'Table',
+   *    Key: {
+   *      HashKey: 'hashkey',
+   *      NumberRangeKey: 1
+   *    }
+   *  };
+   *
+   *  var docClient = new AWS.DynamoDB.DocumentClient();
+   *
+   *  docClient.delete(params, function(err, data) {
+   *    if (err) console.log(err);
+   *    else console.log(data);
+   *  });
+   *
+   */
+  delete: function(input, callback) {
+    var self = this;
+    var translator = self.getTranslator();
+    var inputShape = self.service.api.operations.deleteItem.input;
+    var outputShape = self.service.api.operations.deleteItem.output;
+    var params = translator.translateInput(input, inputShape);
+    var request = self.service.deleteItem(params);
+    self.setupRequest(request, outputShape, translator);
+    if (typeof callback === 'function') {
+      request.send(callback);
+    }
+    return request;
+  },
+
+  /**
+   * Returns a set of attributes for the item with the given primary key
+   * by delegating to `AWS.DynamoDB.getItem()`.
+   *
+   * Supply the same parameters as {AWS.DynamoDB.getItem} with
+   * `AttributeValue`s substituted by native JavaScript types.
+   *
+   * @see AWS.DynamoDB.getItem
+   * @example Get an item from a table
+   *  var params = {
+   *    TableName = 'Table',
+   *    Key: {
+   *      HashKey: 'hashkey'
+   *    }
+   *  };
+   *
+   *  var docClient = new AWS.DynamoDB.DocumentClient();
+   *
+   *  docClient.get(params, function(err, data) {
+   *    if (err) console.log(err);
+   *    else console.log(data);
+   *  });
+   *
+   */
+  get: function(input, callback) {
+    var self = this;
+    var translator = self.getTranslator();
+    var inputShape = self.service.api.operations.getItem.input;
+    var outputShape = self.service.api.operations.getItem.output;
+    var params = translator.translateInput(input, inputShape);
+    var request = self.service.getItem(params);
+    self.setupRequest(request, outputShape, translator);
+    if (typeof callback === 'function') {
+      request.send(callback);
+    }
+    return request;
+  },
+
+  /**
+   * Creates a new item, or replaces an old item with a new item by
+   * delegating to `AWS.DynamoDB.putItem()`.
+   *
+   * Supply the same parameters as {AWS.DynamoDB.putItem} with
+   * `AttributeValue`s substituted by native JavaScript types.
+   *
+   * @see AWS.DynamoDB.putItem
+   * @example Create a new item in a table
+   *  var params = {
+   *    TableName = 'Table',
+   *    Item: {
+   *       HashKey: 'haskey',
+   *       NumAttribute: 1,
+   *       BoolAttribute: true,
+   *       ListAttribute: [1, 'two', false],
+   *       MapAttribute: { foo: 'bar'},
+   *       NullAttribute: null
+   *    }
+   *  };
+   *
+   *  var docClient = new AWS.DynamoDB.DocumentClient();
+   *
+   *  docClient.put(params, function(err, data) {
+   *    if (err) console.log(err);
+   *    else console.log(data);
+   *  });
+   *
+   */
+  put: function(input, callback) {
+    var self = this;
+    var translator = self.getTranslator();
+    var inputShape = self.service.api.operations.putItem.input;
+    var outputShape = self.service.api.operations.putItem.output;
+    var params = translator.translateInput(input, inputShape);
+    var request = self.service.putItem(params);
+    self.setupRequest(request, outputShape, translator);
+    if (typeof callback === 'function') {
+      request.send(callback);
+    }
+    return request;
+  },
+
+  /**
+   * Edits an existing item's attributes, or adds a new item to the table if
+   * it does not already exist by delegating to `AWS.DynamoDB.updateItem()`.
+   *
+   * Supply the same parameters as {AWS.DynamoDB.updateItem} with
+   * `AttributeValue`s substituted by native JavaScript types.
+   *
+   * @see AWS.DynamoDB.updateItem
+   * @example Update an item with expressions
+   *  var params = {
+   *    TableName: 'Table',
+   *    Key: { HashKey : 'hashkey' },
+   *    UpdateExpression: 'set #a = :x + :y',
+   *    ConditionExpression: '#a < :MAX',
+   *    ExpressionAttributeNames: {'#a' : 'Sum'},
+   *    ExpressionAttributeValues: {
+   *      ':x' : 20,
+   *      ':y' : 45,
+   *      ':MAX' : 100,
+   *    }
+   *  };
+   *
+   *  var docClient = new AWS.DynamoDB.DocumentClient();
+   *
+   *  docClient.updateItem(params, function(err, data) {
+   *     if (err) console.log(err);
+   *     else console.log(data);
+   *  });
+   *
+   */
+  update: function(input, callback) {
+    var self = this;
+    var translator = self.getTranslator();
+    var inputShape = self.service.api.operations.updateItem.input;
+    var outputShape = self.service.api.operations.updateItem.output;
+    var params = translator.translateInput(input, inputShape);
+    var request = self.service.updateItem(params);
+    self.setupRequest(request, outputShape, translator);
+    if (typeof callback === 'function') {
+      request.send(callback);
+    }
+    return request;
+  },
+
+  /**
+   * Returns one or more items and item attributes by accessing every item
+   * in a table or a secondary index.
+   *
+   * Supply the same parameters as {AWS.DynamoDB.scan} with
+   * `AttributeValue`s substituted by native JavaScript types.
+   *
+   * @see AWS.DynamoDB.scan
+   * @example Scan the table with a filter expression
+   *  var params = {
+   *    TableName = 'Table',
+   *    FilterExpression = 'Year = :this_year',
+   *    ExpressionAttributeValues = {':this_year' = 2015}
+   *  };
+   *
+   *  var docClient = new AWS.DynamoDB.DocumentClient();
+   *
+   *  docClient.scan(params, function(err, data) {
+   *     if (err) console.log(err);
+   *     else console.log(data);
+   *  });
+   *
+   */
+  scan: function(input, callback) {
+    var self = this;
+    var translator = self.getTranslator();
+    var inputShape = self.service.api.operations.scan.input;
+    var outputShape = self.service.api.operations.scan.output;
+    var params = translator.translateInput(input, inputShape);
+    var request = self.service.scan(params);
+    self.setupRequest(request, outputShape, translator);
+    if (typeof callback === 'function') {
+      request.send(callback);
+    }
+    return request;
+  },
+
+   /**
+    * Directly access items from a table by primary key or a secondary index.
+    *
+    * Supply the same parameters as {AWS.DynamoDB.query} with
+    * `AttributeValue`s substituted by native JavaScript types.
+    *
+    * @see AWS.DynamoDB.query
+    * @example Query an index
+    *  var params = {
+    *    TableName: 'Table',
+    *    IndexName: 'Index',
+    *    KeyConditionExpression: 'HashKey = :hkey and RangeKey > :rkey',
+    *    ExpressionAttributeValues: {
+    *      ':hkey': 'key',
+    *      ':rkey': 2015
+    *    }
+    *  };
+    *
+    *  var docClient = new AWS.DynamoDB.DocumentClient();
+    *
+    *  docClient.query(params, function(err, data) {
+    *     if (err) console.log(err);
+    *     else console.log(data);
+    *  });
+    *
+    */
+  query: function(input, callback) {
+    var self = this;
+    var translator = self.getTranslator();
+    var inputShape = self.service.api.operations.query.input;
+    var outputShape = self.service.api.operations.query.output;
+    var params = translator.translateInput(input, inputShape);
+    var request = self.service.query(params);
+    self.setupRequest(request, outputShape, translator);
+    if (typeof callback === 'function') {
+      request.send(callback);
+    }
+    return request;
+  },
+
+  /**
+   * Creates a set of elements inferring the type of set from
+   * the type of the first element. Amazon DynamoDB currently supports
+   * the number sets, string sets, and binary sets. For more information
+   * about DynamoDB data types see the documentation on the
+   * [Amazon DynamoDB Data Model](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DataModel.html#DataModel.DataTypes).
+   *
+   * @param list [Array] Collection to represent your DynamoDB Set
+   * @param options [map]
+   *  * **validate** [Boolean] set to true if you want to validate the type
+   *    of each element in the set. Defaults to `false`.
+   * @example Creating a number set
+   *  var docClient = new AWS.DynamoDB.DocumentClient();
+   *
+   *  var params = {
+   *    Item: {
+   *      hashkey: 'hashkey'
+   *      numbers: docClient.createSet([1, 2, 3]);
+   *    }
+   *  };
+   *
+   *  docClient.put(params, function(err, data) {
+   *    if (err) console.log(err);
+   *    else console.log(data);
+   *  });
+   *
+   */
+  createSet: function(list, options) {
+    options = options || {};
+    return new DynamoDBSet(list, options);
+  },
+
+  /**
+   * @api private
+   */
+  getTranslator: function() {
+    return new Translator({attrValue: this.attrValue});
+  },
+
+  /**
+   * @api private
+   */
+  setupRequest: function(request, shape, translator) {
+    request.on('extractData', function(response) {
+      var output = translator.translateOutput(response.data, shape);
+      response.data = output;
+    });
+  }
+
+});
+
+module.exports = AWS.DynamoDB.DocumentClient;
+
+},{"../core":3,"./set":12,"./translator":13}],12:[function(require,module,exports){
+var util = require('../core').util;
+var typeOf = require('./types').typeOf;
+
+var DynamoDBSet = util.inherit({
+
+  constructor: function Set(list, options) {
+    options = options || {};
+    this.initialize(list, options.validate);
+  },
+
+  initialize: function(list, validate) {
+    var self = this;
+    self.values = [].concat(list);
+    self.detectType();
+    if (validate) {
+      self.validate();
+    }
+  },
+
+  detectType: function() {
+    var self = this;
+    var value = self.values[0];
+    if (value) {
+      if (typeOf(value) === 'String') {
+        self.type = 'String';
+      } else if (typeOf(value) === 'Number') {
+        self.type = 'Number';
+      } else if (typeOf(value) === 'Binary') {
+        self.type = 'Binary';
+      } else {
+        throw util.error(new Error(), {
+          code: 'InvalidSetType',
+          message: 'Sets can contain string, number, or binary values'
+        });
+      }
+    }
+  },
+
+  validate: function() {
+    var self = this;
+    var length = self.values.length;
+    var values = self.values;
+    for (var i = 0; i < length; i++) {
+      if (typeOf(values[i]) !== self.type) {
+        throw util.error(new Error(), {
+          code: 'InvalidType',
+          message: self.type + ' Set contains ' + typeOf(values[i]) + ' value'
+        });
+      }
+    }
+  }
+
+});
+
+module.exports = DynamoDBSet;
+
+},{"../core":3,"./types":14}],13:[function(require,module,exports){
+var util = require('../core').util;
+var convert = require('./converter');
+
+var Translator = function(options) {
+  options = options || {};
+  this.attrValue = options.attrValue;
+};
+
+Translator.prototype.translateInput = function(value, shape) {
+  this.mode = 'input';
+  return this.translate(value, shape);
+};
+
+Translator.prototype.translateOutput = function(value, shape) {
+  this.mode = 'output';
+  return this.translate(value, shape);
+};
+
+Translator.prototype.translate = function(value, shape) {
+  var self = this;
+  if (!shape || value === undefined) return undefined;
+
+  if (shape.shape === self.attrValue) {
+    return convert[self.mode](value);
+  }
+  switch (shape.type) {
+    case 'structure': return self.translateStructure(value, shape);
+    case 'map': return self.translateMap(value, shape);
+    case 'list': return self.translateList(value, shape);
+    default: return self.translateScalar(value, shape);
+  }
+};
+
+Translator.prototype.translateStructure = function(structure, shape) {
+  var self = this;
+  if (structure == null) return undefined;
+
+  var struct = {};
+  util.each(structure, function(name, value) {
+    var memberShape = shape.members[name];
+    if (memberShape) {
+      var result = self.translate(value, memberShape);
+      if (result !== undefined) struct[name] = result;
+    }
+  });
+  return struct;
+};
+
+Translator.prototype.translateList = function(list, shape) {
+  var self = this;
+  if (list == null) return undefined;
+
+  var out = [];
+  util.arrayEach(list, function(value) {
+    var result = self.translate(value, shape.member);
+    if (result === undefined) out.push(null);
+    else out.push(result);
+  });
+  return out;
+};
+
+Translator.prototype.translateMap = function(map, shape) {
+  var self = this;
+  if (map == null) return undefined;
+
+  var out = {};
+  util.each(map, function(key, value) {
+    var result = self.translate(value, shape.value);
+    if (result === undefined) out[key] = null;
+    else out[key] = result;
+  });
+  return out;
+};
+
+Translator.prototype.translateScalar = function(value, shape) {
+  return shape.toType(value);
+};
+
+module.exports = Translator;
+
+},{"../core":3,"./converter":10}],14:[function(require,module,exports){
+var util = require('../core').util;
+
+function typeOf(data) {
+  if (data === null && typeof data === 'object') {
+    return 'null';
+  } else if (data !== undefined && isBinary(data)) {
+    return 'Binary';
+  } else if (data !== undefined && data.constructor) {
+    return util.typeName(data.constructor);
+  } else {
+    return 'undefined';
+  }
+}
+
+function isBinary(data) {
+  var types = [
+    'Buffer', 'File', 'Blob', 'ArrayBuffer', 'DataView',
+    'Int8Array', 'Uint8Array', 'Uint8ClampedArray',
+    'Int16Array', 'Uint16Array', 'Int32Array', 'Uint32Array',
+    'Float32Array', 'Float64Array'
+  ];
+  if (util.isNode()) {
+    var Stream = util.nodeRequire('stream').Stream;
+    if (util.Buffer.isBuffer(data) || data instanceof Stream)
+      return true;
+  } else {
+    for (var i = 0; i < types.length; i++) {
+      if (data !== undefined && data.constructor) {
+        if (util.isType(data, types[i])) return true;
+        if (util.typeName(data.constructor) === types[i]) return true;
+      }
+    }
+  }
+  return false;
+}
+
+module.exports = {
+  typeOf: typeOf,
+  isBinary: isBinary
+};
+
+},{"../core":3}],15:[function(require,module,exports){
 var AWS = require('./core');
 var SequentialExecutor = require('./sequential_executor');
 
@@ -1767,6 +2539,14 @@ AWS.EventListeners = {
       resp.httpResponse.body = new AWS.util.Buffer('');
       resp.httpResponse.buffers = [];
       resp.httpResponse.numBytes = 0;
+      var dateHeader = headers.date || headers.Date;
+      if (dateHeader) {
+        var serverTime = Date.parse(dateHeader);
+        if (resp.request.service.config.correctClockSkew
+            && AWS.util.isClockSkewed(serverTime)) {
+          AWS.util.applyClockOffset(serverTime);
+        }
+      }
     });
 
     add('HTTP_DATA', 'httpData', function HTTP_DATA(chunk, resp) {
@@ -1820,6 +2600,15 @@ AWS.EventListeners = {
         if (err.code.match(/Signature/) && err.message.match(/expired/)) {
           resp.error.retryable = true;
         }
+      }
+    });
+
+    add('CLOCK_SKEWED', 'retry', function CLOCK_SKEWED(resp) {
+      if (!resp.error) return;
+      if (this.service.clockSkewError(resp.error)
+          && this.service.config.correctClockSkew
+          && AWS.config.isClockSkewed) {
+        resp.error.retryable = true;
       }
     });
 
@@ -1966,7 +2755,7 @@ AWS.EventListeners = {
   })
 };
 
-},{"./core":3,"./protocol/json":22,"./protocol/query":23,"./protocol/rest":24,"./protocol/rest_json":25,"./protocol/rest_xml":26,"./sequential_executor":34,"util":228}],11:[function(require,module,exports){
+},{"./core":3,"./protocol/json":27,"./protocol/query":28,"./protocol/rest":29,"./protocol/rest_json":30,"./protocol/rest_xml":31,"./sequential_executor":39,"util":233}],16:[function(require,module,exports){
 var AWS = require('./core');
 var inherit = AWS.util.inherit;
 
@@ -2172,7 +2961,7 @@ AWS.HttpClient.getInstance = function getInstance() {
   return this.singleton;
 };
 
-},{"./core":3}],12:[function(require,module,exports){
+},{"./core":3}],17:[function(require,module,exports){
 var AWS = require('../core');
 var EventEmitter = require('events').EventEmitter;
 require('../http');
@@ -2296,7 +3085,7 @@ AWS.HttpClient.prototype = AWS.XHRClient.prototype;
  */
 AWS.HttpClient.streamsApiVersion = 1;
 
-},{"../core":3,"../http":11,"events":203}],13:[function(require,module,exports){
+},{"../core":3,"../http":16,"events":208}],18:[function(require,module,exports){
 var util = require('../util');
 
 function JsonBuilder() { }
@@ -2354,7 +3143,7 @@ function translateScalar(value, shape) {
 
 module.exports = JsonBuilder;
 
-},{"../util":51}],14:[function(require,module,exports){
+},{"../util":56}],19:[function(require,module,exports){
 var util = require('../util');
 
 function JsonParser() { }
@@ -2418,7 +3207,7 @@ function translateScalar(value, shape) {
 
 module.exports = JsonParser;
 
-},{"../util":51}],15:[function(require,module,exports){
+},{"../util":56}],20:[function(require,module,exports){
 var Collection = require('./collection');
 var Operation = require('./operation');
 var Shape = require('./shape');
@@ -2483,7 +3272,7 @@ function Api(api, options) {
 
 module.exports = Api;
 
-},{"../util":51,"./collection":16,"./operation":17,"./paginator":18,"./resource_waiter":19,"./shape":20}],16:[function(require,module,exports){
+},{"../util":56,"./collection":21,"./operation":22,"./paginator":23,"./resource_waiter":24,"./shape":25}],21:[function(require,module,exports){
 var memoizedProperty = require('../util').memoizedProperty;
 
 function memoize(name, value, fn, nameTr) {
@@ -2505,7 +3294,7 @@ function Collection(iterable, options, fn, nameTr) {
 
 module.exports = Collection;
 
-},{"../util":51}],17:[function(require,module,exports){
+},{"../util":56}],22:[function(require,module,exports){
 var Shape = require('./shape');
 
 var util = require('../util');
@@ -2559,7 +3348,7 @@ function Operation(name, operation, options) {
 
 module.exports = Operation;
 
-},{"../util":51,"./shape":20}],18:[function(require,module,exports){
+},{"../util":56,"./shape":25}],23:[function(require,module,exports){
 var property = require('../util').property;
 
 function Paginator(name, paginator) {
@@ -2572,7 +3361,7 @@ function Paginator(name, paginator) {
 
 module.exports = Paginator;
 
-},{"../util":51}],19:[function(require,module,exports){
+},{"../util":56}],24:[function(require,module,exports){
 var util = require('../util');
 var property = util.property;
 
@@ -2623,7 +3412,7 @@ function ResourceWaiter(name, waiter, options) {
 
 module.exports = ResourceWaiter;
 
-},{"../util":51}],20:[function(require,module,exports){
+},{"../util":56}],25:[function(require,module,exports){
 var Collection = require('./collection');
 
 var util = require('../util');
@@ -2967,7 +3756,7 @@ Shape.shapes = {
 
 module.exports = Shape;
 
-},{"../util":51,"./collection":16}],21:[function(require,module,exports){
+},{"../util":56,"./collection":21}],26:[function(require,module,exports){
 var AWS = require('./core');
 
 /**
@@ -3144,7 +3933,7 @@ AWS.ParamValidator = AWS.util.inherit({
   }
 });
 
-},{"./core":3}],22:[function(require,module,exports){
+},{"./core":3}],27:[function(require,module,exports){
 var util = require('../util');
 var JsonBuilder = require('../json/builder');
 var JsonParser = require('../json/parser');
@@ -3208,7 +3997,7 @@ module.exports = {
   extractData: extractData
 };
 
-},{"../json/builder":13,"../json/parser":14,"../util":51}],23:[function(require,module,exports){
+},{"../json/builder":18,"../json/parser":19,"../util":56}],28:[function(require,module,exports){
 var AWS = require('../core');
 var util = require('../util');
 var QueryParamSerializer = require('../query/query_param_serializer');
@@ -3307,7 +4096,7 @@ module.exports = {
   extractData: extractData
 };
 
-},{"../core":3,"../model/shape":20,"../query/query_param_serializer":27,"../util":51}],24:[function(require,module,exports){
+},{"../core":3,"../model/shape":25,"../query/query_param_serializer":32,"../util":56}],29:[function(require,module,exports){
 var util = require('../util');
 
 function populateMethod(req) {
@@ -3429,7 +4218,7 @@ module.exports = {
   extractData: extractData
 };
 
-},{"../util":51}],25:[function(require,module,exports){
+},{"../util":56}],30:[function(require,module,exports){
 var util = require('../util');
 var Rest = require('./rest');
 var Json = require('./json');
@@ -3459,8 +4248,8 @@ function populateBody(req) {
 function buildRequest(req) {
   Rest.buildRequest(req);
 
-  // never send body payload on GET/HEAD
-  if (['GET', 'HEAD'].indexOf(req.httpRequest.method) < 0) {
+  // never send body payload on GET/HEAD/DELETE
+  if (['GET', 'HEAD', 'DELETE'].indexOf(req.httpRequest.method) < 0) {
     populateBody(req);
   }
 }
@@ -3498,7 +4287,7 @@ module.exports = {
   extractData: extractData
 };
 
-},{"../json/builder":13,"../json/parser":14,"../util":51,"./json":22,"./rest":24}],26:[function(require,module,exports){
+},{"../json/builder":18,"../json/parser":19,"../util":56,"./json":27,"./rest":29}],31:[function(require,module,exports){
 var AWS = require('../core');
 var util = require('../util');
 var Rest = require('./rest');
@@ -3587,7 +4376,7 @@ module.exports = {
   extractData: extractData
 };
 
-},{"../core":3,"../util":51,"./rest":24}],27:[function(require,module,exports){
+},{"../core":3,"../util":56,"./rest":29}],32:[function(require,module,exports){
 var util = require('../util');
 
 function QueryParamSerializer() {
@@ -3670,7 +4459,7 @@ function serializeMember(name, value, rules, fn) {
 
 module.exports = QueryParamSerializer;
 
-},{"../util":51}],28:[function(require,module,exports){
+},{"../util":56}],33:[function(require,module,exports){
 module.exports={
   "rules": {
     "*/*": {
@@ -3733,7 +4522,7 @@ module.exports={
   }
 }
 
-},{}],29:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var util = require('./util');
 var regionConfig = require('./region_config.json');
 
@@ -3798,7 +4587,7 @@ function configureEndpoint(service) {
 
 module.exports = configureEndpoint;
 
-},{"./region_config.json":28,"./util":51}],30:[function(require,module,exports){
+},{"./region_config.json":33,"./util":56}],35:[function(require,module,exports){
 (function (process){
 var AWS = require('./core');
 var AcceptorStateMachine = require('./state_machine');
@@ -4476,7 +5265,7 @@ AWS.Request = inherit({
 AWS.util.mixin(AWS.Request, AWS.SequentialExecutor);
 
 }).call(this,require('_process'))
-},{"./core":3,"./state_machine":50,"_process":206}],31:[function(require,module,exports){
+},{"./core":3,"./state_machine":55,"_process":211}],36:[function(require,module,exports){
 /**
  * Copyright 2012-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
@@ -4676,7 +5465,7 @@ AWS.ResourceWaiter = inherit({
   }
 });
 
-},{"./core":3}],32:[function(require,module,exports){
+},{"./core":3}],37:[function(require,module,exports){
 var AWS = require('./core');
 var inherit = AWS.util.inherit;
 
@@ -4878,7 +5667,7 @@ AWS.Response = inherit({
 
 });
 
-},{"./core":3}],33:[function(require,module,exports){
+},{"./core":3}],38:[function(require,module,exports){
 (function (Buffer){
 var AWS = require('../core');
 var byteLength = AWS.util.string.byteLength;
@@ -5448,7 +6237,7 @@ AWS.util.mixin(AWS.S3.ManagedUpload, AWS.SequentialExecutor);
 module.exports = AWS.S3.ManagedUpload;
 
 }).call(this,require("buffer").Buffer)
-},{"../core":3,"buffer":58}],34:[function(require,module,exports){
+},{"../core":3,"buffer":63}],39:[function(require,module,exports){
 var AWS = require('./core');
 
 /**
@@ -5681,7 +6470,7 @@ AWS.SequentialExecutor.prototype.addListener = AWS.SequentialExecutor.prototype.
 
 module.exports = AWS.SequentialExecutor;
 
-},{"./core":3}],35:[function(require,module,exports){
+},{"./core":3}],40:[function(require,module,exports){
 var AWS = require('./core');
 var Api = require('./model/api');
 var regionConfig = require('./region_config');
@@ -6021,6 +6810,22 @@ AWS.Service = inherit({
   /**
    * @api private
    */
+  clockSkewError: function clockSkewError(error) {
+    switch (error.code) {
+      case 'RequestTimeTooSkewed':
+      case 'RequestExpired':
+      case 'InvalidSignatureException':
+      case 'SignatureDoesNotMatch':
+      case 'AuthFailure':
+      case 'RequestInTheFuture':
+        return true;
+      default: return false;
+    }
+  },
+
+  /**
+   * @api private
+   */
   throttledError: function throttledError(error) {
     // this logic varies between services
     switch (error.code) {
@@ -6191,7 +6996,7 @@ AWS.util.update(AWS.Service, {
   _serviceMap: {}
 });
 
-},{"./core":3,"./model/api":15,"./region_config":29}],36:[function(require,module,exports){
+},{"./core":3,"./model/api":20,"./region_config":34}],41:[function(require,module,exports){
 var AWS = require('../core');
 
 AWS.util.update(AWS.CognitoIdentity.prototype, {
@@ -6208,8 +7013,9 @@ AWS.util.update(AWS.CognitoIdentity.prototype, {
   }
 });
 
-},{"../core":3}],37:[function(require,module,exports){
+},{"../core":3}],42:[function(require,module,exports){
 var AWS = require('../core');
+require('../dynamodb/document_client');
 
 AWS.util.update(AWS.DynamoDB.prototype, {
   /**
@@ -6265,7 +7071,7 @@ AWS.util.update(AWS.DynamoDB.prototype, {
   }
 });
 
-},{"../core":3}],38:[function(require,module,exports){
+},{"../core":3,"../dynamodb/document_client":11}],43:[function(require,module,exports){
 var AWS = require('../core');
 
 AWS.util.update(AWS.EC2.prototype, {
@@ -6328,7 +7134,7 @@ AWS.util.update(AWS.EC2.prototype, {
   }
 });
 
-},{"../core":3}],39:[function(require,module,exports){
+},{"../core":3}],44:[function(require,module,exports){
 var AWS = require('../core');
 
 AWS.util.update(AWS.MachineLearning.prototype, {
@@ -6354,7 +7160,7 @@ AWS.util.update(AWS.MachineLearning.prototype, {
 
 });
 
-},{"../core":3}],40:[function(require,module,exports){
+},{"../core":3}],45:[function(require,module,exports){
 var AWS = require('../core');
 
 // Pull in managed upload extension
@@ -6386,6 +7192,7 @@ AWS.util.update(AWS.S3.prototype, {
     request.addListener('build', this.populateURI);
     request.addListener('build', this.computeContentMd5);
     request.addListener('build', this.computeSseCustomerKeyMd5);
+    request.addListener('build', this.encodeCopySourceHeaders);
     request.addListener('afterBuild', this.addExpect100Continue);
     request.removeListener('validate',
       AWS.EventListeners.Core.VALIDATE_REGION);
@@ -6569,6 +7376,18 @@ AWS.util.update(AWS.S3.prototype, {
         req.httpRequest.headers[header] = value;
       }
     });
+  },
+
+  /**
+   * @api private
+   */
+  encodeCopySourceHeaders: function encodeCopySourceHeaders(req) {
+    if (req.operation === 'copyObject' || req.operation === 'uploadPartCopy') {
+      if (req.httpRequest.headers['x-amz-copy-source']) {
+        req.httpRequest.headers['x-amz-copy-source'] =
+          AWS.util.uriEscapePath(req.httpRequest.headers['x-amz-copy-source']);
+      }
+    }
   },
 
   /**
@@ -6804,7 +7623,7 @@ AWS.util.update(AWS.S3.prototype, {
   }
 });
 
-},{"../core":3,"../s3/managed_upload":33}],41:[function(require,module,exports){
+},{"../core":3,"../s3/managed_upload":38}],46:[function(require,module,exports){
 var AWS = require('../core');
 
 AWS.util.update(AWS.SQS.prototype, {
@@ -6937,7 +7756,7 @@ AWS.util.update(AWS.SQS.prototype, {
   }
 });
 
-},{"../core":3}],42:[function(require,module,exports){
+},{"../core":3}],47:[function(require,module,exports){
 var AWS = require('../core');
 
 AWS.util.update(AWS.STS.prototype, {
@@ -6986,7 +7805,7 @@ AWS.util.update(AWS.STS.prototype, {
   }
 });
 
-},{"../core":3}],43:[function(require,module,exports){
+},{"../core":3}],48:[function(require,module,exports){
 var AWS = require('../core');
 var inherit = AWS.util.inherit;
 
@@ -7097,7 +7916,7 @@ AWS.Signers.Presign = inherit({
 
 module.exports = AWS.Signers.Presign;
 
-},{"../core":3}],44:[function(require,module,exports){
+},{"../core":3}],49:[function(require,module,exports){
 var AWS = require('../core');
 var inherit = AWS.util.inherit;
 
@@ -7128,7 +7947,7 @@ require('./v4');
 require('./s3');
 require('./presign');
 
-},{"../core":3,"./presign":43,"./s3":45,"./v2":46,"./v3":47,"./v3https":48,"./v4":49}],45:[function(require,module,exports){
+},{"../core":3,"./presign":48,"./s3":50,"./v2":51,"./v3":52,"./v3https":53,"./v4":54}],50:[function(require,module,exports){
 var AWS = require('../core');
 var inherit = AWS.util.inherit;
 
@@ -7297,7 +8116,7 @@ AWS.Signers.S3 = inherit(AWS.Signers.RequestSigner, {
 
 module.exports = AWS.Signers.S3;
 
-},{"../core":3}],46:[function(require,module,exports){
+},{"../core":3}],51:[function(require,module,exports){
 var AWS = require('../core');
 var inherit = AWS.util.inherit;
 
@@ -7344,7 +8163,7 @@ AWS.Signers.V2 = inherit(AWS.Signers.RequestSigner, {
 
 module.exports = AWS.Signers.V2;
 
-},{"../core":3}],47:[function(require,module,exports){
+},{"../core":3}],52:[function(require,module,exports){
 var AWS = require('../core');
 var inherit = AWS.util.inherit;
 
@@ -7420,7 +8239,7 @@ AWS.Signers.V3 = inherit(AWS.Signers.RequestSigner, {
 
 module.exports = AWS.Signers.V3;
 
-},{"../core":3}],48:[function(require,module,exports){
+},{"../core":3}],53:[function(require,module,exports){
 var AWS = require('../core');
 var inherit = AWS.util.inherit;
 
@@ -7444,7 +8263,7 @@ AWS.Signers.V3Https = inherit(AWS.Signers.V3, {
 
 module.exports = AWS.Signers.V3Https;
 
-},{"../core":3,"./v3":47}],49:[function(require,module,exports){
+},{"../core":3,"./v3":52}],54:[function(require,module,exports){
 var AWS = require('../core');
 var inherit = AWS.util.inherit;
 
@@ -7648,7 +8467,7 @@ AWS.Signers.V4 = inherit(AWS.Signers.RequestSigner, {
 
 module.exports = AWS.Signers.V4;
 
-},{"../core":3}],50:[function(require,module,exports){
+},{"../core":3}],55:[function(require,module,exports){
 function AcceptorStateMachine(states, state) {
   this.currentState = state || null;
   this.states = states || {};
@@ -7692,7 +8511,7 @@ AcceptorStateMachine.prototype.addState = function addState(name, acceptState, f
 
 module.exports = AcceptorStateMachine;
 
-},{}],51:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 (function (process){
 /* eslint guard-for-in:0 */
 
@@ -8303,7 +9122,7 @@ var util = {
 
     if (typeof options === 'string') {
       err.message = options;
-    } else if (typeof options === 'object') {
+    } else if (typeof options === 'object' && options !== null) {
       util.update(err, options);
       if (options.message)
         err.message = options.message;
@@ -8463,6 +9282,22 @@ var util = {
       if (err) done(err);
       else done(null, sha);
     });
+  },
+
+  /**
+   * @api private
+   */
+  isClockSkewed: function isClockSkewed(serverTime) {
+    if (serverTime) {
+      util.property(AWS.config, 'isClockSkewed',
+        Math.abs(new Date().getTime() - serverTime) >= 300000, false);
+      return AWS.config.isClockSkewed;
+    }
+  },
+
+  applyClockOffset: function applyClockOffset(serverTime) {
+    if (serverTime)
+      AWS.config.systemClockOffset = serverTime - new Date().getTime();
   }
 
 };
@@ -8470,7 +9305,7 @@ var util = {
 module.exports = util;
 
 }).call(this,require('_process'))
-},{"./core":3,"_process":206,"buffer":58,"crypto":62,"querystring":210,"url":226}],52:[function(require,module,exports){
+},{"./core":3,"_process":211,"buffer":63,"crypto":67,"querystring":215,"url":231}],57:[function(require,module,exports){
 var util = require('../util');
 var Shape = require('../model/shape');
 
@@ -8639,7 +9474,7 @@ function parseUnknown(xml) {
 
 module.exports = DomXmlParser;
 
-},{"../model/shape":20,"../util":51}],53:[function(require,module,exports){
+},{"../model/shape":25,"../util":56}],58:[function(require,module,exports){
 var util = require('../util');
 var builder = require('xmlbuilder');
 
@@ -8727,7 +9562,7 @@ function applyNamespaces(xml, shape) {
 
 module.exports = XmlBuilder;
 
-},{"../util":51,"xmlbuilder":56}],54:[function(require,module,exports){
+},{"../util":56,"xmlbuilder":61}],59:[function(require,module,exports){
 // Generated by CoffeeScript 1.3.3
 (function() {
   var XMLBuilder, XMLFragment;
@@ -8848,7 +9683,7 @@ module.exports = XmlBuilder;
 
 }).call(this);
 
-},{"./XMLFragment":55}],55:[function(require,module,exports){
+},{"./XMLFragment":60}],60:[function(require,module,exports){
 // Generated by CoffeeScript 1.3.3
 (function() {
   var XMLFragment,
@@ -9272,7 +10107,7 @@ module.exports = XmlBuilder;
 
 }).call(this);
 
-},{}],56:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 // Generated by CoffeeScript 1.3.3
 (function() {
   var XMLBuilder;
@@ -9289,9 +10124,9 @@ module.exports = XmlBuilder;
 
 }).call(this);
 
-},{"./XMLBuilder":54}],57:[function(require,module,exports){
+},{"./XMLBuilder":59}],62:[function(require,module,exports){
 
-},{}],58:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -9918,31 +10753,20 @@ function base64Slice (buf, start, end) {
 
 function utf8Slice (buf, start, end) {
   end = Math.min(buf.length, end)
-  var firstByte
-  var secondByte
-  var thirdByte
-  var fourthByte
-  var bytesPerSequence
-  var tempCodePoint
-  var codePoint
   var res = []
+
   var i = start
-
-  for (; i < end; i += bytesPerSequence) {
-    firstByte = buf[i]
-    codePoint = 0xFFFD
-
-    if (firstByte > 0xEF) {
-      bytesPerSequence = 4
-    } else if (firstByte > 0xDF) {
-      bytesPerSequence = 3
-    } else if (firstByte > 0xBF) {
-      bytesPerSequence = 2
-    } else {
-      bytesPerSequence = 1
-    }
+  while (i < end) {
+    var firstByte = buf[i]
+    var codePoint = null
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+      : (firstByte > 0xBF) ? 2
+      : 1
 
     if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint
+
       switch (bytesPerSequence) {
         case 1:
           if (firstByte < 0x80) {
@@ -9981,8 +10805,10 @@ function utf8Slice (buf, start, end) {
       }
     }
 
-    if (codePoint === 0xFFFD) {
-      // we generated an invalid codePoint so make sure to only advance by 1 byte
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD
       bytesPerSequence = 1
     } else if (codePoint > 0xFFFF) {
       // encode to utf16 (surrogate pair dance)
@@ -9992,9 +10818,33 @@ function utf8Slice (buf, start, end) {
     }
 
     res.push(codePoint)
+    i += bytesPerSequence
   }
 
-  return String.fromCharCode.apply(String, res)
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = ''
+  var i = 0
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    )
+  }
+  return res
 }
 
 function asciiSlice (buf, start, end) {
@@ -10713,7 +11563,6 @@ function utf8ToBytes (string, units) {
           // unexpected trail
           if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
           continue
-
         } else if (i + 1 === length) {
           // unpaired lead
           if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
@@ -10735,7 +11584,6 @@ function utf8ToBytes (string, units) {
 
       // valid surrogate pair
       codePoint = leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00 | 0x10000
-
     } else if (leadSurrogate) {
       // valid bmp char, but last char was a lead
       if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD)
@@ -10813,7 +11661,7 @@ function blitBuffer (src, dst, offset, length) {
   return i
 }
 
-},{"base64-js":59,"ieee754":60,"is-array":61}],59:[function(require,module,exports){
+},{"base64-js":64,"ieee754":65,"is-array":66}],64:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -10939,7 +11787,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],60:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = nBytes * 8 - mLen - 1
@@ -11025,7 +11873,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],61:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 
 /**
  * isArray
@@ -11060,7 +11908,7 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}],62:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 'use strict';
 
 exports.randomBytes = exports.rng = exports.pseudoRandomBytes = exports.prng = require('randombytes')
@@ -11141,7 +11989,7 @@ var publicEncrypt = require('public-encrypt');
   }
 })
 
-},{"browserify-aes":66,"browserify-sign":82,"browserify-sign/algos":81,"create-ecdh":130,"create-hash":153,"create-hmac":165,"diffie-hellman":166,"pbkdf2":173,"public-encrypt":174,"randombytes":202}],63:[function(require,module,exports){
+},{"browserify-aes":71,"browserify-sign":87,"browserify-sign/algos":86,"create-ecdh":135,"create-hash":158,"create-hmac":170,"diffie-hellman":171,"pbkdf2":178,"public-encrypt":179,"randombytes":207}],68:[function(require,module,exports){
 (function (Buffer){
 var md5 = require('create-hash/md5')
 module.exports = EVP_BytesToKey
@@ -11207,7 +12055,7 @@ function EVP_BytesToKey (password, keyLen, ivLen) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"create-hash/md5":155}],64:[function(require,module,exports){
+},{"buffer":63,"create-hash/md5":160}],69:[function(require,module,exports){
 (function (Buffer){
 // based on the aes implimentation in triple sec
 // https://github.com/keybase/triplesec
@@ -11388,7 +12236,7 @@ AES.prototype._doCryptBlock = function (M, keySchedule, SUB_MIX, SBOX) {
 exports.AES = AES
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],65:[function(require,module,exports){
+},{"buffer":63}],70:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('./cipherBase')
@@ -11489,7 +12337,7 @@ function xorTest (a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aes":64,"./cipherBase":67,"./ghash":70,"buffer":58,"buffer-xor":79,"inherits":204}],66:[function(require,module,exports){
+},{"./aes":69,"./cipherBase":72,"./ghash":75,"buffer":63,"buffer-xor":84,"inherits":209}],71:[function(require,module,exports){
 var ciphers = require('./encrypter')
 exports.createCipher = exports.Cipher = ciphers.createCipher
 exports.createCipheriv = exports.Cipheriv = ciphers.createCipheriv
@@ -11502,7 +12350,7 @@ function getCiphers () {
 }
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"./decrypter":68,"./encrypter":69,"./modes":71}],67:[function(require,module,exports){
+},{"./decrypter":73,"./encrypter":74,"./modes":76}],72:[function(require,module,exports){
 (function (Buffer){
 var Transform = require('stream').Transform
 var inherits = require('inherits')
@@ -11572,7 +12420,7 @@ CipherBase.prototype._toString = function (value, enc, final) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"inherits":204,"stream":224}],68:[function(require,module,exports){
+},{"buffer":63,"inherits":209,"stream":229}],73:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('./cipherBase')
@@ -11712,7 +12560,7 @@ exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
 }).call(this,require("buffer").Buffer)
-},{"./EVP_BytesToKey":63,"./aes":64,"./authCipher":65,"./cipherBase":67,"./modes":71,"./modes/cbc":72,"./modes/cfb":73,"./modes/cfb1":74,"./modes/cfb8":75,"./modes/ctr":76,"./modes/ecb":77,"./modes/ofb":78,"./streamCipher":80,"buffer":58,"inherits":204}],69:[function(require,module,exports){
+},{"./EVP_BytesToKey":68,"./aes":69,"./authCipher":70,"./cipherBase":72,"./modes":76,"./modes/cbc":77,"./modes/cfb":78,"./modes/cfb1":79,"./modes/cfb8":80,"./modes/ctr":81,"./modes/ecb":82,"./modes/ofb":83,"./streamCipher":85,"buffer":63,"inherits":209}],74:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('./cipherBase')
@@ -11837,7 +12685,7 @@ exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
 }).call(this,require("buffer").Buffer)
-},{"./EVP_BytesToKey":63,"./aes":64,"./authCipher":65,"./cipherBase":67,"./modes":71,"./modes/cbc":72,"./modes/cfb":73,"./modes/cfb1":74,"./modes/cfb8":75,"./modes/ctr":76,"./modes/ecb":77,"./modes/ofb":78,"./streamCipher":80,"buffer":58,"inherits":204}],70:[function(require,module,exports){
+},{"./EVP_BytesToKey":68,"./aes":69,"./authCipher":70,"./cipherBase":72,"./modes":76,"./modes/cbc":77,"./modes/cfb":78,"./modes/cfb1":79,"./modes/cfb8":80,"./modes/ctr":81,"./modes/ecb":82,"./modes/ofb":83,"./streamCipher":85,"buffer":63,"inherits":209}],75:[function(require,module,exports){
 (function (Buffer){
 var zeros = new Buffer(16)
 zeros.fill(0)
@@ -11939,7 +12787,7 @@ function xor (a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],71:[function(require,module,exports){
+},{"buffer":63}],76:[function(require,module,exports){
 exports['aes-128-ecb'] = {
   cipher: 'AES',
   key: 128,
@@ -12112,7 +12960,7 @@ exports['aes-256-gcm'] = {
   type: 'auth'
 }
 
-},{}],72:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 var xor = require('buffer-xor')
 
 exports.encrypt = function (self, block) {
@@ -12131,7 +12979,7 @@ exports.decrypt = function (self, block) {
   return xor(out, pad)
 }
 
-},{"buffer-xor":79}],73:[function(require,module,exports){
+},{"buffer-xor":84}],78:[function(require,module,exports){
 (function (Buffer){
 var xor = require('buffer-xor')
 
@@ -12166,7 +13014,7 @@ function encryptStart (self, data, decrypt) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"buffer-xor":79}],74:[function(require,module,exports){
+},{"buffer":63,"buffer-xor":84}],79:[function(require,module,exports){
 (function (Buffer){
 function encryptByte (self, byteParam, decrypt) {
   var pad
@@ -12204,7 +13052,7 @@ function shiftIn (buffer, value) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],75:[function(require,module,exports){
+},{"buffer":63}],80:[function(require,module,exports){
 (function (Buffer){
 function encryptByte (self, byteParam, decrypt) {
   var pad = self._cipher.encryptBlock(self._prev)
@@ -12223,7 +13071,7 @@ exports.encrypt = function (self, chunk, decrypt) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],76:[function(require,module,exports){
+},{"buffer":63}],81:[function(require,module,exports){
 (function (Buffer){
 var xor = require('buffer-xor')
 
@@ -12258,7 +13106,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"buffer-xor":79}],77:[function(require,module,exports){
+},{"buffer":63,"buffer-xor":84}],82:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -12266,7 +13114,7 @@ exports.decrypt = function (self, block) {
   return self._cipher.decryptBlock(block)
 }
 
-},{}],78:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 (function (Buffer){
 var xor = require('buffer-xor')
 
@@ -12286,7 +13134,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"buffer-xor":79}],79:[function(require,module,exports){
+},{"buffer":63,"buffer-xor":84}],84:[function(require,module,exports){
 (function (Buffer){
 module.exports = function xor (a, b) {
   var length = Math.min(a.length, b.length)
@@ -12300,7 +13148,7 @@ module.exports = function xor (a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],80:[function(require,module,exports){
+},{"buffer":63}],85:[function(require,module,exports){
 (function (Buffer){
 var aes = require('./aes')
 var Transform = require('./cipherBase')
@@ -12329,7 +13177,7 @@ StreamCipher.prototype._final = function () {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aes":64,"./cipherBase":67,"buffer":58,"inherits":204}],81:[function(require,module,exports){
+},{"./aes":69,"./cipherBase":72,"buffer":63,"inherits":209}],86:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 exports['RSA-SHA224'] = exports.sha224WithRSAEncryption = {
@@ -12404,7 +13252,7 @@ exports['RSA-MD5'] = exports.md5WithRSAEncryption = {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],82:[function(require,module,exports){
+},{"buffer":63}],87:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 var sign = require('./sign')
@@ -12501,7 +13349,7 @@ Verify.prototype.verify = function verifyMethod (key, sig, enc) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./algos":81,"./sign":127,"./verify":128,"buffer":58,"create-hash":153,"inherits":204,"stream":224}],83:[function(require,module,exports){
+},{"./algos":86,"./sign":132,"./verify":133,"buffer":63,"create-hash":158,"inherits":209,"stream":229}],88:[function(require,module,exports){
 'use strict'
 exports['1.3.132.0.10'] = 'secp256k1'
 
@@ -12511,7 +13359,7 @@ exports['1.2.840.10045.3.1.1'] = 'p192'
 
 exports['1.2.840.10045.3.1.7'] = 'p256'
 
-},{}],84:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 (function (module, exports) {
 
 'use strict';
@@ -14831,7 +15679,7 @@ Mont.prototype.invm = function invm(a) {
 
 })(typeof module === 'undefined' || module, this);
 
-},{}],85:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 (function (Buffer){
 var bn = require('bn.js');
 var randomBytes = require('randombytes');
@@ -14880,7 +15728,7 @@ function getr(priv) {
   return r;
 }
 }).call(this,require("buffer").Buffer)
-},{"bn.js":84,"buffer":58,"randombytes":202}],86:[function(require,module,exports){
+},{"bn.js":89,"buffer":63,"randombytes":207}],91:[function(require,module,exports){
 'use strict';
 
 var elliptic = exports;
@@ -14895,7 +15743,7 @@ elliptic.curves = require('./elliptic/curves');
 // Protocols
 elliptic.ec = require('./elliptic/ec');
 
-},{"../package.json":106,"./elliptic/curve":89,"./elliptic/curves":92,"./elliptic/ec":93,"./elliptic/hmac-drbg":96,"./elliptic/utils":98,"brorand":99}],87:[function(require,module,exports){
+},{"../package.json":111,"./elliptic/curve":94,"./elliptic/curves":97,"./elliptic/ec":98,"./elliptic/hmac-drbg":101,"./elliptic/utils":103,"brorand":104}],92:[function(require,module,exports){
 'use strict';
 
 var bn = require('bn.js');
@@ -15212,7 +16060,7 @@ BasePoint.prototype.dblp = function dblp(k) {
   return r;
 };
 
-},{"../../elliptic":86,"bn.js":84}],88:[function(require,module,exports){
+},{"../../elliptic":91,"bn.js":89}],93:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -15585,7 +16433,7 @@ Point.prototype.getY = function getY() {
 Point.prototype.toP = Point.prototype.normalize;
 Point.prototype.mixedAdd = Point.prototype.add;
 
-},{"../../elliptic":86,"../curve":89,"bn.js":84,"inherits":204}],89:[function(require,module,exports){
+},{"../../elliptic":91,"../curve":94,"bn.js":89,"inherits":209}],94:[function(require,module,exports){
 'use strict';
 
 var curve = exports;
@@ -15595,7 +16443,7 @@ curve.short = require('./short');
 curve.mont = require('./mont');
 curve.edwards = require('./edwards');
 
-},{"./base":87,"./edwards":88,"./mont":90,"./short":91}],90:[function(require,module,exports){
+},{"./base":92,"./edwards":93,"./mont":95,"./short":96}],95:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -15758,7 +16606,7 @@ Point.prototype.getX = function getX() {
   return this.x.fromRed();
 };
 
-},{"../curve":89,"bn.js":84,"inherits":204}],91:[function(require,module,exports){
+},{"../curve":94,"bn.js":89,"inherits":209}],96:[function(require,module,exports){
 'use strict';
 
 var curve = require('../curve');
@@ -16667,7 +17515,7 @@ JPoint.prototype.isInfinity = function isInfinity() {
   return this.z.cmpn(0) === 0;
 };
 
-},{"../../elliptic":86,"../curve":89,"bn.js":84,"inherits":204}],92:[function(require,module,exports){
+},{"../../elliptic":91,"../curve":94,"bn.js":89,"inherits":209}],97:[function(require,module,exports){
 'use strict';
 
 var curves = exports;
@@ -16826,7 +17674,7 @@ defineCurve('secp256k1', {
   ]
 });
 
-},{"../elliptic":86,"./precomputed/secp256k1":97,"hash.js":100}],93:[function(require,module,exports){
+},{"../elliptic":91,"./precomputed/secp256k1":102,"hash.js":105}],98:[function(require,module,exports){
 'use strict';
 
 var bn = require('bn.js');
@@ -17037,7 +17885,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   throw new Error('Unable to find valid recovery factor');
 };
 
-},{"../../elliptic":86,"./key":94,"./signature":95,"bn.js":84}],94:[function(require,module,exports){
+},{"../../elliptic":91,"./key":99,"./signature":100,"bn.js":89}],99:[function(require,module,exports){
 'use strict';
 
 var bn = require('bn.js');
@@ -17189,7 +18037,7 @@ KeyPair.prototype.inspect = function inspect() {
          ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
 };
 
-},{"../../elliptic":86,"bn.js":84}],95:[function(require,module,exports){
+},{"../../elliptic":91,"bn.js":89}],100:[function(require,module,exports){
 'use strict';
 
 var bn = require('bn.js');
@@ -17261,7 +18109,7 @@ Signature.prototype.toDER = function toDER(enc) {
   return utils.encode(res, enc);
 };
 
-},{"../../elliptic":86,"bn.js":84}],96:[function(require,module,exports){
+},{"../../elliptic":91,"bn.js":89}],101:[function(require,module,exports){
 'use strict';
 
 var hash = require('hash.js');
@@ -17377,7 +18225,7 @@ HmacDRBG.prototype.generate = function generate(len, enc, add, addEnc) {
   return utils.encode(res, enc);
 };
 
-},{"../elliptic":86,"hash.js":100}],97:[function(require,module,exports){
+},{"../elliptic":91,"hash.js":105}],102:[function(require,module,exports){
 module.exports = {
   doubles: {
     step: 4,
@@ -18159,7 +19007,7 @@ module.exports = {
   }
 };
 
-},{}],98:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 'use strict';
 
 var utils = exports;
@@ -18311,7 +19159,7 @@ function getJSF(k1, k2) {
 }
 utils.getJSF = getJSF;
 
-},{}],99:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 var r;
 
 module.exports = function rand(len) {
@@ -18370,7 +19218,7 @@ if (typeof window === 'object') {
   }
 }
 
-},{}],100:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 var hash = exports;
 
 hash.utils = require('./hash/utils');
@@ -18387,7 +19235,7 @@ hash.sha384 = hash.sha.sha384;
 hash.sha512 = hash.sha.sha512;
 hash.ripemd160 = hash.ripemd.ripemd160;
 
-},{"./hash/common":101,"./hash/hmac":102,"./hash/ripemd":103,"./hash/sha":104,"./hash/utils":105}],101:[function(require,module,exports){
+},{"./hash/common":106,"./hash/hmac":107,"./hash/ripemd":108,"./hash/sha":109,"./hash/utils":110}],106:[function(require,module,exports){
 var hash = require('../hash');
 var utils = hash.utils;
 var assert = utils.assert;
@@ -18480,7 +19328,7 @@ BlockHash.prototype._pad = function pad() {
   return res;
 };
 
-},{"../hash":100}],102:[function(require,module,exports){
+},{"../hash":105}],107:[function(require,module,exports){
 var hmac = exports;
 
 var hash = require('../hash');
@@ -18530,7 +19378,7 @@ Hmac.prototype.digest = function digest(enc) {
   return this.outer.digest(enc);
 };
 
-},{"../hash":100}],103:[function(require,module,exports){
+},{"../hash":105}],108:[function(require,module,exports){
 var hash = require('../hash');
 var utils = hash.utils;
 
@@ -18676,7 +19524,7 @@ var sh = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-},{"../hash":100}],104:[function(require,module,exports){
+},{"../hash":105}],109:[function(require,module,exports){
 var hash = require('../hash');
 var utils = hash.utils;
 var assert = utils.assert;
@@ -19242,7 +20090,7 @@ function g1_512_lo(xh, xl) {
   return r;
 }
 
-},{"../hash":100}],105:[function(require,module,exports){
+},{"../hash":105}],110:[function(require,module,exports){
 var utils = exports;
 var inherits = require('inherits');
 
@@ -19501,7 +20349,7 @@ function shr64_lo(ah, al, num) {
 };
 exports.shr64_lo = shr64_lo;
 
-},{"inherits":204}],106:[function(require,module,exports){
+},{"inherits":209}],111:[function(require,module,exports){
 module.exports={
   "name": "elliptic",
   "version": "3.1.0",
@@ -19512,7 +20360,7 @@ module.exports={
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/indutny/elliptic.git"
+    "url": "git@github.com:indutny/elliptic"
   },
   "keywords": [
     "EC",
@@ -19550,7 +20398,7 @@ module.exports={
   "_from": "elliptic@>=3.0.0 <4.0.0"
 }
 
-},{}],107:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash');
 module.exports = function evp(password, salt, keyLen) {
@@ -19592,7 +20440,7 @@ module.exports = function evp(password, salt, keyLen) {
   return key;
 };
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"create-hash":153}],108:[function(require,module,exports){
+},{"buffer":63,"create-hash":158}],113:[function(require,module,exports){
 module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.2": "aes-128-cbc",
 "2.16.840.1.101.3.4.1.3": "aes-128-ofb",
@@ -19606,7 +20454,7 @@ module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 "2.16.840.1.101.3.4.1.43": "aes-256-ofb",
 "2.16.840.1.101.3.4.1.44": "aes-256-cfb"
 }
-},{}],109:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 // from https://github.com/indutny/self-signed/blob/gh-pages/lib/asn1.js
 // Fedor, you are amazing.
 
@@ -19725,7 +20573,7 @@ exports.signature = asn1.define('signature', function() {
   );
 });
 
-},{"asn1.js":112}],110:[function(require,module,exports){
+},{"asn1.js":117}],115:[function(require,module,exports){
 (function (Buffer){
 // adapted from https://github.com/apatil/pemstrip
 var findProc = /Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: AES-((?:128)|(?:192)|(?:256))-CBC,([0-9A-H]+)\r?\n\r?\n([0-9A-z\n\r\+\/\=]+)\r?\n/m;
@@ -19769,7 +20617,7 @@ function wrap (str) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./EVP_BytesToKey":107,"browserify-aes":66,"buffer":58}],111:[function(require,module,exports){
+},{"./EVP_BytesToKey":112,"browserify-aes":71,"buffer":63}],116:[function(require,module,exports){
 (function (Buffer){
 var asn1 = require('./asn1');
 var aesid = require('./aesid.json');
@@ -19874,7 +20722,7 @@ function decrypt(data, password) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./aesid.json":108,"./asn1":109,"./fixProc":110,"browserify-aes":66,"buffer":58,"pbkdf2":173}],112:[function(require,module,exports){
+},{"./aesid.json":113,"./asn1":114,"./fixProc":115,"browserify-aes":71,"buffer":63,"pbkdf2":178}],117:[function(require,module,exports){
 var asn1 = exports;
 
 asn1.bignum = require('bn.js');
@@ -19885,7 +20733,7 @@ asn1.constants = require('./asn1/constants');
 asn1.decoders = require('./asn1/decoders');
 asn1.encoders = require('./asn1/encoders');
 
-},{"./asn1/api":113,"./asn1/base":115,"./asn1/constants":119,"./asn1/decoders":121,"./asn1/encoders":124,"bn.js":84}],113:[function(require,module,exports){
+},{"./asn1/api":118,"./asn1/base":120,"./asn1/constants":124,"./asn1/decoders":126,"./asn1/encoders":129,"bn.js":89}],118:[function(require,module,exports){
 var asn1 = require('../asn1');
 var inherits = require('inherits');
 
@@ -19946,7 +20794,7 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
   return this._getEncoder(enc).encode(data, reporter);
 };
 
-},{"../asn1":112,"inherits":204,"vm":229}],114:[function(require,module,exports){
+},{"../asn1":117,"inherits":209,"vm":234}],119:[function(require,module,exports){
 var inherits = require('inherits');
 var Reporter = require('../base').Reporter;
 var Buffer = require('buffer').Buffer;
@@ -20064,7 +20912,7 @@ EncoderBuffer.prototype.join = function join(out, offset) {
   return out;
 };
 
-},{"../base":115,"buffer":58,"inherits":204}],115:[function(require,module,exports){
+},{"../base":120,"buffer":63,"inherits":209}],120:[function(require,module,exports){
 var base = exports;
 
 base.Reporter = require('./reporter').Reporter;
@@ -20072,7 +20920,7 @@ base.DecoderBuffer = require('./buffer').DecoderBuffer;
 base.EncoderBuffer = require('./buffer').EncoderBuffer;
 base.Node = require('./node');
 
-},{"./buffer":114,"./node":116,"./reporter":117}],116:[function(require,module,exports){
+},{"./buffer":119,"./node":121,"./reporter":122}],121:[function(require,module,exports){
 var Reporter = require('../base').Reporter;
 var EncoderBuffer = require('../base').EncoderBuffer;
 var assert = require('minimalistic-assert');
@@ -20672,7 +21520,7 @@ Node.prototype._encodePrimitive = function encodePrimitive(tag, data) {
     throw new Error('Unsupported tag: ' + tag);
 };
 
-},{"../base":115,"minimalistic-assert":126}],117:[function(require,module,exports){
+},{"../base":120,"minimalistic-assert":131}],122:[function(require,module,exports){
 var inherits = require('inherits');
 
 function Reporter(options) {
@@ -20776,7 +21624,7 @@ ReporterError.prototype.rethrow = function rethrow(msg) {
   return this;
 };
 
-},{"inherits":204}],118:[function(require,module,exports){
+},{"inherits":209}],123:[function(require,module,exports){
 var constants = require('../constants');
 
 exports.tagClass = {
@@ -20820,7 +21668,7 @@ exports.tag = {
 };
 exports.tagByName = constants._reverse(exports.tag);
 
-},{"../constants":119}],119:[function(require,module,exports){
+},{"../constants":124}],124:[function(require,module,exports){
 var constants = exports;
 
 // Helper
@@ -20841,7 +21689,7 @@ constants._reverse = function reverse(map) {
 
 constants.der = require('./der');
 
-},{"./der":118}],120:[function(require,module,exports){
+},{"./der":123}],125:[function(require,module,exports){
 var inherits = require('inherits');
 
 var asn1 = require('../../asn1');
@@ -21132,13 +21980,13 @@ function derDecodeLen(buf, primitive, fail) {
   return len;
 }
 
-},{"../../asn1":112,"inherits":204}],121:[function(require,module,exports){
+},{"../../asn1":117,"inherits":209}],126:[function(require,module,exports){
 var decoders = exports;
 
 decoders.der = require('./der');
 decoders.pem = require('./pem');
 
-},{"./der":120,"./pem":122}],122:[function(require,module,exports){
+},{"./der":125,"./pem":127}],127:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -21190,7 +22038,7 @@ PEMDecoder.prototype.decode = function decode(data, options) {
   return DERDecoder.prototype.decode.call(this, input, options);
 };
 
-},{"../../asn1":112,"./der":120,"buffer":58,"inherits":204}],123:[function(require,module,exports){
+},{"../../asn1":117,"./der":125,"buffer":63,"inherits":209}],128:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -21464,13 +22312,13 @@ function encodeTag(tag, primitive, cls, reporter) {
   return res;
 }
 
-},{"../../asn1":112,"buffer":58,"inherits":204}],124:[function(require,module,exports){
+},{"../../asn1":117,"buffer":63,"inherits":209}],129:[function(require,module,exports){
 var encoders = exports;
 
 encoders.der = require('./der');
 encoders.pem = require('./pem');
 
-},{"./der":123,"./pem":125}],125:[function(require,module,exports){
+},{"./der":128,"./pem":130}],130:[function(require,module,exports){
 var inherits = require('inherits');
 var Buffer = require('buffer').Buffer;
 
@@ -21495,7 +22343,7 @@ PEMEncoder.prototype.encode = function encode(data, options) {
   return out.join('\n');
 };
 
-},{"../../asn1":112,"./der":123,"buffer":58,"inherits":204}],126:[function(require,module,exports){
+},{"../../asn1":117,"./der":128,"buffer":63,"inherits":209}],131:[function(require,module,exports){
 module.exports = assert;
 
 function assert(val, msg) {
@@ -21508,7 +22356,7 @@ assert.equal = function assertEqual(l, r, msg) {
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-},{}],127:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 (function (Buffer){
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var parseKeys = require('parse-asn1')
@@ -21686,7 +22534,7 @@ function makeR (g, k, p, q) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./curves":83,"bn.js":84,"browserify-rsa":85,"buffer":58,"create-hmac":165,"elliptic":86,"parse-asn1":111}],128:[function(require,module,exports){
+},{"./curves":88,"bn.js":89,"browserify-rsa":90,"buffer":63,"create-hmac":170,"elliptic":91,"parse-asn1":116}],133:[function(require,module,exports){
 (function (Buffer){
 'use strict'
 // much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
@@ -21790,7 +22638,7 @@ function checkValue (b, q) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./curves":83,"bn.js":84,"buffer":58,"elliptic":86,"parse-asn1":111}],129:[function(require,module,exports){
+},{"./curves":88,"bn.js":89,"buffer":63,"elliptic":91,"parse-asn1":116}],134:[function(require,module,exports){
 (function (Buffer){
 var elliptic = require('elliptic');
 var BN = require('bn.js');
@@ -21906,55 +22754,55 @@ function formatReturnValue(bn, enc, len) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"bn.js":131,"buffer":58,"elliptic":132}],130:[function(require,module,exports){
+},{"bn.js":136,"buffer":63,"elliptic":137}],135:[function(require,module,exports){
 var createECDH = require('crypto').createECDH;
 
 module.exports = createECDH || require('./browser');
-},{"./browser":129,"crypto":62}],131:[function(require,module,exports){
-arguments[4][84][0].apply(exports,arguments)
-},{"dup":84}],132:[function(require,module,exports){
-arguments[4][86][0].apply(exports,arguments)
-},{"../package.json":152,"./elliptic/curve":135,"./elliptic/curves":138,"./elliptic/ec":139,"./elliptic/hmac-drbg":142,"./elliptic/utils":144,"brorand":145,"dup":86}],133:[function(require,module,exports){
-arguments[4][87][0].apply(exports,arguments)
-},{"../../elliptic":132,"bn.js":131,"dup":87}],134:[function(require,module,exports){
-arguments[4][88][0].apply(exports,arguments)
-},{"../../elliptic":132,"../curve":135,"bn.js":131,"dup":88,"inherits":204}],135:[function(require,module,exports){
+},{"./browser":134,"crypto":67}],136:[function(require,module,exports){
 arguments[4][89][0].apply(exports,arguments)
-},{"./base":133,"./edwards":134,"./mont":136,"./short":137,"dup":89}],136:[function(require,module,exports){
-arguments[4][90][0].apply(exports,arguments)
-},{"../curve":135,"bn.js":131,"dup":90,"inherits":204}],137:[function(require,module,exports){
+},{"dup":89}],137:[function(require,module,exports){
 arguments[4][91][0].apply(exports,arguments)
-},{"../../elliptic":132,"../curve":135,"bn.js":131,"dup":91,"inherits":204}],138:[function(require,module,exports){
+},{"../package.json":157,"./elliptic/curve":140,"./elliptic/curves":143,"./elliptic/ec":144,"./elliptic/hmac-drbg":147,"./elliptic/utils":149,"brorand":150,"dup":91}],138:[function(require,module,exports){
 arguments[4][92][0].apply(exports,arguments)
-},{"../elliptic":132,"./precomputed/secp256k1":143,"dup":92,"hash.js":146}],139:[function(require,module,exports){
+},{"../../elliptic":137,"bn.js":136,"dup":92}],139:[function(require,module,exports){
 arguments[4][93][0].apply(exports,arguments)
-},{"../../elliptic":132,"./key":140,"./signature":141,"bn.js":131,"dup":93}],140:[function(require,module,exports){
+},{"../../elliptic":137,"../curve":140,"bn.js":136,"dup":93,"inherits":209}],140:[function(require,module,exports){
 arguments[4][94][0].apply(exports,arguments)
-},{"../../elliptic":132,"bn.js":131,"dup":94}],141:[function(require,module,exports){
+},{"./base":138,"./edwards":139,"./mont":141,"./short":142,"dup":94}],141:[function(require,module,exports){
 arguments[4][95][0].apply(exports,arguments)
-},{"../../elliptic":132,"bn.js":131,"dup":95}],142:[function(require,module,exports){
+},{"../curve":140,"bn.js":136,"dup":95,"inherits":209}],142:[function(require,module,exports){
 arguments[4][96][0].apply(exports,arguments)
-},{"../elliptic":132,"dup":96,"hash.js":146}],143:[function(require,module,exports){
+},{"../../elliptic":137,"../curve":140,"bn.js":136,"dup":96,"inherits":209}],143:[function(require,module,exports){
 arguments[4][97][0].apply(exports,arguments)
-},{"dup":97}],144:[function(require,module,exports){
+},{"../elliptic":137,"./precomputed/secp256k1":148,"dup":97,"hash.js":151}],144:[function(require,module,exports){
 arguments[4][98][0].apply(exports,arguments)
-},{"dup":98}],145:[function(require,module,exports){
+},{"../../elliptic":137,"./key":145,"./signature":146,"bn.js":136,"dup":98}],145:[function(require,module,exports){
 arguments[4][99][0].apply(exports,arguments)
-},{"dup":99}],146:[function(require,module,exports){
+},{"../../elliptic":137,"bn.js":136,"dup":99}],146:[function(require,module,exports){
 arguments[4][100][0].apply(exports,arguments)
-},{"./hash/common":147,"./hash/hmac":148,"./hash/ripemd":149,"./hash/sha":150,"./hash/utils":151,"dup":100}],147:[function(require,module,exports){
+},{"../../elliptic":137,"bn.js":136,"dup":100}],147:[function(require,module,exports){
 arguments[4][101][0].apply(exports,arguments)
-},{"../hash":146,"dup":101}],148:[function(require,module,exports){
+},{"../elliptic":137,"dup":101,"hash.js":151}],148:[function(require,module,exports){
 arguments[4][102][0].apply(exports,arguments)
-},{"../hash":146,"dup":102}],149:[function(require,module,exports){
+},{"dup":102}],149:[function(require,module,exports){
 arguments[4][103][0].apply(exports,arguments)
-},{"../hash":146,"dup":103}],150:[function(require,module,exports){
+},{"dup":103}],150:[function(require,module,exports){
 arguments[4][104][0].apply(exports,arguments)
-},{"../hash":146,"dup":104}],151:[function(require,module,exports){
+},{"dup":104}],151:[function(require,module,exports){
 arguments[4][105][0].apply(exports,arguments)
-},{"dup":105,"inherits":204}],152:[function(require,module,exports){
+},{"./hash/common":152,"./hash/hmac":153,"./hash/ripemd":154,"./hash/sha":155,"./hash/utils":156,"dup":105}],152:[function(require,module,exports){
 arguments[4][106][0].apply(exports,arguments)
-},{"dup":106}],153:[function(require,module,exports){
+},{"../hash":151,"dup":106}],153:[function(require,module,exports){
+arguments[4][107][0].apply(exports,arguments)
+},{"../hash":151,"dup":107}],154:[function(require,module,exports){
+arguments[4][108][0].apply(exports,arguments)
+},{"../hash":151,"dup":108}],155:[function(require,module,exports){
+arguments[4][109][0].apply(exports,arguments)
+},{"../hash":151,"dup":109}],156:[function(require,module,exports){
+arguments[4][110][0].apply(exports,arguments)
+},{"dup":110,"inherits":209}],157:[function(require,module,exports){
+arguments[4][111][0].apply(exports,arguments)
+},{"dup":111}],158:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 var inherits = require('inherits')
@@ -22047,7 +22895,7 @@ module.exports = function createHash (alg) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./md5":155,"buffer":58,"inherits":204,"ripemd160":156,"sha.js":158,"stream":224}],154:[function(require,module,exports){
+},{"./md5":160,"buffer":63,"inherits":209,"ripemd160":161,"sha.js":163,"stream":229}],159:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 var intSize = 4;
@@ -22084,7 +22932,7 @@ function hash(buf, fn, hashSize, bigEndian) {
 }
 exports.hash = hash;
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],155:[function(require,module,exports){
+},{"buffer":63}],160:[function(require,module,exports){
 'use strict';
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
@@ -22241,7 +23089,7 @@ function bit_rol(num, cnt)
 module.exports = function md5(buf) {
   return helpers.hash(buf, core_md5, 16);
 };
-},{"./helpers":154}],156:[function(require,module,exports){
+},{"./helpers":159}],161:[function(require,module,exports){
 (function (Buffer){
 /*
 CryptoJS v3.1.2
@@ -22455,7 +23303,7 @@ function ripemd160 (message) {
 module.exports = ripemd160
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],157:[function(require,module,exports){
+},{"buffer":63}],162:[function(require,module,exports){
 (function (Buffer){
 // prototype class for hash functions
 function Hash (blockSize, finalSize) {
@@ -22528,7 +23376,7 @@ Hash.prototype._update = function () {
 module.exports = Hash
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],158:[function(require,module,exports){
+},{"buffer":63}],163:[function(require,module,exports){
 var exports = module.exports = function SHA (algorithm) {
   algorithm = algorithm.toLowerCase()
 
@@ -22545,7 +23393,7 @@ exports.sha256 = require('./sha256')
 exports.sha384 = require('./sha384')
 exports.sha512 = require('./sha512')
 
-},{"./sha":159,"./sha1":160,"./sha224":161,"./sha256":162,"./sha384":163,"./sha512":164}],159:[function(require,module,exports){
+},{"./sha":164,"./sha1":165,"./sha224":166,"./sha256":167,"./sha384":168,"./sha512":169}],164:[function(require,module,exports){
 (function (Buffer){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
@@ -22648,7 +23496,7 @@ module.exports = Sha
 
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":157,"buffer":58,"inherits":204}],160:[function(require,module,exports){
+},{"./hash":162,"buffer":63,"inherits":209}],165:[function(require,module,exports){
 (function (Buffer){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
@@ -22747,7 +23595,7 @@ Sha1.prototype._hash = function () {
 module.exports = Sha1
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":157,"buffer":58,"inherits":204}],161:[function(require,module,exports){
+},{"./hash":162,"buffer":63,"inherits":209}],166:[function(require,module,exports){
 (function (Buffer){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -22803,7 +23651,7 @@ Sha224.prototype._hash = function () {
 module.exports = Sha224
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":157,"./sha256":162,"buffer":58,"inherits":204}],162:[function(require,module,exports){
+},{"./hash":162,"./sha256":167,"buffer":63,"inherits":209}],167:[function(require,module,exports){
 (function (Buffer){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -22956,7 +23804,7 @@ Sha256.prototype._hash = function () {
 module.exports = Sha256
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":157,"buffer":58,"inherits":204}],163:[function(require,module,exports){
+},{"./hash":162,"buffer":63,"inherits":209}],168:[function(require,module,exports){
 (function (Buffer){
 var inherits = require('inherits')
 var SHA512 = require('./sha512')
@@ -23016,7 +23864,7 @@ Sha384.prototype._hash = function () {
 module.exports = Sha384
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":157,"./sha512":164,"buffer":58,"inherits":204}],164:[function(require,module,exports){
+},{"./hash":162,"./sha512":169,"buffer":63,"inherits":209}],169:[function(require,module,exports){
 (function (Buffer){
 var inherits = require('inherits')
 var Hash = require('./hash')
@@ -23265,7 +24113,7 @@ Sha512.prototype._hash = function () {
 module.exports = Sha512
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":157,"buffer":58,"inherits":204}],165:[function(require,module,exports){
+},{"./hash":162,"buffer":63,"inherits":209}],170:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 var createHash = require('create-hash/browser');
@@ -23337,7 +24185,7 @@ module.exports = function createHmac(alg, key) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"create-hash/browser":153,"inherits":204,"stream":224}],166:[function(require,module,exports){
+},{"buffer":63,"create-hash/browser":158,"inherits":209,"stream":229}],171:[function(require,module,exports){
 (function (Buffer){
 var generatePrime = require('./lib/generatePrime');
 var primes = require('./lib/primes');
@@ -23381,7 +24229,7 @@ exports.DiffieHellmanGroup = exports.createDiffieHellmanGroup = exports.getDiffi
 exports.createDiffieHellman = exports.DiffieHellman = createDiffieHellman;
 
 }).call(this,require("buffer").Buffer)
-},{"./lib/dh":167,"./lib/generatePrime":168,"./lib/primes":169,"buffer":58}],167:[function(require,module,exports){
+},{"./lib/dh":172,"./lib/generatePrime":173,"./lib/primes":174,"buffer":63}],172:[function(require,module,exports){
 (function (Buffer){
 var BN = require('bn.js');
 var MillerRabin = require('miller-rabin');
@@ -23551,7 +24399,7 @@ function formatReturnValue(bn, enc) {
   }
 }
 }).call(this,require("buffer").Buffer)
-},{"./generatePrime":168,"bn.js":170,"buffer":58,"miller-rabin":171,"randombytes":202}],168:[function(require,module,exports){
+},{"./generatePrime":173,"bn.js":175,"buffer":63,"miller-rabin":176,"randombytes":207}],173:[function(require,module,exports){
 var randomBytes = require('randombytes');
 module.exports = findPrime;
 findPrime.simpleSieve = simpleSieve;
@@ -23684,7 +24532,7 @@ function findPrime(bits, gen) {
   }
 
 }
-},{"bn.js":170,"miller-rabin":171,"randombytes":202}],169:[function(require,module,exports){
+},{"bn.js":175,"miller-rabin":176,"randombytes":207}],174:[function(require,module,exports){
 module.exports={
     "modp1": {
         "gen": "02",
@@ -23719,9 +24567,9 @@ module.exports={
         "prime": "ffffffffffffffffc90fdaa22168c234c4c6628b80dc1cd129024e088a67cc74020bbea63b139b22514a08798e3404ddef9519b3cd3a431b302b0a6df25f14374fe1356d6d51c245e485b576625e7ec6f44c42e9a637ed6b0bff5cb6f406b7edee386bfb5a899fa5ae9f24117c4b1fe649286651ece45b3dc2007cb8a163bf0598da48361c55d39a69163fa8fd24cf5f83655d23dca3ad961c62f356208552bb9ed529077096966d670c354e4abc9804f1746c08ca18217c32905e462e36ce3be39e772c180e86039b2783a2ec07a28fb5c55df06f4c52c9de2bcbf6955817183995497cea956ae515d2261898fa051015728e5a8aaac42dad33170d04507a33a85521abdf1cba64ecfb850458dbef0a8aea71575d060c7db3970f85a6e1e4c7abf5ae8cdb0933d71e8c94e04a25619dcee3d2261ad2ee6bf12ffa06d98a0864d87602733ec86a64521f2b18177b200cbbe117577a615d6c770988c0bad946e208e24fa074e5ab3143db5bfce0fd108e4b82d120a92108011a723c12a787e6d788719a10bdba5b2699c327186af4e23c1a946834b6150bda2583e9ca2ad44ce8dbbbc2db04de8ef92e8efc141fbecaa6287c59474e6bc05d99b2964fa090c3a2233ba186515be7ed1f612970cee2d7afb81bdd762170481cd0069127d5b05aa993b4ea988d8fddc186ffb7dc90a6c08f4df435c93402849236c3fab4d27c7026c1d4dcb2602646dec9751e763dba37bdf8ff9406ad9e530ee5db382f413001aeb06a53ed9027d831179727b0865a8918da3edbebcf9b14ed44ce6cbaced4bb1bdb7f1447e6cc254b332051512bd7af426fb8f401378cd2bf5983ca01c64b92ecf032ea15d1721d03f482d7ce6e74fef6d55e702f46980c82b5a84031900b1c9e59e7c97fbec7e8f323a97a7e36cc88be0f1d45b7ff585ac54bd407b22b4154aacc8f6d7ebf48e1d814cc5ed20f8037e0a79715eef29be32806a1d58bb7c5da76f550aa3d8a1fbff0eb19ccb1a313d55cda56c9ec2ef29632387fe8d76e3c0468043e8f663f4860ee12bf2d5b0b7474d6e694f91e6dbe115974a3926f12fee5e438777cb6a932df8cd8bec4d073b931ba3bc832b68d9dd300741fa7bf8afc47ed2576f6936ba424663aab639c5ae4f5683423b4742bf1c978238f16cbe39d652de3fdb8befc848ad922222e04a4037c0713eb57a81a23f0c73473fc646cea306b4bcbc8862f8385ddfa9d4b7fa2c087e879683303ed5bdd3a062b3cf5b3a278a66d2a13f83f44f82ddf310ee074ab6a364597e899a0255dc164f31cc50846851df9ab48195ded7ea1b1d510bd7ee74d73faf36bc31ecfa268359046f4eb879f924009438b481c6cd7889a002ed5ee382bc9190da6fc026e479558e4475677e9aa9e3050e2765694dfc81f56e880b96e7160c980dd98edd3dfffffffffffffffff"
     }
 }
-},{}],170:[function(require,module,exports){
-arguments[4][84][0].apply(exports,arguments)
-},{"dup":84}],171:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
+arguments[4][89][0].apply(exports,arguments)
+},{"dup":89}],176:[function(require,module,exports){
 var bn = require('bn.js');
 var brorand = require('brorand');
 
@@ -23836,9 +24684,9 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
   return false;
 };
 
-},{"bn.js":170,"brorand":172}],172:[function(require,module,exports){
-arguments[4][99][0].apply(exports,arguments)
-},{"dup":99}],173:[function(require,module,exports){
+},{"bn.js":175,"brorand":177}],177:[function(require,module,exports){
+arguments[4][104][0].apply(exports,arguments)
+},{"dup":104}],178:[function(require,module,exports){
 (function (Buffer){
 var createHmac = require('create-hmac')
 var MAX_ALLOC = Math.pow(2, 30) - 1 // default in iojs
@@ -23922,7 +24770,7 @@ function pbkdf2Sync (password, salt, iterations, keylen, digest) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"create-hmac":165}],174:[function(require,module,exports){
+},{"buffer":63,"create-hmac":170}],179:[function(require,module,exports){
 exports.publicEncrypt = require('./publicEncrypt');
 exports.privateDecrypt = require('./privateDecrypt');
 
@@ -23933,7 +24781,7 @@ exports.privateEncrypt = function privateEncrypt(key, buf) {
 exports.publicDecrypt = function publicDecrypt(key, buf) {
   return exports.privateDecrypt(key, buf, true);
 };
-},{"./privateDecrypt":198,"./publicEncrypt":199}],175:[function(require,module,exports){
+},{"./privateDecrypt":203,"./publicEncrypt":204}],180:[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash');
 module.exports = function (seed, len) {
@@ -23952,51 +24800,51 @@ function i2ops(c) {
   return out;
 }
 }).call(this,require("buffer").Buffer)
-},{"buffer":58,"create-hash":153}],176:[function(require,module,exports){
-arguments[4][84][0].apply(exports,arguments)
-},{"dup":84}],177:[function(require,module,exports){
-arguments[4][85][0].apply(exports,arguments)
-},{"bn.js":176,"buffer":58,"dup":85,"randombytes":202}],178:[function(require,module,exports){
-arguments[4][107][0].apply(exports,arguments)
-},{"buffer":58,"create-hash":153,"dup":107}],179:[function(require,module,exports){
-arguments[4][108][0].apply(exports,arguments)
-},{"dup":108}],180:[function(require,module,exports){
-arguments[4][109][0].apply(exports,arguments)
-},{"asn1.js":183,"dup":109}],181:[function(require,module,exports){
-arguments[4][110][0].apply(exports,arguments)
-},{"./EVP_BytesToKey":178,"browserify-aes":66,"buffer":58,"dup":110}],182:[function(require,module,exports){
-arguments[4][111][0].apply(exports,arguments)
-},{"./aesid.json":179,"./asn1":180,"./fixProc":181,"browserify-aes":66,"buffer":58,"dup":111,"pbkdf2":173}],183:[function(require,module,exports){
+},{"buffer":63,"create-hash":158}],181:[function(require,module,exports){
+arguments[4][89][0].apply(exports,arguments)
+},{"dup":89}],182:[function(require,module,exports){
+arguments[4][90][0].apply(exports,arguments)
+},{"bn.js":181,"buffer":63,"dup":90,"randombytes":207}],183:[function(require,module,exports){
 arguments[4][112][0].apply(exports,arguments)
-},{"./asn1/api":184,"./asn1/base":186,"./asn1/constants":190,"./asn1/decoders":192,"./asn1/encoders":195,"bn.js":176,"dup":112}],184:[function(require,module,exports){
+},{"buffer":63,"create-hash":158,"dup":112}],184:[function(require,module,exports){
 arguments[4][113][0].apply(exports,arguments)
-},{"../asn1":183,"dup":113,"inherits":204,"vm":229}],185:[function(require,module,exports){
+},{"dup":113}],185:[function(require,module,exports){
 arguments[4][114][0].apply(exports,arguments)
-},{"../base":186,"buffer":58,"dup":114,"inherits":204}],186:[function(require,module,exports){
+},{"asn1.js":188,"dup":114}],186:[function(require,module,exports){
 arguments[4][115][0].apply(exports,arguments)
-},{"./buffer":185,"./node":187,"./reporter":188,"dup":115}],187:[function(require,module,exports){
+},{"./EVP_BytesToKey":183,"browserify-aes":71,"buffer":63,"dup":115}],187:[function(require,module,exports){
 arguments[4][116][0].apply(exports,arguments)
-},{"../base":186,"dup":116,"minimalistic-assert":197}],188:[function(require,module,exports){
+},{"./aesid.json":184,"./asn1":185,"./fixProc":186,"browserify-aes":71,"buffer":63,"dup":116,"pbkdf2":178}],188:[function(require,module,exports){
 arguments[4][117][0].apply(exports,arguments)
-},{"dup":117,"inherits":204}],189:[function(require,module,exports){
+},{"./asn1/api":189,"./asn1/base":191,"./asn1/constants":195,"./asn1/decoders":197,"./asn1/encoders":200,"bn.js":181,"dup":117}],189:[function(require,module,exports){
 arguments[4][118][0].apply(exports,arguments)
-},{"../constants":190,"dup":118}],190:[function(require,module,exports){
+},{"../asn1":188,"dup":118,"inherits":209,"vm":234}],190:[function(require,module,exports){
 arguments[4][119][0].apply(exports,arguments)
-},{"./der":189,"dup":119}],191:[function(require,module,exports){
+},{"../base":191,"buffer":63,"dup":119,"inherits":209}],191:[function(require,module,exports){
 arguments[4][120][0].apply(exports,arguments)
-},{"../../asn1":183,"dup":120,"inherits":204}],192:[function(require,module,exports){
+},{"./buffer":190,"./node":192,"./reporter":193,"dup":120}],192:[function(require,module,exports){
 arguments[4][121][0].apply(exports,arguments)
-},{"./der":191,"./pem":193,"dup":121}],193:[function(require,module,exports){
+},{"../base":191,"dup":121,"minimalistic-assert":202}],193:[function(require,module,exports){
 arguments[4][122][0].apply(exports,arguments)
-},{"../../asn1":183,"./der":191,"buffer":58,"dup":122,"inherits":204}],194:[function(require,module,exports){
+},{"dup":122,"inherits":209}],194:[function(require,module,exports){
 arguments[4][123][0].apply(exports,arguments)
-},{"../../asn1":183,"buffer":58,"dup":123,"inherits":204}],195:[function(require,module,exports){
+},{"../constants":195,"dup":123}],195:[function(require,module,exports){
 arguments[4][124][0].apply(exports,arguments)
-},{"./der":194,"./pem":196,"dup":124}],196:[function(require,module,exports){
+},{"./der":194,"dup":124}],196:[function(require,module,exports){
 arguments[4][125][0].apply(exports,arguments)
-},{"../../asn1":183,"./der":194,"buffer":58,"dup":125,"inherits":204}],197:[function(require,module,exports){
+},{"../../asn1":188,"dup":125,"inherits":209}],197:[function(require,module,exports){
 arguments[4][126][0].apply(exports,arguments)
-},{"dup":126}],198:[function(require,module,exports){
+},{"./der":196,"./pem":198,"dup":126}],198:[function(require,module,exports){
+arguments[4][127][0].apply(exports,arguments)
+},{"../../asn1":188,"./der":196,"buffer":63,"dup":127,"inherits":209}],199:[function(require,module,exports){
+arguments[4][128][0].apply(exports,arguments)
+},{"../../asn1":188,"buffer":63,"dup":128,"inherits":209}],200:[function(require,module,exports){
+arguments[4][129][0].apply(exports,arguments)
+},{"./der":199,"./pem":201,"dup":129}],201:[function(require,module,exports){
+arguments[4][130][0].apply(exports,arguments)
+},{"../../asn1":188,"./der":199,"buffer":63,"dup":130,"inherits":209}],202:[function(require,module,exports){
+arguments[4][131][0].apply(exports,arguments)
+},{"dup":131}],203:[function(require,module,exports){
 (function (Buffer){
 var parseKeys = require('parse-asn1');
 var mgf = require('./mgf');
@@ -24107,7 +24955,7 @@ function compare(a, b){
   return dif;
 }
 }).call(this,require("buffer").Buffer)
-},{"./mgf":175,"./withPublic":200,"./xor":201,"bn.js":176,"browserify-rsa":177,"buffer":58,"create-hash":153,"parse-asn1":182}],199:[function(require,module,exports){
+},{"./mgf":180,"./withPublic":205,"./xor":206,"bn.js":181,"browserify-rsa":182,"buffer":63,"create-hash":158,"parse-asn1":187}],204:[function(require,module,exports){
 (function (Buffer){
 var parseKeys = require('parse-asn1');
 var randomBytes = require('randombytes');
@@ -24205,7 +25053,7 @@ function nonZero(len, crypto) {
   return out;
 }
 }).call(this,require("buffer").Buffer)
-},{"./mgf":175,"./withPublic":200,"./xor":201,"bn.js":176,"browserify-rsa":177,"buffer":58,"create-hash":153,"parse-asn1":182,"randombytes":202}],200:[function(require,module,exports){
+},{"./mgf":180,"./withPublic":205,"./xor":206,"bn.js":181,"browserify-rsa":182,"buffer":63,"create-hash":158,"parse-asn1":187,"randombytes":207}],205:[function(require,module,exports){
 (function (Buffer){
 var bn = require('bn.js');
 function withPublic(paddedMsg, key) {
@@ -24218,7 +25066,7 @@ function withPublic(paddedMsg, key) {
 
 module.exports = withPublic;
 }).call(this,require("buffer").Buffer)
-},{"bn.js":176,"buffer":58}],201:[function(require,module,exports){
+},{"bn.js":181,"buffer":63}],206:[function(require,module,exports){
 module.exports = function xor(a, b) {
   var len = a.length;
   var i = -1;
@@ -24227,7 +25075,7 @@ module.exports = function xor(a, b) {
   }
   return a
 };
-},{}],202:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 (function (process,global,Buffer){
 'use strict';
 
@@ -24259,7 +25107,7 @@ function oldBrowser() {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"_process":206,"buffer":58}],203:[function(require,module,exports){
+},{"_process":211,"buffer":63}],208:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -24562,7 +25410,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],204:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -24587,12 +25435,12 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],205:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],206:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -24684,7 +25532,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],207:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.3.2 by @mathias */
 ;(function(root) {
@@ -25218,7 +26066,7 @@ process.umask = function() { return 0; };
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],208:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25304,7 +26152,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],209:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25391,16 +26239,16 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],210:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":208,"./encode":209}],211:[function(require,module,exports){
+},{"./decode":213,"./encode":214}],216:[function(require,module,exports){
 module.exports = require("./lib/_stream_duplex.js")
 
-},{"./lib/_stream_duplex.js":212}],212:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":217}],217:[function(require,module,exports){
 // a duplex stream is just a stream that is both readable and writable.
 // Since JS doesn't have multiple prototypal inheritance, this class
 // prototypally inherits from Readable, and then parasitically from
@@ -25484,7 +26332,7 @@ function forEach (xs, f) {
   }
 }
 
-},{"./_stream_readable":214,"./_stream_writable":216,"core-util-is":217,"inherits":204,"process-nextick-args":218}],213:[function(require,module,exports){
+},{"./_stream_readable":219,"./_stream_writable":221,"core-util-is":222,"inherits":209,"process-nextick-args":223}],218:[function(require,module,exports){
 // a passthrough stream.
 // basically just the most minimal sort of Transform stream.
 // Every written chunk gets output as-is.
@@ -25513,7 +26361,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./_stream_transform":215,"core-util-is":217,"inherits":204}],214:[function(require,module,exports){
+},{"./_stream_transform":220,"core-util-is":222,"inherits":209}],219:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -26476,7 +27324,7 @@ function indexOf (xs, x) {
 }
 
 }).call(this,require('_process'))
-},{"./_stream_duplex":212,"_process":206,"buffer":58,"core-util-is":217,"events":203,"inherits":204,"isarray":205,"process-nextick-args":218,"string_decoder/":225,"util":57}],215:[function(require,module,exports){
+},{"./_stream_duplex":217,"_process":211,"buffer":63,"core-util-is":222,"events":208,"inherits":209,"isarray":210,"process-nextick-args":223,"string_decoder/":230,"util":62}],220:[function(require,module,exports){
 // a transform stream is a readable/writable stream where you do
 // something with the data.  Sometimes it's called a "filter",
 // but that's not a great name for it, since that implies a thing where
@@ -26675,7 +27523,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./_stream_duplex":212,"core-util-is":217,"inherits":204}],216:[function(require,module,exports){
+},{"./_stream_duplex":217,"core-util-is":222,"inherits":209}],221:[function(require,module,exports){
 // A bit simpler than readable streams.
 // Implement an async ._write(chunk, cb), and it'll handle all
 // the drain event emission and buffering.
@@ -27197,7 +28045,7 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./_stream_duplex":212,"buffer":58,"core-util-is":217,"events":203,"inherits":204,"process-nextick-args":218,"util-deprecate":219}],217:[function(require,module,exports){
+},{"./_stream_duplex":217,"buffer":63,"core-util-is":222,"events":208,"inherits":209,"process-nextick-args":223,"util-deprecate":224}],222:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -27307,7 +28155,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 }).call(this,require("buffer").Buffer)
-},{"buffer":58}],218:[function(require,module,exports){
+},{"buffer":63}],223:[function(require,module,exports){
 (function (process){
 'use strict';
 module.exports = nextTick;
@@ -27324,7 +28172,7 @@ function nextTick(fn) {
 }
 
 }).call(this,require('_process'))
-},{"_process":206}],219:[function(require,module,exports){
+},{"_process":211}],224:[function(require,module,exports){
 (function (global){
 
 /**
@@ -27390,10 +28238,10 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],220:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 module.exports = require("./lib/_stream_passthrough.js")
 
-},{"./lib/_stream_passthrough.js":213}],221:[function(require,module,exports){
+},{"./lib/_stream_passthrough.js":218}],226:[function(require,module,exports){
 var Stream = (function (){
   try {
     return require('st' + 'ream'); // hack to fix a circular dependency issue when used with browserify
@@ -27407,13 +28255,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":212,"./lib/_stream_passthrough.js":213,"./lib/_stream_readable.js":214,"./lib/_stream_transform.js":215,"./lib/_stream_writable.js":216}],222:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":217,"./lib/_stream_passthrough.js":218,"./lib/_stream_readable.js":219,"./lib/_stream_transform.js":220,"./lib/_stream_writable.js":221}],227:[function(require,module,exports){
 module.exports = require("./lib/_stream_transform.js")
 
-},{"./lib/_stream_transform.js":215}],223:[function(require,module,exports){
+},{"./lib/_stream_transform.js":220}],228:[function(require,module,exports){
 module.exports = require("./lib/_stream_writable.js")
 
-},{"./lib/_stream_writable.js":216}],224:[function(require,module,exports){
+},{"./lib/_stream_writable.js":221}],229:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -27542,7 +28390,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":203,"inherits":204,"readable-stream/duplex.js":211,"readable-stream/passthrough.js":220,"readable-stream/readable.js":221,"readable-stream/transform.js":222,"readable-stream/writable.js":223}],225:[function(require,module,exports){
+},{"events":208,"inherits":209,"readable-stream/duplex.js":216,"readable-stream/passthrough.js":225,"readable-stream/readable.js":226,"readable-stream/transform.js":227,"readable-stream/writable.js":228}],230:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -27765,7 +28613,7 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":58}],226:[function(require,module,exports){
+},{"buffer":63}],231:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -28474,14 +29322,14 @@ function isNullOrUndefined(arg) {
   return  arg == null;
 }
 
-},{"punycode":207,"querystring":210}],227:[function(require,module,exports){
+},{"punycode":212,"querystring":215}],232:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],228:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -29071,7 +29919,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":227,"_process":206,"inherits":204}],229:[function(require,module,exports){
+},{"./support/isBuffer":232,"_process":211,"inherits":209}],234:[function(require,module,exports){
 var indexOf = require('indexof');
 
 var Object_keys = function (obj) {
@@ -29211,7 +30059,7 @@ exports.createContext = Script.createContext = function (context) {
     return copy;
 };
 
-},{"indexof":230}],230:[function(require,module,exports){
+},{"indexof":235}],235:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -29222,7 +30070,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],231:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 /*! @license Firebase v2.2.9
     License: https://www.firebase.com/terms/terms-of-service.html */
 (function() {var g,aa=this;function n(a){return void 0!==a}function ba(){}function ca(a){a.vb=function(){return a.uf?a.uf:a.uf=new a}}
@@ -29489,961 +30337,7 @@ U.prototype.We=function(a,b){x("Firebase.resetPassword",2,2,arguments.length);fg
 
 module.exports = Firebase;
 
-},{}],232:[function(require,module,exports){
-var Base64 = require('Base64');
-
-module.exports = function(str) {
-  var output = str.replace(/-/g, "+").replace(/_/g, "/");
-  switch (output.length % 4) {
-    case 0:
-      break;
-    case 2:
-      output += "==";
-      break;
-    case 3:
-      output += "=";
-      break;
-    default:
-      throw "Illegal base64url string!";
-  }
-
-  var result = Base64.atob(output);
-
-  try{
-    return decodeURIComponent(escape(result));
-  } catch (err) {
-    return result;
-  }
-};
-
-},{"Base64":235}],233:[function(require,module,exports){
-'use strict';
-
-var base64_url_decode = require('./base64_url_decode');
-var json_parse = require('./json_parse');
-
-module.exports = function (token) {
-  if (!token) {
-    throw new Error('Invalid token specified');
-  }
-  
-  return json_parse(base64_url_decode(token.split('.')[1]));
-};
-
-},{"./base64_url_decode":232,"./json_parse":234}],234:[function(require,module,exports){
-module.exports = function (str) {
-  var parsed;
-  if (typeof JSON === 'object') {
-    parsed = JSON.parse(str);
-  } else {
-    parsed = eval('(' + str + ')');
-  }
-  return parsed;
-};
-
-},{}],235:[function(require,module,exports){
-;(function () {
-
-  var
-    object = typeof exports != 'undefined' ? exports : this, // #8: web workers
-    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
-    INVALID_CHARACTER_ERR = (function () {
-      // fabricate a suitable error object
-      try { document.createElement('$'); }
-      catch (error) { return error; }}());
-
-  // encoder
-  // [https://gist.github.com/999166] by [https://github.com/nignag]
-  object.btoa || (
-  object.btoa = function (input) {
-    for (
-      // initialize result and counter
-      var block, charCode, idx = 0, map = chars, output = '';
-      // if the next input index does not exist:
-      //   change the mapping table to "="
-      //   check if d has no fractional digits
-      input.charAt(idx | 0) || (map = '=', idx % 1);
-      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
-      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
-    ) {
-      charCode = input.charCodeAt(idx += 3/4);
-      if (charCode > 0xFF) throw INVALID_CHARACTER_ERR;
-      block = block << 8 | charCode;
-    }
-    return output;
-  });
-
-  // decoder
-  // [https://gist.github.com/1020396] by [https://github.com/atk]
-  object.atob || (
-  object.atob = function (input) {
-    input = input.replace(/=+$/, '')
-    if (input.length % 4 == 1) throw INVALID_CHARACTER_ERR;
-    for (
-      // initialize result and counters
-      var bc = 0, bs, buffer, idx = 0, output = '';
-      // get next character
-      buffer = input.charAt(idx++);
-      // character found in table? initialize bit storage and add its ascii value;
-      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-        // and if not first of each 4 characters,
-        // convert the first 8 bits to one ascii character
-        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-    ) {
-      // try to find character in table (0-63, not found => -1)
-      buffer = chars.indexOf(buffer);
-    }
-    return output;
-  });
-
-}());
-
-},{}],236:[function(require,module,exports){
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('lodash'), require('jwt-decode'), require('superagent')) : typeof define === 'function' && define.amd ? define(['lodash', 'jwt-decode', 'superagent'], factory) : global.Matter = factory(global._, global.jwtDecode, global.superagent);
-})(this, function (_, jwtDecode, superagent) {
-	'use strict';
-
-	_ = 'default' in _ ? _['default'] : _;
-	jwtDecode = 'default' in jwtDecode ? jwtDecode['default'] : jwtDecode;
-	superagent = 'default' in superagent ? superagent['default'] : superagent;
-
-	var config = {
-		serverUrl: 'http://tessellate.elasticbeanstalk.com',
-		tokenName: 'tessellate',
-		tokenDataName: 'tessellate-tokenData',
-		tokenUserDataName: 'tessellate-currentUser'
-	};
-
-	//Set default log level to debug
-	var logLevel = 'debug';
-	//Set log level from config
-	if (config.logLevel) {
-		logLevel = config.logLevel;
-	}
-
-	var logger = {
-		log: function log(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				runConsoleMethod('log', msgArgs);
-			} else {
-				runConsoleMethod('log', msgArgs);
-			}
-		},
-		info: function info(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				runConsoleMethod('info', msgArgs);
-			} else {
-				runConsoleMethod('info', msgArgs);
-			}
-		},
-		warn: function warn(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				runConsoleMethod('warn', msgArgs);
-			} else {
-				runConsoleMethod('warn', msgArgs);
-			}
-		},
-		debug: function debug(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				// runConsoleMethod('debug', msgArgs);
-				//Do not display console debugs in production
-			} else {
-					runConsoleMethod('debug', msgArgs);
-				}
-		},
-		error: function error(logData) {
-			var msgArgs = buildMessageArgs(logData);
-			if (config.envName == 'production') {
-				//TODO: Log to external logger
-				runConsoleMethod('error', msgArgs);
-			} else {
-				runConsoleMethod('error', msgArgs);
-			}
-		}
-	};
-
-	function runConsoleMethod(methodName, methodData) {
-		//Safley run console methods or use console log
-		if (methodName && console[methodName]) {
-			return console[methodName].apply(console, methodData);
-		} else {
-			return console.log.apply(console, methodData);
-		}
-	}
-	function buildMessageArgs(logData) {
-		var msgStr = '';
-		var msgObj = {};
-		//TODO: Attach time stamp
-		//Attach location information to the beginning of message
-		if (_.isObject(logData)) {
-			if (logLevel == 'debug') {
-				if (_.has(logData, 'func')) {
-					if (_.has(logData, 'obj')) {
-						//Object and function provided
-						msgStr += '[' + logData.obj + '.' + logData.func + '()]\n ';
-					} else if (_.has(logData, 'file')) {
-						msgStr += '[' + logData.file + ' > ' + logData.func + '()]\n ';
-					} else {
-						msgStr += '[' + logData.func + '()]\n ';
-					}
-				}
-			}
-			//Print each key and its value other than obj and func
-			_.each(_.omit(_.keys(logData)), function (key, ind, list) {
-				if (key != 'func' && key != 'obj') {
-					if (key == 'description' || key == 'message') {
-						msgStr += logData[key];
-					} else if (_.isString(logData[key])) {
-						// msgStr += key + ': ' + logData[key] + ', ';
-						msgObj[key] = logData[key];
-					} else {
-						//Print objects differently
-						// msgStr += key + ': ' + logData[key] + ', ';
-						msgObj[key] = logData[key];
-					}
-				}
-			});
-			msgStr += '\n';
-		} else if (_.isString(logData)) {
-			msgStr = logData;
-		}
-		var msg = [msgStr, msgObj];
-
-		return msg;
-	}
-
-	var domUtil = {
-		/**
-   * @description
-   * Appends given css source to DOM head.
-   *
-   * @param {String} src - url src for css to append
-   *
-   */
-		loadCss: function loadCss(src) {
-			if (!document) {
-				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
-				throw new Error('Document object is required to load assets.');
-			} else {
-				var css = document.createElement('link');
-				css.rel = 'stylesheet';
-				css.type = 'text/css';
-				css.href = src;
-				document.getElementsByTagName('head')[0].insertBefore(css, document.getElementsByTagName('head')[0].firstChild);
-				logger.log({ description: 'CSS was loaded into document.', element: css, func: 'loadCss', obj: 'dom' });
-				return css; //Return link element
-			}
-		},
-		/**
-   * @description
-   * Appends given javascript source to DOM head.
-   *
-   * @param {String} src - url src for javascript to append
-   *
-   */
-		loadJs: function loadJs(src) {
-			if (window && !_.has(window, 'document')) {
-				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
-				throw new Error('Document object is required to load assets.');
-			} else {
-				var js = window.document.createElement('script');
-				js.src = src;
-				js.type = 'text/javascript';
-				window.document.getElementsByTagName('head')[0].appendChild(js);
-				logger.log({ description: 'JS was loaded into document.', element: js, func: 'loadCss', obj: 'dom' });
-				return js; //Return script element
-			}
-		},
-		/**
-   * @description
-   * Appends given javascript source to DOM head.
-   *
-   * @param {String} src - url src for javascript to append
-   *
-   */
-		asyncLoadJs: function asyncLoadJs(src) {
-			if (!_.has(window, 'document')) {
-				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
-				throw new Error('Document object is required to load assets.');
-			} else {
-				var js = window.document.createElement('script');
-				js.src = src;
-				js.type = 'text/javascript';
-				window.document.getElementsByTagName('head')[0].appendChild(js);
-				logger.log({ description: 'JS was loaded into document.', element: js, func: 'loadCss', obj: 'dom' });
-				return new Promise(function (resolve, reject) {
-					window.setTimeout(resolve, 30);
-				});
-			}
-		}
-	};
-
-	var data = {};
-	var storage = Object.defineProperties({
-		/**
-   * @description
-   * Safley sets item to session storage.
-   *
-   * @param {String} itemName The items name
-   * @param {String} itemValue The items value
-   *
-   */
-		item: function item(itemName, itemValue) {
-			return this.setItem(itemName, itemValue);
-		},
-		/**
-   * @description
-   * Safley sets item to session storage. Alias: item()
-   *
-   * @param {String} itemName The items name
-   * @param {String} itemValue The items value
-   *
-   */
-		setItem: function setItem(itemName, itemValue) {
-			data[itemName] = itemValue;
-			if (this.localExists) {
-				//Convert object to string
-				if (_.isObject(itemValue)) {
-					itemValue = JSON.stringify(itemValue);
-				}
-				window.sessionStorage.setItem(itemName, itemValue);
-			}
-		},
-
-		/**
-   * @description
-   * Safley gets an item from session storage. Alias: item()
-   *
-   * @param {String} itemName The items name
-   *
-   * @return {String}
-   *
-   */
-		getItem: function getItem(itemName) {
-			if (data[itemName]) {
-				return data[itemName];
-			} else if (this.localExists) {
-				var itemStr = window.sessionStorage.getItem(itemName);
-				//Check that str is not null before parsing
-				if (itemStr) {
-					var isObj = false;
-					var itemObj = null;
-					//Try parsing to object
-					try {
-						itemObj = JSON.parse(itemStr);
-						isObj = true;
-					} catch (err) {
-						// logger.log({message: 'String could not be parsed.', error: err, func: 'getItem', obj: 'storage'});
-						//Parsing failed, this must just be a string
-						isObj = false;
-					}
-					if (isObj) {
-						return itemObj;
-					}
-				}
-				return itemStr;
-			} else {
-				return null;
-			}
-		},
-		/**
-   * @description
-   * Safley removes item from session storage.
-   *
-   * @param {String} itemName - The items name
-   *
-   */
-		removeItem: function removeItem(itemName) {
-			//TODO: Only remove used items
-			if (data[itemName]) {
-				data[itemName] = null;
-			}
-			if (this.localExists) {
-				try {
-					//Clear session storage
-					window.sessionStorage.removeItem(itemName);
-				} catch (err) {
-					logger.error({ description: 'Error removing item from session storage', error: err, obj: 'storage', func: 'removeItem' });
-				}
-			}
-		},
-		/**
-   * @description
-   * Safley removes item from session storage.
-   *
-   * @param {String} itemName the items name
-   * @param {String} itemValue the items value
-   *
-   */
-		clear: function clear() {
-			//TODO: Only remove used items
-			data = {};
-			if (this.localExists) {
-				try {
-					//Clear session storage
-					window.sessionStorage.clear();
-				} catch (err) {
-					logger.warn('Session storage could not be cleared.', err);
-				}
-			}
-		}
-
-	}, {
-		localExists: {
-			get: function get() {
-				var testKey = 'test';
-				if (typeof window != 'undefined' && typeof window.sessionStorage != 'undefined') {
-					try {
-						window.sessionStorage.setItem(testKey, '1');
-						window.sessionStorage.removeItem(testKey);
-						return true;
-					} catch (err) {
-						logger.error({ description: 'Error saving to session storage', error: err, obj: 'storage', func: 'localExists' });
-						return false;
-					}
-				} else {
-					return false;
-				}
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
-
-	function decodeToken(tokenStr) {
-		var tokenData = undefined;
-		if (tokenStr && tokenStr != '') {
-			try {
-				tokenData = jwtDecode(tokenStr);
-			} catch (err) {
-				logger.error({ description: 'Error decoding token.', data: tokenData, error: err, func: 'decodeToken', file: 'token' });
-				throw new Error('Invalid token string.');
-			}
-		}
-		return tokenData;
-	}
-	var token = Object.defineProperties({
-		save: function save(tokenStr) {
-			this.string = tokenStr;
-		},
-		'delete': function _delete() {
-			storage.removeItem(config.tokenName);
-			storage.removeItem(config.tokenDataName);
-			logger.log({ description: 'Token was removed.', func: 'delete', obj: 'token' });
-		}
-	}, {
-		string: {
-			get: function get() {
-				return storage.getItem(config.tokenName);
-			},
-			set: function set(tokenStr) {
-				logger.log({ description: 'Token was set.', token: tokenStr, func: 'string', obj: 'token' });
-				this.data = jwtDecode(tokenStr);
-				storage.setItem(config.tokenName, tokenStr);
-			},
-			configurable: true,
-			enumerable: true
-		},
-		data: {
-			get: function get() {
-				if (storage.getItem(config.tokenDataName)) {
-					return storage.getItem(config.tokenDataName);
-				} else {
-					return decodeToken(this.string);
-				}
-			},
-			set: function set(tokenData) {
-				if (_.isString(tokenData)) {
-					var tokenStr = tokenData;
-					tokenData = decodeToken(tokenStr);
-					logger.info({ description: 'Token data was set as string. Decoding token.', token: tokenStr, tokenData: tokenData, func: 'data', obj: 'token' });
-				} else {
-					logger.log({ description: 'Token data was set.', data: tokenData, func: 'data', obj: 'token' });
-					storage.setItem(config.tokenDataName, tokenData);
-				}
-			},
-			configurable: true,
-			enumerable: true
-		}
-	});
-
-	var request = {
-		get: function get(endpoint, queryData) {
-			var req = superagent.get(endpoint);
-			if (queryData) {
-				req.query(queryData);
-			}
-			req = addAuthHeader(req);
-			return handleResponse(req);
-		},
-		post: function post(endpoint, data) {
-			var req = superagent.post(endpoint).send(data);
-			req = addAuthHeader(req);
-			return handleResponse(req);
-		},
-		put: function put(endpoint, data) {
-			var req = superagent.put(endpoint).send(data);
-			req = addAuthHeader(req);
-			return handleResponse(req);
-		},
-		del: function del(endpoint, data) {
-			var req = superagent.put(endpoint).send(data);
-			req = addAuthHeader(req);
-			return handleResponse(req);
-		}
-	};
-
-	function handleResponse(req) {
-		return new Promise(function (resolve, reject) {
-			req.end(function (err, res) {
-				if (!err) {
-					// logger.log({description: 'Response:', response:res, func:'handleResponse', file: 'request'});
-					return resolve(res.body);
-				} else {
-					if (err.status == 401) {
-						console.warn('Unauthorized. You must be signed into make this request.');
-					}
-					return reject(err);
-				}
-			});
-		});
-	}
-	function addAuthHeader(req) {
-		if (token.string) {
-			req = req.set('Authorization', 'Bearer ' + token.string);
-			console.info({ message: 'Set auth header', func: 'addAuthHeader', file: 'request' });
-		}
-		return req;
-	}
-
-	// import hello from 'hellojs'; //After es version of module is created
-	//Private object containing clientIds
-	var clientIds = {};
-
-	var ProviderAuth = (function () {
-		function ProviderAuth(actionData) {
-			_classCallCheck(this, ProviderAuth);
-
-			this.app = actionData.app ? actionData.app : null;
-			this.redirectUri = actionData.redirectUri ? actionData.redirectUri : 'redirect.html';
-			this.provider = actionData.provider ? actionData.provider : null;
-		}
-
-		_createClass(ProviderAuth, [{
-			key: 'login',
-			value: function login() {
-				var _this = this;
-
-				//Initalize Hello
-				return this.initHello.then(function () {
-					if (window) {
-						return window.hello.login(_this.provider);
-					}
-				});
-			}
-		}, {
-			key: 'signup',
-			value: function signup() {
-				var _this2 = this;
-
-				//Initalize Hello
-				if (!_.has(clientIds, this.provider)) {
-					logger.error({ description: this.provider + ' is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.', provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
-					return Promise.reject();
-				}
-				return this.initHello.then(function () {
-					if (window) {
-						return window.hello.login(_this2.provider);
-					}
-				});
-			}
-		}, {
-			key: 'loadHello',
-			get: function get() {
-				//Load hellojs script
-				//TODO: Replace this with es6ified version
-				if (window && !window.hello) {
-					return domUtil.asyncLoadJs('https://s3.amazonaws.com/kyper-cdn/js/hello.js');
-				} else {
-					return Promise.resolve();
-				}
-			}
-		}, {
-			key: 'helloLoginListener',
-			get: function get() {
-				//Login Listener
-				window.hello.on('auth.login', function (auth) {
-					logger.info({ description: 'User logged in to google.', func: 'loadHello', obj: 'Google' });
-					// Call user information, for the given network
-					window.hello(auth.network).api('/me').then(function (r) {
-						// Inject it into the container
-						//TODO:Send account informaiton to server
-						var userData = r;
-						userData.provider = auth.network;
-						//Login or Signup endpoint
-						return request.post(this.endpoint + '/provider', userData).then(function (response) {
-							logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'GoogleUtil' });
-							return response;
-						})['catch'](function (errRes) {
-							logger.error({ description: 'Error requesting login.', error: errRes, func: 'signup', obj: 'Matter' });
-							return Promise.reject(errRes);
-						});
-					});
-				});
-			}
-		}, {
-			key: 'initHello',
-			get: function get() {
-				var _this3 = this;
-
-				return this.loadHello.then(function () {
-					return request.get(_this3.app.endpoint).then(function (response) {
-						logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'ProviderAuth' });
-						var provider = _.findWhere(response.providers, { name: _this3.provider });
-						logger.warn({ description: 'Provider found', findWhere: provider, func: 'login', obj: 'ProviderAuth' });
-						if (!provider) {
-							logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this3.provider, provider: _this3.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
-							return Promise.reject({ message: 'Provider is not setup.' });
-						}
-						var providersConfig = {};
-						providersConfig[provider.name] = provider.clientId;
-						logger.warn({ description: 'Providers config built', providersConfig: providersConfig, func: 'login', obj: 'ProviderAuth' });
-						return window.hello.init(providersConfig, { redirect_uri: _this3.redirectUri });
-					})['catch'](function (errRes) {
-						logger.error({ description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter' });
-						return Promise.reject(errRes);
-					});
-				});
-			}
-		}]);
-
-		return ProviderAuth;
-	})();
-
-	var Matter = (function () {
-		/* Constructor
-   * @param {string} appName Name of application
-   */
-
-		function Matter(appName, opts) {
-			_classCallCheck(this, Matter);
-
-			if (!appName) {
-				logger.error({ description: 'Application name requires to use Matter.', func: 'constructor', obj: 'Matter' });
-				throw new Error('Application name is required to use Matter');
-			} else {
-				this.name = appName;
-			}
-			if (opts) {
-				this.options = opts;
-			}
-		}
-
-		/* Endpoint getter
-   *
-   */
-
-		_createClass(Matter, [{
-			key: 'signup',
-
-			/* Signup
-    *
-    */
-			value: function signup(signupData) {
-				if (_.isObject(signupData)) {
-					return request.post(this.endpoint + '/signup', signupData).then(function (response) {
-						logger.log({ description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
-						if (_.has(response, 'account')) {
-							return response.account;
-						} else {
-							logger.warn({ description: 'Account was not contained in signup response.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
-							return response;
-						}
-					})['catch'](function (errRes) {
-						logger.error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
-						return Promise.reject(errRes);
-					});
-				} else {
-					//Handle 3rd Party signups
-					var auth = new ProviderAuth({ provider: signupData, app: this });
-					return auth.signup().then(function (res) {
-						logger.info({ description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter' });
-						return Promise.resolve(res);
-					});
-				}
-			}
-
-			/** Login
-    *
-    */
-		}, {
-			key: 'login',
-			value: function login(loginData) {
-				var _this4 = this;
-
-				if (!loginData) {
-					logger.error({ description: 'Username/Email and Password are required to login', func: 'login', obj: 'Matter' });
-					return Promise.reject({ message: 'Login data is required to login.' });
-				}
-				if (_.isObject(loginData)) {
-					if (!loginData.password || !loginData.username) {
-						return Promise.reject({ message: 'Username/Email and Password are required to login' });
-					}
-					//Username/Email Login
-					return request.put(this.endpoint + '/login', loginData).then(function (response) {
-						if (_.has(response, 'data') && _.has(response.data, 'status') && response.data.status == 409) {
-							logger.warn({ description: 'Account not found.', response: response, func: 'login', obj: 'Matter' });
-							return Promise.reject(response.data);
-						} else {
-							logger.log({ description: 'Successful login.', response: response, func: 'login', obj: 'Matter' });
-							if (_.has(response, 'token')) {
-								_this4.token.string = response.token;
-							}
-							if (_.has(response, 'account')) {
-								_this4.storage.setItem(config.tokenUserDataName, response.account);
-							}
-							return response.account;
-						}
-					})['catch'](function (errRes) {
-						logger.error({ description: 'Error requesting login.', error: errRes, status: errRes.status, func: 'login', obj: 'Matter' });
-						if (errRes.status == 409 || errRes.status == 400) {
-							errRes = errRes.response.text;
-						}
-						return Promise.reject(errRes);
-					});
-				} else {
-					//Provider login
-					var auth = new ProviderAuth({ provider: loginData, app: this });
-					return auth.login().then(function (res) {
-						logger.info({ description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter' });
-						return Promise.resolve(res);
-					});
-				}
-			}
-
-			/** Logout
-    */
-		}, {
-			key: 'logout',
-			value: function logout() {
-				var _this5 = this;
-
-				//TODO: Handle logging out of providers
-				return request.put(this.endpoint + '/logout').then(function (response) {
-					logger.log({ description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter' });
-					_this5.currentUser = null;
-					_this5.token['delete']();
-					return response;
-				})['catch'](function (errRes) {
-					logger.error({ description: 'Error requesting log out: ', error: errRes, func: 'logout', obj: 'Matter' });
-					_this5.storage.removeItem(config.tokenUserDataName);
-					_this5.token['delete']();
-					return Promise.reject(errRes);
-				});
-			}
-		}, {
-			key: 'getCurrentUser',
-			value: function getCurrentUser() {
-				var _this6 = this;
-
-				if (this.storage.item(config.tokenUserDataName)) {
-					return Promise.resove(this.storage.getItem(config.tokenUserDataName));
-				} else {
-					if (this.isLoggedIn) {
-						return request.get(this.endpoint + '/user').then(function (response) {
-							//TODO: Save user information locally
-							logger.log({ description: 'Current User Request responded.', responseData: response, func: 'currentUser', obj: 'Matter' });
-							_this6.currentUser = response;
-							return response;
-						})['catch'](function (errRes) {
-							if (err.status == 401) {
-								logger.warn({ description: 'Called for current user without token.', error: errRes, func: 'currentUser', obj: 'Matter' });
-								return Promise.resolve(null);
-							} else {
-								logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
-								return Promise.reject(errRes);
-							}
-						});
-					} else {
-						return Promise.resolve(null);
-					}
-				}
-			}
-		}, {
-			key: 'updateProfile',
-
-			/** updateProfile
-    */
-			value: function updateProfile(updateData) {
-				var _this7 = this;
-
-				if (!this.isLoggedIn) {
-					logger.error({ description: 'No current user profile to update.', func: 'updateProfile', obj: 'Matter' });
-					return Promise.reject({ message: 'Must be logged in to update profile.' });
-				}
-				//Send update request
-				logger.warn({ description: 'Calling update endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'updateProfile', obj: 'Matter' });
-				return request.put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
-					logger.log({ description: 'Update profile request responded.', responseData: response, func: 'updateProfile', obj: 'Matter' });
-					_this7.currentUser = response;
-					return response;
-				})['catch'](function (errRes) {
-					logger.error({ description: 'Error requesting current user.', error: errRes, func: 'updateProfile', obj: 'Matter' });
-					return Promise.reject(errRes);
-				});
-			}
-
-			/** updateProfile
-    */
-		}, {
-			key: 'isInGroup',
-
-			//Check that user is in a single group or in all of a list of groups
-			value: function isInGroup(checkGroups) {
-				var _this8 = this;
-
-				if (!this.isLoggedIn) {
-					logger.log({ description: 'No logged in user to check.', func: 'isInGroup', obj: 'Matter' });
-					return false;
-				}
-				//Check if user is
-				if (checkGroups && _.isString(checkGroups)) {
-					var _ret = (function () {
-						var groupName = checkGroups;
-						//Single role or string list of roles
-						var groupsArray = groupName.split(',');
-						if (groupsArray.length > 1) {
-							//String list of groupts
-							logger.info({ description: 'String list of groups.', list: groupsArray, func: 'isInGroup', obj: 'Matter' });
-							return {
-								v: _this8.isInGroups(groupsArray)
-							};
-						} else {
-							//Single group
-							var groups = _this8.token.data.groups || [];
-							logger.log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this8.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
-							return {
-								v: _.any(groups, function (group) {
-									return groupName == group.name;
-								})
-							};
-						}
-					})();
-
-					if (typeof _ret === 'object') return _ret.v;
-				} else if (checkGroups && _.isArray(checkGroups)) {
-					//Array of roles
-					//Check that user is in every group
-					logger.info({ description: 'Array of groups.', list: checkGroups, func: 'isInGroup', obj: 'Matter' });
-					return this.isInGroups(checkGroups);
-				} else {
-					return false;
-				}
-				//TODO: Handle string and array inputs
-			}
-		}, {
-			key: 'isInGroups',
-			value: function isInGroups(checkGroups) {
-				var _this9 = this;
-
-				//Check if user is in any of the provided groups
-				if (checkGroups && _.isArray(checkGroups)) {
-					return _.map(checkGroups, function (group) {
-						if (_.isString(group)) {
-							//Group is string
-							return _this9.isInGroup(group);
-						} else {
-							//Group is object
-							return _this9.isInGroup(group.name);
-						}
-					});
-				} else if (checkGroups && _.isString(checkGroups)) {
-					//TODO: Handle spaces within string list
-					var groupsArray = checkGroups.split(',');
-					if (groupsArray.length > 1) {
-						return this.isInGroups(groupsArray);
-					}
-					return this.isInGroup(groupsArray[0]);
-				} else {
-					logger.error({ description: 'Invalid groups list.', func: 'isInGroups', obj: 'Matter' });
-				}
-			}
-		}, {
-			key: 'endpoint',
-			get: function get() {
-				var serverUrl = config.serverUrl;
-				if (_.has(this, 'options') && this.options.localServer) {
-					serverUrl = 'http://localhost:4000';
-					logger.info({ description: 'LocalServer option was set to true. Now server url is local server.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
-				}
-				if (this.name == 'tessellate') {
-					//Remove url if host is server
-					if (window && _.has(window, 'location') && window.location.host == serverUrl) {
-						serverUrl = '';
-						logger.info({ description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
-					}
-				} else {
-					serverUrl = serverUrl + '/apps/' + this.name;
-					logger.log({ description: 'Server url set.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
-				}
-				return serverUrl;
-			}
-		}, {
-			key: 'currentUser',
-			set: function set(userData) {
-				logger.log({ description: 'Current User set.', user: userData, func: 'currentUser', obj: 'Matter' });
-				this.storage.setItem(config.tokenUserDataName, userData);
-			},
-			get: function get() {
-				if (this.storage.getItem(config.tokenUserDataName)) {
-					return this.storage.getItem(config.tokenUserDataName);
-				} else {
-					return null;
-				}
-			}
-		}, {
-			key: 'storage',
-			get: function get() {
-				return storage;
-			}
-
-			/** updateProfile
-    */
-		}, {
-			key: 'token',
-			get: function get() {
-				return token;
-			}
-		}, {
-			key: 'utils',
-			get: function get() {
-				return { logger: logger, request: request, storage: storage, dom: domUtil };
-			}
-		}, {
-			key: 'isLoggedIn',
-			get: function get() {
-				return this.token.string ? true : false;
-			}
-		}]);
-
-		return Matter;
-	})();
-
-	;
-
-	return Matter;
-});
-
-},{"jwt-decode":233,"lodash":237,"superagent":238}],237:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -42799,6 +42693,2834 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],238:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var _classesAccount = require('../classes/Account');
+
+var _classesAccount2 = _interopRequireDefault(_classesAccount);
+
+var logger = _classesMatter2['default'].utils.logger;
+//Actions for accounts list
+
+var AccountsAction = (function () {
+	function AccountsAction(actionData) {
+		_classCallCheck(this, AccountsAction);
+
+		//Check to see if action is for a specific app
+		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
+			this.app = actionData.app;
+			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			this.app = { name: actionData };
+			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
+		}
+		logger.info({ description: 'New Accounts action.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
+	}
+
+	_createClass(AccountsAction, [{
+		key: 'get',
+
+		//Get accounts or single application
+		value: function get() {
+			logger.log({ description: 'Accounts get called.', func: 'get', obj: 'AccountsAction' });
+			return _classesMatter2['default'].utils.request.get(this.accountsEndpoint).then(function (response) {
+				logger.info({ description: 'Accounts loaded successfully.', func: 'get', obj: 'AccountsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.info({ description: 'Error getting accounts.', error: errRes, func: 'get', obj: 'AccountsAction' });
+				return Promise.reject(errRes.message || 'Error getting accounts.');
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(accountData) {
+			logger.info({ description: 'Account add called.', accountData: accountData, func: 'add', obj: 'AccountsAction' });
+			return this.utils.request.post(this.accountsEndpoint, accountData).then(function (response) {
+				logger.info({ description: 'Account added successfully.', response: response, newAccount: new _classesAccount2['default'](response), func: 'add', obj: 'AccountsAction' });
+				return new _classesAccount2['default'](response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Account add called.', error: errRes, accountData: accountData, func: 'add', obj: 'AccountsAction' });
+				return Promise.reject(errRes.message || 'Error adding account.');
+			});
+		}
+
+		//Search with partial of accountname
+	}, {
+		key: 'search',
+		value: function search(query) {
+			logger.log({ description: 'Accounts search called.', query: query, func: 'search', obj: 'AccountsAction' });
+			var searchEndpoint = this.accountsEndpoint + '/search/';
+			if (query && _lodash2['default'].isString(query)) {
+				searchEndpoint += query;
+			}
+			if (!query || query == '') {
+				logger.log({ description: 'Null query, returning empty array.', func: 'search', obj: 'AccountsAction' });
+				return Promise.resolve([]);
+			}
+			return _classesMatter2['default'].utils.request.get(searchEndpoint).then(function (response) {
+				logger.log({ description: 'Accounts search responded.', response: response, query: query, func: 'search', obj: 'AccountsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error searching Accounts.', error: errRes, query: query, func: 'search', obj: 'AccountsAction' });
+				return Promise.reject(errRes.message || 'Error searching accounts.');
+			});
+		}
+	}, {
+		key: 'accountsEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'accounts'];
+			//Check for app account action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				//Splice apps, appName into index 1
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Accounts Endpoint built.', endpoint: endpointStr, func: 'accountsEndpoint', obj: 'AccountsAction' });
+			return endpointStr;
+		}
+	}]);
+
+	return AccountsAction;
+})();
+
+exports['default'] = AccountsAction;
+module.exports = exports['default'];
+
+},{"../classes/Account":243,"../classes/Matter":249,"../config":251,"lodash":237}],239:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var _classesApplication = require('../classes/Application');
+
+var _classesApplication2 = _interopRequireDefault(_classesApplication);
+
+var request = _classesMatter2['default'].utils.request;
+var logger = _classesMatter2['default'].utils.logger;
+
+//Actions for applications list
+
+var AppsAction = (function () {
+	function AppsAction() {
+		_classCallCheck(this, AppsAction);
+	}
+
+	_createClass(AppsAction, [{
+		key: 'get',
+
+		//Get applications or single application
+		value: function get() {
+			logger.debug({ description: 'Apps get called.', action: this, func: 'get', obj: 'AppsAction' });
+			return request.get(this.appsEndpoint).then(function (response) {
+				logger.info({ description: 'Apps data loaded successfully.', response: response, func: 'get', obj: 'AppsAction' });
+				//TODO: Return application object
+				// return new Application(response);
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting apps data.', error: errRes, func: 'get', obj: 'AppsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(appData) {
+			logger.debug({ description: 'Application add called.', appData: appData, func: 'add', obj: 'AppsAction' });
+			return _classesMatter2['default'].utils.request.post(this.appsEndpoint, appData).then(function (response) {
+				logger.info({ description: 'Application added successfully.', response: response, func: 'add', obj: 'AppsAction' });
+				// TODO: Return application object
+				// return new Application(response);
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding app.', error: errRes, func: 'add', obj: 'AppsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'appsEndpoint',
+
+		//Call matter with name and settings
+		get: function get() {
+			return _classesMatter2['default'].endpoint + '/apps';
+		}
+	}]);
+
+	return AppsAction;
+})();
+
+exports['default'] = AppsAction;
+module.exports = exports['default'];
+
+},{"../classes/Application":244,"../classes/Matter":249,"../config":251}],240:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var request = _classesMatter2['default'].utils.request;
+var logger = _classesMatter2['default'].utils.logger;
+
+//Actions for directories list
+
+var DirectoriesAction = (function () {
+	function DirectoriesAction(actionData) {
+		_classCallCheck(this, DirectoriesAction);
+
+		//Check to see if action is for a specific app
+		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
+			this.app = actionData.app;
+			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			this.app = { name: actionData };
+			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
+		}
+		logger.info({ description: 'New directories action.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
+	}
+
+	_createClass(DirectoriesAction, [{
+		key: 'get',
+
+		//Get users or single application
+		value: function get() {
+			logger.debug({ description: 'Directories get called.', action: this, func: 'get', obj: 'DirectoriesAction' });
+			return request.get(this.directoriesEndpoint).then(function (response) {
+				logger.info({ descrption: 'Directories loaded successfully.', response: response, func: 'get', obj: 'DirectoriesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ descrption: 'error getting users', error: errRes, func: 'get', obj: 'DirectoriesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(appData) {
+			logger.debug({ description: 'Add directory called.', action: this, appData: appData, func: 'get', obj: 'DirectoriesAction' });
+			return request.post(this.directoriesEndpoint, appData).then(function (response) {
+				logger.log({ description: 'Application added successfully.', response: response, func: 'add', obj: 'DirectoriesAction' });
+				//TODO: Return list of group objects
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding group.', error: errRes, func: 'add', obj: 'DirectoriesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Search with partial of directory name
+	}, {
+		key: 'search',
+		value: function search(query) {
+			var searchEndpoint = this.directoriesEndpoint + '/search/';
+			if (query && _lodash2['default'].isString(query)) {
+				searchEndpoint += query;
+			}
+			if (!query || query == '') {
+				logger.debug({ description: 'Null query, returning empty array.', func: 'search', obj: 'DirectoriesAction' });
+				return Promise.resolve([]);
+			}
+			return request.get(searchEndpoint).then(function (response) {
+				logger.log({ description: 'Found directories based on search.', response: response, func: 'search', obj: 'DirectoriesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error searching directories.', error: errRes, func: 'search', obj: 'DirectoriesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'directoriesEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'directories'];
+			//Check for app groups action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Directories endpoint built.', endpoint: endpointStr, func: 'directoriesEndpoint', obj: 'DirectoriesAction' });
+			return endpointStr;
+		}
+	}]);
+
+	return DirectoriesAction;
+})();
+
+exports['default'] = DirectoriesAction;
+module.exports = exports['default'];
+
+},{"../classes/Matter":249,"../config":251,"lodash":237}],241:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var request = _classesMatter2['default'].utils.request;
+var logger = _classesMatter2['default'].utils.logger;
+
+//Actions for users list
+
+var GroupsAction = (function () {
+	function GroupsAction(actionData) {
+		_classCallCheck(this, GroupsAction);
+
+		//Check to see if action is for a specific app
+		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
+			this.app = actionData.app;
+			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			this.app = { name: actionData };
+			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
+		}
+		logger.info({ description: 'New Groups action.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
+	}
+
+	_createClass(GroupsAction, [{
+		key: 'get',
+
+		//Get users or single application
+		value: function get() {
+			logger.debug({ description: 'Get group called.', func: 'get', obj: 'GroupsAction' });
+			return request.get(this.groupsEndpoint).then(function (response) {
+				logger.info({ description: 'Groups loaded successfully.', response: response, func: 'get', obj: 'GroupsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.info({ description: 'Error getting groups.', error: errRes, func: 'get', obj: 'GroupsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(groupData) {
+			var newGroupData = groupData;
+			logger.debug({ description: 'Add group called.', groupData: groupData, func: 'add', obj: 'GroupsAction' });
+			if (_lodash2['default'].isString(groupData)) {
+				//Group data is string
+				newGroupData = { name: groupData };
+			}
+			logger.debug({ description: 'Add group called.', newGroupData: newGroupData, func: 'add', obj: 'GroupsAction' });
+			return request.post(this.groupsEndpoint, newGroupData).then(function (response) {
+				logger.log({ description: 'Group added to application successfully.', response: response, func: 'add', obj: 'GroupsAction' });
+				//TODO: Return list of group objects
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding group.', error: errRes, func: 'add', obj: 'GroupsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Search with partial of username
+	}, {
+		key: 'search',
+		value: function search(query) {
+			logger.debug({ description: 'Add group called.', groupData: groupData, func: 'search', obj: 'GroupsAction' });
+			if (!query || query == '' || !_lodash2['default'].isString(query)) {
+				logger.log({ description: 'Null or invalid query, returning empty array.', func: 'search', obj: 'GroupsAction' });
+				return Promise.resolve([]);
+			}
+			var searchEndpoint = this.groupsEndpoint + '/search/' + query;
+			logger.debug({ description: 'Search endpoint created.', endpoint: searchEndpoint, func: 'search', obj: 'GroupsAction' });
+			return request.get(searchEndpoint).then(function (response) {
+				logger.log({ description: 'Found groups based on search.', response: response, func: 'search', obj: 'GroupsAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error searching groups.', error: errRes, func: 'search', obj: 'GroupsAction' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'groupsEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'groups'];
+			//Check for app groups action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Groups Endpoint built.', endpoint: endpointStr, func: 'groupsEndpoint', obj: 'GroupsAction' });
+			return endpointStr;
+		}
+	}]);
+
+	return GroupsAction;
+})();
+
+exports['default'] = GroupsAction;
+module.exports = exports['default'];
+
+},{"../classes/Matter":249,"../config":251,"lodash":237}],242:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var logger = _classesMatter2['default'].utils.logger;
+var request = _classesMatter2['default'].utils.request;
+
+//Actions for templates list
+
+var TemplatesAction = (function () {
+	function TemplatesAction() {
+		_classCallCheck(this, TemplatesAction);
+	}
+
+	_createClass(TemplatesAction, [{
+		key: 'get',
+
+		//Get templates or single application
+		value: function get() {
+			logger.log({ description: 'Get template called.', func: 'get', obj: 'TemplatesAction' });
+			return request.get(this.templatesEndpoint).then(function (response) {
+				logger.log({ description: 'Templates loaded.', response: response, func: 'get', obj: 'TemplatesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting templates.', error: errRes, func: 'get', obj: 'TemplatesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Add an application
+	}, {
+		key: 'add',
+		value: function add(appData) {
+			logger.log({ description: 'Add template called.', func: 'add', obj: 'TemplatesAction' });
+			return request.post(this.templatesEndpoint, appData).then(function (response) {
+				logger.log({ description: 'Templates added successfully.', func: 'add', obj: 'TemplatesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding template.', error: errRes, func: 'add', obj: 'TemplatesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Search with partial of username
+	}, {
+		key: 'search',
+		value: function search(query) {
+			logger.log({ description: 'Search template called.', query: query, func: 'search', obj: 'TemplatesAction' });
+			var searchEndpoint = this.templatesEndpoint + '/search/';
+			if (query && _lodash2['default'].isString(query)) {
+				searchEndpoint += query;
+			}
+			logger.log({ description: 'Search endpoint created.', endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
+			return request.get(searchEndpoint).then(function (response) {
+				logger.log({ description: 'Template(s) found successfully.', response: response, endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.log({ description: 'Error searching for templates.', query: query, error: errRes, endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'templatesEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'templates'];
+			//Check for app groups action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				// endpointArray.splice(1, 0, 'apps', this.app.name);
+				logger.log({ description: 'Templates action is not currently supported for a specific application.', func: 'accountsEndpoint', obj: 'AccountsAction' });
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Templates endpoint built.', endpoint: endpointStr, func: 'templatesEndpoint', obj: 'TemplatesAction' });
+			return endpointStr;
+		}
+	}]);
+
+	return TemplatesAction;
+})();
+
+exports['default'] = TemplatesAction;
+module.exports = exports['default'];
+
+},{"../classes/Matter":249,"../config":251,"lodash":237}],243:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _classesMatter = require('../classes/Matter');
+
+var _classesMatter2 = _interopRequireDefault(_classesMatter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var request = _classesMatter2['default'].utils.request;
+var logger = _classesMatter2['default'].utils.logger;
+
+//Actions for specific user
+
+var Account = (function () {
+	function Account(accountData) {
+		_classCallCheck(this, Account);
+
+		//Call matter with name and settings
+		if (accountData && _lodash2['default'].isObject(accountData) && _lodash2['default'].has(accountData, 'username')) {
+			_lodash2['default'].extend(this, accountData);
+		} else if (accountData && _lodash2['default'].isString(accountData)) {
+			this.username = accountData;
+		} else {
+			logger.error({ description: 'AccountData is required to start an AccountAction', func: 'constructor', obj: 'Account' });
+			throw new Error('username is required to start an AccountAction');
+		}
+	}
+
+	//Build endpoint based on accountData
+
+	_createClass(Account, [{
+		key: 'get',
+
+		//Get a user
+		value: function get() {
+			logger.debug({ description: 'Account data loaded successfully.', func: 'get', obj: 'Account' });
+			return request.get(this.accountEndpoint).then(function (response) {
+				logger.info({ description: 'Account data loaded successfully.', response: response, func: 'get', obj: 'Account' });
+				return new Account(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting user.', error: errRes, func: 'get', obj: 'Account' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Update a Account
+	}, {
+		key: 'update',
+		value: function update(accountData) {
+			logger.debug({ description: 'Update user called.', accountData: accountData, func: 'update', obj: 'Account' });
+			return request.put(this.accountEndpoint, accountData).then(function (response) {
+				logger.info({ description: 'Account updated successfully.', func: 'update', obj: 'Account' });
+				//TODO: Extend this with current info before returning
+				return new Account(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating user.', func: 'update', obj: 'Account' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Delete a Account
+	}, {
+		key: 'del',
+		value: function del(accountData) {
+			logger.debug({ description: 'Delete user called.', func: 'del', obj: 'Account' });
+			return request.del(this.accountEndpoint, accountData).then(function (response) {
+				logger.info({ description: 'Delete user successful.', response: response, func: 'del', obj: 'Account' });
+				return new Account(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error deleting user.', accountData: accountData, error: errRes, func: 'del', obj: 'Account' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'accountEndpoint',
+		get: function get() {
+			var endpointArray = [_classesMatter2['default'].endpoint, 'accounts', this.username];
+			//Check for app account action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Account Endpoint built.', endpoint: endpointStr, func: 'accountEndpoint', obj: 'Account' });
+			return endpointStr;
+		}
+	}]);
+
+	return Account;
+})();
+
+exports['default'] = Account;
+module.exports = exports['default'];
+
+},{"../classes/Matter":249,"../config":251,"lodash":237}],244:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+//Internal libs and config
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+//Actions and Classes
+
+var _actionsGroupsAction = require('../actions/GroupsAction');
+
+var _actionsGroupsAction2 = _interopRequireDefault(_actionsGroupsAction);
+
+var _Group2 = require('./Group');
+
+var _Group3 = _interopRequireDefault(_Group2);
+
+var _actionsDirectoriesAction = require('../actions/DirectoriesAction');
+
+var _actionsDirectoriesAction2 = _interopRequireDefault(_actionsDirectoriesAction);
+
+var _Directory2 = require('./Directory');
+
+var _Directory3 = _interopRequireDefault(_Directory2);
+
+var _actionsAccountsAction = require('../actions/AccountsAction');
+
+var _actionsAccountsAction2 = _interopRequireDefault(_actionsAccountsAction);
+
+var _Account2 = require('./Account');
+
+var _Account3 = _interopRequireDefault(_Account2);
+
+var _Files = require('./Files');
+
+var _Files2 = _interopRequireDefault(_Files);
+
+var _File2 = require('./File');
+
+var _File3 = _interopRequireDefault(_File2);
+
+//External Libs
+
+var _firebase = require('firebase');
+
+var _firebase2 = _interopRequireDefault(_firebase);
+
+var _awsSdk = require('aws-sdk');
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
+//Convenience vars
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+/**
+ * Application class.
+ *
+ */
+
+var Application = (function () {
+	function Application(appData) {
+		_classCallCheck(this, Application);
+
+		//Setup application data based on input
+		if (appData && _lodash2['default'].isObject(appData)) {
+			_lodash2['default'].extend(this, appData);
+		} else if (appData && _lodash2['default'].isString(appData)) {
+			this.name = appData;
+		}
+		if (_firebase2['default'] && _lodash2['default'].has(_config2['default'], 'fbUrl') && _lodash2['default'].has(this, 'name')) {
+			this.fbRef = new _firebase2['default'](_config2['default'].fbUrl + this.name);
+		}
+		// logger.debug({description: 'Application object created.', application: this, func: 'constructor', obj: 'Application'});
+	}
+
+	_createClass(Application, [{
+		key: 'get',
+
+		//Get applications or single application
+		value: function get() {
+			logger.debug({ description: 'Application get called.', func: 'get', obj: 'Application' });
+			return request.get(this.appEndpoint).then(function (response) {
+				logger.info({ description: 'Application loaded successfully.', response: response, application: new Application(response), func: 'get', obj: 'Application' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting Application.', message: errRes.response.text, error: errRes, func: 'get', obj: 'Application' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Update an application
+	}, {
+		key: 'update',
+		value: function update(appData) {
+			logger.debug({ description: 'Application update called.', func: 'update', obj: 'Application' });
+			return request.put(this.appEndpoint, appData).then(function (response) {
+				logger.info({ description: 'Application updated successfully.', response: response, func: 'update', obj: 'Application' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating application.', error: errRes, func: 'update', obj: 'Application' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+	}, {
+		key: 'addStorage',
+		value: function addStorage() {
+			logger.debug({ description: 'Application add storage called.', application: this, func: 'addStorage', obj: 'Application' });
+			return request.post(this.appEndpoint + '/storage', appData).then(function (response) {
+				logger.info({ description: 'Storage successfully added to application.', response: response, application: new Application(response), func: 'addStorage', obj: 'Application' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error adding storage to application.', error: errRes, func: 'addStorage', obj: 'Application' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+	}, {
+		key: 'applyTemplate',
+		value: function applyTemplate() {
+			var _this = this;
+
+			logger.error({ description: 'Applying templates to existing applications is not currently supported.', func: 'applyTemplate', obj: 'Application' });
+			return request.post(this.appEndpoint, appData).then(function (response) {
+				logger.info({ description: 'Template successfully applied to application.', response: response, application: _this, func: 'applyTemplate', obj: 'Application' });
+				return new Application(response);
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error applying template to application.', error: errRes, application: _this, func: 'applyTemplate', obj: 'Application' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Files object that contains files methods
+	}, {
+		key: 'File',
+		value: function File(fileData) {
+			logger.debug({ description: 'Applications file action called.', fileData: fileData, application: this, func: 'file', obj: 'Application' });
+			return new _File3['default']({ app: this, fileData: fileData });
+		}
+	}, {
+		key: 'User',
+		value: function User(userData) {
+			logger.debug({ description: 'Applications user action called.', userData: userData, application: this, func: 'user', obj: 'Application' });
+			return new _Account3['default']({ app: this, userData: userData });
+		}
+	}, {
+		key: 'Account',
+		value: function Account(userData) {
+			logger.debug({ description: 'Applications account action called.', userData: userData, application: this, func: 'user', obj: 'Application' });
+			return new _Account3['default']({ app: this, userData: userData });
+		}
+	}, {
+		key: 'Group',
+		value: function Group(groupData) {
+			logger.debug({ description: 'Applications group action called.', groupData: groupData, application: this, func: 'group', obj: 'Application' });
+			return new _Group3['default']({ app: this, groupData: groupData });
+		}
+	}, {
+		key: 'Directory',
+		value: function Directory(directoryData) {
+			logger.debug({ description: 'Applications directory action called.', directoryData: directoryData, application: this, func: 'directory', obj: 'Application' });
+			return new _Directory3['default']({ app: this, directoryData: directoryData });
+		}
+	}, {
+		key: 'appEndpoint',
+		get: function get() {
+			return _Matter2['default'].endpoint + '/apps/' + this.name;
+		}
+	}, {
+		key: 'Files',
+		get: function get() {
+			logger.debug({ description: 'Applications files action called.', application: this, func: 'files', obj: 'Application' });
+			return new _Files2['default']({ app: this });
+		}
+	}, {
+		key: 'Users',
+		get: function get() {
+			logger.debug({ description: 'Applications users action called.', application: this, func: 'user', obj: 'Application' });
+			return new _actionsAccountsAction2['default']({ app: this });
+		}
+	}, {
+		key: 'Accounts',
+		get: function get() {
+			logger.debug({ description: 'Applications account action called.', application: this, func: 'user', obj: 'Application' });
+			return new _actionsAccountsAction2['default']({ app: this });
+		}
+	}, {
+		key: 'Groups',
+		get: function get() {
+			logger.debug({ description: 'Applications groups action called.', application: this, func: 'groups', obj: 'Application' });
+			return new _actionsGroupsAction2['default']({ app: this });
+		}
+	}, {
+		key: 'Directories',
+		get: function get() {
+			logger.debug({ description: 'Applications directories action called.', application: this, func: 'directories', obj: 'Application' });
+			return new _actionsDirectoriesAction2['default']({ app: this });
+		}
+	}]);
+
+	return Application;
+})();
+
+exports['default'] = Application;
+module.exports = exports['default'];
+
+},{"../actions/AccountsAction":238,"../actions/DirectoriesAction":240,"../actions/GroupsAction":241,"../config":251,"./Account":243,"./Directory":245,"./File":246,"./Files":247,"./Group":248,"./Matter":249,"aws-sdk":1,"firebase":236,"lodash":237}],245:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+//Actions for specific directory
+
+var Directory = (function () {
+	function Directory(actionData) {
+		_classCallCheck(this, Directory);
+
+		if (actionData && _lodash2['default'].isObject(actionData) && (_lodash2['default'].has(actionData, 'directoryName') || _lodash2['default'].has(actionData, 'name'))) {
+			//Data is object containing directory data
+			this.name = actionData.directoryName || actionData.name;
+			if (_lodash2['default'].has(actionData, 'appName')) {
+				this.appName = actionData.appName;
+			}
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			//Data is string name
+			this.name = actionData;
+		} else {
+			logger.error({ description: 'Action data object with name is required to start a Directory Action.', func: 'constructor', obj: 'Directory' });
+			throw new Error('Directory Data object with name is required to start a Directory action.');
+		}
+	}
+
+	_createClass(Directory, [{
+		key: 'get',
+
+		//Get userlications or single userlication
+		value: function get() {
+			return request.get(this.directoryEndpoint).then(function (response) {
+				logger.info({ description: 'Directory data loaded successfully.', directoryData: directoryData, response: response, func: 'get', obj: 'Directory' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.info({ description: 'Error getting directory.', directoryData: directoryData, error: errRes, func: 'get', obj: 'Directory' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Update an Directory
+	}, {
+		key: 'update',
+		value: function update(directoryData) {
+			logger.debug({ description: 'Directory updated called.', directoryData: directoryData, func: 'update', obj: 'Directory' });
+			return _Matter2['default'].utils.request.put(this.directoryEndpoint, directoryData).then(function (response) {
+				logger.info({ description: 'Directory updated successfully.', directoryData: directoryData, response: response, func: 'update', obj: 'Directory' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating directory.', directoryData: directoryData, error: errRes, func: 'update', obj: 'Directory' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Delete an Directory
+	}, {
+		key: 'del',
+		value: function del(directoryData) {
+			logger.debug({ description: 'Delete directory called.', directoryData: directoryData, func: 'del', obj: 'Directory' });
+			return request['delete'](this.directoryEndpoint, userData).then(function (response) {
+				logger.info({ description: 'Directory deleted successfully.', directoryData: directoryData, func: 'del', obj: 'Directory' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error deleting directory.', directoryData: directoryData, error: errRes, func: 'del', obj: 'Directory' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'directoryEndpoint',
+		get: function get() {
+			var endpointArray = [_Matter2['default'].endpoint, 'directories', this.name];
+			//Check for app account action
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Directory endpoint built.', endpoint: endpointStr, func: 'directoryEndpoint', obj: 'Directory' });
+			return endpointStr;
+		}
+	}]);
+
+	return Directory;
+})();
+
+exports['default'] = Directory;
+module.exports = exports['default'];
+
+},{"../config":251,"./Matter":249,"lodash":237}],246:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _awsSdk = require('aws-sdk');
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
+//Convenience vars
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+var File = (function () {
+	function File(fileData) {
+		_classCallCheck(this, File);
+
+		if (fileData && _lodash2['default'].isObject(fileData) && _lodash2['default'].has(fileData, ['path', 'app'])) {
+			this.path = fileData.path;
+			this.app = fileData.app;
+			this.pathArray = this.path.split('/');
+			//Get name from data or from pathArray
+			this.name = _lodash2['default'].has(fileData, 'name') ? fileData.name : this.pathArray[this.pathArray.length - 1];
+		} else if (fileData && !_lodash2['default'].isObject(fileData)) {
+			logger.error({ description: 'File data is not an object. File data must be an object that includes path and appName.', func: 'constructor', obj: 'File' });
+			//TODO: Get appName from path data?
+			throw new Error('File data must be an object that includes path and appName.');
+		} else {
+			logger.error({ description: 'File data include path and app is needed to create a File action.', func: 'constructor', obj: 'File' });
+			throw new Error('File data with path and app is needed to create file action.');
+		}
+		this.type = 'file';
+		logger.debug({ description: 'File object constructed.', file: this, func: 'constructor', obj: 'File' });
+	}
+
+	_createClass(File, [{
+		key: 'get',
+		value: function get() {
+			if (!this.app || !this.app.frontend) {
+				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'File' });
+				return Promise.reject({ message: 'Front end data is required to get file.' });
+			} else {
+				var saveParams = {
+					Bucket: this.app.frontend.bucketName,
+					Key: this.path
+				};
+				//Set contentType from fileData to ContentType parameter of new object
+				if (fileData.contentType) {
+					saveParams.ContentType = fileData.contentType;
+				}
+				logger.debug({ description: 'File get params built.', saveParams: saveParams, fileData: fileData, func: 'get', obj: 'File' });
+				return s3.getObject(saveParams, function (err, data) {
+					//[TODO] Add putting object ACL (make public)
+					if (!err) {
+						logger.error({ description: 'File loaded successfully.', fileData: data, func: 'get', obj: 'File' });
+						return data;
+					} else {
+						logger.error({ description: 'Error loading file from S3.', error: err, func: 'get', obj: 'File' });
+						return Promise.reject(err);
+					}
+				});
+			}
+		}
+
+		//Alias for get
+	}, {
+		key: 'open',
+		value: function open() {
+			return this.get;
+		}
+	}, {
+		key: 'publish',
+		value: function publish(fileData) {
+			//TODO: Publish file to application
+			logger.debug({ description: 'File publish called.', file: this, fileData: fileData, func: 'publish', obj: 'File' });
+			if (!this.app.frontend) {
+				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'publish', obj: 'File' });
+				return Promise.reject({ message: 'Front end data is required to publish file.' });
+			} else {
+				if (!_lodash2['default'].has(fileData, ['content', 'path'])) {
+					logger.error({ description: 'File data including path and content required to publish.', func: 'publish', obj: 'File' });
+					return Promise.reject({ message: 'File data including path and content required to publish.' });
+				}
+				var saveParams = {
+					Bucket: this.app.frontend.bucketName,
+					Key: fileData.path,
+					Body: fileData.content,
+					ACL: 'public-read'
+				};
+				//Set contentType from fileData to ContentType parameter of new object
+				if (fileData.contentType) {
+					saveParams.ContentType = fileData.contentType;
+				}
+				//If AWS Credential do not exist, set them
+				if (typeof _awsSdk2['default'].config.credentials == 'undefined' || !_awsSdk2['default'].config.credentials) {
+					logger.debug({ description: 'AWS creds do not exist, so they are being set.', func: 'publish', obj: 'File' });
+					setAWSConfig();
+				}
+				logger.debug({ description: 'File publish params built.', saveParams: saveParams, fileData: fileData, func: 'publish', obj: 'File' });
+				return s3.putObject(saveParams, function (err, data) {
+					//[TODO] Add putting object ACL (make public)
+					if (!err) {
+						logger.error({ description: 'File saved successfully.', fileData: data, func: 'publish', obj: 'File' });
+						return data;
+					} else {
+						logger.error({ description: 'Error saving file to S3.', error: err, func: 'publish', obj: 'File' });
+						return Promise.reject(err);
+					}
+				});
+			}
+		}
+	}, {
+		key: 'getTypes',
+		value: function getTypes() {
+			//Get content type and file type from extension
+		}
+	}, {
+		key: 'openWithFirepad',
+		value: function openWithFirepad(divId) {
+			//TODO:Create new Firepad instance within div
+		}
+	}, {
+		key: 'getDefaultContent',
+		value: function getDefaultContent() {}
+	}, {
+		key: 'ext',
+		get: function get() {
+			var re = /(?:\.([^.]+))?$/;
+			this.ext = re.exec(this.name)[1];
+		}
+	}]);
+
+	return File;
+})();
+
+exports['default'] = File;
+
+//------------------ Utility Functions ------------------//
+
+// AWS Config
+function setAWSConfig() {
+	_awsSdk2['default'].config.update({
+		credentials: new _awsSdk2['default'].CognitoIdentityCredentials({
+			IdentityPoolId: _config2['default'].aws.cognito.poolId
+		}),
+		region: _config2['default'].aws.region
+	});
+}
+module.exports = exports['default'];
+
+},{"../config":251,"./Matter":249,"aws-sdk":1,"lodash":237}],247:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _awsSdk = require('aws-sdk');
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
+//Convenience vars
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+var Files = (function () {
+	function Files(filesData) {
+		_classCallCheck(this, Files);
+
+		if (filesData && _lodash2['default'].isObject(filesData) && _lodash2['default'].has(filesData, 'app')) {
+			//Data is object containing directory data
+			this.app = filesData.app;
+		} else if (filesData && _lodash2['default'].isString(filesData)) {
+			//Data is string name
+			this.app = { name: filesData };
+		} else if (filesData && _lodash2['default'].isArray(filesData)) {
+			//TODO: Handle an array of files being passed as data
+			logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
+			throw new Error('Files Data object with application is required to start a Files action.');
+		} else {
+			logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
+			throw new Error('Files Data object with name is required to start a Files action.');
+		}
+		logger.debug({ description: 'Files object constructed.', func: 'constructor', obj: 'Files' });
+	}
+
+	_createClass(Files, [{
+		key: 'publish',
+		value: function publish() {
+			//TODO: Publish all files
+		}
+	}, {
+		key: 'get',
+		value: function get() {
+			var _this = this;
+
+			if (!this.app.frontend || !this.app.frontend.bucketName) {
+				logger.warn({ description: 'Application Frontend data not available. Calling .get().', app: this.app, func: 'get', obj: 'Files' });
+				return this.app.get().then(function (applicationData) {
+					logger.warn({ description: 'Get returned', data: applicationData, func: 'get', obj: 'Files' });
+					_this.app = applicationData;
+					return _this.get();
+				}, function (err) {
+					logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files' });
+					return Promise.reject({ message: 'Bucket name required to get objects' });
+				});
+			} else {
+				var _ret = (function () {
+					//If AWS Credential do not exist, set them
+					if (typeof _awsSdk2['default'].config.credentials == 'undefined' || !_awsSdk2['default'].config.credentials) {
+						// logger.info('AWS creds are being updated to make request');
+						setAWSConfig();
+					}
+					var s3 = new _awsSdk2['default'].S3();
+					var listParams = { Bucket: _this.app.frontend.bucketName };
+					return {
+						v: new Promise(function (resolve, reject) {
+							s3.listObjects(listParams, function (err, data) {
+								if (!err) {
+									logger.info({ description: 'Files list loaded.', filesData: data, func: 'get', obj: 'Files' });
+									return resolve(data.Contents);
+								} else {
+									logger.error({ description: 'Error getting files from S3.', error: err, func: 'get', obj: 'Files' });
+									return reject(err);
+								}
+							});
+						})
+					};
+				})();
+
+				if (typeof _ret === 'object') return _ret.v;
+			}
+		}
+	}, {
+		key: 'add',
+		value: function add() {
+			//TODO: Add a file to files list
+		}
+	}, {
+		key: 'del',
+		value: function del() {
+			//TODO: Delete a file from files list
+		}
+	}, {
+		key: 'buildStructure',
+		value: function buildStructure() {
+			logger.debug({ description: 'Build Structure called.', func: 'buildStructure', obj: 'Application' });
+			return this.get().then(function (filesArray) {
+				var childStruct = childrenStructureFromArray(filesArray);
+				logger.log({ description: 'Child struct from array.', childStructure: childStruct, func: 'buildStructure', obj: 'Application' });
+				return childStruct;
+			}, function (err) {
+				logger.error({ description: 'Error getting application files.', error: err, func: 'buildStructure', obj: 'Application' });
+				return Promise.reject({ message: 'Error getting files.', error: err });
+			});
+		}
+
+		//ALIAS FOR buildStructure
+		// get structure() {
+		// 	return this.buildStructure();
+		// }
+	}]);
+
+	return Files;
+})();
+
+exports['default'] = Files;
+
+//------------------ Utility Functions ------------------//
+
+// AWS Config
+function setAWSConfig() {
+	_awsSdk2['default'].config.update({
+		credentials: new _awsSdk2['default'].CognitoIdentityCredentials({
+			IdentityPoolId: _config2['default'].aws.cognito.poolId
+		}),
+		region: _config2['default'].aws.region
+	});
+}
+//Convert from array file structure (from S3) to 'children' structure used in Editor GUI (angular-tree-control)
+//Examples for two files (index.html and /testFolder/file.js):
+//Array structure: [{path:'index.html'}, {path:'testFolder/file.js'}]
+//Children Structure [{type:'folder', name:'testfolder', children:[{path:'testFolder/file.js', name:'file.js', filetype:'javascript', contentType:'application/javascript'}]}]
+function childrenStructureFromArray(fileArray) {
+	// logger.log('childStructureFromArray called:', fileArray);
+	//Create a object for each file that stores the file in the correct 'children' level
+	var mappedStructure = fileArray.map(function (file) {
+		return buildStructureObject(file);
+	});
+	return combineLikeObjs(mappedStructure);
+}
+//Convert file with key into a folder/file children object
+function buildStructureObject(file) {
+	var pathArray;
+	// console.log('buildStructureObject with:', file);
+	if (_lodash2['default'].has(file, 'path')) {
+		//Coming from files already having path (structure)
+		pathArray = file.path.split('/');
+	} else {
+		//Coming from aws
+		pathArray = file.Key.split('/');
+		// console.log('file before pick:', file);
+		file = _lodash2['default'].pick(file, 'Key');
+		file.path = file.Key;
+		file.name = file.Key;
+	}
+	var currentObj = file;
+	if (pathArray.length == 1) {
+		currentObj.name = pathArray[0];
+		if (!_lodash2['default'].has(currentObj, 'type')) {
+			currentObj.type = 'file';
+		}
+		currentObj.path = pathArray[0];
+		return currentObj;
+	} else {
+		var finalObj = {};
+		_lodash2['default'].each(pathArray, function (loc, ind, list) {
+			if (ind != list.length - 1) {
+				//Not the last loc
+				currentObj.name = loc;
+				currentObj.path = _lodash2['default'].take(list, ind + 1).join('/');
+				currentObj.type = 'folder';
+				currentObj.children = [{}];
+				//TODO: Find out why this works
+				if (ind == 0) {
+					finalObj = currentObj;
+				}
+				currentObj = currentObj.children[0];
+			} else {
+				currentObj.type = 'file';
+				currentObj.name = loc;
+				currentObj.path = pathArray.join('/');
+				if (file.$id) {
+					currentObj.$id = file.$id;
+				}
+			}
+		});
+		return finalObj;
+	}
+}
+//Recursivley combine children of object's that have the same names
+function combineLikeObjs(mappedArray) {
+	var takenNames = [];
+	var finishedArray = [];
+	_lodash2['default'].each(mappedArray, function (obj, ind, list) {
+		if (takenNames.indexOf(obj.name) == -1) {
+			takenNames.push(obj.name);
+			finishedArray.push(obj);
+		} else {
+			var likeObj = _lodash2['default'].findWhere(mappedArray, { name: obj.name });
+			//Combine children of like objects
+			likeObj.children = _lodash2['default'].union(obj.children, likeObj.children);
+			likeObj.children = combineLikeObjs(likeObj.children);
+			// logger.log('extended obj:',likeObj);
+		}
+	});
+	return finishedArray;
+}
+module.exports = exports['default'];
+
+},{"../config":251,"./Matter":249,"aws-sdk":1,"lodash":237}],248:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+
+//Actions for specific user
+
+var Group = (function () {
+	function Group(actionData) {
+		_classCallCheck(this, Group);
+
+		//Call matter with name and settings
+		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'groupData')) {
+			//Data is object containing group data
+			this.name = _lodash2['default'].isObject(actionData.groupData) ? actionData.groupData.name : actionData.groupData;
+			if (_lodash2['default'].has(actionData, 'app')) {
+				this.app = actionData.app;
+			}
+		} else if (actionData && _lodash2['default'].isString(actionData)) {
+			//Data is string name
+			this.name = actionData;
+		} else {
+			logger.error({ description: 'Action data is required to start a Group Action.', func: 'constructor', obj: 'Group' });
+			throw new Error('Username is required to start an Group');
+		}
+	}
+
+	_createClass(Group, [{
+		key: 'get',
+
+		//Get userlications or single userlication
+		value: function get() {
+			return request.get(this.groupEndpoint).then(function (response) {
+				logger.info({ description: 'Group data loaded successfully.', response: response, func: 'get', obj: 'Group' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.info({ description: 'Error getting group.', error: errRes, func: 'get', obj: 'Group' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Update an Group
+	}, {
+		key: 'update',
+		value: function update(groupData) {
+			logger.log({ description: 'Group updated called.', groupData: groupData, func: 'update', obj: 'Group' });
+			return _Matter2['default'].utils.request.put(this.groupEndpoint, groupData).then(function (response) {
+				logger.info({ description: 'Group updated successfully.', groupData: groupData, response: response, func: 'update', obj: 'Group' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating group.', groupData: groupData, error: errRes, func: 'update', obj: 'Group' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Delete an Group
+	}, {
+		key: 'del',
+		value: function del(groupData) {
+			logger.log({ description: 'Delete group called.', groupData: groupData, func: 'del', obj: 'Group' });
+			return request.del(this.groupEndpoint, {}).then(function (response) {
+				logger.info({ description: 'Group deleted successfully.', groupData: groupData, func: 'del', obj: 'Group' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error deleting group.', error: errRes, text: errRes.response.text, groupData: groupData, func: 'del', obj: 'Group' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+
+		//Update an Group
+	}, {
+		key: 'addAccounts',
+		value: function addAccounts(accountsData) {
+			logger.log({ description: 'Group updated called.', accountsData: accountsData, func: 'update', obj: 'Group' });
+			var accountsArray = accountsData;
+			//Handle provided data being a string list
+			if (_lodash2['default'].isString(accountsData)) {
+				accountsArray = accountsData.split(',');
+			}
+			//Check item in array to see if it is a string (username) instead of _id
+			if (_lodash2['default'].isString(accountsArray[0])) {
+				logger.error({ description: 'Accounts array only currently supports account._id not account.username.', accountsData: accountsData, func: 'update', obj: 'Group' });
+				return Promise.reject({ message: 'Accounts array only currently supports account._id not account.username.' });
+			}
+			logger.log({ description: 'Updating group with accounts array.', accountsArray: accountsArray, func: 'update', obj: 'Group' });
+			return this.update({ accounts: accountsArray }).then(function (response) {
+				logger.info({ description: 'Account(s) added to group successfully.', response: response, func: 'addAccounts', obj: 'Group' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error addAccountseting group.', error: errRes, func: 'addAccounts', obj: 'Group' });
+				return Promise.reject(errRes.response.text || errRes.response);
+			});
+		}
+	}, {
+		key: 'groupEndpoint',
+		get: function get() {
+			var endpointArray = [_Matter2['default'].endpoint, 'groups', this.name];
+			//Check for app account action
+
+			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
+				endpointArray.splice(1, 0, 'apps', this.app.name);
+			}
+			//Create string from endpointArray
+			var endpointStr = endpointArray.join('/');
+			logger.log({ description: 'Group Endpoint built.', endpoint: endpointStr, func: 'groupEndpoint', obj: 'Group' });
+			return endpointStr;
+		}
+	}]);
+
+	return Group;
+})();
+
+exports['default'] = Group;
+module.exports = exports['default'];
+
+},{"../config":251,"./Matter":249,"lodash":237}],249:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _kyperMatter = require('kyper-matter');
+
+var _kyperMatter2 = _interopRequireDefault(_kyperMatter);
+
+var matter = new _kyperMatter2['default'](_config2['default'].appName, _config2['default'].matterOptions);
+exports['default'] = matter;
+module.exports = exports['default'];
+
+},{"../config":251,"kyper-matter":253}],250:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _config = require('../config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _Matter = require('./Matter');
+
+var _Matter2 = _interopRequireDefault(_Matter);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var request = _Matter2['default'].utils.request;
+var logger = _Matter2['default'].utils.logger;
+//Actions for specific user
+
+var Template = (function () {
+	function Template(templateData) {
+		_classCallCheck(this, Template);
+
+		//Call matter with name and settings
+		if (templateData && _lodash2['default'].isString(templateData)) {
+			this.name = templateData;
+		} else {
+			logger.error({ description: 'Template data is required to start a Template action.', func: 'construcotr', obj: '' });
+			throw new Error('Template data is required to start a Template action.');
+		}
+	}
+
+	_createClass(Template, [{
+		key: 'get',
+
+		//Get userlications or single userlication
+		value: function get() {
+			logger.log({ description: 'Get template called.', name: this.name, func: 'get', obj: 'Template' });
+			return request.get(this.templateEndpoint).then(function (response) {
+				logger.log({ description: 'Get template responded.', response: response, func: 'get', obj: 'Template' });
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error getting template.', error: errRes, func: 'get', obj: 'Template' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Update an userlication
+	}, {
+		key: 'update',
+		value: function update(templateData) {
+			logger.log({ description: 'Update template called.', templateData: templateData, func: 'update', obj: 'Template' });
+			return request.put(this.templateEndpoint, templateData).then(function (response) {
+				logger.log({ description: 'Update template responded.', response: response, templateData: templateData, func: 'update', obj: 'Template' });
+				//TODO: Return template object
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error updating template.', error: errRes, func: 'update', obj: 'Template' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		//Delete a template
+	}, {
+		key: 'del',
+		value: function del(templateData) {
+			logger.log({ description: 'Delete template called.', templateData: templateData, func: 'del', obj: 'Template' });
+			return request['delete'](this.endpoint, templateData).then(function (response) {
+				logger.log({ description: 'Template deleted successfully.', response: response, func: 'del', obj: 'Template' });
+				//TODO: Return template object
+				return response;
+			})['catch'](function (errRes) {
+				logger.error({ description: 'Error deleting template.', error: errRes, func: 'del', obj: 'Template' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'templateEndpoint',
+		get: function get() {
+			return _Matter2['default'].endpoint + '/templates/' + this.name;
+		}
+	}]);
+
+	return Template;
+})();
+
+exports['default'] = Template;
+module.exports = exports['default'];
+
+},{"../config":251,"./Matter":249,"lodash":237}],251:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+var config = {
+	serverUrl: 'http://tessellate.elasticbeanstalk.com',
+	tokenName: 'grout',
+	fbUrl: 'https://kyper-tech.firebaseio.com/tessellate',
+	appName: 'tessellate',
+	matterOptions: {
+		localServer: false
+	},
+	aws: {
+		region: 'us-east-1',
+		cognito: {
+			poolId: 'us-east-1:72a20ffd-c638-48b0-b234-3312b3e64b2e',
+			params: {
+				AuthRoleArn: 'arn:aws:iam::823322155619:role/Cognito_TessellateUnauth_Role',
+				UnauthRoleArn: 'arn:aws:iam::823322155619:role/Cognito_TessellateAuth_Role'
+			}
+		}
+	}
+};
+//Set server to local server if developing
+// if (typeof window != 'undefined' && (window.location.hostname == '' || window.location.hostname == 'localhost')) {
+// 	config.serverUrl = 'http://localhost:4000';
+// }
+exports['default'] = config;
+module.exports = exports['default'];
+
+},{}],252:[function(require,module,exports){
+Object.defineProperty(exports, '__esModule', {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _config = require('./config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _kyperMatter = require('kyper-matter');
+
+var _kyperMatter2 = _interopRequireDefault(_kyperMatter);
+
+var _actionsAppsAction = require('./actions/AppsAction');
+
+var _actionsAppsAction2 = _interopRequireDefault(_actionsAppsAction);
+
+var _classesApplication = require('./classes/Application');
+
+var _classesApplication2 = _interopRequireDefault(_classesApplication);
+
+var _actionsAccountsAction = require('./actions/AccountsAction');
+
+var _actionsAccountsAction2 = _interopRequireDefault(_actionsAccountsAction);
+
+var _classesAccount = require('./classes/Account');
+
+var _classesAccount2 = _interopRequireDefault(_classesAccount);
+
+var _actionsGroupsAction = require('./actions/GroupsAction');
+
+var _actionsGroupsAction2 = _interopRequireDefault(_actionsGroupsAction);
+
+var _classesGroup = require('./classes/Group');
+
+var _classesGroup2 = _interopRequireDefault(_classesGroup);
+
+var _actionsDirectoriesAction = require('./actions/DirectoriesAction');
+
+var _actionsDirectoriesAction2 = _interopRequireDefault(_actionsDirectoriesAction);
+
+var _classesDirectory = require('./classes/Directory');
+
+var _classesDirectory2 = _interopRequireDefault(_classesDirectory);
+
+var _actionsTemplatesAction = require('./actions/TemplatesAction');
+
+var _actionsTemplatesAction2 = _interopRequireDefault(_actionsTemplatesAction);
+
+var _classesTemplate = require('./classes/Template');
+
+var _classesTemplate2 = _interopRequireDefault(_classesTemplate);
+
+/**Grout Client Class
+ * @ description Extending matter provides token storage and login/logout/signup capabilities
+ */
+
+var Grout = (function (_Matter) {
+	_inherits(Grout, _Matter);
+
+	//TODO: Use getter/setter to make this not a function
+
+	function Grout() {
+		_classCallCheck(this, Grout);
+
+		//Call matter with tessellate
+		_get(Object.getPrototypeOf(Grout.prototype), 'constructor', this).call(this, _config2['default'].appName, _config2['default'].matterOptions);
+	}
+
+	//Start a new Apps Action
+
+	_createClass(Grout, [{
+		key: 'App',
+
+		//Start a new App action
+		value: function App(appName) {
+			this.utils.logger.debug({ description: 'Application action called.', appName: appName, template: new _classesApplication2['default'](appName), func: 'App', obj: 'Grout' });
+			return new _classesApplication2['default'](appName);
+		}
+
+		//Start a new Apps Action
+	}, {
+		key: 'Template',
+
+		//Start a new App action
+		value: function Template(templateData) {
+			this.utils.logger.debug({ description: 'Template Action called.', templateData: templateData, template: new _classesTemplate2['default'](templateData), func: 'Template', obj: 'Grout' });
+			return new _classesTemplate2['default'](templateData);
+		}
+
+		//Start a new Accounts action
+	}, {
+		key: 'Account',
+
+		//Start a new Account action
+		value: function Account(userData) {
+			this.utils.logger.debug({ description: 'Account Action called.', userData: userData, user: new _classesAccount2['default'](userData), func: 'user', obj: 'Grout' });
+			return new _classesAccount2['default'](userData);
+		}
+
+		//ALIAS OF ACCOUNTS
+		//Start a new Accounts action
+	}, {
+		key: 'User',
+
+		//ALIAS OF ACCOUNT
+		//Start a new Account action
+		value: function User(userData) {
+			this.utils.logger.debug({ description: 'Account Action called.', userData: userData, user: new _classesAccount2['default'](userData), func: 'user', obj: 'Grout' });
+			return new _classesAccount2['default'](userData);
+		}
+
+		//Start a new Groups action
+	}, {
+		key: 'Group',
+
+		//Start a new Group action
+		value: function Group(groupData) {
+			this.utils.logger.debug({ description: 'Group Action called.', groupData: groupData, action: new _classesGroup2['default']({ app: this, groupData: groupData }), func: 'group', obj: 'Grout' });
+			return new _classesGroup2['default'](groupData);
+		}
+
+		//Start a new Directories action
+	}, {
+		key: 'Directory',
+
+		//Start a new Group action
+		value: function Directory(directoryData) {
+			this.utils.logger.debug({ description: 'Directory Action called.', directoryData: directoryData, action: new _classesDirectory2['default'](directoryData), func: 'directory', obj: 'Grout' });
+			return new _classesDirectory2['default'](directoryData);
+		}
+	}, {
+		key: 'Apps',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Apps Action called.', action: new _actionsAppsAction2['default'](), func: 'Apps', obj: 'Grout' });
+			return new _actionsAppsAction2['default']();
+		}
+	}, {
+		key: 'Templates',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Templates Action called.', action: new _actionsTemplatesAction2['default'](), func: 'Templates', obj: 'Grout' });
+			return new _actionsTemplatesAction2['default']();
+		}
+	}, {
+		key: 'Accounts',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Account Action called.', action: new _actionsAccountsAction2['default'](), func: 'users', obj: 'Grout' });
+			return new _actionsAccountsAction2['default']();
+		}
+	}, {
+		key: 'Users',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Accounts Action called.', action: new _actionsAccountsAction2['default'](), func: 'Users', obj: 'Grout' });
+			return new _actionsAccountsAction2['default']();
+		}
+	}, {
+		key: 'Groups',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Groups Action called.', action: new _actionsGroupsAction2['default'](), func: 'groups', obj: 'Grout' });
+			return new _actionsGroupsAction2['default']();
+		}
+	}, {
+		key: 'Directories',
+		get: function get() {
+			this.utils.logger.debug({ description: 'Directories Action called.', action: new _actionsDirectoriesAction2['default'](), func: 'directories', obj: 'Grout' });
+			return new _actionsDirectoriesAction2['default']();
+		}
+	}]);
+
+	return Grout;
+})(_kyperMatter2['default']);
+
+;
+
+exports['default'] = Grout;
+module.exports = exports['default'];
+
+},{"./actions/AccountsAction":238,"./actions/AppsAction":239,"./actions/DirectoriesAction":240,"./actions/GroupsAction":241,"./actions/TemplatesAction":242,"./classes/Account":243,"./classes/Application":244,"./classes/Directory":245,"./classes/Group":248,"./classes/Template":250,"./config":251,"kyper-matter":253}],253:[function(require,module,exports){
+'use strict';
+
+var _createClass = (function () {
+	function defineProperties(target, props) {
+		for (var i = 0; i < props.length; i++) {
+			var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ('value' in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+		}
+	}return function (Constructor, protoProps, staticProps) {
+		if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+	};
+})();
+
+function _classCallCheck(instance, Constructor) {
+	if (!(instance instanceof Constructor)) {
+		throw new TypeError('Cannot call a class as a function');
+	}
+}
+
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('lodash'), require('jwt-decode'), require('superagent')) : typeof define === 'function' && define.amd ? define(['lodash', 'jwt-decode', 'superagent'], factory) : global.Matter = factory(global._, global.jwtDecode, global.superagent);
+})(undefined, function (_, jwtDecode, superagent) {
+	'use strict';
+
+	_ = 'default' in _ ? _['default'] : _;
+	jwtDecode = 'default' in jwtDecode ? jwtDecode['default'] : jwtDecode;
+	superagent = 'default' in superagent ? superagent['default'] : superagent;
+
+	var config = {
+		serverUrl: 'http://tessellate.elasticbeanstalk.com',
+		tokenName: 'tessellate',
+		tokenDataName: 'tessellate-tokenData',
+		tokenUserDataName: 'tessellate-currentUser'
+	};
+
+	//Set default log level to debug
+	var logLevel = 'debug';
+	//Set log level from config
+	if (config.logLevel) {
+		logLevel = config.logLevel;
+	}
+
+	var logger = {
+		log: function log(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				runConsoleMethod('log', msgArgs);
+			} else {
+				runConsoleMethod('log', msgArgs);
+			}
+		},
+		info: function info(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				runConsoleMethod('info', msgArgs);
+			} else {
+				runConsoleMethod('info', msgArgs);
+			}
+		},
+		warn: function warn(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				runConsoleMethod('warn', msgArgs);
+			} else {
+				runConsoleMethod('warn', msgArgs);
+			}
+		},
+		debug: function debug(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				// runConsoleMethod('debug', msgArgs);
+				//Do not display console debugs in production
+			} else {
+					runConsoleMethod('debug', msgArgs);
+				}
+		},
+		error: function error(logData) {
+			var msgArgs = buildMessageArgs(logData);
+			if (config.envName == 'production') {
+				//TODO: Log to external logger
+				runConsoleMethod('error', msgArgs);
+			} else {
+				runConsoleMethod('error', msgArgs);
+			}
+		}
+	};
+
+	function runConsoleMethod(methodName, methodData) {
+		//Safley run console methods or use console log
+		if (methodName && console[methodName]) {
+			return console[methodName].apply(console, methodData);
+		} else {
+			return console.log.apply(console, methodData);
+		}
+	}
+	function buildMessageArgs(logData) {
+		var msgStr = '';
+		var msgObj = {};
+		//TODO: Attach time stamp
+		//Attach location information to the beginning of message
+		if (_.isObject(logData)) {
+			if (logLevel == 'debug') {
+				if (_.has(logData, 'func')) {
+					if (_.has(logData, 'obj')) {
+						//Object and function provided
+						msgStr += '[' + logData.obj + '.' + logData.func + '()]\n ';
+					} else if (_.has(logData, 'file')) {
+						msgStr += '[' + logData.file + ' > ' + logData.func + '()]\n ';
+					} else {
+						msgStr += '[' + logData.func + '()]\n ';
+					}
+				}
+			}
+			//Print each key and its value other than obj and func
+			_.each(_.omit(_.keys(logData)), function (key, ind, list) {
+				if (key != 'func' && key != 'obj') {
+					if (key == 'description' || key == 'message') {
+						msgStr += logData[key];
+					} else if (_.isString(logData[key])) {
+						// msgStr += key + ': ' + logData[key] + ', ';
+						msgObj[key] = logData[key];
+					} else {
+						//Print objects differently
+						// msgStr += key + ': ' + logData[key] + ', ';
+						msgObj[key] = logData[key];
+					}
+				}
+			});
+			msgStr += '\n';
+		} else if (_.isString(logData)) {
+			msgStr = logData;
+		}
+		var msg = [msgStr, msgObj];
+
+		return msg;
+	}
+
+	var domUtil = {
+		/**
+   * @description
+   * Appends given css source to DOM head.
+   *
+   * @param {String} src - url src for css to append
+   *
+   */
+		loadCss: function loadCss(src) {
+			if (!document) {
+				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
+				throw new Error('Document object is required to load assets.');
+			} else {
+				var css = document.createElement('link');
+				css.rel = 'stylesheet';
+				css.type = 'text/css';
+				css.href = src;
+				document.getElementsByTagName('head')[0].insertBefore(css, document.getElementsByTagName('head')[0].firstChild);
+				logger.log({ description: 'CSS was loaded into document.', element: css, func: 'loadCss', obj: 'dom' });
+				return css; //Return link element
+			}
+		},
+		/**
+   * @description
+   * Appends given javascript source to DOM head.
+   *
+   * @param {String} src - url src for javascript to append
+   *
+   */
+		loadJs: function loadJs(src) {
+			if (window && !_.has(window, 'document')) {
+				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
+				throw new Error('Document object is required to load assets.');
+			} else {
+				var js = window.document.createElement('script');
+				js.src = src;
+				js.type = 'text/javascript';
+				window.document.getElementsByTagName('head')[0].appendChild(js);
+				logger.log({ description: 'JS was loaded into document.', element: js, func: 'loadCss', obj: 'dom' });
+				return js; //Return script element
+			}
+		},
+		/**
+   * @description
+   * Appends given javascript source to DOM head.
+   *
+   * @param {String} src - url src for javascript to append
+   *
+   */
+		asyncLoadJs: function asyncLoadJs(src) {
+			if (!_.has(window, 'document')) {
+				logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
+				throw new Error('Document object is required to load assets.');
+			} else {
+				var js = window.document.createElement('script');
+				js.src = src;
+				js.type = 'text/javascript';
+				window.document.getElementsByTagName('head')[0].appendChild(js);
+				logger.log({ description: 'JS was loaded into document.', element: js, func: 'loadCss', obj: 'dom' });
+				return new Promise(function (resolve, reject) {
+					window.setTimeout(resolve, 30);
+				});
+			}
+		}
+	};
+
+	var data = {};
+	var storage = Object.defineProperties({
+		/**
+   * @description
+   * Safley sets item to session storage.
+   *
+   * @param {String} itemName The items name
+   * @param {String} itemValue The items value
+   *
+   */
+		item: function item(itemName, itemValue) {
+			return this.setItem(itemName, itemValue);
+		},
+		/**
+   * @description
+   * Safley sets item to session storage. Alias: item()
+   *
+   * @param {String} itemName The items name
+   * @param {String} itemValue The items value
+   *
+   */
+		setItem: function setItem(itemName, itemValue) {
+			data[itemName] = itemValue;
+			if (this.localExists) {
+				//Convert object to string
+				if (_.isObject(itemValue)) {
+					itemValue = JSON.stringify(itemValue);
+				}
+				window.sessionStorage.setItem(itemName, itemValue);
+			}
+		},
+
+		/**
+   * @description
+   * Safley gets an item from session storage. Alias: item()
+   *
+   * @param {String} itemName The items name
+   *
+   * @return {String}
+   *
+   */
+		getItem: function getItem(itemName) {
+			if (data[itemName]) {
+				return data[itemName];
+			} else if (this.localExists) {
+				var itemStr = window.sessionStorage.getItem(itemName);
+				//Check that str is not null before parsing
+				if (itemStr) {
+					var isObj = false;
+					var itemObj = null;
+					//Try parsing to object
+					try {
+						itemObj = JSON.parse(itemStr);
+						isObj = true;
+					} catch (err) {
+						// logger.log({message: 'String could not be parsed.', error: err, func: 'getItem', obj: 'storage'});
+						//Parsing failed, this must just be a string
+						isObj = false;
+					}
+					if (isObj) {
+						return itemObj;
+					}
+				}
+				return itemStr;
+			} else {
+				return null;
+			}
+		},
+		/**
+   * @description
+   * Safley removes item from session storage.
+   *
+   * @param {String} itemName - The items name
+   *
+   */
+		removeItem: function removeItem(itemName) {
+			//TODO: Only remove used items
+			if (data[itemName]) {
+				data[itemName] = null;
+			}
+			if (this.localExists) {
+				try {
+					//Clear session storage
+					window.sessionStorage.removeItem(itemName);
+				} catch (err) {
+					logger.error({ description: 'Error removing item from session storage', error: err, obj: 'storage', func: 'removeItem' });
+				}
+			}
+		},
+		/**
+   * @description
+   * Safley removes item from session storage.
+   *
+   * @param {String} itemName the items name
+   * @param {String} itemValue the items value
+   *
+   */
+		clear: function clear() {
+			//TODO: Only remove used items
+			data = {};
+			if (this.localExists) {
+				try {
+					//Clear session storage
+					window.sessionStorage.clear();
+				} catch (err) {
+					logger.warn('Session storage could not be cleared.', err);
+				}
+			}
+		}
+
+	}, {
+		localExists: {
+			get: function get() {
+				var testKey = 'test';
+				if (typeof window != 'undefined' && typeof window.sessionStorage != 'undefined') {
+					try {
+						window.sessionStorage.setItem(testKey, '1');
+						window.sessionStorage.removeItem(testKey);
+						return true;
+					} catch (err) {
+						logger.error({ description: 'Error saving to session storage', error: err, obj: 'storage', func: 'localExists' });
+						return false;
+					}
+				} else {
+					return false;
+				}
+			},
+			configurable: true,
+			enumerable: true
+		}
+	});
+
+	function decodeToken(tokenStr) {
+		var tokenData = undefined;
+		if (tokenStr && tokenStr != '') {
+			try {
+				tokenData = jwtDecode(tokenStr);
+			} catch (err) {
+				logger.error({ description: 'Error decoding token.', data: tokenData, error: err, func: 'decodeToken', file: 'token' });
+				throw new Error('Invalid token string.');
+			}
+		}
+		return tokenData;
+	}
+	var token = Object.defineProperties({
+		save: function save(tokenStr) {
+			this.string = tokenStr;
+		},
+		'delete': function _delete() {
+			//Remove string token
+			storage.removeItem(config.tokenName);
+			//Remove user data
+			storage.removeItem(config.tokenDataName);
+			logger.log({ description: 'Token was removed.', func: 'delete', obj: 'token' });
+		}
+	}, {
+		string: {
+			get: function get() {
+				return storage.getItem(config.tokenName);
+			},
+			set: function set(tokenStr) {
+				logger.log({ description: 'Token was set.', token: tokenStr, func: 'string', obj: 'token' });
+				this.data = jwtDecode(tokenStr);
+				storage.setItem(config.tokenName, tokenStr);
+			},
+			configurable: true,
+			enumerable: true
+		},
+		data: {
+			get: function get() {
+				if (storage.getItem(config.tokenDataName)) {
+					return storage.getItem(config.tokenDataName);
+				} else {
+					return decodeToken(this.string);
+				}
+			},
+			set: function set(tokenData) {
+				if (_.isString(tokenData)) {
+					var tokenStr = tokenData;
+					tokenData = decodeToken(tokenStr);
+					logger.info({ description: 'Token data was set as string. Decoding token.', token: tokenStr, tokenData: tokenData, func: 'data', obj: 'token' });
+				} else {
+					logger.log({ description: 'Token data was set.', data: tokenData, func: 'data', obj: 'token' });
+					storage.setItem(config.tokenDataName, tokenData);
+				}
+			},
+			configurable: true,
+			enumerable: true
+		}
+	});
+
+	var request = {
+		get: function get(endpoint, queryData) {
+			var req = superagent.get(endpoint);
+			if (queryData) {
+				req.query(queryData);
+			}
+			req = addAuthHeader(req);
+			return handleResponse(req);
+		},
+		post: function post(endpoint, data) {
+			var req = superagent.post(endpoint).send(data);
+			req = addAuthHeader(req);
+			return handleResponse(req);
+		},
+		put: function put(endpoint, data) {
+			var req = superagent.put(endpoint).send(data);
+			req = addAuthHeader(req);
+			return handleResponse(req);
+		},
+		del: function del(endpoint, data) {
+			var req = superagent.put(endpoint).send(data);
+			req = addAuthHeader(req);
+			return handleResponse(req);
+		}
+	};
+
+	function handleResponse(req) {
+		return new Promise(function (resolve, reject) {
+			req.end(function (err, res) {
+				if (!err) {
+					// logger.log({description: 'Response:', response:res, func:'handleResponse', file: 'request'});
+					return resolve(res.body);
+				} else {
+					if (err.status == 401) {
+						console.warn('Unauthorized. You must be signed into make this request.');
+					}
+					if (err && err.response) {
+						return reject(err.response.text);
+					}
+					return reject(err);
+				}
+			});
+		});
+	}
+	function addAuthHeader(req) {
+		if (token.string) {
+			req = req.set('Authorization', 'Bearer ' + token.string);
+			console.info({ message: 'Set auth header', func: 'addAuthHeader', file: 'request' });
+		}
+		return req;
+	}
+
+	// import hello from 'hellojs'; //Modifies objects to have id parameter?
+
+	// import hello from 'hellojs'; //After es version of module is created
+	//Private object containing clientIds
+	var clientIds = {};
+
+	var ProviderAuth = (function () {
+		function ProviderAuth(actionData) {
+			_classCallCheck(this, ProviderAuth);
+
+			this.app = actionData.app ? actionData.app : null;
+			this.redirectUri = actionData.redirectUri ? actionData.redirectUri : 'redirect.html';
+			this.provider = actionData.provider ? actionData.provider : null;
+		}
+
+		_createClass(ProviderAuth, [{
+			key: 'loadHello',
+			value: function loadHello() {
+				//Load hellojs script
+				//TODO: Replace this with es6ified version
+				if (window && !window.hello) {
+					return domUtil.asyncLoadJs('https://s3.amazonaws.com/kyper-cdn/js/hello.js');
+				} else {
+					return Promise.resolve();
+				}
+			}
+		}, {
+			key: 'helloLoginListener',
+			value: function helloLoginListener() {
+				//Login Listener
+				window.hello.on('auth.login', function (auth) {
+					logger.info({ description: 'User logged in to google.', func: 'loadHello', obj: 'Google' });
+					// Call user information, for the given network
+					window.hello(auth.network).api('/me').then(function (r) {
+						// Inject it into the container
+						//TODO:Send account informaiton to server
+						var userData = r;
+						userData.provider = auth.network;
+						//Login or Signup endpoint
+						return request.post(this.endpoint + '/provider', userData).then(function (response) {
+							logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'GoogleUtil' });
+							return response;
+						})['catch'](function (errRes) {
+							logger.error({ description: 'Error requesting login.', error: errRes, func: 'signup', obj: 'Matter' });
+							return Promise.reject(errRes);
+						});
+					});
+				});
+			}
+		}, {
+			key: 'initHello',
+			value: function initHello() {
+				var _this = this;
+
+				return this.loadHello().then(function () {
+					return request.get(_this.app.endpoint + '/providers').then(function (response) {
+						logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'ProviderAuth' });
+						var provider = response[_this.provider];
+						logger.warn({ description: 'Provider found', provider: provider, func: 'login', obj: 'ProviderAuth' });
+						if (!provider) {
+							logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this.provider, provider: _this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
+							return Promise.reject({ message: 'Provider is not setup.' });
+						}
+						logger.warn({ description: 'Providers config built', providersConfig: response, func: 'login', obj: 'ProviderAuth' });
+						return window.hello.init(response, { redirect_uri: 'redirect.html' });
+					})['catch'](function (errRes) {
+						logger.error({ description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter' });
+						return Promise.reject(errRes);
+					});
+				});
+			}
+		}, {
+			key: 'login',
+			value: function login() {
+				var _this2 = this;
+
+				//Initalize Hello
+				return this.initHello().then(function () {
+					return window.hello.login(_this2.provider);
+				});
+			}
+		}, {
+			key: 'signup',
+			value: function signup() {
+				var _this3 = this;
+
+				//Initalize Hello
+				// if (!_.has(clientIds, this.provider)) {
+				// 	logger.error({description: `${this.provider} is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.`, provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth'});
+				// 	return Promise.reject();
+				// }
+				//TODO: send info to server
+				return this.initHello().then(function () {
+					return window.hello.login(_this3.provider);
+				}, function (errRes) {
+					logger.error({ description: 'Error signing up.', error: errRes, func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Error signing up.' });
+				});
+			}
+		}]);
+
+		return ProviderAuth;
+	})();
+
+	var Matter = (function () {
+		/* Constructor
+   * @param {string} appName Name of application
+   */
+
+		function Matter(appName, opts) {
+			_classCallCheck(this, Matter);
+
+			if (!appName) {
+				logger.error({ description: 'Application name requires to use Matter.', func: 'constructor', obj: 'Matter' });
+				throw new Error('Application name is required to use Matter');
+			} else {
+				this.name = appName;
+			}
+			if (opts) {
+				this.options = opts;
+			}
+		}
+
+		/* Endpoint getter
+   *
+   */
+
+		_createClass(Matter, [{
+			key: 'signup',
+
+			/* Signup
+    *
+    */
+			value: function signup(signupData) {
+				logger.log({ description: 'Signup called.', signupData: signupData, func: 'signup', obj: 'Matter' });
+				if (!signupData) {
+					logger.error({ description: 'Signup information is required to signup.', func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Login data is required to login.' });
+				}
+				if (_.isObject(signupData)) {
+					return request.post(this.endpoint + '/signup', signupData).then(function (response) {
+						logger.log({ description: 'Account request successful.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
+						if (_.has(response, 'account')) {
+							return response.account;
+						} else {
+							logger.warn({ description: 'Account was not contained in signup response.', signupData: signupData, response: response, func: 'signup', obj: 'Matter' });
+							return response;
+						}
+					})['catch'](function (errRes) {
+						logger.error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
+						return Promise.reject(errRes);
+					});
+				} else if (_.isString(signupData)) {
+					//Handle 3rd Party signups
+					var auth = new ProviderAuth({ provider: signupData, app: this });
+					return auth.signup(signupData).then(function (res) {
+						logger.info({ description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter' });
+						return Promise.resolve(res);
+					});
+				} else {
+					logger.error({ description: 'Incorrectly formatted signup information.', signupData: signupData, func: 'signup', obj: 'Matter' });
+					return Promise.reject({ message: 'Signup requires an object or a string.' });
+				}
+			}
+
+			/** Login
+    *
+    */
+		}, {
+			key: 'login',
+			value: function login(loginData) {
+				var _this4 = this;
+
+				if (!loginData) {
+					logger.error({ description: 'Username/Email and Password are required to login', func: 'login', obj: 'Matter' });
+					return Promise.reject({ message: 'Login data is required to login.' });
+				}
+				if (_.isObject(loginData)) {
+					if (!loginData.password || !loginData.username) {
+						return Promise.reject({ message: 'Username/Email and Password are required to login' });
+					}
+					//Username/Email Login
+					return request.put(this.endpoint + '/login', loginData).then(function (response) {
+						if (_.has(response, 'data') && _.has(response.data, 'status') && response.data.status == 409) {
+							logger.warn({ description: 'Account not found.', response: response, func: 'login', obj: 'Matter' });
+							return Promise.reject(response.data);
+						} else {
+							logger.log({ description: 'Successful login.', response: response, func: 'login', obj: 'Matter' });
+							if (_.has(response, 'token')) {
+								_this4.token.string = response.token;
+							}
+							if (_.has(response, 'account')) {
+								_this4.storage.setItem(config.tokenUserDataName, response.account);
+							}
+							return response.account;
+						}
+					})['catch'](function (errRes) {
+						logger.error({ description: 'Error requesting login.', error: errRes, status: errRes.status, func: 'login', obj: 'Matter' });
+						if (errRes.status == 409 || errRes.status == 400) {
+							errRes = errRes.response.text;
+						}
+						return Promise.reject(errRes);
+					});
+				} else if (_.isString(loginData)) {
+					//Provider login
+					var auth = new ProviderAuth({ provider: loginData, app: this });
+					return auth.login().then(function (res) {
+						logger.info({ description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter' });
+						return Promise.resolve(res);
+					});
+				} else {
+					logger.error({ description: 'Incorrectly fomatted login information.', signupData: signupData, func: 'login', obj: 'Matter' });
+					return Promise.reject({ message: 'Login requires an object or a string.' });
+				}
+			}
+
+			/** Logout
+    */
+		}, {
+			key: 'logout',
+			value: function logout() {
+				var _this5 = this;
+
+				//TODO: Handle logging out of providers
+				if (!this.isLoggedIn) {
+					logger.warn({ description: 'No logged in account to log out.', func: 'logout', obj: 'Matter' });
+					return Promise.reject({ message: 'No logged in account to log out.' });
+				}
+				return request.put(this.endpoint + '/logout').then(function (response) {
+					logger.log({ description: 'Logout successful.', response: response, func: 'logout', obj: 'Matter' });
+					_this5.currentUser = null;
+					_this5.token['delete']();
+					return response;
+				})['catch'](function (errRes) {
+					logger.error({ description: 'Error requesting log out: ', error: errRes, func: 'logout', obj: 'Matter' });
+					_this5.storage.removeItem(config.tokenUserDataName);
+					_this5.token['delete']();
+					return Promise.reject(errRes);
+				});
+			}
+		}, {
+			key: 'getCurrentUser',
+			value: function getCurrentUser() {
+				var _this6 = this;
+
+				if (this.storage.item(config.tokenUserDataName)) {
+					return Promise.resove(this.storage.getItem(config.tokenUserDataName));
+				} else {
+					if (this.isLoggedIn) {
+						return request.get(this.endpoint + '/user').then(function (response) {
+							//TODO: Save user information locally
+							logger.log({ description: 'Current User Request responded.', responseData: response, func: 'currentUser', obj: 'Matter' });
+							_this6.currentUser = response;
+							return response;
+						})['catch'](function (errRes) {
+							if (errRes.status == 401) {
+								logger.warn({ description: 'Called for current user without token.', error: errRes, func: 'currentUser', obj: 'Matter' });
+								token['delete']();
+								return Promise.resolve(null);
+							} else {
+								logger.error({ description: 'Error requesting current user.', error: errRes, func: 'currentUser', obj: 'Matter' });
+								return Promise.reject(errRes);
+							}
+						});
+					} else {
+						return Promise.resolve(null);
+					}
+				}
+			}
+		}, {
+			key: 'updateProfile',
+
+			/** updateProfile
+    */
+			value: function updateProfile(updateData) {
+				var _this7 = this;
+
+				if (!this.isLoggedIn) {
+					logger.error({ description: 'No current user profile to update.', func: 'updateProfile', obj: 'Matter' });
+					return Promise.reject({ message: 'Must be logged in to update profile.' });
+				}
+				//Send update request
+				logger.warn({ description: 'Calling update endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'updateProfile', obj: 'Matter' });
+				return request.put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
+					logger.log({ description: 'Update profile request responded.', responseData: response, func: 'updateProfile', obj: 'Matter' });
+					_this7.currentUser = response;
+					return response;
+				})['catch'](function (errRes) {
+					logger.error({ description: 'Error requesting current user.', error: errRes, func: 'updateProfile', obj: 'Matter' });
+					return Promise.reject(errRes);
+				});
+			}
+
+			/** updateProfile
+    */
+		}, {
+			key: 'isInGroup',
+
+			//Check that user is in a single group or in all of a list of groups
+			value: function isInGroup(checkGroups) {
+				var _this8 = this;
+
+				if (!this.isLoggedIn) {
+					logger.log({ description: 'No logged in user to check.', func: 'isInGroup', obj: 'Matter' });
+					return false;
+				}
+				//Check if user is
+				if (checkGroups && _.isString(checkGroups)) {
+					var _ret = (function () {
+						var groupName = checkGroups;
+						//Single role or string list of roles
+						var groupsArray = groupName.split(',');
+						if (groupsArray.length > 1) {
+							//String list of groupts
+							logger.info({ description: 'String list of groups.', list: groupsArray, func: 'isInGroup', obj: 'Matter' });
+							return {
+								v: _this8.isInGroups(groupsArray)
+							};
+						} else {
+							//Single group
+							var groups = _this8.token.data.groups || [];
+							logger.log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this8.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
+							return {
+								v: _.any(groups, function (group) {
+									return groupName == group.name;
+								})
+							};
+						}
+					})();
+
+					if (typeof _ret === 'object') return _ret.v;
+				} else if (checkGroups && _.isArray(checkGroups)) {
+					//Array of roles
+					//Check that user is in every group
+					logger.info({ description: 'Array of groups.', list: checkGroups, func: 'isInGroup', obj: 'Matter' });
+					return this.isInGroups(checkGroups);
+				} else {
+					return false;
+				}
+				//TODO: Handle string and array inputs
+			}
+		}, {
+			key: 'isInGroups',
+			value: function isInGroups(checkGroups) {
+				var _this9 = this;
+
+				//Check if user is in any of the provided groups
+				if (checkGroups && _.isArray(checkGroups)) {
+					return _.map(checkGroups, function (group) {
+						if (_.isString(group)) {
+							//Group is string
+							return _this9.isInGroup(group);
+						} else {
+							//Group is object
+							return _this9.isInGroup(group.name);
+						}
+					});
+				} else if (checkGroups && _.isString(checkGroups)) {
+					//TODO: Handle spaces within string list
+					var groupsArray = checkGroups.split(',');
+					if (groupsArray.length > 1) {
+						return this.isInGroups(groupsArray);
+					}
+					return this.isInGroup(groupsArray[0]);
+				} else {
+					logger.error({ description: 'Invalid groups list.', func: 'isInGroups', obj: 'Matter' });
+				}
+			}
+		}, {
+			key: 'endpoint',
+			get: function get() {
+				var serverUrl = config.serverUrl;
+				if (_.has(this, 'options') && this.options.localServer) {
+					serverUrl = 'http://localhost:4000';
+					logger.info({ description: 'LocalServer option was set to true. Now server url is local server.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+				}
+				if (this.name == 'tessellate') {
+					//Remove url if host is server
+					if (typeof window !== 'undefined' && _.has(window, 'location') && window.location.host === serverUrl) {
+						serverUrl = '';
+						logger.info({ description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+					}
+				} else {
+					serverUrl = serverUrl + '/apps/' + this.name;
+					logger.log({ description: 'Server url set.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+				}
+				return serverUrl;
+			}
+		}, {
+			key: 'currentUser',
+			set: function set(userData) {
+				logger.log({ description: 'Current User set.', user: userData, func: 'currentUser', obj: 'Matter' });
+				this.storage.setItem(config.tokenUserDataName, userData);
+			},
+			get: function get() {
+				if (this.storage.getItem(config.tokenUserDataName)) {
+					return this.storage.getItem(config.tokenUserDataName);
+				} else {
+					return null;
+				}
+			}
+		}, {
+			key: 'storage',
+			get: function get() {
+				return storage;
+			}
+
+			/** updateProfile
+    */
+		}, {
+			key: 'token',
+			get: function get() {
+				return token;
+			}
+		}, {
+			key: 'utils',
+			get: function get() {
+				return { logger: logger, request: request, storage: storage, dom: domUtil };
+			}
+		}, {
+			key: 'isLoggedIn',
+			get: function get() {
+				return this.token.string ? true : false;
+			}
+		}]);
+
+		return Matter;
+	})();
+
+	;
+
+	return Matter;
+});
+
+
+},{"jwt-decode":255,"lodash":258,"superagent":259}],254:[function(require,module,exports){
+var Base64 = require('Base64');
+
+module.exports = function(str) {
+  var output = str.replace(/-/g, "+").replace(/_/g, "/");
+  switch (output.length % 4) {
+    case 0:
+      break;
+    case 2:
+      output += "==";
+      break;
+    case 3:
+      output += "=";
+      break;
+    default:
+      throw "Illegal base64url string!";
+  }
+
+  var result = Base64.atob(output);
+
+  try{
+    return decodeURIComponent(escape(result));
+  } catch (err) {
+    return result;
+  }
+};
+
+},{"Base64":257}],255:[function(require,module,exports){
+'use strict';
+
+var base64_url_decode = require('./base64_url_decode');
+var json_parse = require('./json_parse');
+
+module.exports = function (token) {
+  if (!token) {
+    throw new Error('Invalid token specified');
+  }
+  
+  return json_parse(base64_url_decode(token.split('.')[1]));
+};
+
+},{"./base64_url_decode":254,"./json_parse":256}],256:[function(require,module,exports){
+module.exports = function (str) {
+  var parsed;
+  if (typeof JSON === 'object') {
+    parsed = JSON.parse(str);
+  } else {
+    parsed = eval('(' + str + ')');
+  }
+  return parsed;
+};
+
+},{}],257:[function(require,module,exports){
+;(function () {
+
+  var
+    object = typeof exports != 'undefined' ? exports : this, // #8: web workers
+    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
+    INVALID_CHARACTER_ERR = (function () {
+      // fabricate a suitable error object
+      try { document.createElement('$'); }
+      catch (error) { return error; }}());
+
+  // encoder
+  // [https://gist.github.com/999166] by [https://github.com/nignag]
+  object.btoa || (
+  object.btoa = function (input) {
+    for (
+      // initialize result and counter
+      var block, charCode, idx = 0, map = chars, output = '';
+      // if the next input index does not exist:
+      //   change the mapping table to "="
+      //   check if d has no fractional digits
+      input.charAt(idx | 0) || (map = '=', idx % 1);
+      // "8 - idx % 1 * 8" generates the sequence 2, 4, 6, 8
+      output += map.charAt(63 & block >> 8 - idx % 1 * 8)
+    ) {
+      charCode = input.charCodeAt(idx += 3/4);
+      if (charCode > 0xFF) throw INVALID_CHARACTER_ERR;
+      block = block << 8 | charCode;
+    }
+    return output;
+  });
+
+  // decoder
+  // [https://gist.github.com/1020396] by [https://github.com/atk]
+  object.atob || (
+  object.atob = function (input) {
+    input = input.replace(/=+$/, '')
+    if (input.length % 4 == 1) throw INVALID_CHARACTER_ERR;
+    for (
+      // initialize result and counters
+      var bc = 0, bs, buffer, idx = 0, output = '';
+      // get next character
+      buffer = input.charAt(idx++);
+      // character found in table? initialize bit storage and add its ascii value;
+      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+        // and if not first of each 4 characters,
+        // convert the first 8 bits to one ascii character
+        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+    ) {
+      // try to find character in table (0-63, not found => -1)
+      buffer = chars.indexOf(buffer);
+    }
+    return output;
+  });
+
+}());
+
+},{}],258:[function(require,module,exports){
+arguments[4][237][0].apply(exports,arguments)
+},{"dup":237}],259:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -43938,7 +46660,7 @@ request.put = function(url, data, fn){
 
 module.exports = request;
 
-},{"emitter":239,"reduce":240}],239:[function(require,module,exports){
+},{"emitter":260,"reduce":261}],260:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -44104,7 +46826,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],240:[function(require,module,exports){
+},{}],261:[function(require,module,exports){
 
 /**
  * Reduce `arr` with `fn`.
@@ -44129,1828 +46851,5 @@ module.exports = function(arr, fn, initial){
   
   return curr;
 };
-},{}],241:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var _classesAccount = require('../classes/Account');
-
-var _classesAccount2 = _interopRequireDefault(_classesAccount);
-
-var logger = _classesMatter2['default'].utils.logger;
-//Actions for accounts list
-
-var AccountsAction = (function () {
-	function AccountsAction(actionData) {
-		_classCallCheck(this, AccountsAction);
-
-		//Check to see if action is for a specific app
-		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
-			this.app = actionData.app;
-			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			this.app = { name: actionData };
-			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
-		}
-		logger.info({ description: 'New Accounts action.', action: this, providedData: actionData, func: 'constructor', obj: 'AccountsAction' });
-	}
-
-	_createClass(AccountsAction, [{
-		key: 'get',
-
-		//Get accounts or single application
-		value: function get() {
-			logger.log({ description: 'Accounts get called.', func: 'get', obj: 'AccountsAction' });
-			return _classesMatter2['default'].utils.request.get(this.accountsEndpoint).then(function (response) {
-				logger.info({ description: 'Accounts loaded successfully.', func: 'get', obj: 'AccountsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.info({ description: 'Error getting accounts.', error: errRes, func: 'get', obj: 'AccountsAction' });
-				return Promise.reject(errRes.message || 'Error getting accounts.');
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(accountData) {
-			logger.info({ description: 'Account add called.', accountData: accountData, func: 'add', obj: 'AccountsAction' });
-			return this.utils.request.post(this.accountsEndpoint, accountData).then(function (response) {
-				logger.info({ description: 'Account added successfully.', response: response, newAccount: new _classesAccount2['default'](response), func: 'add', obj: 'AccountsAction' });
-				return new _classesAccount2['default'](response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Account add called.', error: errRes, accountData: accountData, func: 'add', obj: 'AccountsAction' });
-				return Promise.reject(errRes.message || 'Error adding account.');
-			});
-		}
-
-		//Search with partial of accountname
-	}, {
-		key: 'search',
-		value: function search(query) {
-			logger.log({ description: 'Accounts search called.', query: query, func: 'search', obj: 'AccountsAction' });
-			var searchEndpoint = this.accountsEndpoint + '/search/';
-			if (query && _lodash2['default'].isString(query)) {
-				searchEndpoint += query;
-			}
-			if (!query || query == '') {
-				logger.log({ description: 'Null query, returning empty array.', func: 'search', obj: 'AccountsAction' });
-				return Promise.resolve([]);
-			}
-			return _classesMatter2['default'].utils.request.get(searchEndpoint).then(function (response) {
-				logger.log({ description: 'Accounts search responded.', response: response, query: query, func: 'search', obj: 'AccountsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error searching Accounts.', error: errRes, query: query, func: 'search', obj: 'AccountsAction' });
-				return Promise.reject(errRes.message || 'Error searching accounts.');
-			});
-		}
-	}, {
-		key: 'accountsEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'accounts'];
-			//Check for app account action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				//Splice apps, appName into index 1
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Accounts Endpoint built.', endpoint: endpointStr, func: 'accountsEndpoint', obj: 'AccountsAction' });
-			return endpointStr;
-		}
-	}]);
-
-	return AccountsAction;
-})();
-
-exports['default'] = AccountsAction;
-module.exports = exports['default'];
-
-},{"../classes/Account":246,"../classes/Matter":252,"../config":254,"lodash":237}],242:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var request = _classesMatter2['default'].utils.request;
-var logger = _classesMatter2['default'].utils.logger;
-
-//Actions for applications list
-
-var AppsAction = (function () {
-	function AppsAction() {
-		_classCallCheck(this, AppsAction);
-	}
-
-	_createClass(AppsAction, [{
-		key: 'get',
-
-		//Get applications or single application
-		value: function get() {
-			logger.debug({ description: 'Apps get called.', action: this, func: 'get', obj: 'AppsAction' });
-			return request.get(this.appsEndpoint).then(function (response) {
-				logger.info({ description: 'Apps data loaded successfully.', response: response, func: 'get', obj: 'AppsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting apps data.', error: errRes, func: 'get', obj: 'AppsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(appData) {
-			logger.debug({ description: 'Application add called.', appData: appData, func: 'add', obj: 'AppsAction' });
-			return _classesMatter2['default'].utils.request.post(this.appsEndpoint, appData).then(function (response) {
-				logger.info({ description: 'Application added successfully.', response: response, func: 'add', obj: 'AppsAction' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding app.', error: errRes, func: 'add', obj: 'AppsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'appsEndpoint',
-
-		//Call matter with name and settings
-		get: function get() {
-			return _classesMatter2['default'].endpoint + '/apps';
-		}
-	}]);
-
-	return AppsAction;
-})();
-
-exports['default'] = AppsAction;
-module.exports = exports['default'];
-
-},{"../classes/Matter":252,"../config":254}],243:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var request = _classesMatter2['default'].utils.request;
-var logger = _classesMatter2['default'].utils.logger;
-
-//Actions for directories list
-
-var DirectoriesAction = (function () {
-	function DirectoriesAction(actionData) {
-		_classCallCheck(this, DirectoriesAction);
-
-		//Check to see if action is for a specific app
-		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
-			this.app = actionData.app;
-			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			this.app = { name: actionData };
-			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
-		}
-		logger.info({ description: 'New directories action.', action: this, providedData: actionData, func: 'constructor', obj: 'DirectoriesAction' });
-	}
-
-	_createClass(DirectoriesAction, [{
-		key: 'get',
-
-		//Get users or single application
-		value: function get() {
-			logger.debug({ description: 'Directories get called.', action: this, func: 'get', obj: 'DirectoriesAction' });
-			return request.get(this.directoriesEndpoint).then(function (response) {
-				logger.info({ descrption: 'Directories loaded successfully.', response: response, func: 'get', obj: 'DirectoriesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ descrption: 'error getting users', error: errRes, func: 'get', obj: 'DirectoriesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(appData) {
-			logger.debug({ description: 'Add directory called.', action: this, appData: appData, func: 'get', obj: 'DirectoriesAction' });
-			return request.post(this.directoriesEndpoint, appData).then(function (response) {
-				logger.log({ description: 'Application added successfully.', response: response, func: 'add', obj: 'DirectoriesAction' });
-				//TODO: Return list of group objects
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding group.', error: errRes, func: 'add', obj: 'DirectoriesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Search with partial of directory name
-	}, {
-		key: 'search',
-		value: function search(query) {
-			var searchEndpoint = this.directoriesEndpoint + '/search/';
-			if (query && _lodash2['default'].isString(query)) {
-				searchEndpoint += query;
-			}
-			if (!query || query == '') {
-				logger.debug({ description: 'Null query, returning empty array.', func: 'search', obj: 'DirectoriesAction' });
-				return Promise.resolve([]);
-			}
-			return request.get(searchEndpoint).then(function (response) {
-				logger.log({ description: 'Found directories based on search.', response: response, func: 'search', obj: 'DirectoriesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error searching directories.', error: errRes, func: 'search', obj: 'DirectoriesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'directoriesEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'directories'];
-			//Check for app groups action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Directories endpoint built.', endpoint: endpointStr, func: 'directoriesEndpoint', obj: 'DirectoriesAction' });
-			return endpointStr;
-		}
-	}]);
-
-	return DirectoriesAction;
-})();
-
-exports['default'] = DirectoriesAction;
-module.exports = exports['default'];
-
-},{"../classes/Matter":252,"../config":254,"lodash":237}],244:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var request = _classesMatter2['default'].utils.request;
-var logger = _classesMatter2['default'].utils.logger;
-
-//Actions for users list
-
-var GroupsAction = (function () {
-	function GroupsAction(actionData) {
-		_classCallCheck(this, GroupsAction);
-
-		//Check to see if action is for a specific app
-		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'app')) {
-			this.app = actionData.app;
-			logger.log({ description: 'Provided app data set to app parameter.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			this.app = { name: actionData };
-			logger.log({ description: 'App name provided as string was set.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
-		}
-		logger.info({ description: 'New Groups action.', action: this, providedData: actionData, func: 'constructor', obj: 'GroupsAction' });
-	}
-
-	_createClass(GroupsAction, [{
-		key: 'get',
-
-		//Get users or single application
-		value: function get() {
-			logger.debug({ description: 'Get group called.', func: 'get', obj: 'GroupsAction' });
-			return request.get(this.groupsEndpoint).then(function (response) {
-				logger.info({ description: 'Groups loaded successfully.', response: response, func: 'get', obj: 'GroupsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.info({ description: 'Error getting groups.', error: errRes, func: 'get', obj: 'GroupsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(groupData) {
-			var newGroupData = groupData;
-			logger.debug({ description: 'Add group called.', groupData: groupData, func: 'add', obj: 'GroupsAction' });
-			if (_lodash2['default'].isString(groupData)) {
-				//Group data is string
-				newGroupData = { name: groupData };
-			}
-			logger.debug({ description: 'Add group called.', newGroupData: newGroupData, func: 'add', obj: 'GroupsAction' });
-			return request.post(this.groupsEndpoint, newGroupData).then(function (response) {
-				logger.log({ description: 'Group added to application successfully.', response: response, func: 'add', obj: 'GroupsAction' });
-				//TODO: Return list of group objects
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding group.', error: errRes, func: 'add', obj: 'GroupsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Search with partial of username
-	}, {
-		key: 'search',
-		value: function search(query) {
-			logger.debug({ description: 'Add group called.', groupData: groupData, func: 'search', obj: 'GroupsAction' });
-			if (!query || query == '' || !_lodash2['default'].isString(query)) {
-				logger.log({ description: 'Null or invalid query, returning empty array.', func: 'search', obj: 'GroupsAction' });
-				return Promise.resolve([]);
-			}
-			var searchEndpoint = this.groupsEndpoint + '/search/' + query;
-			logger.debug({ description: 'Search endpoint created.', endpoint: searchEndpoint, func: 'search', obj: 'GroupsAction' });
-			return request.get(searchEndpoint).then(function (response) {
-				logger.log({ description: 'Found groups based on search.', response: response, func: 'search', obj: 'GroupsAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error searching groups.', error: errRes, func: 'search', obj: 'GroupsAction' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'groupsEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'groups'];
-			//Check for app groups action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Groups Endpoint built.', endpoint: endpointStr, func: 'groupsEndpoint', obj: 'GroupsAction' });
-			return endpointStr;
-		}
-	}]);
-
-	return GroupsAction;
-})();
-
-exports['default'] = GroupsAction;
-module.exports = exports['default'];
-
-},{"../classes/Matter":252,"../config":254,"lodash":237}],245:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var logger = _classesMatter2['default'].utils.logger;
-var request = _classesMatter2['default'].utils.request;
-
-//Actions for templates list
-
-var TemplatesAction = (function () {
-	function TemplatesAction() {
-		_classCallCheck(this, TemplatesAction);
-	}
-
-	_createClass(TemplatesAction, [{
-		key: 'get',
-
-		//Get templates or single application
-		value: function get() {
-			logger.log({ description: 'Get template called.', func: 'get', obj: 'TemplatesAction' });
-			return request.get(this.templatesEndpoint).then(function (response) {
-				logger.log({ description: 'Templates loaded.', response: response, func: 'get', obj: 'TemplatesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting templates.', error: errRes, func: 'get', obj: 'TemplatesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Add an application
-	}, {
-		key: 'add',
-		value: function add(appData) {
-			logger.log({ description: 'Add template called.', func: 'add', obj: 'TemplatesAction' });
-			return request.post(this.templatesEndpoint, appData).then(function (response) {
-				logger.log({ description: 'Templates added successfully.', func: 'add', obj: 'TemplatesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding template.', error: errRes, func: 'add', obj: 'TemplatesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Search with partial of username
-	}, {
-		key: 'search',
-		value: function search(query) {
-			logger.log({ description: 'Search template called.', query: query, func: 'search', obj: 'TemplatesAction' });
-			var searchEndpoint = this.templatesEndpoint + '/search/';
-			if (query && _lodash2['default'].isString(query)) {
-				searchEndpoint += query;
-			}
-			logger.log({ description: 'Search endpoint created.', endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
-			return request.get(searchEndpoint).then(function (response) {
-				logger.log({ description: 'Template(s) found successfully.', response: response, endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.log({ description: 'Error searching for templates.', query: query, error: errRes, endpoint: searchEndpoint, func: 'search', obj: 'TemplatesAction' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'templatesEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'templates'];
-			//Check for app groups action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				// endpointArray.splice(1, 0, 'apps', this.app.name);
-				logger.log({ description: 'Templates action is not currently supported for a specific application.', func: 'accountsEndpoint', obj: 'AccountsAction' });
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Templates endpoint built.', endpoint: endpointStr, func: 'templatesEndpoint', obj: 'TemplatesAction' });
-			return endpointStr;
-		}
-	}]);
-
-	return TemplatesAction;
-})();
-
-exports['default'] = TemplatesAction;
-module.exports = exports['default'];
-
-},{"../classes/Matter":252,"../config":254,"lodash":237}],246:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _classesMatter = require('../classes/Matter');
-
-var _classesMatter2 = _interopRequireDefault(_classesMatter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var request = _classesMatter2['default'].utils.request;
-var logger = _classesMatter2['default'].utils.logger;
-
-//Actions for specific user
-
-var Account = (function () {
-	function Account(accountData) {
-		_classCallCheck(this, Account);
-
-		//Call matter with name and settings
-		if (accountData && _lodash2['default'].isObject(accountData) && _lodash2['default'].has(accountData, 'username')) {
-			_lodash2['default'].extend(this, accountData);
-		} else if (accountData && _lodash2['default'].isString(accountData)) {
-			this.username = accountData;
-		} else {
-			logger.error({ description: 'AccountData is required to start an AccountAction', func: 'constructor', obj: 'Account' });
-			throw new Error('username is required to start an AccountAction');
-		}
-	}
-
-	//Build endpoint based on accountData
-
-	_createClass(Account, [{
-		key: 'get',
-
-		//Get a user
-		value: function get() {
-			logger.debug({ description: 'Account data loaded successfully.', func: 'get', obj: 'Account' });
-			return request.get(this.accountEndpoint).then(function (response) {
-				logger.info({ description: 'Account data loaded successfully.', response: response, func: 'get', obj: 'Account' });
-				return new Account(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting user.', error: errRes, func: 'get', obj: 'Account' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Update a Account
-	}, {
-		key: 'update',
-		value: function update(accountData) {
-			logger.debug({ description: 'Update user called.', accountData: accountData, func: 'update', obj: 'Account' });
-			return request.put(this.accountEndpoint, accountData).then(function (response) {
-				logger.info({ description: 'Account updated successfully.', func: 'update', obj: 'Account' });
-				//TODO: Extend this with current info before returning
-				return new Account(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating user.', func: 'update', obj: 'Account' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Delete a Account
-	}, {
-		key: 'del',
-		value: function del(accountData) {
-			logger.debug({ description: 'Delete user called.', func: 'del', obj: 'Account' });
-			return request['delete'](this.accountEndpoint, accountData).then(function (response) {
-				logger.info({ description: 'Delete user successful.', response: response, func: 'del', obj: 'Account' });
-				return new Account(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error deleting user.', accountData: accountData, error: errRes, func: 'del', obj: 'Account' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'accountEndpoint',
-		get: function get() {
-			var endpointArray = [_classesMatter2['default'].endpoint, 'users', this.username];
-			//Check for app account action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Account Endpoint built.', endpoint: endpointStr, func: 'accountEndpoint', obj: 'Account' });
-			return endpointStr;
-		}
-	}]);
-
-	return Account;
-})();
-
-exports['default'] = Account;
-module.exports = exports['default'];
-
-},{"../classes/Matter":252,"../config":254,"lodash":237}],247:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-//Internal libs and config
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-//Actions and Classes
-
-var _actionsGroupsAction = require('../actions/GroupsAction');
-
-var _actionsGroupsAction2 = _interopRequireDefault(_actionsGroupsAction);
-
-var _Group2 = require('./Group');
-
-var _Group3 = _interopRequireDefault(_Group2);
-
-var _actionsDirectoriesAction = require('../actions/DirectoriesAction');
-
-var _actionsDirectoriesAction2 = _interopRequireDefault(_actionsDirectoriesAction);
-
-var _Directory2 = require('./Directory');
-
-var _Directory3 = _interopRequireDefault(_Directory2);
-
-var _actionsAccountsAction = require('../actions/AccountsAction');
-
-var _actionsAccountsAction2 = _interopRequireDefault(_actionsAccountsAction);
-
-var _Account2 = require('./Account');
-
-var _Account3 = _interopRequireDefault(_Account2);
-
-var _Files = require('./Files');
-
-var _Files2 = _interopRequireDefault(_Files);
-
-var _File2 = require('./File');
-
-var _File3 = _interopRequireDefault(_File2);
-
-//External Libs
-
-var _firebase = require('firebase');
-
-var _firebase2 = _interopRequireDefault(_firebase);
-
-var _awsSdk = require('aws-sdk');
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-//Convenience vars
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-/**
- * Application class.
- *
- */
-
-var Application = (function () {
-	function Application(appData) {
-		_classCallCheck(this, Application);
-
-		//Setup application data based on input
-		if (appData && _lodash2['default'].isObject(appData)) {
-			_lodash2['default'].extend(this, appData);
-		} else if (appData && _lodash2['default'].isString(appData)) {
-			this.name = appData;
-		}
-		if (_firebase2['default'] && _lodash2['default'].has(_config2['default'], 'fbUrl') && _lodash2['default'].has(this, 'name')) {
-			this.fbRef = new _firebase2['default'](_config2['default'].fbUrl + this.name);
-		}
-		// logger.debug({description: 'Application object created.', application: this, func: 'constructor', obj: 'Application'});
-	}
-
-	_createClass(Application, [{
-		key: 'get',
-
-		//Get applications or single application
-		value: function get() {
-			logger.debug({ description: 'Application get called.', func: 'get', obj: 'Application' });
-			return request.get(this.appEndpoint).then(function (response) {
-				logger.info({ description: 'Application loaded successfully.', response: response, application: new Application(response), func: 'get', obj: 'Application' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting Application.', message: errRes.response.text, error: errRes, func: 'get', obj: 'Application' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Update an application
-	}, {
-		key: 'update',
-		value: function update(appData) {
-			logger.debug({ description: 'Application update called.', func: 'update', obj: 'Application' });
-			return request.put(this.appEndpoint, appData).then(function (response) {
-				logger.info({ description: 'Application updated successfully.', response: response, func: 'update', obj: 'Application' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating application.', error: errRes, func: 'update', obj: 'Application' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-	}, {
-		key: 'addStorage',
-		value: function addStorage() {
-			logger.debug({ description: 'Application add storage called.', application: this, func: 'addStorage', obj: 'Application' });
-			return request.post(this.appEndpoint + '/storage', appData).then(function (response) {
-				logger.info({ description: 'Storage successfully added to application.', response: response, application: new Application(response), func: 'addStorage', obj: 'Application' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error adding storage to application.', error: errRes, func: 'addStorage', obj: 'Application' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-	}, {
-		key: 'applyTemplate',
-		value: function applyTemplate() {
-			var _this = this;
-
-			logger.error({ description: 'Applying templates to existing applications is not currently supported.', func: 'applyTemplate', obj: 'Application' });
-			return request.post(this.appEndpoint, appData).then(function (response) {
-				logger.info({ description: 'Template successfully applied to application.', response: response, application: _this, func: 'applyTemplate', obj: 'Application' });
-				return new Application(response);
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error applying template to application.', error: errRes, application: _this, func: 'applyTemplate', obj: 'Application' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Files object that contains files methods
-	}, {
-		key: 'File',
-		value: function File(fileData) {
-			logger.debug({ description: 'Applications file action called.', fileData: fileData, application: this, func: 'file', obj: 'Application' });
-			return new _File3['default']({ app: this, fileData: fileData });
-		}
-	}, {
-		key: 'User',
-		value: function User(userData) {
-			logger.debug({ description: 'Applications user action called.', userData: userData, application: this, func: 'user', obj: 'Application' });
-			return new _Account3['default']({ app: this, userData: userData });
-		}
-	}, {
-		key: 'Account',
-		value: function Account(userData) {
-			logger.debug({ description: 'Applications account action called.', userData: userData, application: this, func: 'user', obj: 'Application' });
-			return new _Account3['default']({ app: this, userData: userData });
-		}
-	}, {
-		key: 'Group',
-		value: function Group(groupData) {
-			logger.debug({ description: 'Applications group action called.', groupData: groupData, application: this, func: 'group', obj: 'Application' });
-			return new _Group3['default']({ app: this, groupData: groupData });
-		}
-	}, {
-		key: 'Directory',
-		value: function Directory(directoryData) {
-			logger.debug({ description: 'Applications directory action called.', directoryData: directoryData, application: this, func: 'directory', obj: 'Application' });
-			return new _Directory3['default']({ app: this, directoryData: directoryData });
-		}
-	}, {
-		key: 'appEndpoint',
-		get: function get() {
-			return _Matter2['default'].endpoint + '/apps/' + this.name;
-		}
-	}, {
-		key: 'Files',
-		get: function get() {
-			logger.debug({ description: 'Applications files action called.', application: this, func: 'files', obj: 'Application' });
-			return new _Files2['default']({ app: this });
-		}
-	}, {
-		key: 'Users',
-		get: function get() {
-			logger.debug({ description: 'Applications users action called.', application: this, func: 'user', obj: 'Application' });
-			return new _actionsAccountsAction2['default']({ app: this });
-		}
-	}, {
-		key: 'Accounts',
-		get: function get() {
-			logger.debug({ description: 'Applications account action called.', application: this, func: 'user', obj: 'Application' });
-			return new _actionsAccountsAction2['default']({ app: this });
-		}
-	}, {
-		key: 'Groups',
-		get: function get() {
-			logger.debug({ description: 'Applications groups action called.', application: this, func: 'groups', obj: 'Application' });
-			return new _actionsGroupsAction2['default']({ app: this });
-		}
-	}, {
-		key: 'Directories',
-		get: function get() {
-			logger.debug({ description: 'Applications directories action called.', application: this, func: 'directories', obj: 'Application' });
-			return new _actionsDirectoriesAction2['default']({ app: this });
-		}
-	}]);
-
-	return Application;
-})();
-
-exports['default'] = Application;
-module.exports = exports['default'];
-
-},{"../actions/AccountsAction":241,"../actions/DirectoriesAction":243,"../actions/GroupsAction":244,"../config":254,"./Account":246,"./Directory":248,"./File":249,"./Files":250,"./Group":251,"./Matter":252,"aws-sdk":1,"firebase":231,"lodash":237}],248:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-//Actions for specific directory
-
-var Directory = (function () {
-	function Directory(actionData) {
-		_classCallCheck(this, Directory);
-
-		if (actionData && _lodash2['default'].isObject(actionData) && (_lodash2['default'].has(actionData, 'directoryName') || _lodash2['default'].has(actionData, 'name'))) {
-			//Data is object containing directory data
-			this.name = actionData.directoryName || actionData.name;
-			if (_lodash2['default'].has(actionData, 'appName')) {
-				this.appName = actionData.appName;
-			}
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			//Data is string name
-			this.name = actionData;
-		} else {
-			logger.error({ description: 'Action data object with name is required to start a Directory Action.', func: 'constructor', obj: 'Directory' });
-			throw new Error('Directory Data object with name is required to start a Directory action.');
-		}
-	}
-
-	_createClass(Directory, [{
-		key: 'get',
-
-		//Get userlications or single userlication
-		value: function get() {
-			return request.get(this.directoryEndpoint).then(function (response) {
-				logger.info({ description: 'Directory data loaded successfully.', directoryData: directoryData, response: response, func: 'get', obj: 'Directory' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.info({ description: 'Error getting directory.', directoryData: directoryData, error: errRes, func: 'get', obj: 'Directory' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Update an Directory
-	}, {
-		key: 'update',
-		value: function update(directoryData) {
-			logger.debug({ description: 'Directory updated called.', directoryData: directoryData, func: 'update', obj: 'Directory' });
-			return _Matter2['default'].utils.request.put(this.directoryEndpoint, directoryData).then(function (response) {
-				logger.info({ description: 'Directory updated successfully.', directoryData: directoryData, response: response, func: 'update', obj: 'Directory' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating directory.', directoryData: directoryData, error: errRes, func: 'update', obj: 'Directory' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Delete an Directory
-	}, {
-		key: 'del',
-		value: function del(directoryData) {
-			logger.debug({ description: 'Delete directory called.', directoryData: directoryData, func: 'del', obj: 'Directory' });
-			return request['delete'](this.directoryEndpoint, userData).then(function (response) {
-				logger.info({ description: 'Directory deleted successfully.', directoryData: directoryData, func: 'del', obj: 'Directory' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error deleting directory.', directoryData: directoryData, error: errRes, func: 'del', obj: 'Directory' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'directoryEndpoint',
-		get: function get() {
-			var endpointArray = [_Matter2['default'].endpoint, 'directories', this.name];
-			//Check for app account action
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Directory endpoint built.', endpoint: endpointStr, func: 'directoryEndpoint', obj: 'Directory' });
-			return endpointStr;
-		}
-	}]);
-
-	return Directory;
-})();
-
-exports['default'] = Directory;
-module.exports = exports['default'];
-
-},{"../config":254,"./Matter":252,"lodash":237}],249:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _awsSdk = require('aws-sdk');
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-//Convenience vars
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-var File = (function () {
-	function File(fileData) {
-		_classCallCheck(this, File);
-
-		if (fileData && _lodash2['default'].isObject(fileData) && _lodash2['default'].has(fileData, ['path', 'app'])) {
-			this.path = fileData.path;
-			this.app = fileData.app;
-			this.pathArray = this.path.split('/');
-			//Get name from data or from pathArray
-			this.name = _lodash2['default'].has(fileData, 'name') ? fileData.name : this.pathArray[this.pathArray.length - 1];
-		} else if (fileData && !_lodash2['default'].isObject(fileData)) {
-			logger.error({ description: 'File data is not an object. File data must be an object that includes path and appName.', func: 'constructor', obj: 'File' });
-			//TODO: Get appName from path data?
-			throw new Error('File data must be an object that includes path and appName.');
-		} else {
-			logger.error({ description: 'File data include path and app is needed to create a File action.', func: 'constructor', obj: 'File' });
-			throw new Error('File data with path and app is needed to create file action.');
-		}
-		this.type = 'file';
-		logger.debug({ description: 'File object constructed.', file: this, func: 'constructor', obj: 'File' });
-	}
-
-	_createClass(File, [{
-		key: 'get',
-		value: function get() {
-			if (!this.app || !this.app.frontend) {
-				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'File' });
-				return Promise.reject({ message: 'Front end data is required to get file.' });
-			} else {
-				var saveParams = {
-					Bucket: this.app.frontend.bucketName,
-					Key: this.path
-				};
-				//Set contentType from fileData to ContentType parameter of new object
-				if (fileData.contentType) {
-					saveParams.ContentType = fileData.contentType;
-				}
-				logger.debug({ description: 'File get params built.', saveParams: saveParams, fileData: fileData, func: 'get', obj: 'File' });
-				return s3.getObject(saveParams, function (err, data) {
-					//[TODO] Add putting object ACL (make public)
-					if (!err) {
-						logger.error({ description: 'File loaded successfully.', fileData: data, func: 'get', obj: 'File' });
-						return data;
-					} else {
-						logger.error({ description: 'Error loading file from S3.', error: err, func: 'get', obj: 'File' });
-						return Promise.reject(err);
-					}
-				});
-			}
-		}
-
-		//Alias for get
-	}, {
-		key: 'open',
-		value: function open() {
-			return this.get;
-		}
-	}, {
-		key: 'publish',
-		value: function publish(fileData) {
-			//TODO: Publish file to application
-			logger.debug({ description: 'File publish called.', file: this, fileData: fileData, func: 'publish', obj: 'File' });
-			if (!this.app.frontend) {
-				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'publish', obj: 'File' });
-				return Promise.reject({ message: 'Front end data is required to publish file.' });
-			} else {
-				if (!_lodash2['default'].has(fileData, ['content', 'path'])) {
-					logger.error({ description: 'File data including path and content required to publish.', func: 'publish', obj: 'File' });
-					return Promise.reject({ message: 'File data including path and content required to publish.' });
-				}
-				var saveParams = {
-					Bucket: this.app.frontend.bucketName,
-					Key: fileData.path,
-					Body: fileData.content,
-					ACL: 'public-read'
-				};
-				//Set contentType from fileData to ContentType parameter of new object
-				if (fileData.contentType) {
-					saveParams.ContentType = fileData.contentType;
-				}
-				//If AWS Credential do not exist, set them
-				if (typeof _awsSdk2['default'].config.credentials == 'undefined' || !_awsSdk2['default'].config.credentials) {
-					logger.debug({ description: 'AWS creds do not exist, so they are being set.', func: 'publish', obj: 'File' });
-					setAWSConfig();
-				}
-				logger.debug({ description: 'File publish params built.', saveParams: saveParams, fileData: fileData, func: 'publish', obj: 'File' });
-				return s3.putObject(saveParams, function (err, data) {
-					//[TODO] Add putting object ACL (make public)
-					if (!err) {
-						logger.error({ description: 'File saved successfully.', fileData: data, func: 'publish', obj: 'File' });
-						return data;
-					} else {
-						logger.error({ description: 'Error saving file to S3.', error: err, func: 'publish', obj: 'File' });
-						return Promise.reject(err);
-					}
-				});
-			}
-		}
-	}, {
-		key: 'getTypes',
-		value: function getTypes() {
-			//Get content type and file type from extension
-		}
-	}, {
-		key: 'openWithFirepad',
-		value: function openWithFirepad(divId) {
-			//TODO:Create new Firepad instance within div
-		}
-	}, {
-		key: 'getDefaultContent',
-		value: function getDefaultContent() {}
-	}, {
-		key: 'ext',
-		get: function get() {
-			var re = /(?:\.([^.]+))?$/;
-			this.ext = re.exec(this.name)[1];
-		}
-	}]);
-
-	return File;
-})();
-
-exports['default'] = File;
-
-//------------------ Utility Functions ------------------//
-
-// AWS Config
-function setAWSConfig() {
-	_awsSdk2['default'].config.update({
-		credentials: new _awsSdk2['default'].CognitoIdentityCredentials({
-			IdentityPoolId: _config2['default'].aws.cognito.poolId
-		}),
-		region: _config2['default'].aws.region
-	});
-}
-module.exports = exports['default'];
-
-},{"../config":254,"./Matter":252,"aws-sdk":1,"lodash":237}],250:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _awsSdk = require('aws-sdk');
-
-var _awsSdk2 = _interopRequireDefault(_awsSdk);
-
-//Convenience vars
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-var Files = (function () {
-	function Files(filesData) {
-		_classCallCheck(this, Files);
-
-		if (filesData && _lodash2['default'].isObject(filesData) && (_lodash2['default'].has(filesData, 'appName') || _lodash2['default'].has(filesData, 'name'))) {
-			//Data is object containing directory data
-			this.app = filesData.filesData;
-		} else if (filesData && _lodash2['default'].isString(filesData)) {
-			//Data is string name
-			this.app = { name: filesData };
-		} else if (filesData && _lodash2['default'].isArray(filesData)) {
-			//TODO: Handle an array of files being passed as data
-			logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
-			throw new Error('Files Data object with name is required to start a Files action.');
-		} else {
-			logger.error({ description: 'Action data object with name is required to start a Files Action.', func: 'constructor', obj: 'Files' });
-			throw new Error('Files Data object with name is required to start a Files action.');
-		}
-		logger.debug({ description: 'Files object constructed.', func: 'constructor', obj: 'Files' });
-	}
-
-	_createClass(Files, [{
-		key: 'publish',
-		value: function publish() {
-			//TODO: Publish all files
-		}
-	}, {
-		key: 'get',
-		value: function get() {
-			var _this = this;
-
-			if (!this.app || !this.app.frontend || !this.app.frontend.bucketName) {
-				logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files' });
-				return Promise.reject({ message: 'Bucket name required to get objects' });
-			} else {
-				var _ret = (function () {
-					//If AWS Credential do not exist, set them
-					if (typeof _awsSdk2['default'].config.credentials == 'undefined' || !_awsSdk2['default'].config.credentials) {
-						// logger.info('AWS creds are being updated to make request');
-						setAWSConfig();
-					}
-					var s3 = new _awsSdk2['default'].S3();
-					var listParams = { Bucket: _this.app.frontend.bucketName };
-					return {
-						v: new Promise(function (resolve, reject) {
-							s3.listObjects(listParams, function (err, data) {
-								if (!err) {
-									logger.info({ description: 'Files list loaded.', filesData: data, func: 'get', obj: 'Files' });
-									return resolve(data.Contents);
-								} else {
-									logger.error({ description: 'Error getting files from S3.', error: err, func: 'get', obj: 'Files' });
-									return reject(err);
-								}
-							});
-						})
-					};
-				})();
-
-				if (typeof _ret === 'object') return _ret.v;
-			}
-		}
-	}, {
-		key: 'add',
-		value: function add() {
-			//TODO: Add a file to files list
-		}
-	}, {
-		key: 'del',
-		value: function del() {
-			//TODO: Delete a file from files list
-		}
-	}, {
-		key: 'buildStructure',
-		value: function buildStructure() {
-			logger.debug({ description: 'Build Structure called.', func: 'buildStructure', obj: 'Application' });
-			return this.get().then(function (filesArray) {
-				var childStruct = childrenStructureFromArray(filesArray);
-				logger.log({ description: 'Child struct from array.', childStructure: childStruct, func: 'buildStructure', obj: 'Application' });
-				return childStruct;
-			}, function (err) {
-				logger.error({ description: 'Error getting application files.', error: err, func: 'buildStructure', obj: 'Application' });
-				return Promise.reject({ message: 'Error getting files.', error: err });
-			});
-		}
-
-		//ALIAS FOR buildStructure
-	}, {
-		key: 'structure',
-		get: function get() {
-			return this.buildStructure();
-		}
-	}]);
-
-	return Files;
-})();
-
-exports['default'] = Files;
-
-//------------------ Utility Functions ------------------//
-
-// AWS Config
-function setAWSConfig() {
-	_awsSdk2['default'].config.update({
-		credentials: new _awsSdk2['default'].CognitoIdentityCredentials({
-			IdentityPoolId: _config2['default'].aws.cognito.poolId
-		}),
-		region: _config2['default'].aws.region
-	});
-}
-//Convert from array file structure (from S3) to 'children' structure used in Editor GUI (angular-tree-control)
-//Examples for two files (index.html and /testFolder/file.js):
-//Array structure: [{path:'index.html'}, {path:'testFolder/file.js'}]
-//Children Structure [{type:'folder', name:'testfolder', children:[{path:'testFolder/file.js', name:'file.js', filetype:'javascript', contentType:'application/javascript'}]}]
-function childrenStructureFromArray(fileArray) {
-	// logger.log('childStructureFromArray called:', fileArray);
-	//Create a object for each file that stores the file in the correct 'children' level
-	var mappedStructure = fileArray.map(function (file) {
-		return buildStructureObject(file);
-	});
-	return combineLikeObjs(mappedStructure);
-}
-//Convert file with key into a folder/file children object
-function buildStructureObject(file) {
-	var pathArray;
-	// console.log('buildStructureObject with:', file);
-	if (_lodash2['default'].has(file, 'path')) {
-		//Coming from files already having path (structure)
-		pathArray = file.path.split('/');
-	} else {
-		//Coming from aws
-		pathArray = file.Key.split('/');
-		// console.log('file before pick:', file);
-		file = _lodash2['default'].pick(file, 'Key');
-		file.path = file.Key;
-		file.name = file.Key;
-	}
-	var currentObj = file;
-	if (pathArray.length == 1) {
-		currentObj.name = pathArray[0];
-		if (!_lodash2['default'].has(currentObj, 'type')) {
-			currentObj.type = 'file';
-		}
-		currentObj.path = pathArray[0];
-		return currentObj;
-	} else {
-		var finalObj = {};
-		_lodash2['default'].each(pathArray, function (loc, ind, list) {
-			if (ind != list.length - 1) {
-				//Not the last loc
-				currentObj.name = loc;
-				currentObj.path = _lodash2['default'].first(list, ind + 1).join('/');
-				currentObj.type = 'folder';
-				currentObj.children = [{}];
-				//TODO: Find out why this works
-				if (ind == 0) {
-					finalObj = currentObj;
-				}
-				currentObj = currentObj.children[0];
-			} else {
-				currentObj.type = 'file';
-				currentObj.name = loc;
-				currentObj.path = pathArray.join('/');
-				if (file.$id) {
-					currentObj.$id = file.$id;
-				}
-			}
-		});
-		return finalObj;
-	}
-}
-//Recursivley combine children of object's that have the same names
-function combineLikeObjs(mappedArray) {
-	var takenNames = [];
-	var finishedArray = [];
-	_lodash2['default'].each(mappedArray, function (obj, ind, list) {
-		if (takenNames.indexOf(obj.name) == -1) {
-			takenNames.push(obj.name);
-			finishedArray.push(obj);
-		} else {
-			var likeObj = _lodash2['default'].findWhere(mappedArray, { name: obj.name });
-			//Combine children of like objects
-			likeObj.children = _lodash2['default'].union(obj.children, likeObj.children);
-			likeObj.children = combineLikeObjs(likeObj.children);
-			// logger.log('extended obj:',likeObj);
-		}
-	});
-	return finishedArray;
-}
-module.exports = exports['default'];
-
-},{"../config":254,"./Matter":252,"aws-sdk":1,"lodash":237}],251:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-
-//Actions for specific user
-
-var Group = (function () {
-	function Group(actionData) {
-		_classCallCheck(this, Group);
-
-		//Call matter with name and settings
-		if (actionData && _lodash2['default'].isObject(actionData) && _lodash2['default'].has(actionData, 'groupData')) {
-			//Data is object containing group data
-			this.name = _lodash2['default'].isObject(actionData.groupData) ? actionData.groupData.name : actionData.groupData;
-			if (_lodash2['default'].has(actionData, 'app')) {
-				this.app = actionData.app;
-			}
-		} else if (actionData && _lodash2['default'].isString(actionData)) {
-			//Data is string name
-			this.name = actionData;
-		} else {
-			logger.error({ description: 'Action data is required to start a Group Action.', func: 'constructor', obj: 'Group' });
-			throw new Error('Username is required to start an Group');
-		}
-	}
-
-	_createClass(Group, [{
-		key: 'get',
-
-		//Get userlications or single userlication
-		value: function get() {
-			return request.get(this.groupEndpoint).then(function (response) {
-				logger.info({ description: 'Group data loaded successfully.', response: response, func: 'get', obj: 'Group' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.info({ description: 'Error getting group.', error: errRes, func: 'get', obj: 'Group' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Update an Group
-	}, {
-		key: 'update',
-		value: function update(groupData) {
-			logger.log({ description: 'Group updated called.', groupData: groupData, func: 'update', obj: 'Group' });
-			return _Matter2['default'].utils.request.put(this.groupEndpoint, groupData).then(function (response) {
-				logger.info({ description: 'Group updated successfully.', groupData: groupData, response: response, func: 'update', obj: 'Group' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating group.', groupData: groupData, error: errRes, func: 'update', obj: 'Group' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Delete an Group
-	}, {
-		key: 'del',
-		value: function del(groupData) {
-			logger.log({ description: 'Delete group called.', groupData: groupData, func: 'del', obj: 'Group' });
-			return request.del(this.groupEndpoint, {}).then(function (response) {
-				logger.info({ description: 'Group deleted successfully.', groupData: groupData, func: 'del', obj: 'Group' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error deleting group.', error: errRes, text: errRes.response.text, groupData: groupData, func: 'del', obj: 'Group' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-
-		//Update an Group
-	}, {
-		key: 'addAccounts',
-		value: function addAccounts(accountsData) {
-			logger.log({ description: 'Group updated called.', accountsData: accountsData, func: 'update', obj: 'Group' });
-			var accountsArray = accountsData;
-			//Handle provided data being a string list
-			if (_lodash2['default'].isString(accountsData)) {
-				accountsArray = accountsData.split(',');
-			}
-			//Check item in array to see if it is a string (username) instead of _id
-			if (_lodash2['default'].isString(accountsArray[0])) {
-				logger.error({ description: 'Accounts array only currently supports account._id not account.username.', accountsData: accountsData, func: 'update', obj: 'Group' });
-				return Promise.reject({ message: 'Accounts array only currently supports account._id not account.username.' });
-			}
-			logger.log({ description: 'Updating group with accounts array.', accountsArray: accountsArray, func: 'update', obj: 'Group' });
-			return this.update({ accounts: accountsArray }).then(function (response) {
-				logger.info({ description: 'Account(s) added to group successfully.', response: response, func: 'addAccounts', obj: 'Group' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error addAccountseting group.', error: errRes, func: 'addAccounts', obj: 'Group' });
-				return Promise.reject(errRes.response.text || errRes.response);
-			});
-		}
-	}, {
-		key: 'groupEndpoint',
-		get: function get() {
-			var endpointArray = [_Matter2['default'].endpoint, 'groups', this.name];
-			//Check for app account action
-
-			if (_lodash2['default'].has(this, 'app') && _lodash2['default'].has(this.app, 'name')) {
-				endpointArray.splice(1, 0, 'apps', this.app.name);
-			}
-			//Create string from endpointArray
-			var endpointStr = endpointArray.join('/');
-			logger.log({ description: 'Group Endpoint built.', endpoint: endpointStr, func: 'groupEndpoint', obj: 'Group' });
-			return endpointStr;
-		}
-	}]);
-
-	return Group;
-})();
-
-exports['default'] = Group;
-module.exports = exports['default'];
-
-},{"../config":254,"./Matter":252,"lodash":237}],252:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _kyperMatter = require('kyper-matter');
-
-var _kyperMatter2 = _interopRequireDefault(_kyperMatter);
-
-var matter = new _kyperMatter2['default'](_config2['default'].appName, _config2['default'].matterOptions);
-exports['default'] = matter;
-module.exports = exports['default'];
-
-},{"../config":254,"kyper-matter":236}],253:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-var _config = require('../config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _Matter = require('./Matter');
-
-var _Matter2 = _interopRequireDefault(_Matter);
-
-var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var request = _Matter2['default'].utils.request;
-var logger = _Matter2['default'].utils.logger;
-//Actions for specific user
-
-var Template = (function () {
-	function Template(templateData) {
-		_classCallCheck(this, Template);
-
-		//Call matter with name and settings
-		if (templateData && _lodash2['default'].isString(templateData)) {
-			this.name = templateData;
-		} else {
-			logger.error({ description: 'Template data is required to start a Template action.', func: 'construcotr', obj: '' });
-			throw new Error('Template data is required to start a Template action.');
-		}
-	}
-
-	_createClass(Template, [{
-		key: 'get',
-
-		//Get userlications or single userlication
-		value: function get() {
-			logger.log({ description: 'Get template called.', name: this.name, func: 'get', obj: 'Template' });
-			return request.get(this.templateEndpoint).then(function (response) {
-				logger.log({ description: 'Get template responded.', response: response, func: 'get', obj: 'Template' });
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error getting template.', error: errRes, func: 'get', obj: 'Template' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Update an userlication
-	}, {
-		key: 'update',
-		value: function update(templateData) {
-			logger.log({ description: 'Update template called.', templateData: templateData, func: 'update', obj: 'Template' });
-			return request.put(this.templateEndpoint, templateData).then(function (response) {
-				logger.log({ description: 'Update template responded.', response: response, templateData: templateData, func: 'update', obj: 'Template' });
-				//TODO: Return template object
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error updating template.', error: errRes, func: 'update', obj: 'Template' });
-				return Promise.reject(errRes);
-			});
-		}
-
-		//Delete a template
-	}, {
-		key: 'del',
-		value: function del(templateData) {
-			logger.log({ description: 'Delete template called.', templateData: templateData, func: 'del', obj: 'Template' });
-			return request['delete'](this.endpoint, templateData).then(function (response) {
-				logger.log({ description: 'Template deleted successfully.', response: response, func: 'del', obj: 'Template' });
-				//TODO: Return template object
-				return response;
-			})['catch'](function (errRes) {
-				logger.error({ description: 'Error deleting template.', error: errRes, func: 'del', obj: 'Template' });
-				return Promise.reject(errRes);
-			});
-		}
-	}, {
-		key: 'templateEndpoint',
-		get: function get() {
-			return _Matter2['default'].endpoint + '/templates/' + this.name;
-		}
-	}]);
-
-	return Template;
-})();
-
-exports['default'] = Template;
-module.exports = exports['default'];
-
-},{"../config":254,"./Matter":252,"lodash":237}],254:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-var config = {
-	serverUrl: 'http://tessellate.elasticbeanstalk.com',
-	tokenName: 'grout',
-	fbUrl: 'https://kyper-tech.firebaseio.com/tessellate',
-	appName: 'tessellate',
-	matterOptions: {
-		localServer: false
-	},
-	aws: {
-		region: 'us-east-1',
-		cognito: {
-			poolId: 'us-east-1:72a20ffd-c638-48b0-b234-3312b3e64b2e',
-			params: {
-				AuthRoleArn: 'arn:aws:iam::823322155619:role/Cognito_TessellateUnauth_Role',
-				UnauthRoleArn: 'arn:aws:iam::823322155619:role/Cognito_TessellateAuth_Role'
-			}
-		}
-	}
-};
-//Set server to local server if developing
-// if (typeof window != 'undefined' && (window.location.hostname == '' || window.location.hostname == 'localhost')) {
-// 	config.serverUrl = 'http://localhost:4000';
-// }
-exports['default'] = config;
-module.exports = exports['default'];
-
-},{}],255:[function(require,module,exports){
-Object.defineProperty(exports, '__esModule', {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _config = require('./config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _kyperMatter = require('kyper-matter');
-
-var _kyperMatter2 = _interopRequireDefault(_kyperMatter);
-
-var _actionsAppsAction = require('./actions/AppsAction');
-
-var _actionsAppsAction2 = _interopRequireDefault(_actionsAppsAction);
-
-var _classesApplication = require('./classes/Application');
-
-var _classesApplication2 = _interopRequireDefault(_classesApplication);
-
-var _actionsAccountsAction = require('./actions/AccountsAction');
-
-var _actionsAccountsAction2 = _interopRequireDefault(_actionsAccountsAction);
-
-var _classesAccount = require('./classes/Account');
-
-var _classesAccount2 = _interopRequireDefault(_classesAccount);
-
-var _actionsGroupsAction = require('./actions/GroupsAction');
-
-var _actionsGroupsAction2 = _interopRequireDefault(_actionsGroupsAction);
-
-var _classesGroup = require('./classes/Group');
-
-var _classesGroup2 = _interopRequireDefault(_classesGroup);
-
-var _actionsDirectoriesAction = require('./actions/DirectoriesAction');
-
-var _actionsDirectoriesAction2 = _interopRequireDefault(_actionsDirectoriesAction);
-
-var _classesDirectory = require('./classes/Directory');
-
-var _classesDirectory2 = _interopRequireDefault(_classesDirectory);
-
-var _actionsTemplatesAction = require('./actions/TemplatesAction');
-
-var _actionsTemplatesAction2 = _interopRequireDefault(_actionsTemplatesAction);
-
-var _classesTemplate = require('./classes/Template');
-
-var _classesTemplate2 = _interopRequireDefault(_classesTemplate);
-
-/**Grout Client Class
- * @ description Extending matter provides token storage and login/logout/signup capabilities
- */
-
-var Grout = (function (_Matter) {
-	_inherits(Grout, _Matter);
-
-	//TODO: Use getter/setter to make this not a function
-
-	function Grout() {
-		_classCallCheck(this, Grout);
-
-		//Call matter with tessellate
-		_get(Object.getPrototypeOf(Grout.prototype), 'constructor', this).call(this, _config2['default'].appName, _config2['default'].matterOptions);
-	}
-
-	//Start a new Apps Action
-
-	_createClass(Grout, [{
-		key: 'App',
-
-		//Start a new App action
-		value: function App(appName) {
-			this.utils.logger.debug({ description: 'Templates Action called.', appName: appName, template: new _classesApplication2['default'](appName), func: 'App', obj: 'Grout' });
-			return new _classesApplication2['default'](appName);
-		}
-
-		//Start a new Apps Action
-	}, {
-		key: 'Template',
-
-		//Start a new App action
-		value: function Template(templateData) {
-			this.utils.logger.debug({ description: 'Template Action called.', templateData: templateData, template: new _classesTemplate2['default'](templateData), func: 'Template', obj: 'Grout' });
-			return new _classesTemplate2['default'](templateData);
-		}
-
-		//Start a new Accounts action
-	}, {
-		key: 'Account',
-
-		//Start a new Account action
-		value: function Account(userData) {
-			this.utils.logger.debug({ description: 'Account Action called.', userData: userData, user: new _classesAccount2['default'](userData), func: 'user', obj: 'Grout' });
-			return new _classesAccount2['default'](userData);
-		}
-
-		//ALIAS OF ACCOUNTS
-		//Start a new Accounts action
-	}, {
-		key: 'User',
-
-		//ALIAS OF ACCOUNT
-		//Start a new Account action
-		value: function User(userData) {
-			this.utils.logger.debug({ description: 'Account Action called.', userData: userData, user: new _classesAccount2['default'](userData), func: 'user', obj: 'Grout' });
-			return new _classesAccount2['default'](userData);
-		}
-
-		//Start a new Groups action
-	}, {
-		key: 'Group',
-
-		//Start a new Group action
-		value: function Group(groupData) {
-			this.utils.logger.debug({ description: 'Group Action called.', groupData: groupData, action: new _classesGroup2['default']({ app: this, groupData: groupData }), func: 'group', obj: 'Grout' });
-			return new _classesGroup2['default'](groupData);
-		}
-
-		//Start a new Directories action
-	}, {
-		key: 'Directory',
-
-		//Start a new Group action
-		value: function Directory(directoryData) {
-			this.utils.logger.debug({ description: 'Directory Action called.', directoryData: directoryData, action: new _classesDirectory2['default'](directoryData), func: 'directory', obj: 'Grout' });
-			return new _classesDirectory2['default'](directoryData);
-		}
-	}, {
-		key: 'Apps',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Apps Action called.', action: new _actionsAppsAction2['default'](), func: 'Apps', obj: 'Grout' });
-			return new _actionsAppsAction2['default']();
-		}
-	}, {
-		key: 'Templates',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Templates Action called.', action: new _actionsTemplatesAction2['default'](), func: 'Templates', obj: 'Grout' });
-			return new _actionsTemplatesAction2['default']();
-		}
-	}, {
-		key: 'Accounts',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Account Action called.', action: new _actionsAccountsAction2['default'](), func: 'users', obj: 'Grout' });
-			return new _actionsAccountsAction2['default']();
-		}
-	}, {
-		key: 'Users',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Accounts Action called.', action: new _actionsAccountsAction2['default'](), func: 'Users', obj: 'Grout' });
-			return new _actionsAccountsAction2['default']();
-		}
-	}, {
-		key: 'Groups',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Groups Action called.', action: new _actionsGroupsAction2['default'](), func: 'groups', obj: 'Grout' });
-			return new _actionsGroupsAction2['default']();
-		}
-	}, {
-		key: 'Directories',
-		get: function get() {
-			this.utils.logger.debug({ description: 'Directories Action called.', action: new _actionsDirectoriesAction2['default'](), func: 'directories', obj: 'Grout' });
-			return new _actionsDirectoriesAction2['default']();
-		}
-	}]);
-
-	return Grout;
-})(_kyperMatter2['default']);
-
-;
-
-exports['default'] = Grout;
-module.exports = exports['default'];
-
-},{"./actions/AccountsAction":241,"./actions/AppsAction":242,"./actions/DirectoriesAction":243,"./actions/GroupsAction":244,"./actions/TemplatesAction":245,"./classes/Account":246,"./classes/Application":247,"./classes/Directory":248,"./classes/Group":251,"./classes/Template":253,"./config":254,"kyper-matter":236}]},{},[255])(255)
+},{}]},{},[252])(252)
 });

@@ -63,5 +63,5 @@ function buildMessageStr(logData){
 	} else if (_.isString(logData)){
 		msg = logData;
 	}
-	return msg;
+	return msg + '\n';
 }

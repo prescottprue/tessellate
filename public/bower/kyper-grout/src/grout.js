@@ -27,7 +27,7 @@ class Grout extends Matter {
 	}
 	//Start a new App action
 	App(appName) {
-		this.utils.logger.debug({description: 'Templates Action called.', appName: appName, template: new App(appName), func: 'App', obj: 'Grout'});
+		this.utils.logger.debug({description: 'Application action called.', appName: appName, template: new App(appName), func: 'App', obj: 'Grout'});
 		return new App(appName);
 	}
 	//Start a new Apps Action

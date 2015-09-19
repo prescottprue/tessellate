@@ -249,7 +249,7 @@ ApplicationSchema.methods = {
 		var self = this;
 		this.findAccount(signupData).then(function (foundAccount){
 			logger.info({description: 'Account already exists in application directories', foundAccount: foundAccount, func: 'signup', obj: 'Application'});
-			d.reject({message:'Account already exists in application.'});
+			d.reject({message:'Account already exists in application.', status: 'EXISTS'});
 		}, function (err){
 			//TODO: Handle other errors
 			if(err && err.status == 'NOT_FOUND'){
@@ -354,7 +354,8 @@ ApplicationSchema.methods = {
 				logger.log({message:'Account exists in application.', application:self, account:account, obj:'Application', func:'findAccount'})
 				d.resolve(account);
 			}, function (err){
-				logger.error({message: 'Error looking for account in app', application:self, account:account, error: err, obj:'Application', func:'findAccount'})
+				logger.error({message: 'Error looking for account in app', account:account, error: JSON.stringify(err), obj:'Application', func:'findAccount'})
+				//TODO: 
 				d.reject(err);
 			});
 		});
@@ -368,16 +369,16 @@ ApplicationSchema.methods = {
 		var query = self.model('Application').findById(self._id)
 		.populate({path:'directories', select:'accounts groups'})
 		.populate({path:'groups', select:'accounts'});
-		query.exec(function(err, selfData){
-			var existsInDirectories = _.any(selfData.directories, function(directory){
+		query.exec(function (err, selfData){
+			var existsInDirectories = _.any(selfData.directories, function (directory){
 				//TODO: Check groups in directories as well
 				logger.log({message:'Searching for account within directory.', directory:directory, accounts:directory.accounts, groups:directory.groups, obj:'Application', func:'accountExistsInApp'});
 				return _.any(directory.accounts, function(testAccountId){
 					return account._id.toString() == testAccountId;
 				});
 			});
-			var existsInGroups = _.any(selfData.groups, function(group){
-				return _.any(group.accounts, function(testAccountId){
+			var existsInGroups = _.any(selfData.groups, function (group){
+				return _.any(group.accounts, function (testAccountId){
 					return account._id.toString() == testAccountId;
 				});
 			});
@@ -386,7 +387,13 @@ ApplicationSchema.methods = {
 				d.resolve(true);
 			} else {
 				logger.info({message:'Account found, but not placed into application groups or directories.', obj:'Application', func:'accountExistsInApp', existsInGroups:existsInGroups, existsInDirectories:existsInDirectories, application:self});
-				d.reject({message:'Account is not within application groups or directories.'});
+				selfData.addAccountToDirectory(account).then(function (newAccount){
+					logger.info({message:'Account is now within application.', newAccount: newAccount, obj:'Application', func:'accountExistsInApp', existsInGroups:existsInGroups, existsInDirectories:existsInDirectories, application:self});
+					d.resolve(newAccount);
+				}, function (err){
+					logger.error({message:'Account could not be placed into application groups or directories.', error: err, obj:'Application', func:'accountExistsInApp', existsInGroups:existsInGroups, existsInDirectories:existsInDirectories, application:self});
+					d.reject({message:'Account is not within application groups or directories.', status: 'NOT_FOUND'});
+				});
 			}
 		});
 		return d.promise;
@@ -542,13 +549,13 @@ ApplicationSchema.methods = {
 			if(err){
 				logger.error({description:'Error updating application Group.', func:'updateGroup', updatedGroup: group, obj: 'Application'});
 				d.reject(err);
-			} else if(!group){
+			} 
+			if(!group){
 				logger.error({description:'Application Group could not be updated.', func:'updateGroup', groupData: groupData, obj: 'Application'});
 				d.reject({message: 'Unable to update group.'});
-			} else {
-				logger.info({description:'', func:'updateGroup', obj: 'Application'});
-				d.resolve(group);
-			}
+			} 
+			logger.info({description:'Group Updated successfully.', func:'updateGroup', obj: 'Application'});
+			d.resolve(group);
 		});
 		return d.promise;
 	},
@@ -620,10 +627,11 @@ ApplicationSchema.methods = {
 	},
 	addAccountToDirectory:function(accountData, directoryId){
 		var d = q.defer();
+		var self = this;
 		//TODO: Make this work with not just the first directory
 		if(this.directories.length >= 1){
 			//Application has directories
-			logger.log({description: 'Application has directories.', id: directoryId, func: 'addAccountToDirectory', obj: 'Application'});
+			logger.log({description: 'Application has directories.', func: 'addAccountToDirectory', obj: 'Application'});
 			
 			//Add to 'default' directory
 			if(!directoryId){
@@ -631,6 +639,7 @@ ApplicationSchema.methods = {
 				directoryId = self.directories[0]._id;
 				logger.log({description: 'Directory was not provided. Default directory used.', id: directoryId, func: 'addAccountToDirectory', obj: 'Application'});
 			}
+			logger.log({description: 'Searching for directory.', id: directoryId, accountData: accountData, func: 'addAccountToDirectory', obj: 'Application'});
 
 			var dQuery = self.model('Directory').findOne({_id:directoryId});
 			dQuery.exec(function (err, result){
@@ -644,7 +653,7 @@ ApplicationSchema.methods = {
 				}
 				logger.log({description: 'Directory found. Adding account.', directory: result, func: 'addAccountToDirectory', obj: 'Application'});
 				//TODO: Make sure account does not already exist in directory before adding.
-				result.addAccount(account).then(function (dirWithAccount){
+				result.addAccount(accountData).then(function (dirWithAccount){
 					logger.log({description: 'Account successfully added to directory.', directory: dirWithAccount, func: 'addAccountToDirectory', obj: 'Application'});
 					d.resolve(dirWithAccount);
 				}, function (err){
@@ -679,14 +688,14 @@ function findAccount(find){
 	Account.find(findObj).exec(function (err, foundAccount){
 		if(err) {
 			logger.error({description: 'Error finding account.', error: err, func: 'findAccount', file: 'Application Model'});
-			d.reject({message:'Error Adding collaborator.', error:err});
-		} else if(!foundAccount){
-			logger.error({description: 'Account could not be found.', func: 'findAccount', file: 'Application Model'});
-			d.reject({message:'Account could not be found'});
-		} else {
-			logger.info({description: 'Account found successfully.', foundAccount: foundAccount, func: 'findAccount', file: 'Application Model'});
-			d.resolve(foundAccount);
+			return d.reject({message:'Error Adding collaborator.', error:err});
 		}
+		if(!foundAccount){
+			logger.error({description: 'Account could not be found.', func: 'findAccount', file: 'Application Model'});
+			return d.reject({message:'Account could not be found'});
+		} 
+		logger.info({description: 'Account found successfully.', foundAccount: foundAccount, func: 'findAccount', file: 'Application Model'});
+		d.resolve(foundAccount);
 	});
 	return d.promise;
 }
