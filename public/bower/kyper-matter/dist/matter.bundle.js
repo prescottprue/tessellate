@@ -14736,8 +14736,12 @@ function handleResponse(req) {
 				return resolve(res.body);
 			} else {
 				if (err.status == 401) {
-					console.warn('Unauthorized. You must be signed into make this request.');
+					_logger2['default'].warn({ description: 'Unauthorized. You must be signed into make this request.', func: 'handleResponse' });
 				}
+				if (err && err.response) {
+					return reject(err.response.text);
+				}
+				_logger2['default'].warn({ description: 'Unauthorized. You must be signed into make this request.', error: err, func: 'handleResponse' });
 				return reject(err);
 			}
 		});
@@ -14807,10 +14811,26 @@ var token = Object.defineProperties({
 		get: function get() {
 			return _envStorage2['default'].getItem(_config2['default'].tokenName);
 		},
-		set: function set(tokenStr) {
-			_logger2['default'].log({ description: 'Token was set.', token: tokenStr, func: 'string', obj: 'token' });
-			this.data = (0, _jwtDecode2['default'])(tokenStr);
+		set: function set(tokenData) {
+			var tokenStr = undefined;
+			//Handle object being passed
+			if (!_lodash2['default'].isString(tokenData)) {
+				//Token is included in object
+				_logger2['default'].log({ description: 'Token data is not string.', token: tokenData, func: 'string', obj: 'token' });
+
+				if (_lodash2['default'].isObject(tokenData) && _lodash2['default'].has(tokenData, 'token')) {
+					tokenStr = tokenData.token;
+				} else {
+					//Input is either not an string or object that contains nessesary info
+					_logger2['default'].error({ description: 'Invalid value set to token.', token: tokenData, func: 'string', obj: 'token' });
+					return;
+				}
+			} else {
+				tokenStr = tokenData;
+			}
+			_logger2['default'].log({ description: 'Token was set.', token: tokenData, tokenStr: tokenStr, func: 'string', obj: 'token' });
 			_envStorage2['default'].setItem(_config2['default'].tokenName, tokenStr);
+			this.data = (0, _jwtDecode2['default'])(tokenStr);
 		},
 		configurable: true,
 		enumerable: true

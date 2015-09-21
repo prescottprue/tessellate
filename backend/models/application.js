@@ -230,9 +230,7 @@ ApplicationSchema.methods = {
 		this.findAccount(loginData).then(function (foundAccount){
 			foundAccount.login(loginData.password).then(function (loggedInData){
 				logger.info({description: 'Login to application successful.', loggedInData: loggedInData, func: 'login', obj: 'Application'});
-				var resultObj = {account:foundAccount.strip(), token:loggedInData};
-				logger.log({description: 'Login Result obj constructed.', resultObj: resultObj, func: 'login', obj: 'Application'});
-				d.resolve(resultObj);
+				d.resolve(loggedInData);
 			}, function (err){
 				logger.error({description: 'Error logging into acocunt.', error: err, func: 'login', obj: 'Application'});
 				d.reject(err);

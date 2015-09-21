@@ -346,10 +346,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			get: function get() {
 				return storage.getItem(config.tokenName);
 			},
-			set: function set(tokenStr) {
-				logger.log({ description: 'Token was set.', token: tokenStr, func: 'string', obj: 'token' });
-				this.data = jwtDecode(tokenStr);
+			set: function set(tokenData) {
+				var tokenStr = undefined;
+				//Handle object being passed
+				if (!_.isString(tokenData)) {
+					//Token is included in object
+					logger.log({ description: 'Token data is not string.', token: tokenData, func: 'string', obj: 'token' });
+
+					if (_.isObject(tokenData) && _.has(tokenData, 'token')) {
+						tokenStr = tokenData.token;
+					} else {
+						//Input is either not an string or object that contains nessesary info
+						logger.error({ description: 'Invalid value set to token.', token: tokenData, func: 'string', obj: 'token' });
+						return;
+					}
+				} else {
+					tokenStr = tokenData;
+				}
+				logger.log({ description: 'Token was set.', token: tokenData, tokenStr: tokenStr, func: 'string', obj: 'token' });
 				storage.setItem(config.tokenName, tokenStr);
+				this.data = jwtDecode(tokenStr);
 			},
 			configurable: true,
 			enumerable: true
@@ -411,8 +427,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return resolve(res.body);
 				} else {
 					if (err.status == 401) {
-						console.warn('Unauthorized. You must be signed into make this request.');
+						logger.warn({ description: 'Unauthorized. You must be signed into make this request.', func: 'handleResponse' });
 					}
+					if (err && err.response) {
+						return reject(err.response.text);
+					}
+					logger.warn({ description: 'Unauthorized. You must be signed into make this request.', error: err, func: 'handleResponse' });
 					return reject(err);
 				}
 			});

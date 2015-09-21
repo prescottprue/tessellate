@@ -17,9 +17,6 @@ var locatedStyleAssets = locateAssets('styles');
 var locatedAppAssets = locateAssets('app');
 var locatedVendorAssets = locateAssets('vendor');
 
-var linkCommandArray = buildLinkCommands('link');
-var unlinkCommandArray = buildLinkCommands('unlink');
-
 //Start livereload client/frontend server
 gulp.task('client', ['assetTags:dev'], function() {
   browserSync.init({
@@ -28,7 +25,6 @@ gulp.task('client', ['assetTags:dev'], function() {
       baseDir: "./"+config.client.folder+"/"
     }
   });
-  gulp.watch([config.client.folder + '/**', 'assets.js', '!' + config.client.folder + '/bower/**'], reload);
 });
 
 //TODO: Make tasks to serve other environments
@@ -64,10 +60,10 @@ gulp.task('assetTags:dev', function () {
 });
 
 //Link list of modules
-gulp.task('link', shell.task(linkCommandArray));
+gulp.task('link', shell.task(buildLinkCommands('link')));
 
 //Unlink list of modules
-gulp.task('unlink', shell.task(unlinkCommandArray));
+gulp.task('unlink', shell.task(buildLinkCommands('unlink')));
 
 //Default task: Build asset tags, start backend server
 gulp.task('default', [ 'assetTags:dev', 'serve', 'client']);
@@ -85,15 +81,19 @@ function buildLinkCommands(linkAction){
   const messageCommand = 'echo ' + linkAction + 'ing local modules';
   var commands = [messageCommand];
   //Each type of packages to link
-  _.each(linkTypes, function (type){
+  _.each(linkTypes, function (packageType){
     //Check that package link patter is supported
-    // if(!_.contains(allowedPackageLinkTypes, type)){
-    //   console.error('Invalid package link type');
+    // if(!_.contains(allowedPackageLinkTypes, packageType)){
+    //   console.error('Invalid package link packageType');
     //   return;
     // }
-    //Each package of that type
-    _.each(config.linkedModules[type], function (packageName){
-      commands.push(type + ' ' + linkAction  + ' ' + packageName);
+    //Each package of that packageType
+    _.each(config.linkedModules[packageType], function (packageName){
+      commands.push(packageType + ' ' + linkAction  + ' ' + packageName);
+      //Add command to install the original version after unlinking
+      if(linkAction === 'unlink'){
+        commands.push(packageType + ' install ' + packageName);
+      }
     });
   });
   console.log('Returning link commands:', commands);
