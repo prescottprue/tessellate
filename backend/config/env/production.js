@@ -6,7 +6,7 @@ module.exports = {
 	s3:{
 		key:process.env.TESSELLATE_AWS_KEY,
 		secret:process.env.TESSELLATE_AWS_SECRET,
-		bucketPrefix: "tessellate-test-"
+		bucketPrefix: "tessellate"
 	},
 	jwtSecret:process.env.TESSELLATE_JWT_SECRET
 };

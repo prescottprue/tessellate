@@ -6,5 +6,8 @@
 	"client":{
 		"port":4001,
 		"folder": "public"
+	},
+	"linkedModules":{
+		"bower": ["kyper-matter", "kyper-grout"]
 	}
 }

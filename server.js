@@ -89,7 +89,9 @@ app.use(function (err, req, res, next) {
  */
 
 var port = systemUtils.normalizePort(process.env.PORT || confFile.server.port || 4000);
-console.log('localhost port:', port);
+console.log('Server started...');
+console.log('Environment: ' + config.envName || 'ERROR');
+console.log('Port: ' + port);
 app.set('port', port);
 
 var server = systemUtils.createServer(app);

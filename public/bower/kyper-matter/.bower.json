@@ -36,5 +36,6 @@
   },
   "_source": "git://github.com/KyperTech/matter.git",
   "_target": "~0.1.0",
-  "_originalSource": "kyper-matter"
+  "_originalSource": "kyper-matter",
+  "_direct": true
 }
