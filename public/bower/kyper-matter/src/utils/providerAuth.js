@@ -18,10 +18,10 @@ class ProviderAuth {
 	loadHello() {
 		//Load hellojs script
 		//TODO: Replace this with es6ified version
-		if (window && !window.hello) {
+		if (typeof window != 'undefined' && !window.hello) {
 			return dom.asyncLoadJs('https://s3.amazonaws.com/kyper-cdn/js/hello.js');
 		} else {
-			return Promise.resolve();
+			return Promise.reject();
 		}
 	}
 	helloLoginListener() {
@@ -51,19 +51,21 @@ class ProviderAuth {
 		return this.loadHello().then(() => {
 			return request.get(`${this.app.endpoint}/providers`)
 			.then((response) => {
-				logger.log({description: 'Provider request successful.',  response: response, func: 'signup', obj: 'ProviderAuth'});
+				logger.log({description: 'Provider request successful.',  response: response, func: 'initHello', obj: 'ProviderAuth'});
 				let provider = response[this.provider];
-				logger.warn({description: 'Provider found', provider: provider , func: 'login', obj: 'ProviderAuth'});
 				if (!provider) {
 					logger.error({description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + this.provider, provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth'});
 					return Promise.reject({message: 'Provider is not setup.'});
 				}
-				logger.warn({description: 'Providers config built', providersConfig: response, func: 'login', obj: 'ProviderAuth'});
+				logger.log({description: 'Providers config built', providersConfig: response, func: 'initHello', obj: 'ProviderAuth'});
 				return window.hello.init(response, {redirect_uri: 'redirect.html'});
+			}, (err) => {
+				logger.error({description: 'Error loading hellojs.', error: errRes, func: 'initHello', obj: 'ProviderAuth'});
+				return Promise.reject({message: 'Error requesting application third party providers.'});
 			})
 			['catch']((errRes) => {
-				logger.error({description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter'});
-				return Promise.reject(errRes);
+				logger.error({description: 'Error loading hellojs.', error: errRes, func: 'initHello', obj: 'ProviderAuth'});
+				return Promise.reject({message: 'Error loading third party login capability.'});
 			});
 		});
 	}
@@ -71,6 +73,9 @@ class ProviderAuth {
 		//Initalize Hello
 		return this.initHello().then(() => {
 			return window.hello.login(this.provider);
+		}, (err) => {
+			logger.error({description: 'Error initalizing hellojs.', error: err, func: 'login', obj: 'Matter'});
+			return Promise.reject({message: 'Error with third party login.'});
 		});
 	}
 	signup() {

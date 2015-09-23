@@ -14014,11 +14014,11 @@ var Matter = (function () {
 				}
 			}
 		}
-	}, {
-		key: 'updateProfile',
 
 		/** updateProfile
    */
+	}, {
+		key: 'updateProfile',
 		value: function updateProfile(updateData) {
 			var _this4 = this;
 
@@ -14037,15 +14037,56 @@ var Matter = (function () {
 				return Promise.reject(errRes);
 			});
 		}
+	}, {
+		key: 'changePassword',
+		value: function changePassword() {
+			var _this5 = this;
 
-		/** updateProfile
+			if (!this.isLoggedIn) {
+				_utilsLogger2['default'].error({ description: 'No current user profile for which to change password.', func: 'changePassword', obj: 'Matter' });
+				return Promise.reject({ message: 'Must be logged in to change password.' });
+			}
+			//Send update request
+			_utilsLogger2['default'].log({ description: 'Calling update endpoint to change password.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'changePassword', obj: 'Matter' });
+			return _utilsRequest2['default'].put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
+				_utilsLogger2['default'].log({ description: 'Update password request responded.', responseData: response, func: 'changePassword', obj: 'Matter' });
+				_this5.currentUser = response;
+				return response;
+			})['catch'](function (errRes) {
+				_utilsLogger2['default'].error({ description: 'Error requesting password change.', error: errRes, func: 'changePassword', obj: 'Matter' });
+				return Promise.reject(errRes);
+			});
+		}
+	}, {
+		key: 'recoverPassword',
+		value: function recoverPassword() {
+			var _this6 = this;
+
+			if (!this.isLoggedIn) {
+				_utilsLogger2['default'].error({ description: 'No current user for which to recover password.', func: 'recoverPassword', obj: 'Matter' });
+				return Promise.reject({ message: 'Must be logged in to recover password.' });
+			}
+			//Send update request
+			_utilsLogger2['default'].log({ description: 'Calling recover password endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'recoverPassword', obj: 'Matter' });
+			return _utilsRequest2['default'].put(this.endpoint + '/account/' + this.token.data.username + '/recover', updateData).then(function (response) {
+				_utilsLogger2['default'].log({ description: 'Recover password request responded.', responseData: response, func: 'recoverPassword', obj: 'Matter' });
+				_this6.currentUser = response;
+				return response;
+			})['catch'](function (errRes) {
+				_utilsLogger2['default'].error({ description: 'Error requesting password recovery.', error: errRes, func: 'recoverPassword', obj: 'Matter' });
+				return Promise.reject(errRes);
+			});
+		}
+
+		/* set currentUser
+   * @description Sets currently user data
    */
 	}, {
 		key: 'isInGroup',
 
 		//Check that user is in a single group or in all of a list of groups
 		value: function isInGroup(checkGroups) {
-			var _this5 = this;
+			var _this7 = this;
 
 			if (!this.isLoggedIn) {
 				_utilsLogger2['default'].log({ description: 'No logged in user to check.', func: 'isInGroup', obj: 'Matter' });
@@ -14061,12 +14102,12 @@ var Matter = (function () {
 						//String list of groupts
 						_utilsLogger2['default'].info({ description: 'String list of groups.', list: groupsArray, func: 'isInGroup', obj: 'Matter' });
 						return {
-							v: _this5.isInGroups(groupsArray)
+							v: _this7.isInGroups(groupsArray)
 						};
 					} else {
 						//Single group
-						var groups = _this5.token.data.groups || [];
-						_utilsLogger2['default'].log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this5.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
+						var groups = _this7.token.data.groups || [];
+						_utilsLogger2['default'].log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this7.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
 						return {
 							v: _lodash2['default'].any(groups, function (group) {
 								return groupName == group.name;
@@ -14089,17 +14130,17 @@ var Matter = (function () {
 	}, {
 		key: 'isInGroups',
 		value: function isInGroups(checkGroups) {
-			var _this6 = this;
+			var _this8 = this;
 
 			//Check if user is in any of the provided groups
 			if (checkGroups && _lodash2['default'].isArray(checkGroups)) {
 				return _lodash2['default'].map(checkGroups, function (group) {
 					if (_lodash2['default'].isString(group)) {
 						//Group is string
-						return _this6.isInGroup(group);
+						return _this8.isInGroup(group);
 					} else {
 						//Group is object
-						return _this6.isInGroup(group.name);
+						return _this8.isInGroup(group.name);
 					}
 				});
 			} else if (checkGroups && _lodash2['default'].isString(checkGroups)) {
@@ -14139,6 +14180,10 @@ var Matter = (function () {
 			_utilsLogger2['default'].log({ description: 'Current User set.', user: userData, func: 'currentUser', obj: 'Matter' });
 			this.storage.setItem(_config2['default'].tokenUserDataName, userData);
 		},
+
+		/* get currentUser
+   * @description Gets currently logged in user or returns null
+   */
 		get: function get() {
 			if (this.storage.getItem(_config2['default'].tokenUserDataName)) {
 				return this.storage.getItem(_config2['default'].tokenUserDataName);
@@ -14146,13 +14191,17 @@ var Matter = (function () {
 				return null;
 			}
 		}
+
+		/* Storage
+   *
+   */
 	}, {
 		key: 'storage',
 		get: function get() {
 			return _utilsEnvStorage2['default'];
 		}
 
-		/** updateProfile
+		/** Token
    */
 	}, {
 		key: 'token',

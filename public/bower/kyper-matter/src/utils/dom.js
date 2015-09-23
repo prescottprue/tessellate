@@ -10,7 +10,7 @@ let domUtil = {
 	 *
 	 */
 	loadCss: (src) => {
-		if (!document) {
+		if (typeof document == 'undefined') {
 			logger.error({description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom'});
 			throw new Error('Document object is required to load assets.');
 		} else {
@@ -31,7 +31,7 @@ let domUtil = {
 	 *
 	 */
 	loadJs: (src) => {
-		if (window && !_.has(window, 'document')) {
+		if (typeof window == 'undefined' || !_.has(window, 'document')) {
 			logger.error({description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom'});
 			throw new Error('Document object is required to load assets.');
 		} else {
@@ -51,7 +51,7 @@ let domUtil = {
 	 *
 	 */
 	asyncLoadJs: (src) => {
-		if (!_.has(window, 'document')) {
+		if (typeof window == 'undefined' || !_.has(window, 'document')) {
 			logger.error({description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom'});
 			throw new Error('Document object is required to load assets.');
 		} else {

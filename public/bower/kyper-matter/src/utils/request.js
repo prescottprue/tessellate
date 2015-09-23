@@ -40,8 +40,12 @@ function handleResponse(req) {
 				return resolve(res.body);
 			} else {
 				if (err.status == 401) {
-					console.warn('Unauthorized. You must be signed into make this request.');
+					logger.warn({description: 'Unauthorized. You must be signed into make this request.', func: 'handleResponse'});
 				}
+				if (err && err.response) {
+					return reject(err.response.text);
+				}
+				logger.warn({description: 'Unauthorized. You must be signed into make this request.', error: err, func: 'handleResponse'});
 				return reject(err);
 			}
 		});

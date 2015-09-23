@@ -715,11 +715,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 			}
-		}, {
-			key: 'updateProfile',
 
 			/** updateProfile
     */
+		}, {
+			key: 'updateProfile',
 			value: function updateProfile(updateData) {
 				var _this7 = this;
 
@@ -738,15 +738,56 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return Promise.reject(errRes);
 				});
 			}
+		}, {
+			key: 'changePassword',
+			value: function changePassword() {
+				var _this8 = this;
 
-			/** updateProfile
+				if (!this.isLoggedIn) {
+					logger.error({ description: 'No current user profile for which to change password.', func: 'changePassword', obj: 'Matter' });
+					return Promise.reject({ message: 'Must be logged in to change password.' });
+				}
+				//Send update request
+				logger.log({ description: 'Calling update endpoint to change password.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'changePassword', obj: 'Matter' });
+				return request.put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
+					logger.log({ description: 'Update password request responded.', responseData: response, func: 'changePassword', obj: 'Matter' });
+					_this8.currentUser = response;
+					return response;
+				})['catch'](function (errRes) {
+					logger.error({ description: 'Error requesting password change.', error: errRes, func: 'changePassword', obj: 'Matter' });
+					return Promise.reject(errRes);
+				});
+			}
+		}, {
+			key: 'recoverPassword',
+			value: function recoverPassword() {
+				var _this9 = this;
+
+				if (!this.isLoggedIn) {
+					logger.error({ description: 'No current user for which to recover password.', func: 'recoverPassword', obj: 'Matter' });
+					return Promise.reject({ message: 'Must be logged in to recover password.' });
+				}
+				//Send update request
+				logger.log({ description: 'Calling recover password endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'recoverPassword', obj: 'Matter' });
+				return request.put(this.endpoint + '/account/' + this.token.data.username + '/recover', updateData).then(function (response) {
+					logger.log({ description: 'Recover password request responded.', responseData: response, func: 'recoverPassword', obj: 'Matter' });
+					_this9.currentUser = response;
+					return response;
+				})['catch'](function (errRes) {
+					logger.error({ description: 'Error requesting password recovery.', error: errRes, func: 'recoverPassword', obj: 'Matter' });
+					return Promise.reject(errRes);
+				});
+			}
+
+			/* set currentUser
+    * @description Sets currently user data
     */
 		}, {
 			key: 'isInGroup',
 
 			//Check that user is in a single group or in all of a list of groups
 			value: function isInGroup(checkGroups) {
-				var _this8 = this;
+				var _this10 = this;
 
 				if (!this.isLoggedIn) {
 					logger.log({ description: 'No logged in user to check.', func: 'isInGroup', obj: 'Matter' });
@@ -762,12 +803,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							//String list of groupts
 							logger.info({ description: 'String list of groups.', list: groupsArray, func: 'isInGroup', obj: 'Matter' });
 							return {
-								v: _this8.isInGroups(groupsArray)
+								v: _this10.isInGroups(groupsArray)
 							};
 						} else {
 							//Single group
-							var groups = _this8.token.data.groups || [];
-							logger.log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this8.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
+							var groups = _this10.token.data.groups || [];
+							logger.log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this10.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
 							return {
 								v: _.any(groups, function (group) {
 									return groupName == group.name;
@@ -790,17 +831,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'isInGroups',
 			value: function isInGroups(checkGroups) {
-				var _this9 = this;
+				var _this11 = this;
 
 				//Check if user is in any of the provided groups
 				if (checkGroups && _.isArray(checkGroups)) {
 					return _.map(checkGroups, function (group) {
 						if (_.isString(group)) {
 							//Group is string
-							return _this9.isInGroup(group);
+							return _this11.isInGroup(group);
 						} else {
 							//Group is object
-							return _this9.isInGroup(group.name);
+							return _this11.isInGroup(group.name);
 						}
 					});
 				} else if (checkGroups && _.isString(checkGroups)) {
@@ -840,6 +881,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				logger.log({ description: 'Current User set.', user: userData, func: 'currentUser', obj: 'Matter' });
 				this.storage.setItem(config.tokenUserDataName, userData);
 			},
+
+			/* get currentUser
+    * @description Gets currently logged in user or returns null
+    */
 			get: function get() {
 				if (this.storage.getItem(config.tokenUserDataName)) {
 					return this.storage.getItem(config.tokenUserDataName);
@@ -847,13 +892,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return null;
 				}
 			}
+
+			/* Storage
+    *
+    */
 		}, {
 			key: 'storage',
 			get: function get() {
 				return storage;
 			}
 
-			/** updateProfile
+			/** Token
     */
 		}, {
 			key: 'token',
