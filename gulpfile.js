@@ -59,6 +59,12 @@ gulp.task('assetTags:dev', function () {
     .pipe(notify({message: 'Asset Tags Built'}));
 });
 
+//Deploy to staging environment of Elastic Beanstalk
+gulp.task('deploy:staging', shell.task(['eb use ' + config.stagingEnvName, 'eb deploy']));
+
+//Deploy to staging environment of Elastic Beanstalk
+gulp.task('deploy:prod', shell.task(['eb use ' + config.productionEnvName, 'eb deploy']));
+
 //Link list of modules
 gulp.task('link', shell.task(buildLinkCommands('link')));
 
@@ -96,7 +102,6 @@ function buildLinkCommands(linkAction){
       }
     });
   });
-  console.log('Returning link commands:', commands);
   return commands;
 }
 

@@ -9,5 +9,7 @@
 	},
 	"linkedModules":{
 		"bower": ["kyper-matter", "kyper-grout"]
-	}
+	},
+	"stagingEnvName":"tessellate-stage",
+	"productionEnvName": "tessellate-prod"
 }
