@@ -15,26 +15,33 @@
   "license": "MIT",
   "ignore": [
     "**/.*",
+    "**/*.md",
     "node_modules",
     "bower_components",
     "test",
     "package.json",
     ".DS_Store",
-    "**/.DS_Store"
+    "**/.DS_Store",
+    "karma.conf.js",
+    "gulpfile.js",
+    "LICENSE",
+    "examples",
+    "wiki",
+    "config.json"
   ],
   "repository": {
     "type": "git",
     "url": "git://github.com/KyperTech/grout"
   },
   "homepage": "https://github.com/KyperTech/grout",
-  "version": "0.0.7",
-  "_release": "0.0.7",
+  "version": "0.0.9",
+  "_release": "0.0.9",
   "_resolution": {
     "type": "version",
-    "tag": "v0.0.7",
-    "commit": "7447b07c9ec53f02f19381e74909f3cbd4c650b4"
+    "tag": "v0.0.9",
+    "commit": "90641d99b895bfdbfab0ec59133d85943f7f251d"
   },
   "_source": "git://github.com/KyperTech/grout.git",
-  "_target": "~0.0.7",
+  "_target": "~0.0.9",
   "_originalSource": "kyper-grout"
 }

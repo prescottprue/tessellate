@@ -12,8 +12,10 @@ angular.module('tessellate.application.build')
     }, function (err){
       $log.error('Error getting file structure:', err);
     });
+    var editor;
   $scope.aceLoaded = function(_editor) {
     // Editor.setAce(_editor);
+    editor = _editor;
   };
   $scope.aceChanged = function(e) {
   };
@@ -24,6 +26,18 @@ angular.module('tessellate.application.build')
       return usersList;
     }, function (err){
       $log.error('Error getting users list:', err);
+    });
+  };
+  $scope.openFile = function(fileObj){
+    $log.info('Open file called with', fileObj);
+    $grout.App(application.name).File(fileObj).open().then(function (fileContents){
+      $log.log('file opened:', fileContents);
+      $scope.fileContents = fileContents;
+      $scope.$apply();
+      editor.setValue($scope.fileContents);
+      $log.log('File contents loaded', $scope.fileContents);
+    }, function (err){
+      $log.error('Error opening file:', err);
     });
   };
 

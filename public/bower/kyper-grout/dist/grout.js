@@ -135,7 +135,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    *
    */
 		loadCss: function loadCss(src) {
-			if (!document) {
+			if (typeof document == 'undefined') {
 				____________logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
 				throw new Error('Document object is required to load assets.');
 			} else {
@@ -156,7 +156,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    *
    */
 		loadJs: function loadJs(src) {
-			if (window && !_.has(window, 'document')) {
+			if (typeof window == 'undefined' || !_.has(window, 'document')) {
 				____________logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
 				throw new Error('Document object is required to load assets.');
 			} else {
@@ -176,7 +176,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    *
    */
 		asyncLoadJs: function asyncLoadJs(src) {
-			if (!_.has(window, 'document')) {
+			if (typeof window == 'undefined' || !_.has(window, 'document')) {
 				____________logger.error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
 				throw new Error('Document object is required to load assets.');
 			} else {
@@ -352,10 +352,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			get: function get() {
 				return storage.getItem(_config.tokenName);
 			},
-			set: function set(tokenStr) {
-				____________logger.log({ description: 'Token was set.', token: tokenStr, func: 'string', obj: 'token' });
-				this.data = jwtDecode(tokenStr);
+			set: function set(tokenData) {
+				var tokenStr = undefined;
+				//Handle object being passed
+				if (!_.isString(tokenData)) {
+					//Token is included in object
+					____________logger.log({ description: 'Token data is not string.', token: tokenData, func: 'string', obj: 'token' });
+
+					if (_.isObject(tokenData) && _.has(tokenData, 'token')) {
+						tokenStr = tokenData.token;
+					} else {
+						//Input is either not an string or object that contains nessesary info
+						____________logger.error({ description: 'Invalid value set to token.', token: tokenData, func: 'string', obj: 'token' });
+						return;
+					}
+				} else {
+					tokenStr = tokenData;
+				}
+				____________logger.log({ description: 'Token was set.', token: tokenData, tokenStr: tokenStr, func: 'string', obj: 'token' });
 				storage.setItem(_config.tokenName, tokenStr);
+				this.data = jwtDecode(tokenStr);
 			},
 			configurable: true,
 			enumerable: true
@@ -417,8 +433,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return resolve(res.body);
 				} else {
 					if (err.status == 401) {
-						console.warn('Unauthorized. You must be signed into make this request.');
+						____________logger.warn({ description: 'Unauthorized. You must be signed into make this request.', func: 'handleResponse' });
 					}
+					if (err && err.response) {
+						return reject(err.response.text);
+					}
+					____________logger.warn({ description: 'Unauthorized. You must be signed into make this request.', error: err, func: 'handleResponse' });
 					return reject(err);
 				}
 			});
@@ -452,10 +472,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function loadHello() {
 				//Load hellojs script
 				//TODO: Replace this with es6ified version
-				if (window && !window.hello) {
+				if (typeof window != 'undefined' && !window.hello) {
 					return domUtil.asyncLoadJs('https://s3.amazonaws.com/kyper-cdn/js/hello.js');
 				} else {
-					return Promise.resolve();
+					return Promise.reject();
 				}
 			}
 		}, {
@@ -488,18 +508,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return this.loadHello().then(function () {
 					return ___________request.get(_this.app.endpoint + '/providers').then(function (response) {
-						____________logger.log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'ProviderAuth' });
+						____________logger.log({ description: 'Provider request successful.', response: response, func: 'initHello', obj: 'ProviderAuth' });
 						var provider = response[_this.provider];
-						____________logger.warn({ description: 'Provider found', provider: provider, func: 'login', obj: 'ProviderAuth' });
 						if (!provider) {
 							____________logger.error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this.provider, provider: _this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
 							return Promise.reject({ message: 'Provider is not setup.' });
 						}
-						____________logger.warn({ description: 'Providers config built', providersConfig: response, func: 'login', obj: 'ProviderAuth' });
+						____________logger.log({ description: 'Providers config built', providersConfig: response, func: 'initHello', obj: 'ProviderAuth' });
 						return window.hello.init(response, { redirect_uri: 'redirect.html' });
+					}, function (err) {
+						____________logger.error({ description: 'Error loading hellojs.', error: errRes, func: 'initHello', obj: 'ProviderAuth' });
+						return Promise.reject({ message: 'Error requesting application third party providers.' });
 					})['catch'](function (errRes) {
-						____________logger.error({ description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter' });
-						return Promise.reject(errRes);
+						____________logger.error({ description: 'Error loading hellojs.', error: errRes, func: 'initHello', obj: 'ProviderAuth' });
+						return Promise.reject({ message: 'Error loading third party login capability.' });
 					});
 				});
 			}
@@ -511,6 +533,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				//Initalize Hello
 				return this.initHello().then(function () {
 					return window.hello.login(_this2.provider);
+				}, function (err) {
+					____________logger.error({ description: 'Error initalizing hellojs.', error: err, func: 'login', obj: 'Matter' });
+					return Promise.reject({ message: 'Error with third party login.' });
 				});
 			}
 		}, {
@@ -567,7 +592,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     */
 			value: function signup(signupData) {
 				____________logger.log({ description: 'Signup called.', signupData: signupData, func: 'signup', obj: 'Matter' });
-				if (!signupData) {
+				if (!signupData || !_.isObject(signupData) && !_.isString(signupData)) {
 					____________logger.error({ description: 'Signup information is required to signup.', func: 'signup', obj: 'Matter' });
 					return Promise.reject({ message: 'Login data is required to login.' });
 				}
@@ -584,16 +609,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						____________logger.error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
 						return Promise.reject(errRes);
 					});
-				} else if (_.isString(signupData)) {
+				} else {
 					//Handle 3rd Party signups
 					var auth = new ProviderAuth({ provider: signupData, app: this });
 					return auth.signup(signupData).then(function (res) {
 						____________logger.info({ description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter' });
 						return Promise.resolve(res);
 					});
-				} else {
-					____________logger.error({ description: 'Incorrectly formatted signup information.', signupData: signupData, func: 'signup', obj: 'Matter' });
-					return Promise.reject({ message: 'Signup requires an object or a string.' });
 				}
 			}
 
@@ -605,7 +627,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function login(loginData) {
 				var _this4 = this;
 
-				if (!loginData) {
+				if (!loginData || !_.isObject(loginData) && !_.isString(loginData)) {
 					____________logger.error({ description: 'Username/Email and Password are required to login', func: 'login', obj: 'Matter' });
 					return Promise.reject({ message: 'Login data is required to login.' });
 				}
@@ -635,16 +657,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						}
 						return Promise.reject(errRes);
 					});
-				} else if (_.isString(loginData)) {
+				} else {
 					//Provider login
 					var auth = new ProviderAuth({ provider: loginData, app: this });
 					return auth.login().then(function (res) {
 						____________logger.info({ description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter' });
 						return Promise.resolve(res);
 					});
-				} else {
-					____________logger.error({ description: 'Incorrectly fomatted login information.', signupData: signupData, func: 'login', obj: 'Matter' });
-					return Promise.reject({ message: 'Login requires an object or a string.' });
 				}
 			}
 
@@ -677,8 +696,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function getCurrentUser() {
 				var _this6 = this;
 
-				if (this.storage.item(_config.tokenUserDataName)) {
-					return Promise.resove(this.storage.getItem(_config.tokenUserDataName));
+				if (this.currentUser) {
+					return Promise.resolve(this.currentUser);
 				} else {
 					if (this.isLoggedIn) {
 						return ___________request.get(this.endpoint + '/user').then(function (response) {
@@ -701,11 +720,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 			}
-		}, {
-			key: 'updateProfile',
 
 			/** updateProfile
     */
+		}, {
+			key: 'updateProfile',
 			value: function updateProfile(updateData) {
 				var _this7 = this;
 
@@ -724,8 +743,43 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return Promise.reject(errRes);
 				});
 			}
+		}, {
+			key: 'changePassword',
+			value: function changePassword(updateData) {
+				if (!this.isLoggedIn) {
+					____________logger.error({ description: 'No current user profile for which to change password.', func: 'changePassword', obj: 'Matter' });
+					return Promise.reject({ message: 'Must be logged in to change password.' });
+				}
+				//Send update request
+				____________logger.log({ description: 'Calling update endpoint to change password.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'changePassword', obj: 'Matter' });
+				return ___________request.put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
+					____________logger.log({ description: 'Update password request responded.', responseData: response, func: 'changePassword', obj: 'Matter' });
+					return response;
+				})['catch'](function (errRes) {
+					____________logger.error({ description: 'Error requesting password change.', error: errRes, func: 'changePassword', obj: 'Matter' });
+					return Promise.reject(errRes);
+				});
+			}
+		}, {
+			key: 'recoverPassword',
+			value: function recoverPassword() {
+				if (!this.isLoggedIn) {
+					____________logger.error({ description: 'No current user for which to recover password.', func: 'recoverPassword', obj: 'Matter' });
+					return Promise.reject({ message: 'Must be logged in to recover password.' });
+				}
+				//Send update request
+				____________logger.log({ description: 'Calling recover password endpoint.', endpoint: this.endpoint + '/accounts/' + this.token.data.username + '/recover', func: 'recoverPassword', obj: 'Matter' });
+				return ___________request.post(this.endpoint + '/accounts/' + this.token.data.username + '/recover').then(function (response) {
+					____________logger.log({ description: 'Recover password request responded.', responseData: response, func: 'recoverPassword', obj: 'Matter' });
+					return response;
+				})['catch'](function (errRes) {
+					____________logger.error({ description: 'Error requesting password recovery.', error: errRes, func: 'recoverPassword', obj: 'Matter' });
+					return Promise.reject(errRes);
+				});
+			}
 
-			/** updateProfile
+			/* set currentUser
+    * @description Sets currently user data
     */
 		}, {
 			key: 'isInGroup',
@@ -778,17 +832,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function isInGroups(checkGroups) {
 				var _this9 = this;
 
+				if (!this.isLoggedIn) {
+					____________logger.log({ description: 'No logged in user to check.', func: 'isInGroups', obj: 'Matter' });
+					return false;
+				}
 				//Check if user is in any of the provided groups
 				if (checkGroups && _.isArray(checkGroups)) {
-					return _.map(checkGroups, function (group) {
+					return _.every(_.map(checkGroups, function (group) {
 						if (_.isString(group)) {
 							//Group is string
 							return _this9.isInGroup(group);
 						} else {
 							//Group is object
-							return _this9.isInGroup(group.name);
+							if (_.has(group, 'name')) {
+								return _this9.isInGroup(group.name);
+							} else {
+								____________logger.error({ description: 'Invalid group object.', group: group, func: 'isInGroups', obj: 'Matter' });
+								return false;
+							}
 						}
-					});
+					}), true);
 				} else if (checkGroups && _.isString(checkGroups)) {
 					//TODO: Handle spaces within string list
 					var groupsArray = checkGroups.split(',');
@@ -798,6 +861,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return this.isInGroup(groupsArray[0]);
 				} else {
 					____________logger.error({ description: 'Invalid groups list.', func: 'isInGroups', obj: 'Matter' });
+					return false;
 				}
 			}
 		}, {
@@ -826,6 +890,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				____________logger.log({ description: 'Current User set.', user: userData, func: 'currentUser', obj: 'Matter' });
 				this.storage.setItem(_config.tokenUserDataName, userData);
 			},
+
+			/* get currentUser
+    * @description Gets currently logged in user or returns null
+    */
 			get: function get() {
 				if (this.storage.getItem(_config.tokenUserDataName)) {
 					return this.storage.getItem(_config.tokenUserDataName);
@@ -833,13 +901,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					return null;
 				}
 			}
+
+			/* Storage
+    *
+    */
 		}, {
 			key: 'storage',
 			get: function get() {
 				return storage;
 			}
 
-			/** updateProfile
+			/** Token
     */
 		}, {
 			key: 'token',
@@ -1577,21 +1649,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	var ___logger = matter.utils.logger;
 
 	var _File = (function () {
-		function _File(fileData) {
+		function _File(actionData) {
 			_classCallCheck(this, _File);
 
-			if (fileData && _.isObject(fileData) && _.has(fileData, ['path', 'app'])) {
-				this.path = fileData.path;
-				this.app = fileData.app;
+			if (actionData && _.isObject(actionData) && _.has(actionData, 'fileData') && _.has(actionData, 'app')) {
+				_.extend(this, actionData.fileData);
+				this.app = actionData.app;
 				this.pathArray = this.path.split('/');
 				//Get name from data or from pathArray
-				this.name = _.has(fileData, 'name') ? fileData.name : this.pathArray[this.pathArray.length - 1];
-			} else if (fileData && !_.isObject(fileData)) {
+				this.name = _.has(actionData.fileData, 'name') ? actionData.fileData.name : this.pathArray[this.pathArray.length - 1];
+			} else if (actionData && !_.isObject(actionData)) {
 				___logger.error({ description: 'File data is not an object. File data must be an object that includes path and appName.', func: 'constructor', obj: 'File' });
 				//TODO: Get appName from path data?
 				throw new Error('File data must be an object that includes path and appName.');
 			} else {
-				___logger.error({ description: 'File data include path and app is needed to create a File action.', func: 'constructor', obj: 'File' });
+				___logger.error({ description: 'File data that includes path and app is needed to create a File action.', func: 'constructor', obj: 'File' });
 				throw new Error('File data with path and app is needed to create file action.');
 			}
 			this.type = 'file';
@@ -1605,17 +1677,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		_createClass(_File, [{
 			key: 'get',
 			value: function get() {
+				var _this10 = this;
+
 				if (!this.app || !this.app.frontend) {
-					___logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'File' });
-					return Promise.reject({ message: 'Front end data is required to get file.' });
+					___logger.log({ description: 'Application Frontend data not available. Calling applicaiton get.', func: 'get', obj: 'File' });
+					return this.app.get().then(function (appData) {
+						_this10.app = appData;
+						___logger.log({ description: 'Application get successful. Getting file.', app: appData, func: 'get', obj: 'File' });
+						return _this10.get();
+					}, function (err) {
+						___logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', error: err, func: 'get', obj: 'File' });
+						return Promise.reject({ message: 'Front end data is required to get file.' });
+					});
 				} else {
 					var saveParams = {
 						Bucket: this.app.frontend.bucketName,
 						Key: this.path
 					};
-					//Set contentType from fileData to ContentType parameter of new object
-					if (fileData.contentType) {
-						saveParams.ContentType = fileData.contentType;
+					//Set contentType from actionData to ContentType parameter of new object
+					if (this.contentType) {
+						saveParams.ContentType = this.contentType;
 					}
 					___logger.debug({ description: 'File get params built.', saveParams: saveParams, fileData: fileData, func: 'get', obj: 'File' });
 					return s3.getObject(saveParams, function (err, data) {
@@ -1635,7 +1716,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'open',
 			value: function open() {
-				return this.get;
+				return this.get();
 			}
 		}, {
 			key: 'publish',
@@ -1690,7 +1771,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'getDefaultContent',
-			value: function getDefaultContent() {}
+			value: function getDefaultContent() {
+				//TODO: Fill with default data for matching file type
+			}
 		}, {
 			key: 'ext',
 			get: function get() {
@@ -1746,14 +1829,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'get',
 			value: function get() {
-				var _this10 = this;
+				var _this11 = this;
 
 				if (!this.app.frontend || !this.app.frontend.bucketName) {
 					__logger.warn({ description: 'Application Frontend data not available. Calling .get().', app: this.app, func: 'get', obj: 'Files' });
 					return this.app.get().then(function (applicationData) {
-						__logger.warn({ description: 'Get returned', data: applicationData, func: 'get', obj: 'Files' });
-						_this10.app = applicationData;
-						return _this10.get();
+						__logger.log({ description: 'Application get returned.', data: applicationData, func: 'get', obj: 'Files' });
+						_this11.app = applicationData;
+						if (_.has(applicationData, 'frontend')) {
+							return _this11.get();
+						} else {
+							__logger.error({ description: 'Application does not have Frontend to get files from.', func: 'get', obj: 'Files' });
+							return Promise.reject({ message: 'Application does not have frontend to get files from.' });
+						}
 					}, function (err) {
 						__logger.error({ description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files' });
 						return Promise.reject({ message: 'Bucket name required to get objects' });
@@ -1766,7 +1854,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 							setAWSConfig();
 						}
 						var s3 = new AWS.S3();
-						var listParams = { Bucket: _this10.app.frontend.bucketName };
+						var listParams = { Bucket: _this11.app.frontend.bucketName };
 						return {
 							v: new Promise(function (resolve, reject) {
 								s3.listObjects(listParams, function (err, data) {
@@ -1787,7 +1875,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}, {
 			key: 'add',
-			value: function add() {
+			value: function add(fileData) {
 				//TODO: Add a file to files list
 			}
 		}, {
@@ -1974,14 +2062,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'applyTemplate',
 			value: function applyTemplate() {
-				var _this11 = this;
+				var _this12 = this;
 
 				_logger.error({ description: 'Applying templates to existing applications is not currently supported.', func: 'applyTemplate', obj: 'Application' });
 				return _request.post(this.appEndpoint, appData).then(function (response) {
-					_logger.info({ description: 'Template successfully applied to application.', response: response, application: _this11, func: 'applyTemplate', obj: 'Application' });
+					_logger.info({ description: 'Template successfully applied to application.', response: response, application: _this12, func: 'applyTemplate', obj: 'Application' });
 					return new Application(response);
 				})['catch'](function (errRes) {
-					_logger.error({ description: 'Error applying template to application.', error: errRes, application: _this11, func: 'applyTemplate', obj: 'Application' });
+					_logger.error({ description: 'Error applying template to application.', error: errRes, application: _this12, func: 'applyTemplate', obj: 'Application' });
 					return Promise.reject(errRes.response.text || errRes.response);
 				});
 			}

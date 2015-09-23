@@ -8,7 +8,7 @@
     "angular-tree-control": "~0.2.15",
     "angular-ui-ace": "bower",
     "devices.css": "*",
-    "kyper-grout": "~0.0.7",
+    "kyper-grout": "~0.0.9",
     "kyper-matter": "~0.1.1",
     "lodash": "~3.10.1",
     "ng-file-upload": "~7.2.1",

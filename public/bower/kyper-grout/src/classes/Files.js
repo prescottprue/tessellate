@@ -30,9 +30,14 @@ class Files {
 		if (!this.app.frontend || !this.app.frontend.bucketName) {
 			logger.warn({description: 'Application Frontend data not available. Calling .get().', app: this.app, func: 'get', obj: 'Files'});
 			return this.app.get().then((applicationData) => {
-				logger.warn({description: 'Get returned', data: applicationData, func: 'get', obj: 'Files'});
+				logger.log({description: 'Application get returned.', data: applicationData, func: 'get', obj: 'Files'});
 				this.app = applicationData;
-				return this.get();
+				if (_.has(applicationData, 'frontend')) {
+					return this.get();
+				} else {
+					logger.error({description: 'Application does not have Frontend to get files from.', func: 'get', obj: 'Files'});
+					return Promise.reject({message: 'Application does not have frontend to get files from.'});
+				}
 			}, (err) => {
 				logger.error({description: 'Application Frontend data not available. Make sure to call .get().', func: 'get', obj: 'Files'});
 				return Promise.reject({message: 'Bucket name required to get objects'});
@@ -58,7 +63,7 @@ class Files {
 			});
 		}
 	}
-	add() {
+	add(fileData) {
 		//TODO: Add a file to files list
 	}
 	del() {
@@ -68,6 +73,7 @@ class Files {
 		logger.debug({description: 'Build Structure called.', func: 'buildStructure', obj: 'Application'});
 		return this.get().then((filesArray) => {
 			const childStruct = childrenStructureFromArray(filesArray);
+			//TODO: have child objects have correct classes (file/folder)
 			logger.log({description: 'Child struct from array.', childStructure: childStruct, func: 'buildStructure', obj: 'Application'});
 			return childStruct;
 		}, (err) => {

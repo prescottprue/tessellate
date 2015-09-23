@@ -15,7 +15,7 @@
         <!-- File Tree -->
         <div class="sidemenu-section" layout="column" layout-margin>
 	        <div class="filestree-wrapper" layout-padding>
-	          <treecontrol class="tree-classic" tree-model="structure" options="tree.opts" on-selection="open(node)" selected-node="tree.selectedNode" expanded-nodes="tree.expandedNodes">
+	          <treecontrol class="tree-classic" tree-model="structure" options="tree.opts" on-selection="openFile(node)" selected-node="tree.selectedNode" expanded-nodes="tree.expandedNodes">
 	            {{node.name}}
 	          </treecontrol>
 	        </div>
@@ -40,7 +40,7 @@
         <div class="sidemenu-section" layout="column" layout-margin>
 	        <span class="sidemenu-section-labels">Upload</span>
 	        <div layout="column" layout-fill >
-	          <div ngf-drop ngf-select ng-model="files" class="drop-box" 
+	          <div ngf-drop ngf-select ng-model="files" class="drop-box"
 	          ngf-drag-over-class="dragover" ngf-multiple="true" ngf-allow-dir="true"
 	          accept="image/*,application/pdf" layout="row" layout-align="center center" layout-padding>
 	            <div flex>
@@ -64,14 +64,14 @@
     </section>
     <section class="build-drag-section" resizable r-directions="['right']" r-flex="true" rWidth="100" r-width="700" r-height="800">
     <div ui-ace="{
-	    showGutter:true, 
-	    useWrapMode: true, 
-	    theme:'monokai', 
-	    onLoad:aceLoaded, 
+	    showGutter:true,
+	    useWrapMode: true,
+	    theme:'monokai',
+	    onLoad:aceLoaded,
 	    onChange:aceChanged,
 	    mode: 'javascript',
-	    advanced: { 
-	    	enableSnippets: true, 
+	    advanced: {
+	    	enableSnippets: true,
 	    	enableBasicAutocompletion: true,
 	      enableLiveAutocompletion: true
 	  	}
