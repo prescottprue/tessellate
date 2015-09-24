@@ -117,6 +117,7 @@ module.exports =  {
 			endpoint: '/apps/:name',
 			controller:appCtrls.get
 		},
+		
 		{
 			type:'GET',
 			endpoint: '/apps/:name/providers',
@@ -166,6 +167,11 @@ module.exports =  {
 			type:'PUT',
 			endpoint: '/apps/:name/signup',
 			controller:appCtrls.signup
+		},
+		{
+			type:'GET',
+			endpoint: '/apps/:name/account',
+			controller:appCtrls.verify
 		},
 		{
 			type:'PUT',

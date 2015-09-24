@@ -24,6 +24,8 @@ var _ = require('underscore');
 var q = require('q');
 var logger = require('../utils/logger');
 var Application = require('../models/application').Application;
+var Account = require('../models/account').Account;
+
 var Group = require('../models/group').Group;
 
 /**
@@ -722,6 +724,58 @@ exports.signup = function(req, res, next){
 	} else {
 		logger.error({description: 'Application name is required to signup.', func: 'signup', obj: 'ApplicationsCtrl'});
 		res.status(400).send('Application name is required to signup.');
+	}
+};
+/**
+ * @api {put} /verify Verify
+ * @apiDescription Verify token and get matching account's data.
+ * @apiName Verify
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Object} accountData Object containing accounts data.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       name: "John Doe",
+ *       username:"hackerguy1",
+ *       title: "Front End Developer",
+ *       role:"admin",
+ *       createdAt:1438737438578
+ *       updatedAt:1438737438578
+ *     }
+ *
+ */
+exports.verify = function(req, res, next){
+	//TODO:Actually verify account instead of just returning account data
+	//TODO: Get applicaiton and verify that user exists within applicaiton
+	console.log('verify request:', req.user);
+	var query;
+	if(req.user){
+		//Find by username in token
+		if(_.has(req.user, "username")){
+			query = Account.findOne({username:req.user.username}).select('username email sessionId');
+		}
+		//Find by username in token
+		else {
+			query = Account.findOne({email:req.user.email}).select('username email sessionId');
+		}
+		query.exec(function (err, result){
+			// console.log('verify returned:', result, err);
+			if (err) {
+				logger.error({description:'Error querying for account', error: err, func: 'verify', obj: 'ApplicationsCtrl'});
+				return res.status(500).send('Unable to verify token.');
+			}
+			if(!result){ //Matching account already exists
+				// TODO: Respond with a specific error code
+				logger.error({description:'Error querying for account', error: err, func: 'verify', obj: 'ApplicationsCtrl'});
+				return res.status(400).send('Account with this information does not exist.');
+			}
+			res.json(result);
+		});
+	} else {
+		logger.log('Invalid auth token');
+		res.status(401).json({status:401, message:'Valid Auth token required to verify'});
 	}
 };
 /**
