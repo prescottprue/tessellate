@@ -126,6 +126,11 @@ AccountSchema.methods = {
 		});
 		return d.promise;
 	},
+	signup: function(signupData){
+		logger.log({description: 'Signup called.', signupData: signupData, func: 'Signup', obj: 'Account'});
+		var query;
+		
+	},
 	comparePassword: function(passwordAttempt){
 		var self = this;
 		logger.log({description: 'Compare password called.', func: 'comparePassword', obj: 'Account'});

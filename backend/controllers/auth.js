@@ -7,7 +7,6 @@ var _ = require('underscore');
 var logger = require('../utils/logger');
 var Account = require('../models/account').Account;
 var Session = require('../models/session').Session;
-
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new account and start a session as that new account
@@ -92,36 +91,33 @@ exports.signup = function(req, res, next){
  *     }
  *
  */
-exports.login = function(req, res, next){
+exports.login = (req, res, next) => {
 	var query;
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
 		res.status(400).json({code:400, message:"Accountname or Email required to login"});
 	} else {
 		if(_.has(req.body, "username")){
 			query = Account.findOne({"username":req.body.username}).populate({path:'groups', select:'name'}); // find using username field
-			console.log('login by username called.')
 		} else {
 			query = Account.findOne({"email":req.body.email}); // find using email field
 		}
-		query.exec(function (err, currentAccount){
-			if(err) {
-				console.error('[AuthCtrl.login] Login error:', err);
-				return res.status(500).send('Error logging in.');
-			}
+		query.then((currentAccount) => {
 			if(!currentAccount){
-				console.error('[AuthCtrl.login] Account not found');
+				logger.error({description: 'Account not found.', func: 'login', obj: 'AuthCtrl'});
 				// return next (new Error('Account could not be found'));
 				return res.status(409).send('Account not found.');
 			}
-			currentAccount.login(req.body.password).then(function(token){
-				// console.log('[AuthCtrl.login] Login Successful. Token:', token);
-				
-				res.send({token:token, account:currentAccount.strip()});
-			}, function(err){
+			currentAccount.login(req.body.password).then((loginRes) => {
+				logger.log({description: 'Login Successful.', func: 'login', obj: 'AuthCtrl'});
+				res.send(loginRes);
+			}, (err) => {
 				//TODO: Handle wrong password
-				console.log('[AuthCtrl.login] Login Error:', err)
+				logger.log({description: 'Login Error.', error: err, func: 'login', obj: 'AuthCtrl'});
 				res.status(400).send('Error logging in.');
 			});
+		}, (err) => {
+			logger.error({description: 'Login error', error: err, func: 'login', obj: 'AuthCtrl'});
+			return res.status(500).send('Error logging in.');
 		});
 	}
 };
