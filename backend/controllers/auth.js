@@ -3,7 +3,7 @@
  */
 var mongoose = require('mongoose');
 var url = require('url');
-var _ = require('underscore');
+var _ = require('lodash');
 var logger = require('../utils/logger');
 var Account = require('../models/account').Account;
 var Session = require('../models/session').Session;
@@ -30,23 +30,19 @@ var Session = require('../models/session').Session;
  *     }
  *
  */
-exports.signup = function(req, res, next){
+exports.signup = (req, res, next) => {
 	var query;
-	console.log('Signup request with :', req.body);
+	logger.log({description: 'Signup request.', body: req.body});
 	//Check for username or email
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
-		res.status(400).json({code:400, message:"Username or Email required to signup"});
+		return res.status(400).json({code:400, message:"Username or Email required to signup"});
 	}
 	if(_.has(req.body, "username")){
 		query = Account.findOne({"username":req.body.username}); // find using username field
 	} else {
 		query = Account.findOne({"email":req.body.email}); // find using email field
 	}
-	query.exec(function (err, result){
-		if (err) {
-			console.error('[AuthCtrl.signup] Error querying for account.', err);
-			return res.status(500).send('Error querying for account.'); 
-		}
+	query.then((result) => {
 		if(result){ //Matching account already exists
 			// TODO: Respond with a specific error code
 			return res.status(400).send('Account with this information already exists.');
@@ -55,11 +51,14 @@ exports.signup = function(req, res, next){
 		//Build account data from request
 		var account = new Account(req.body);
 		// TODO: Start a session with new account
-		account.createWithPass(req.body.password).then(function(newAccount){
+		account.createWithPass(req.body.password).then((newAccount) => {
 			res.send(newAccount);
-		}, function(err){
+		}, (err) => {
 			res.status(500).json({code:500, message:'Error hashing password', error:err});
 		});
+	}, (err) => {
+		logger.error({description: 'Error querying for account.', error: err, func: 'signup', obj: 'AuthCtrl'});
+		res.status(500).send('Error querying for account.'); 
 	});
 };
 
@@ -137,21 +136,21 @@ exports.login = (req, res, next) => {
  *     }
  *
  */
-exports.logout = function(req, res, next){
+exports.logout = (req, res, next) => {
 	//TODO:Invalidate token
 	var account = new Account(req.user);
-	// console.log('ending accounts session:', account);
-	account.endSession().then(function(){
-		// console.log('successfully ended session');
-		res.send({message:'Logout successful'});
-	}, function(err){
-		console.log('Error ending session:', err);
-		res.status(500).send({message:'Error ending session'});
+	// logger.log('ending accounts session:', account);
+	account.endSession().then(() => {
+		logger.log({description: 'Successfully ended session', func: 'logout', obj: 'AuthCtrl'});
+		res.send({message:'Logout successful.'});
+	}, (err) => {
+		logger.error({description: 'Error ending session.', error: err});
+		res.status(500).send({message:'Error ending session.'});
 	});
 };
 
 /**
- * @api {put} /verify Verify
+ * @api {put} /account Verify
  * @apiDescription Verify token and get matching account's data.
  * @apiName Verify
  * @apiGroup Auth
@@ -170,9 +169,9 @@ exports.logout = function(req, res, next){
  *     }
  *
  */
-exports.verify = function(req, res, next){
+exports.verify = (req, res, next) => {
 	//TODO:Actually verify account instead of just returning account data
-	// console.log('verify request:', req.user);
+	// logger.log('verify request:', req.user);
 	var query;
 	if(req.user){
 		//Find by username in token
@@ -183,21 +182,19 @@ exports.verify = function(req, res, next){
 		else {
 			query = Account.findOne({email:req.user.email});
 		}
-		query.exec(function (err, result){
-			// console.log('verify returned:', result, err);
-			if (err) {
-				console.error('[AuthCtrl.verify] Error querying for account', err);
-				return res.status(500).send('Unable to verify token.');
-			}
+		query.then((result) => {
 			if(!result){ //Matching account already exists
 				// TODO: Respond with a specific error code
-				console.error('[AuthCtrl.verify] Error querying for account', err);
+				logger.error({description: 'Account not found.', error: err, func: 'verify', obj: 'AuthCtrl'});
 				return res.status(400).send('Account with this information does not exist.');
 			}
 			res.json(result);
+		}, (err) => {
+			logger.error({description: 'Error querying for account', error: err, func: 'verify', obj: 'AuthCtrl'});
+			return res.status(500).send('Unable to verify token.');
 		});
 	} else {
-		console.log('Invalid auth token');
+		logger.error({description: 'Invalid auth token.', func: 'verify', obj: 'AuthCtrl'});
 		res.status(401).json({status:401, message:'Valid Auth token required to verify'});
 	}
 };
