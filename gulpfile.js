@@ -7,7 +7,9 @@ rename = require('gulp-rename'),
 browserSync = require('browser-sync').create(),
 shell = require('gulp-shell'),
 _ = require('lodash'),
-reload = browserSync.reload;
+reload = browserSync.reload,
+mocha = require('gulp-mocha');
+require('babel/register');
 
 var config = require('./config.json');
 var assets = require('./assets');
@@ -39,7 +41,26 @@ gulp.task('serve', function () {
   });
 });
 
-
+gulp.task('test', function(){
+  gulp.src('test/**/*.spec.js')
+   .pipe(mocha({
+       reporter: 'dot',
+       clearRequireCache: true,
+       ignoreLeaks: true
+   }));
+});
+//Run test with mocha and generate code coverage with istanbul
+gulp.task('coverage', ['lint-src', 'lint-test'], function(done) {
+  require('babel-core/register');
+  gulp.src(['src/**/*.js', '!gulpfile.js', '!dist/**/*.js', '!examples/**', '!node_modules/**'])
+    .pipe($.istanbul({ instrumenter: isparta.Instrumenter }))
+    .pipe($.istanbul.hookRequire())
+    .on('finish', function() {
+      return test()
+        .pipe($.istanbul.writeReports())
+        .on('end', done);
+    });
+});
 //Generate api documentation
 gulp.task('docs', function(){
   apidoc.exec({

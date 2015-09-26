@@ -60,9 +60,9 @@ ApplicationSchema.methods = {
 	saveNew: () => {
 		logger.log({description: 'Save application called.', func: 'saveNew', obj: 'Application'});
 		return this.save((err, savedApp) => {
-			if (err) { 
+			if (err) {
 				logger.error({description: 'Error saving Application.', error: err, func: 'saveNew', obj: 'Application'});
-				return Promise.reject(err); 
+				return Promise.reject(err);
 			} else if (!savedApp) {
 				logger.error({description: 'Unable to save Application.', func: 'saveNew', obj: 'Application'});
 				return Promise.reject({message: 'Application could not be saved.'});
@@ -133,9 +133,9 @@ ApplicationSchema.methods = {
 			logger.log({description: 'New bucket storage created for application.', bucket: bucket, func: 'createStorage', obj: 'Application'});
 			// TODO: Handle different bucket regions and site urls
 			this.frontend = {
-				bucketName:bucketName, 
-				provider:'Amazon', 
-				siteUrl:bucketName + '.s3-website-us-east-1.amazonaws.com', 
+				bucketName:bucketName,
+				provider:'Amazon',
+				siteUrl:bucketName + '.s3-website-us-east-1.amazonaws.com',
 				bucketUrl:'s3.amazonaws.com/' + bucketName
 			};
 			// console.log('[createStorage()] about to save new with bucket info:', self);
@@ -278,7 +278,7 @@ ApplicationSchema.methods = {
 					}
 				});
 			} else {
-				//Error other than account not found				
+				//Error other than account not found
 				logger.error({description: 'Error finding account.', error: JSON.stringify(err), func: 'signup', obj: 'Application'});
 				return Promise.reject(err);
 			}
@@ -330,7 +330,7 @@ ApplicationSchema.methods = {
 				return account;
 			}, (err) => {
 				logger.error({message: 'Error looking for account in app', account:account, error: JSON.stringify(err), obj:'Application', func:'findAccount'})
-				//TODO: 
+				//TODO:
 				return Promise.reject(err);
 			});
 		}, (err) => {
@@ -514,7 +514,7 @@ ApplicationSchema.methods = {
 			if(!group){
 				logger.error({description:'Application Group could not be updated.', func:'updateGroup', groupData: groupData, obj: 'Application'});
 				return Promise.reject({message: 'Unable to update group.'});
-			} 
+			}
 			logger.info({description:'Group Updated successfully.', func:'updateGroup', obj: 'Application'});
 			return group;
 		}, (err) => {
@@ -560,7 +560,7 @@ ApplicationSchema.methods = {
 			logger.error({description:'Error deleting group.', func:'deleteGroup', obj: 'Application'});
 			return Promise.reject(err);
 		});
-	},	
+	},
 	//Upload file to bucket
 	publishFile: (fileData) => {
 		logger.log({description: 'Publish file called.', fileData: fileData, func: 'publishFile', obj: 'Application'});
@@ -592,7 +592,7 @@ ApplicationSchema.methods = {
 				logger.log({description: 'Directory was not provided. Default directory used.', id: directoryId, func: 'addAccountToDirectory', obj: 'Application'});
 			}
 			logger.log({description: 'Searching for directory.', id: directoryId, accountData: accountData, func: 'addAccountToDirectory', obj: 'Application'});
-			return dQuery.exec((result) => {
+			return dQuery.then((result) => {
 				if(!result){
 					logger.error({description: 'Directory not found.', id: directoryId, func: 'addAccountToDirectory', obj: 'Application'});
 					return Promise.reject({message: 'Directory not found.'});
@@ -607,7 +607,7 @@ ApplicationSchema.methods = {
 					return Promise.reject(err);
 				});
 			}, (err) => {
-				logger.error({description: 'Error finding directory.', error: err, id: directoryId, error: err, func: 'addAccountToDirectory', obj: 'Application'});
+				logger.error({description: 'Error finding directory.', error: err, id: directoryId, func: 'addAccountToDirectory', obj: 'Application'});
 				return Promise.reject(err);
 			});
 		} else {
@@ -636,7 +636,7 @@ function findAccount(find){
 		if(!foundAccount){
 			logger.error({description: 'Account could not be found.', func: 'findAccount', file: 'Application Model'});
 			return Promise.reject({message:'Account could not be found'});
-		} 
+		}
 		logger.info({description: 'Account found successfully.', foundAccount: foundAccount, func: 'findAccount', file: 'Application Model'});
 		return foundAccount;
 	}, () => {

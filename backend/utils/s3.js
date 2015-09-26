@@ -5,7 +5,7 @@
 var aws = require('aws-sdk'),
 s3Sdk = require('s3'),
 q = require('q'),
-_ = require('underscore');
+_ = require('underscore'),
 logger = require('./logger');
 
 //Load config variables
@@ -122,7 +122,7 @@ exports.uploadDir = uploadDirToBucket;
 function getBuckets(){
 	var d = q.defer();
 	s3.listBuckets(function(err, data) {
-	  if (err) { logger.log("Error:", err); 
+	  if (err) { logger.log("Error:", err);
 		  d.reject(err);
 		}
 	  else {
@@ -353,7 +353,7 @@ function getObjects(bucketName){
 		d.reject({message:'Bucket name required to get objects'});
 	}
 	s3.listObjects({Bucket:bucketName}, function(err, data) {
-	  if (err) { 
+	  if (err) {
 	  	logger.log("Error:", err);
 		  d.reject(err);
 		}

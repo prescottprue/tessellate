@@ -13,6 +13,9 @@ switch (env) {
 	case "production":
 		config = require("./env/production");
 		break;
+	case "test":
+		config = require("./env/test");
+		break;
 	default:
 		config = require("./env/production");
 		break;
