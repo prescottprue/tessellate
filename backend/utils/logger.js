@@ -1,10 +1,24 @@
 var conf = require('../config/default').config;
 var _ = require('underscore');
 
+//External logging for production
+var winston = require('winston');
+var Papertrail = require('winston-papertrail').Papertrail; //Exposes `winston.transports.Papertrail`
+var papertrailLogger = new winston.Logger({
+  transports: [
+    new winston.transports.Papertrail({
+      host: 'logs.papertrailapp.com',
+      port: 12345,
+			colorize: true
+    })
+  ]
+});
 exports.log = function(logData){
 	var msgStr = buildMessageStr(logData);
-	if(conf.envName == 'local'){
+	if(conf.envName === 'local'){
 		console.log(logData);
+	} else if (conf.envName === 'production') {
+		papertrailLogger.log(logData);
 	} else {
 		console.log(msgStr);
 	}
@@ -13,6 +27,8 @@ exports.info = function(logData){
 	var msgStr = buildMessageStr(logData);
 	if(conf.envName == 'local'){
 		console.log(msgStr);
+	} else if (conf.envName === 'production') {
+		papertrailLogger.info(logData) || papertrailLogger.log(logData);
 	} else {
 		console.log(msgStr);
 	}
@@ -21,6 +37,8 @@ exports.debug = function(logData){
 	var msgStr = buildMessageStr(logData);
 	if(conf.envName == 'local'){
 		console.log(msgStr);
+	} else if (conf.envName === 'production') {
+		papertrailLogger.info(logData) || papertrailLogger.log(logData);
 	} else {
 		console.log(msgStr);
 	}
@@ -29,6 +47,8 @@ exports.warn = function(logData){
 	var msgStr = buildMessageStr(logData);
 	if(conf.envName == 'local'){
 		console.warn(msgStr);
+	} else if (conf.envName === 'production') {
+		papertrailLogger.info(logData) || papertrailLogger.log(logData);
 	} else {
 		console.warn(msgStr);
 	}
@@ -37,6 +57,8 @@ exports.error = function(logData){
 	var msgStr = buildMessageStr(logData);
 	if(conf.envName == 'local'){
 		console.error(msgStr);
+	} else if (conf.envName === 'production') {
+		papertrailLogger.error(logData) || papertrailLogger.log(logData);
 	} else {
 		console.error(msgStr);
 	}
