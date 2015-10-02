@@ -1,13 +1,10 @@
 /**
  * @description Account controller functions
  */
-var mongoose = require('mongoose');
-var url = require('url');
 var _ = require('lodash');
-var q = require('q');
-var w = require('../utils/mongoPromise');
-var Account = require('../models/account').Account;
 var logger = require('../utils/logger');
+var Account = require('../models/account').Account;
+
 /**
  * @api {get} /accounts Get Account(s)
  * @apiDescription Get list of accounts
@@ -30,23 +27,23 @@ var logger = require('../utils/logger');
  *     }
  *
  */
-exports.get = function(req, res, next){
-	console.log({message:'Account(s) get called.', func:'get', obj:'AccountCtrl'})
+exports.get = (req, res, next) => {
+	logger.log({message:'Account(s) get called.', func:'get', obj:'AccountCtrl'})
 	var query = Account.find({}, {username:1, email:1});
 	if(_.has(req, 'params') && _.has(req.params, "username")){ //Get data for a specific account
-		console.log({message:'Get account called with username.', username:req.params.username, func:'get', obj:'AccountCtrl'})
+		logger.log({message:'Get account called with username.', username:req.params.username, func:'get', obj:'AccountCtrl'})
 		query = Account.findOne({username:req.params.username}, {password:0, __v:0});
 	}
-	return query.exec(function(err, accountData){
-		if(err){
-			console.error({message:'Error finding account data.', error:err, func:'get', obj:'AccountCtrl'})
-			return res.status(500).send('Error getting account.');
-		} else if(!accountData){
-			console.log({message:'No account data', func:'get', obj:'AccountCtrl'})
+	query.then((accountData) => {
+		if(!accountData){
+			logger.log({message:'No account data', func:'get', obj:'AccountCtrl'})
 			return res.send(400).send('Account not found.');
 		} else {
 			res.send(accountData);
 		}
+	}, (err) => {
+		logger.error({message:'Error finding account data.', error:err, func:'get', obj:'AccountCtrl'})
+		return res.status(500).send('Error getting account.');
 	});
 };
 /**
@@ -74,7 +71,7 @@ exports.get = function(req, res, next){
  *     }
  *
  */
-exports.add = function(req, res, next){
+exports.add = (req, res, next) => {
 	//Query for existing account with same _id
 	var query;
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
@@ -85,19 +82,19 @@ exports.add = function(req, res, next){
 	} else {
 		query = Account.findOne({"email":req.body.email}); // find using email field
 	}
-	w.runQuery(query).then(function(){
+	query.then(() =>  {
 		var account = new Account(req.body);
-		account.saveNew().then(function(newAccount){
+		account.saveNew().then((newAccount) => {
 			//TODO: Set temporary password
 			res.json(newAccount);
-		}, function(err){
-			console.error('error creating new account:', err);
-			res.status(500).send('account could not be added');
+		}, (err) => {
+			logger.error({description: 'Error creating new account.', error: err, func: 'add', obj: 'AccountsCtrl'});
+			res.status(500).send('Account could not be added.');
 		});
-	}, function(err){
+	}, (err) => {
 		//next() //Pass error on
-		console.error('error creating new account:', err);
-		res.status(500).send({message:'Account could not be added.'});
+		logger.error({description: 'Error creating new account.', error: err, func: 'add', obj: 'AccountsCtrl'});
+		res.status(500).send('Account could not be added.');
 	});
 };
 /**
@@ -124,10 +121,10 @@ exports.add = function(req, res, next){
  *     }
  *
  */
-exports.update = function(req, res, next){
-	console.log('update called with:', req.body, req.params);
+exports.update = (req, res, next) => {
+	logger.log({description: 'Update account called.', body: req.body, params: req.params});
 	if(_.has(req.params, "username")){
-		Account.findOne({username:req.params.username}, function (err, account){
+		Account.findOne({username:req.params.username}, (err, account) => {
 			if(err){
 				logger.error({description: 'Error finding account.', username: req.params.username,error: err, func:'update', obj:'AccountsCtrl'});
 				res.status(500).send('Error finding account.');
@@ -137,20 +134,20 @@ exports.update = function(req, res, next){
 				//Select only valid parameters
 				var updateData = _.pick(req.body, ['username', 'email', 'name', 'frontend', 'backend', 'groups', 'sessionId', 'password']);
 				//Apply each updated value to account.
-				_.each(_.keys(updateData), function(key){
+				_.each(_.keys(updateData), (key) => {
 					account[key] = updateData[key];
 				});
-				console.log('account before save:', account);
-				account.saveNew().then(function(savedAccount){
+				logger.log('account before save:', account);
+				account.saveNew().then((savedAccount) => {
 					logger.log({description: 'Account saved successfully.'});
 					res.json(savedAccount);
-				}, function(err){
+				}, (err) => {
 					logger.error({description: 'Error saving account.', error: err, func: 'update', obj: 'AccountsCtrl'});
 					res.status(500).send('Error updating account.');
 				});
 			}
 		});
-		// Account.update({username:req.params.username}, req.body, {upsert:false}, function (err, numberAffected, result) {
+		// Account.update({username:req.params.username}, req.body, {upsert:false},  (err, numberAffected, result)  => {
 		// 	if (err) { return next(err); }
 		// 	//TODO: respond with updated data instead of passing through req.body
 		// 	res.json(req.body);
@@ -179,15 +176,15 @@ exports.update = function(req, res, next){
  *     }
  *
  */
-exports.delete = function(req, res, next){
+exports.delete = (req, res, next) => {
 	// var urlParams = url.parse(req.url, true).query;
 	if(_.has(req.params, "username")){
 		var query = Account.findOneAndRemove({'username':req.params.username}); // find and delete using id field
-		w.runQuery(query).then(function(result){
-			console.log('Account deleted successfully:');
+		query.then((result) => {
+			logger.log('Account deleted successfully:');
 			res.json(result);
-		}, function(err){
-			console.error('Account could not be deleted:', err);
+		}, (err) => {
+			logger.error('Account could not be deleted:', err);
 			res.status(500).send({message:'Account cound not be deleted'});
 		});
 	}
@@ -212,26 +209,26 @@ exports.delete = function(req, res, next){
  *     }
  *
  */
-exports.search = function(req, res, next){
+exports.search = (req, res, next) => {
 	// var urlParams = url.parse(req.url, true).query;
 	var usernameQuery = createAccountQuery('username', req.params.searchQuery);
 	var emailQuery = createAccountQuery('email', req.params.searchQuery);
 	//Search usernames
-	w.runQuery(usernameQuery).then(function(usernameResults){
+	usernameQuery.then((usernameResults) => {
 		if(_.isArray(usernameResults) && usernameResults.length == 0){
 			//Search emails
-			w.runQuery(emailQuery).then(function (emailResults){
-				console.log('Account search by email resulted:', emailResults);
+			emailQuery.then((emailResults) => {
+				logger.log('Account search by email resulted:', emailResults);
 				res.json(emailResults);
-			}, function (err){
+			}, (err) => {
 				res.status(500).send({message:'Account cound not be found'});
 			});
 		} else {
-			console.log('Account search by username resulted:', usernameResults);
+			logger.log('Account search by username resulted:', usernameResults);
 			res.json(usernameResults);
 		}
-	}, function (err){
-		console.error('Account could not be found:', err);
+	}, (err) => {
+		logger.error({description: 'Error searching for account.', error: err, func: 'search', obj: 'AccountsCtrls'});
 		res.status(500).send({message:'Account cound not be found'});
 	});
 };

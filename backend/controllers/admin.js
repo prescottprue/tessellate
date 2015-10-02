@@ -1,12 +1,10 @@
 /**
  * @description Admin Controller
  */
-var Application = require('../models/application').Application;
-var mongoose = require('mongoose');
-var url = require('url');
-var _ = require('underscore');
-var q = require('q');
+var logger = require('../utils/logger');
 var fileStorage = require('../utils/fileStorage');
+var Application = require('../models/application').Application;
+
 /**
  * @api {get} /admin/buckets Get Buckets
  * @apiDescription Get list of buckets.
@@ -37,12 +35,13 @@ var fileStorage = require('../utils/fileStorage');
  *     ]
  *
  */
-exports.getBuckets = function(req, res, next){
-	fileStorage.getBuckets().then(function(buckets){
-		console.log("buckets", buckets);
+exports.getBuckets = (req, res, next) => {
+	//TODO: Limit/paginate number of buckets returned
+	fileStorage.getBuckets().then((buckets) => {
+		logger.log({description: 'Buckets loaded.', buckets: buckets, func: 'getBuckets', obj: 'AdminCtrls'});
 		res.send(buckets);
-	}, function(err){
-		console.error('Error getting buckets:', err);
+	}, (err) => {
+		logger.error({description: 'Error getting buckets:', error: err, func: 'getBuckets', obj: 'AdminCtrls'});
 		res.status(500).send('Error getting buckets.');
 	});
 };
@@ -61,14 +60,15 @@ exports.getBuckets = function(req, res, next){
  *     {url:"hypercube-exampleApp.s3.amazonaws.com"}
  *
  */
-exports.deleteBucket = function(req, res, next){
+exports.deleteBucket = (req, res, next) => {
 	if(!_.has(req.body, 'name')){
 		res.status(400).send('Bucket name required to delete bucket');
 	} else {
-		fileStorage.deleteBucket(req.body.name).then(function(bucket){
-			console.log("Bucket deleted successfully");
+		fileStorage.deleteBucket(req.body.name).then((bucket) => {
+			logger.log({description: 'Bucket deleted successfully.', bucket: bucket, func: 'deleteBucket', obj: 'AdminCtrls'});
 			res.send(bucket);
-		}, function(err){
+		}, (err) => {
+			logger.error({description: 'Error deleting bucket.', error: err, func: 'deleteBucket', obj: 'AdminCtrls'});
 			res.status(500).send(err);
 		});
 	}

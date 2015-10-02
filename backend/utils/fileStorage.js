@@ -1,42 +1,43 @@
 /** FileStorage Util
  *	@description standardized interface file storage so the service/platform used for storage can be changed without affecting file storage calls
  */
-var q = require('q'),
-_ = require('underscore'),
-s3 = require('./s3'),
-conf  = require('../config/default').config;
+var _ = require('lodash');
+var conf  = require('../config/default').config;
 
-exports.createBucket = function(bucketName){
-	console.log('[fileStorage.createBucket()]');
+var s3 = require('./s3');
+var logger = require('./logger');
+
+exports.createBucket = (bucketName) => {
+	logger.log({description: 'Create bucket called.', name: bucketName, func: 'createBucket', obj: 'fileStorage'});
 	return s3.createBucketSite(bucketName);
 };
-exports.deleteBucket = function(bucketName){
+exports.deleteBucket = (bucketName) => {
 	return s3.deleteBucket(bucketName);
 };
-exports.uploadFiles = function(bucketName, localDir){
+exports.uploadFiles = (bucketName, localDir) => {
 	return s3.uploadFiles(bucketName, localDir);
 };
 //Get files stored within a bucket
-exports.getFiles = function(bucketName){
+exports.getFiles = (bucketName) => {
 	return s3.getFiles(bucketName);
 };
-exports.getBuckets = function(bucketName, localDir){
+exports.getBuckets = (bucketName, localDir) => {
 	return s3.getBuckets(bucketName, localDir);
 };
-exports.saveFile = function(bucketName, fileData){
+exports.saveFile = (bucketName, fileData) => {
 	if(!_.has(fileData, 'key')){
-		console.error('File key required to save');
+		logger.error({description: 'File key required to save', func: 'saveFile', obj: 'fileStorage'});
 	}
 	if(!_.has(fileData, 'content')){
-		console.error('File content required to save');
+		logger.error({description: 'File content required to save', func: 'saveFile', obj: 'fileStorage'});
 	}
-	console.log('calling s3.saveFile with BucketName:' + bucketName + " key: " + fileData);
+	logger.log({description: 'calling s3.saveFile with BucketName:', name: bucketName, data: fileData, func: 'saveFile', obj: 'fileStorage'});
 	return s3.saveFile(bucketName, fileData);
 };
-exports.uploadLocalDir = function(uploadData){
+exports.uploadLocalDir = (uploadData) => {
 	return s3.uploadDir(uploadData.bucket, uploadData.localDir);
 };
-exports.signedUrl = function(urlData){
+exports.signedUrl = (urlData) => {
 	urlData.bucket = urlData.bucket;
 	return s3.getSignedUrl(urlData);
 };

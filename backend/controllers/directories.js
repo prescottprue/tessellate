@@ -3,7 +3,7 @@
  */
 var mongoose = require('mongoose');
 var url = require('url');
-var _ = require('underscore');
+var _ = require('lodash');
 var w = require('../utils/mongoPromise');
 var url = require('url');
 var Directory = require('../models/directory').Directory;
@@ -30,19 +30,21 @@ var Directory = require('../models/directory').Directory;
  *     }
  *
  */
-exports.get = function(req, res, next){
+exports.get = (req, res, next) => {
 	var isList = true;
 	var query = Directory.find({}, {name:1, email:1});
 	if(_.has(req.params, "name")){ //Get data for a specific directory
-		console.log('directory request with directory name:', req.params.name);
-		query = Directory.findOne({name:req.params.name}, {password:0, __v:0});
+		logger.log({description: 'Directory request.', name: req.params.name, func: 'get', obj: 'DirectoriesCtrl'});
+		query = Directory.findOne({name:req.params.name}, {password:0, __v:0}); //? There shouldn't be a password
 		isList = false;
 	}
-	w.runQuery(query).then(function(directoryData){
+	query.then((directoryData) => {
 		//Remove sensitivedirectory data from directory
+		logger.log({description: 'Directory data loaded.', directory: directoryData, func: 'get', obj: 'DirectoriesCtrl'});
 		res.send(directoryData);
-	}, function(err){
-		res.status(500).send('Error getting directory:', err);
+	}, (err) => {
+		logger.log({description: 'Error getting directory/directories.', error: err, func: 'get', obj: 'DirectoriesCtrl'});
+		res.status(500).send('Error getting directory/directories.');
 	});
 };
 /**
@@ -73,7 +75,6 @@ exports.get = function(req, res, next){
 exports.add = function(req, res, next){
 	//Query for existing directory with same _id
 	var query = Directory.findOne({"directoryName":req.body.directoryName}); // find using directoryName field
-
 	var query;
 	if(!_.has(req.body, "directoryName") && !_.has(req.body, "email")){
 		return res.status(400).json({code:400, message:"Directoryname or Email required to add a new directory"});
@@ -83,19 +84,19 @@ exports.add = function(req, res, next){
 	} else {
 		query = Directory.findOne({"email":req.body.email}); // find using email field
 	}
-	w.runQuery(query).then(function(){
+	query.then(() => {
 		var directory = new Directory(req.body);
-		directory.saveNew().then(function(newDirectory){
+		directory.saveNew().then((newDirectory) => {
 			//TODO: Set temporary password
 			res.json(newDirectory);
-		}, function(err){
-			console.error('error creating new directory:', err);
-			res.status(500).send('directory could not be added');
+		}, (err) => {
+			logger.error({'Error creating new directory:', error: err, func: 'add', obj: 'DirectoriesCtrls'});
+			res.status(500).send('Directory could not be added');
 		});
-	}, function(err){
+	}, (err) => {
 		//next() //Pass error on
-		console.error('error creating new directory:', err);
-		res.status(500).send({message:'Directory could not be added.'});
+		logger.error({'Error querying directory.', error: err, func: 'add', obj: 'DirectoriesCtrls'});
+		res.status(500).send('Directory could not be added.');
 	});
 };
 /**
@@ -122,7 +123,7 @@ exports.add = function(req, res, next){
  *     }
  *
  */
-exports.update = function(req, res, next){
+exports.update = (req, res, next) => {
 	if(_.has(req.params, "directoryName")){
 		Directory.update({directoryName:req.params.directoryName}, req.body, {upsert:false}, function (err, numberAffected, result) {
 			if (err) { return next(err); }
@@ -153,15 +154,15 @@ exports.update = function(req, res, next){
  *     }
  *
  */
-exports.delete = function(req, res, next){
+exports.delete = (req, res, next) => {
 	// var urlParams = url.parse(req.url, true).query;
 	if(_.has(req.params, "directoryName")){
 		var query = Directory.findOneAndRemove({'directoryName':req.params.directoryName}); // find and delete using id field
-		w.runQuery(query).then(function(result){
-			console.log('Directory deleted successfully:');
+		query.then((result) => {
+			logger.log({description: 'Directory deleted successfully:', func: 'delete', obj: 'DirectoriesCtrl'});
 			res.json(result);
-		}, function(err){
-			console.error('Directory could not be deleted:', err);
+		}, (err) => {
+			logger.error({description: 'Directory could not be deleted:', error: err, func: 'delete', obj: 'DirectoriesCtrl'});
 			res.status(500).send({message:'Directory cound not be deleted'});
 		});
 	}
@@ -186,26 +187,26 @@ exports.delete = function(req, res, next){
  *     }
  *
  */
-exports.search = function(req, res, next){
+exports.search = (req, res, next) => {
 	// var urlParams = url.parse(req.url, true).query;
 	var directoryNameQuery = createDirectoryQuery('directoryName', req.params.searchQuery);
 	var emailQuery = createDirectoryQuery('email', req.params.searchQuery);
 	//Search directoryNames
-	w.runQuery(directoryNameQuery).then(function(directoryNameResults){
+	directoryNameQuery.then((directoryNameResults) => {
 		if(_.isArray(directoryNameResults) && directoryNameResults.length == 0){
 			//Search emails
-			w.runQuery(emailQuery).then(function (emailResults){
-				console.log('Directory search by email resulted:', emailResults);
+			emailQuery.then((emailResults) => {
+				logger.log({description: 'Directory search by email resulted.', results: emailResults, func: 'search', obj: 'DirectoriesCtrls'});
 				res.json(emailResults);
-			}, function (err){
-				res.status(500).send({message:'Directory cound not be found'});
+			},  (err) => {
+				res.status(500).send({message:'Directory cound not be found.'});
 			});
 		} else {
-			console.log('Directory search by directoryName resulted:', directoryNameResults);
+			logger.log({description: 'Directory search by directoryName resulted.', results: directoryNameResults, func: 'search', obj: 'DirectoriesCtrls'});
 			res.json(directoryNameResults);
 		}
-	}, function (err){
-		console.error('Directory could not be found:', err);
+	},  (err) => {
+		logger.error({description: 'Directory could not be found:', error: err, func: 'search', obj: 'DirectoriesCtrls'});
 		res.status(500).send({message:'Directory cound not be found'});
 	});
 };
@@ -219,7 +220,7 @@ function escapeRegExp(str) {
  * Create a directory query based on provided key and value
  */
 function createDirectoryQuery(key, val){
-	var queryArr = _.map(val.split(' '), function (q) {
+	var queryArr = _.map(val.split(' '), (q) => {
     var queryObj = {};
     queryObj[key] = new RegExp(escapeRegExp(q), 'i');
     return queryObj;

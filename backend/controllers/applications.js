@@ -18,14 +18,10 @@
  *     }
  */
 
-var mongoose = require('mongoose');
-var url = require('url');
-var _ = require('underscore');
-var q = require('q');
+var _ = require('lodash');
 var logger = require('../utils/logger');
 var Application = require('../models/application').Application;
 var Account = require('../models/account').Account;
-
 var Group = require('../models/group').Group;
 
 /**
@@ -72,7 +68,7 @@ var Group = require('../models/group').Group;
  *       "message":"Application not found."
  *     }
  */
-exports.get = function(req, res, next){
+exports.get = (req, res, next) => {
 	var isList = true;
 	var query = Application.find({}).populate({path:'owner', select:'username name title email'});
 	if(req.params.name){ //Get data for a specific application
@@ -83,16 +79,16 @@ exports.get = function(req, res, next){
 		.populate({path:'directories', select:'name accounts groups'});
 		isList = false;
 	}
-	query.exec(function (err, result){
-		if(err){
-			logger.error('[ApplicationsCtrl.get()] Error getting application(s):', JSON.stringify(err));
-			return res.status(500).send('Error getting Application(s).');
-		}
+	query.then((result) => {
 		if(!result){
-			logger.error('[ApplicationsCtrl.get()] Error finding application(s).');
+			logger.error({description: 'Error finding Application(s).'});
 			return res.status(400).send('Application(s) could not be found.');
 		}
+		logger.log({description: 'Application(s) found.', result: result, func: 'get', obj: 'ApplicationsCtrls'});
 		res.send(result);
+	}, (err) => {
+		logger.error('[ApplicationsCtrl.get()] Error getting application(s):', JSON.stringify(err));
+		res.status(500).send('Error getting Application(s).');
 	});
 };
 /**
@@ -107,29 +103,30 @@ exports.get = function(req, res, next){
  * @apiSuccess {array} applications Array of applications if <code>name</code> is not provided.
  *
  */
-exports.getProviders = function(req, res, next){
+exports.getProviders = (req, res, next) => {
 	// var query = Application.find({}).populate({path:'owner', select:'username name title email'});
 	if(req.params.name){ //Get data for a specific application
-		logger.log('application request with id:', req.params.name);
-		var query = Application.findOne({name:req.params.name})
-		query.exec(function (err, result){
-			if(err){
-				logger.error('[ApplicationsCtrl.get()] Error getting application(s):', JSON.stringify(err));
-				return res.status(500).send('Error getting Application(s).');
-			}
+		logger.log({description: 'Get Providers request.', params: req.params, func: 'getProviders', obj: 'ApplicationsCtrls'});
+		var query = Application.findOne({name:req.params.name});
+		query.then((result) => {
 			if(!result){
 				logger.error('[ApplicationsCtrl.get()] Error finding application(s).');
 				return res.status(400).send('Application(s) could not be found.');
 			}
 			var providerData = {};
-			_.each(result.providers, function(provider){
+			_.each(result.providers, (provider) => {
 				providerData[provider.name] = provider.clientId;
 			});
-			logger.log('returning provider data:', JSON.stringify(providerData));
+			logger.log({description: 'Provider data found.', providerData: providerData, func: 'getProviders', obj: 'ApplicationsCtrls'});
 			res.send(providerData);
+		}, (err) => {
+			logger.error({description: 'Error getting application(s).', error: err, func: 'getProviders', obj: 'ApplicationsCtrls'});
+			res.status(500).send('Error getting Application(s).');
 		});
+	} else {
+		logger.info({description: 'Application name required to get providers.', func: 'getProviders', obj: 'ApplicationsCtrls'});
+		res.status(400).send('Application name required to get providers.');
 	}
-
 };
 
 /**
@@ -160,7 +157,7 @@ exports.getProviders = function(req, res, next){
  *     }
  *
  */
-exports.add = function(req, res, next){
+exports.add = (req, res, next) => {
 	//Query for existing application with same _id
 	if(!_.has(req.body, "name")){
 		logger.error({description:'Application name required to create a new app.', name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'});
@@ -177,12 +174,12 @@ exports.add = function(req, res, next){
 				appData.owner = req.userId;
 			}
 		}
-		findApplication(appName).then(function (foundApp){
+		findApplication(appName).then((foundApp) => {
 			logger.error({description: 'Application with this name already exists.', foundApp: foundApp, func: 'add', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Application with this name already exists.');
-		}, function (err){
+		}, (err) => {
 			if(err && err.status == 'EXISTS'){
-				return res.status(400).send('Application with this name already exists.');
+				res.status(400).send('Application with this name already exists.');
 			} else {
 				logger.log({description: 'Application does not already exist.', func: 'add', obj: 'Application'});
 				//application does not already exist
@@ -191,21 +188,21 @@ exports.add = function(req, res, next){
 				//Create with template if one is provided
 				if(_.has(req.body,'template')){
 					//Template name was provided
-					application.createWithTemplate(req.body.template).then(function (newApp){
+					application.createWithTemplate(req.body.template).then( (newApp) => {
 						logger.log({description: 'Application created with template.', newApp: newApp, func: 'add', obj: 'Application'});
 						res.json(newApp);
-					}, function (err){
+					}, (err) => {
 						logger.error({description: 'Error creating application.', error: err, func: 'add', obj: 'Application'});
 						res.status(400).send('Error creating application.');
 					});
 				} else {
 					//Template parameter was not provided
-					application.createWithStorage(req.body).then(function (newApp){
+					application.createWithStorage(req.body).then( (newApp) => {
 						logger.log({description: 'Application created with storage.', newApp: newApp, func: 'add', obj: 'Application'});
 						res.json(newApp);
-					}, function (err){
-						logger.error({description: 'Error creating new application with storage.', error: err, func: 'add', obj: 'ApplicationsCtrl'});
+					},  (err) => {
 						//TODO: Handle different errors here
+						logger.error({description: 'Error creating new application with storage.', error: err, func: 'add', obj: 'ApplicationsCtrl'});
 						res.status(400).json('Error creating application.');
 					});
 				}
@@ -242,10 +239,10 @@ exports.add = function(req, res, next){
  *     }
  *
  */
-exports.update = function(req, res, next){
-	logger.log('app update request with name: ' + req.params.name + ' with body:', req.body);
+exports.update = (req, res, next) => {
+	logger.log({description: 'App update request.', params: req.params});
 	if(req.params.name){
-		Application.update({name:req.params.name}, req.body, {upsert:false}, function (err, numberAffected, result) {
+		Application.update({name:req.params.name}, req.body, {upsert:false},  (err, numberAffected, result)  => {
 			if(err){
 				logger.error('[ApplicationsCtrl.update()] Error getting application:', JSON.stringify(err));
 				return res.status(500).send('Error updating Application.');
@@ -291,23 +288,25 @@ exports.update = function(req, res, next){
  *     }
  *
  */
-exports.delete = function(req, res, next){
+exports.delete = (req, res, next) => {
 	var query = Application.findOneAndRemove({'name':req.params.name}); // find and delete using id field
-	query.exec(function (err, result){
-		if(err){
-			logger.error('[ApplicationsCtrl.delete()] Error getting application:', JSON.stringify(err));
-			return res.status(500).send('Error deleting Application.');
+	query.then((result) => {
+		if(result){
+			var app = new Application(result);
+			app.removeStorage().then(() => {
+				logger.log({description: 'Application storage deleted successfully.', func: 'delete', obj: 'ApplicationsCtrl'});
+				res.json(result);
+			}, (err) => {
+				logger.error({description: 'Error removing storage from application.', error: err, func: 'delete', obj: 'ApplicationsCtrl'});
+				res.status(400).send(err);
+			});
+		} else {
+			logger.error({description: 'Application not found.', error: err, func: 'delete', obj: 'ApplicationsCtrl'});
+			res.status(400).send('Application could not be found.');
 		}
-		if(!result){
-			logger.error('[ApplicationsCtrl.delete()] Error deleting application');
-			return res.status(400).send('Application could not be found.');
-		}
-		var app = new Application(result);
-		app.removeStorage().then(function(){
-			res.json(result);
-		}, function(err){
-			res.status(400).send(err);
-		});
+	}, (err) => {
+		logger.error({description: 'Error getting application.', error: err, func: 'delete', obj: 'ApplicationsCtrl'});
+		res.status(500).send('Error deleting Application.');
 	});
 };
 
@@ -340,29 +339,31 @@ exports.delete = function(req, res, next){
  *     }
  *
  */
-exports.files = function(req, res, next){
+exports.files = (req, res, next) => {
 	//TODO: Check that account is owner or collaborator before uploading
-	//TODO: Lookup application and run uploadFile function
+	//TODO: Lookup application and run uploadFile =>
 	if(req.params.name){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
-		query.exec(function (err, foundApp){
-			if(err){
-				logger.error('[ApplicationsCtrl.files()] Error getting application:', JSON.stringify(err));
-				return res.status(500).send('Error getting Application files.');
+		query.then((foundApp) => {
+			if(foundApp){
+				foundApp.getStructure().then( (appFiles) => {
+					logger.log({description: 'Get structure returned.', structure: appFiles, func: 'files', obj: 'ApplicationsCtrls'});
+					res.send(appFiles);
+				},  (err) => {
+					logger.error({description: 'Error getting application file structure.', error: err, func: 'files', obj: 'ApplicationsCtrls'});
+					res.status(400).send('Error getting Application files.');
+				});
+			} else {
+				logger.error({description: 'Application could not be found.', func: 'files', obj: 'ApplicationsCtrls'});
+				res.status(400).send('Application could not be found.');
 			}
-			if(!foundApp){
-				logger.error('[ApplicationsCtrl.files()] Error finding application');
-				return res.status(400).send('Application could not be found.');
-			}
-			foundApp.getStructure().then(function (appFiles){
-				logger.log('appFiles returned:', appFiles);
-				res.send(appFiles);
-			}, function (err){
-				res.status(400).send('Error saving file:', err);
-			});
+		}, (err) => {
+			logger.error({description: 'Error getting application:', error: err, func: 'files', obj: 'ApplicationsCtrls'});
+			return res.status(500).send('Error getting Application files.');
 		});
 	} else {
-		res.status(400).send('Application name and fileData are required to upload file')
+		logger.info({description: 'Application name is required to get files list.', func: 'files', obj: 'ApplicationsCtrls'});
+		res.status(400).send('Application name is required to get files list.');
 	}
 };
 
@@ -396,33 +397,33 @@ exports.files = function(req, res, next){
  *
  */
  var localDir = "./public";
-exports.publishFile = function(req, res, next){
-	logger.log('dir upload request with app name: ' + req.params.name + ' with body:', req.body);
+exports.publishFile = (req, res, next) => {
+	logger.info({description: 'File publish request.', func: 'publishFile', params: req.params, obj: 'ApplicationsCtrls'});
 	//TODO: Check that account is owner or collaborator before uploading
-	//TODO: Lookup application and run uploadFile function
+	//TODO: Lookup application and run uploadFile =>
 	if(req.params.name){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		isList = false;
-		query.exec(function (err, foundApp){
-			if(err) {
-				logger.error('[ApplicationsCtrl.publishFile()] Error getting application:', JSON.stringify(err));
-				return res.status(500).send('Error publishing file to Application.');
+		query.then((foundApp) => {
+			if(foundApp){
+				foundApp.publishFile({content:req.body.content, key:req.body.key, contentType:req.body.contentType}).then( (result) => {
+					logger.info({description: 'File published successfully.', func: 'publishFile', result: result, obj: 'ApplicationsCtrls'});
+					res.send(result);
+				}, (err) => {
+					logger.log('Error publishing file:', err);
+					res.status(400).send(err);
+				});
+			} else {
+				logger.error({description: 'Error finding application.', func: 'publishFile', params: req.params, obj: 'ApplicationsCtrls'});
+				res.status(400).send('Application could not be found.');
 			}
-			if(!foundApp){
-				logger.error('[ApplicationsCtrl.publishFile()] Error finding application');
-				return res.status(400).send('Application could not be found.');
-			}
-			//TODO: Get url from found app, and get localDir from
-			foundApp.publishFile({content:req.body.content, key:req.body.key, contentType:req.body.contentType}).then(function (webUrl){
-				logger.log('Buckets web url:', webUrl);
-				res.send(webUrl);
-			}, function (err){
-				logger.log('Error publishing file:', err);
-				res.status(400).send(err);
-			});
+		}, (err) => {
+			logger.error({description: 'Error finding application.', params: req.params, error: err,  func: 'publishFile', obj: 'ApplicationsCtrls'});
+			res.status(500).send('Error publishing file to Application.');
 		});
 	} else {
-		res.status(400).send('Application name and fileData are required to upload file')
+		logger.error({description: 'Application name and file data are required to publish a file.', params: req.params,  func: 'publishFile', obj: 'ApplicationsCtrls'});
+		res.status(400).send('Application name and fileData are required to upload file.');
 	}
 };
 
@@ -454,26 +455,26 @@ exports.publishFile = function(req, res, next){
  *
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.applyTemplate = function(req, res, next){
+exports.applyTemplate = (req, res, next) => {
 	logger.log('apply template request with app name: ' + req.params.name + ' with body:', req.body);
 	//TODO: Check that account is owner or collaborator before uploading
-	//TODO: Lookup application and run uploadFile function
+	//TODO: Lookup application and run uploadFile =>
 	if(req.params.name){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
-		query.exec(function (err, foundApp){
-			if(err) { 
+		query.exec( (err, foundApp) => {
+			if(err) {
 				logger.error('[ApplicationsCtrl.applyTemplate()] Error getting application:', JSON.stringify(err));
 				return res.status(500).send('Error applying template to Application.');
 			}
 			if(!foundApp){
-				logger.error('[ApplicationsCtrl.applyTemplate()] Error finding application');
+				logger.error({description: 'Error finding application'});
 				return res.status(400).send('Application could not be found.');
 			}
 			//TODO: Get url from found app, and get localDir from
-			foundApp.applyTemplate(req.body.name).then(function (webUrl){
+			foundApp.applyTemplate(req.body.name).then( (webUrl) => {
 				logger.log('Template applied to bucket successfully');
 				res.send(webUrl);
-			}, function (err){
+			},  (err) => {
 				logger.log('Error applying template:', err);
 				res.status(400).send(err);
 			});
@@ -509,14 +510,14 @@ exports.applyTemplate = function(req, res, next){
  *
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.addStorage = function(req, res, next){
+exports.addStorage = (req, res, next) => {
 	logger.log('add storage request with app name: ' + req.params.name + ' with body:', req.body);
 	//TODO: Check that account is owner or collaborator before uploading
-	//TODO: Lookup application and run uploadFile function
+	//TODO: Lookup application and run uploadFile =>
 	if(req.params.name){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
-		query.exec(function (err, foundApp){
-			if(err) { 
+		query.exec( (err, foundApp) => {
+			if(err) {
 				logger.error('[ApplicationsCtrl.addStorage()] Error getting application:', JSON.stringify(err));
 				return res.status(500).send('Error adding storage to application.');
 			}
@@ -525,10 +526,10 @@ exports.addStorage = function(req, res, next){
 				return res.status(400).send('Application could not be found');
 			}
 			//TODO: Get url from found app, and get localDir from
-			foundApp.createStorage().then(function (webUrl){
+			foundApp.createStorage().then( (webUrl) => {
 				logger.log('Added storage to application successfully:', webUrl);
 				res.send(webUrl);
-			}, function (err){
+			},  (err) => {
 				logger.log('Error adding storage to application:', JSON.stringify(err));
 				res.status(500).send(err);
 			});
@@ -565,13 +566,13 @@ exports.addStorage = function(req, res, next){
  *
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.addCollaborators = function(req, res, next){
+exports.addCollaborators = (req, res, next) => {
 	logger.log('add storage request with app name: ' + req.params.name + ' with body:', req.body);
 	//TODO: Check that account is allowed to add collaborators
 	if(req.params.name && req.body.accounts){ //Get data for a specific application
 		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
-		query.exec(function (err, foundApp){
-			if(err) { 
+		query.exec( (err, foundApp) => {
+			if(err) {
 				logger.error('[ApplicationsCtrl.addCollaborators()] Error getting application:', JSON.stringify(err));
 				return res.status(500).send('Error adding collaborators to application.');
 			}
@@ -579,10 +580,10 @@ exports.addCollaborators = function(req, res, next){
 				logger.error('[ApplicationsCtrl.addCollaborators()] Error finding application:');
 				return res.status(400).send('Application could not be found');
 			}
-			foundApp.addCollaborators(req.body.accounts).then(function (appWithCollabs){
+			foundApp.addCollaborators(req.body.accounts).then( (appWithCollabs) => {
 				logger.log('Added storage to application successfully:', appWithCollabs);
 				res.send(appWithCollabs);
-			}, function (err){
+			},  (err) => {
 				logger.log('Error adding collaborators to application:', JSON.stringify(err));
 				res.status(500).send(err);
 			});
@@ -601,8 +602,8 @@ exports.addCollaborators = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       username:"hackerguy1", 
- *       email:"test@test.com", 
+ *       username:"hackerguy1",
+ *       email:"test@test.com",
  *       name:"John Doe"
  *     }
  * @apiErrorExample  Error-Response (Not Found):
@@ -614,21 +615,21 @@ exports.addCollaborators = function(req, res, next){
  *
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.login = function(req, res, next){
+exports.login = (req, res, next) => {
 	logger.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name && req.body && _.has(req.body, 'username') && _.has(req.body, 'password')){ //Get data for a specific application
 		var loginData = {username:req.body.username, password:req.body.password};
-		findApplication(req.params.name).then(function (foundApp){
+		findApplication(req.params.name).then( (foundApp) => {
 			logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
-			foundApp.login(loginData).then(function (loginRes){
+			foundApp.login(loginData).then( (loginRes) => {
 				logger.log('[ApplicationCtrl.login] Login Successful.', loginRes);
 				res.send(loginRes);
-			}, function (err){
+			},  (err) => {
 				//TODO: Handle wrong password
 				logger.error('[ApplicationCtrl.login] Error logging in:', err);
 				res.status(400).send('Login Error.');
 			});
-		}, function (err){
+		},  (err) => {
 			logger.error('Error:', err);
 			res.status(400).send('Application not found.');
 		});
@@ -647,8 +648,8 @@ exports.login = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       username:"hackerguy1", 
- *       email:"test@test.com", 
+ *       username:"hackerguy1",
+ *       email:"test@test.com",
  *       name:"John Doe"
  *     }
  * @apiErrorExample  Error-Response (Not Found):
@@ -659,19 +660,19 @@ exports.login = function(req, res, next){
  *
  *
  */
-exports.logout = function(req, res, next){
+exports.logout = (req, res, next) => {
 	logger.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then(function (foundApp){
+		findApplication(req.params.name).then( (foundApp) => {
 			logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
-			foundApp.logout(req.user).then(function (){
+			foundApp.logout(req.user).then( () => {
 				logger.log({description: 'Logout successful.', func: 'logout', obj: 'ApplicationCtrl'});
 				res.send('Logout successful.');
-			}, function (err){
+			},  (err) => {
 				logger.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
 				res.status(400).send('Error logging out.');
 			});
-		}, function (err){
+		},  (err) => {
 			logger.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
 			res.status(400).send('Application not found.');
 		});
@@ -689,8 +690,8 @@ exports.logout = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       username:"hackerguy1", 
- *       email:"test@test.com", 
+ *       username:"hackerguy1",
+ *       email:"test@test.com",
  *       name:"John Doe"
  *     }
  * @apiErrorExample  Error-Response (Exists):
@@ -701,14 +702,14 @@ exports.logout = function(req, res, next){
  *
  *
  */
-exports.signup = function(req, res, next){
+exports.signup = (req, res, next) => {
 	logger.log({description: 'App signup request with app name.', appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then(function (foundApp){
-			foundApp.signup(req.body).then(function (signupRes){
+		findApplication(req.params.name).then( (foundApp) => {
+			foundApp.signup(req.body).then( (signupRes) => {
 				logger.log({description: 'Signup to application successful.', res: signupRes, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
 				res.send(signupRes);
-			}, function (err){
+			},  (err) => {
 				if(err && err.status == 'EXISTS'){
 					res.status(400).send('Account with this username already exists in application.');
 				} else {
@@ -717,7 +718,7 @@ exports.signup = function(req, res, next){
 					res.status(400).send('Error signing up.');
 				}
 			});
-		}, function (err){
+		},  (err) => {
 			logger.error({description: 'Error finding application.', error: err, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
 		});
@@ -746,7 +747,7 @@ exports.signup = function(req, res, next){
  *     }
  *
  */
-exports.verify = function(req, res, next){
+exports.verify = (req, res, next) => {
 	//TODO:Actually verify account instead of just returning account data
 	//TODO: Get applicaiton and verify that user exists within applicaiton
 	console.log('verify request:', req.user);
@@ -760,7 +761,7 @@ exports.verify = function(req, res, next){
 		else {
 			query = Account.findOne({email:req.user.email}).select('username email sessionId');
 		}
-		query.exec(function (err, result){
+		query.exec( (err, result) => {
 			// console.log('verify returned:', result, err);
 			if (err) {
 				logger.error({description:'Error querying for account', error: err, func: 'verify', obj: 'ApplicationsCtrl'});
@@ -787,8 +788,8 @@ exports.verify = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [{
- *       name:"admins", 
- *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *       name:"admins",
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}],
  *     }]
  * @apiErrorExample  Error-Response (Exists):
  *     HTTP/1.1 400 Bad Request
@@ -798,10 +799,10 @@ exports.verify = function(req, res, next){
  *
  *
  */
-exports.groups = function(req, res, next){
+exports.groups = (req, res, next) => {
 	logger.log({description: 'App get group(s) request called.', appName: req.params.name, body: req.body, func: 'groups'});
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then(function (foundApp){
+		findApplication(req.params.name).then( (foundApp) => {
 			//Check application's groups
 			if(!req.params.groupName){
 				logger.info({description: "Application's groups found.", foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
@@ -814,7 +815,7 @@ exports.groups = function(req, res, next){
 				} else {
 					//Group has not been added to application
 					var query = Group.findOne({name: req.params.groupName, application: foundApp._id});
-					query.exec(function (err, groupWithoutApp){
+					query.exec( (err, groupWithoutApp) => {
 						if(err){
 							logger.error({description: 'Error finding group.', error: err, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
 							res.status(500).send('Error finding group.');
@@ -823,17 +824,17 @@ exports.groups = function(req, res, next){
 							res.status(400).send('Group not found.');
 						} else {
 							logger.log({description: 'Group found, but not within application. Adding to application.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
-							foundApp.addGroup(groupWithoutApp).then(function (newGroup){
+							foundApp.addGroup(groupWithoutApp).then( (newGroup) => {
 								logger.info({description: 'Existing group added to applicaiton.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
 								res.send(groupWithoutApp);
-							}, function(err){
+							}, (err) => {
 								res.status(500).send('Error adding existing group to application.');
 							});
 						}
 					});
 				}
 			}
-		}, function (err){
+		},  (err) => {
 			logger.error({description: 'Error finding application.', error: err, func: 'groups', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
 		});
@@ -851,8 +852,8 @@ exports.groups = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [{
- *       name:"admins", 
- *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *       name:"admins",
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}],
  *     }]
  * @apiErrorExample  Error-Response (Exists):
  *     HTTP/1.1 400 Bad Request
@@ -862,20 +863,20 @@ exports.groups = function(req, res, next){
  *
  *
  */
-exports.addGroup = function(req, res, next){
+exports.addGroup = (req, res, next) => {
 	logger.log({description: 'App add group request.', name: req.params.name, body: req.body, func: 'addGroup', obj: 'ApplicationsCtrls'});
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then(function (foundApp){
+		findApplication(req.params.name).then( (foundApp) => {
 			logger.log({description: 'Application found. Adding group.', app: foundApp, func: 'addGroup', obj: 'ApplicationsCtrls'});
-			foundApp.addGroup(req.body).then(function (newGroup){
+			foundApp.addGroup(req.body).then( (newGroup) => {
 				logger.info({description: 'Group added to applicaiton successfully.', newGroup: newGroup, func: 'addGroup', obj: 'ApplicationsCtrls'});
 				res.send(newGroup);
-			}, function (err){
+			},  (err) => {
 				//TODO: Handle wrong password
 				logger.error({description: 'Error adding group to application.', error: err, func: 'addGroup', obj: 'ApplicationsCtrls'});
 				res.status(400).send('Error adding group.');
 			});
-		}, function (err){
+		},  (err) => {
 			logger.error({description: 'Error find application.', error: err, func: 'addGroup', obj: 'ApplicationsCtrls'});
 			//TODO: Handle other errors
 			res.status(400).send('Error finding application.');
@@ -893,8 +894,8 @@ exports.addGroup = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [{
- *       name:"admins", 
- *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *       name:"admins",
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}],
  *     }]
  * @apiErrorExample  Error-Response (Exists):
  *     HTTP/1.1 400 Bad Request
@@ -904,19 +905,19 @@ exports.addGroup = function(req, res, next){
  *
  *
  */
-exports.updateGroup = function(req, res, next){
+exports.updateGroup = (req, res, next) => {
 	logger.log({description: "Update application's group called.", appName: req.params.name, body: req.body, func: 'updateGroup', obj: 'ApplicationsCtrl'});
 	if(req.params.name){ //Get data for a specific application
-		findApplication(req.params.name).then(function (foundApp){
+		findApplication(req.params.name).then( (foundApp) => {
 			//Update is called with null or empty value
 			logger.log({description: 'Application found.', foundApp: foundApp, func: 'updateGroup', obj: 'ApplicationsCtrl'});
 			if(!_.keys(req.body) || _.keys(req.body).length < 1 || req.body == {} || req.body == null || !req.body){
 				logger.log({description: 'Update group with null, will be handled as delete.', func: 'updateGroup', obj: 'ApplicationsCtrl'});
 				//Delete group
-				foundApp.deleteGroup({name: req.params.groupName}).then(function (updatedGroup){
+				foundApp.deleteGroup({name: req.params.groupName}).then( (updatedGroup) => {
 					logger.info({description: 'Application group deleted successfully.', updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ApplicationsCtrl'});
 					res.send(updatedGroup);
-				}, function (err){
+				},  (err) => {
 					//TODO: Handle wrong password
 					logger.error({description: 'Error deleting application group.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
 					if(err && err.status && err.status == 'NOT_FOUND'){
@@ -932,20 +933,20 @@ exports.updateGroup = function(req, res, next){
 				if(_.has(updateData, 'accounts')){
 					//TODO: Compare to foundApps current accounts
 					//TODO: Handle account usernames array
-					
+
 				}
 				//Update group
-				foundApp.updateGroup(updateData).then(function (updatedGroup){
+				foundApp.updateGroup(updateData).then( (updatedGroup) => {
 					logger.info({description: 'Application group updated successfully.', updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ApplicationsCtrl'});
 					res.send(updatedGroup);
-				}, function (err){
+				},  (err) => {
 					//TODO: Handle wrong password
 					logger.error({description: 'Error updating application group.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
 					res.status(400).send("Error updating application's group.");
 				});
 			}
-			
-		}, function (err){
+
+		},  (err) => {
 			logger.error({description: 'Error finding application.', error: err, func: 'updateGroup', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
 		});
@@ -963,8 +964,8 @@ exports.updateGroup = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       username:"hackerguy1", 
- *       email:"test@test.com", 
+ *       username:"hackerguy1",
+ *       email:"test@test.com",
  *       name:"John Doe"
  *     }
  * @apiErrorExample  Error-Response (Exists):
@@ -975,20 +976,20 @@ exports.updateGroup = function(req, res, next){
  *
  *
  */
-exports.deleteGroup = function(req, res, next){
+exports.deleteGroup = (req, res, next) => {
 	logger.log('App add group request with app name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then(function (foundApp){
-			foundApp.deleteGroup(req.body).then(function (){
+		findApplication(req.params.name).then( (foundApp) => {
+			foundApp.deleteGroup(req.body).then( () => {
 				logger.info({description: 'Group deleted successfully.', func: 'deleteGroup', obj: 'ApplicationsCtrl'});
 				//TODO: Return something other than this message
 				res.send('Group deleted successfully.');
-			}, function (err){
+			},  (err) => {
 				//TODO: Handle wrong password
 				logger.error({description: 'Error deleting group.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
 				res.status(400).send('Error deleting group.');
 			});
-		}, function (err){
+		},  (err) => {
 			logger.error({description: 'Error finding application.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
 		});
@@ -1006,8 +1007,8 @@ exports.deleteGroup = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [{
- *       name:"admins", 
- *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *       name:"admins",
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}],
  *     }]
  * @apiErrorExample  Error-Response (Exists):
  *     HTTP/1.1 400 Bad Request
@@ -1017,10 +1018,10 @@ exports.deleteGroup = function(req, res, next){
  *
  *
  */
-exports.directories = function(req, res, next){
+exports.directories = (req, res, next) => {
 	if(req.params.name){ //Get data for a specific application
 		logger.log({description: 'App get application directory/directories request called.', appName: req.params.name, body: req.body, func: 'directories', obj: 'ApplicationsCtrl'});
-		findApplication(req.params.name).then(function (foundApp){
+		findApplication(req.params.name).then( (foundApp) => {
 			if(!req.params.directoryName){
 				logger.info({description: "Application's directories found.", foundApp: foundApp, func: 'directories', obj: 'ApplicationsCtrl'});
 				res.send(foundApp.directories);
@@ -1029,7 +1030,7 @@ exports.directories = function(req, res, next){
 				logger.info({description: "Application's directory found.", directory: directory, foundApp: foundApp, func: 'directories', obj: 'ApplicationsCtrl'});
 				res.send(directory);
 			}
-		}, function (err){
+		},  (err) => {
 			logger.error({description: 'Error finding application.', error: err, func: 'directories', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
 		});
@@ -1047,8 +1048,8 @@ exports.directories = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [{
- *       name:"admins", 
- *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *       name:"admins",
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}],
  *     }]
  * @apiErrorExample  Error-Response (Exists):
  *     HTTP/1.1 400 Bad Request
@@ -1058,19 +1059,19 @@ exports.directories = function(req, res, next){
  *
  *
  */
-exports.addDirectory = function(req, res, next){
+exports.addDirectory = (req, res, next) => {
 	logger.log({description: 'Add directory to application called.', appName: req.params.name, body: req.body, func: 'addDirectory', obj: 'ApplicationsCtrl'});
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then(function (foundApp){
-			foundApp.addDirectory(req.body).then(function (newGroup){
+		findApplication(req.params.name).then( (foundApp) => {
+			foundApp.addDirectory(req.body).then( (newGroup) => {
 				logger.info({description: 'Directory added to application successfully.', newDirectory: newDirectory, func: 'addDirectory', obj: 'ApplicationsCtrl'});
 				res.send(newGroup);
-			}, function (err){
+			},  (err) => {
 				//TODO: Handle wrong password
 				logger.error({description: 'Error adding directory to application.', error: err, func: 'addDirectory', obj: 'ApplicationsCtrl'});
 				res.status(400).send('Error adding directory to application.');
 			});
-		}, function (err){
+		},  (err) => {
 			logger.error({description: 'Error finding application.', error: err, func: 'addDirectory', obj: 'ApplicationsCtrl'});
 			//TODO: Handle other errors
 			res.status(400).send('Error finding application.');
@@ -1089,8 +1090,8 @@ exports.addDirectory = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     [{
- *       name:"admins", 
- *       accounts:[{username:"superuserguy", email: "test@test.com"}], 
+ *       name:"admins",
+ *       accounts:[{username:"superuserguy", email: "test@test.com"}],
  *     }]
  * @apiErrorExample  Error-Response (Exists):
  *     HTTP/1.1 400 Bad Request
@@ -1100,19 +1101,19 @@ exports.addDirectory = function(req, res, next){
  *
  *
  */
-exports.updateDirectory = function(req, res, next){
+exports.updateDirectory = (req, res, next) => {
 	if(req.params.name && req.body){ //Get data for a specific application
 		logger.log({description: "Update application's directory called.", appName: req.params.name, body: req.body, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
-		findApplication(req.params.name).then(function (foundApp){
-			foundApp.updateDirectory(req.body).then(function (updatedDirectory){
+		findApplication(req.params.name).then((foundApp) => {
+			foundApp.updateDirectory(req.body).then((updatedDirectory) => {
 				logger.info({description: 'Application directory updated successfully.', updatedDirectory: updatedDirectory, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
 				res.send(updatedDirectory);
-			}, function (err){
+			}, (err) => {
 				//TODO: Handle wrong password
 				logger.error({description: 'Error updating application directory.', error: err, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
 				res.status(400).send("Error updating application's directory.");
 			});
-		}, function (err){
+		},  (err) => {
 			logger.error({description: 'Error finding application.', error: err, func: 'updateDirectory', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
 		});
@@ -1130,8 +1131,8 @@ exports.updateDirectory = function(req, res, next){
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       username:"hackerguy1", 
- *       email:"test@test.com", 
+ *       username:"hackerguy1",
+ *       email:"test@test.com",
  *       name:"John Doe"
  *     }
  * @apiErrorExample  Error-Response (Exists):
@@ -1142,20 +1143,20 @@ exports.updateDirectory = function(req, res, next){
  *
  *
  */
-exports.deleteDirectory = function(req, res, next){
+exports.deleteDirectory = (req, res, next) => {
 	if(req.params.name && req.body){ //Get data for a specific application
 		logger.info({description: 'Application directory delete requested.', appName: req.params.name, body: req.body, func: 'deleteDirectory', obj: 'ApplicationsCtrl'});
-		findApplication(req.params.name).then(function (foundApp){
-			foundApp.deleteDirectory(req.body.password).then(function (){
+		findApplication(req.params.name).then( (foundApp) => {
+			foundApp.deleteDirectory(req.body.password).then( () => {
 				logger.info({description: 'Directory deleted successfully.', func: 'deleteDirectory', obj: 'ApplicationsCtrl'});
 				//TODO: Return something other than this message
 				res.send('Directory deleted successfully.');
-			}, function (err){
+			}, (err) => {
 				//TODO: Handle wrong password
 				logger.error({description: 'Error deleting directory from application.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
 				res.status(400).send('Error deleting directory from application.');
 			});
-		}, function (err){
+		}, (err) => {
 			logger.error({description: 'Error finding application.', error: err, func: 'deleteGroup', obj: 'ApplicationsCtrl'});
 			res.status(400).send('Error finding application.');
 		});
@@ -1164,31 +1165,29 @@ exports.deleteDirectory = function(req, res, next){
 		res.status(400).send('Application name is required to delete application directory.');
 	}
 };
-// Utility functions
+// Utility  => s
 //Wrap finding application in a promise that handles errors
 //TODO: Allow choosing populate settings
-function findApplication(appName){
-	var d = q.defer();
+function findApplication(appName) {
 	if(!appName){
 		logger.error('Application name is required to find application.');
-		d.reject({message: 'Application name required to find application.'});
+		Promise.reject({message: 'Application name required to find application.'});
 	} else {
 		var query = Application.findOne({name:appName})
 		.populate({path:'owner', select:'username name email'})
 		.populate({path:'groups', select:'name accounts'})
 		.populate({path:'directories', select:'name accounts groups'})
-		query.exec(function (err, foundApp){
-			if(err) {
-				logger.error('Error finding application:', err);
-				d.reject({message: 'Error finding application.'});
-			} else if(!foundApp){
-				logger.error('Application not found');
-				d.reject({message: 'Application not found'});
+		return query.then((foundApp) => {
+			if(!foundApp){
+				logger.error({description: 'Application not found', func: 'findApplication'});
+				return Promise.reject({message: 'Application not found'});
 			} else {
-				logger.log('Application found:', foundApp);
-				d.resolve(foundApp);
+				logger.log({description: 'Application found:', foundApp: foundApp, func: 'findApplication'});
+				return foundApp;
 			}
+		}, (err) => {
+			logger.error({description: 'Error finding application.', error: err, func: 'findApplication'});
+			return Promise.reject({message: 'Error finding application.'});
 		});
 	}
-	return d.promise;
 }

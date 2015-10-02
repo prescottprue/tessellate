@@ -1,8 +1,8 @@
 var db = require('./../lib/db');
 var mongoose = require('mongoose');
-var _ = require('underscore');
+var _ = require('lodash');
 
-module.exports = function(modelConfig){
+module.exports = (modelConfig) => {
 	/*
 	 * Default values
 	 */
@@ -34,7 +34,7 @@ module.exports = function(modelConfig){
 			collectionName = modelName;
 		}
 	}
-	
+
 	// Set schema
 	var Schema = new mongoose.Schema(schemaObj);
 	// Set collection name
@@ -53,4 +53,3 @@ module.exports = function(modelConfig){
 	//TODO: Namespace this output (exports.models?). Also, Why not just return user?
 	exports[modelName] = model;
 }
-

@@ -1,13 +1,9 @@
 /**
  * @description Template Controller
  */
-var mongoose = require('mongoose');
-var url = require('url');
 var _ = require('lodash');
-var q = require('q');
-var w = require('../utils/mongoPromise');
-var Template = require('../models/template').Template;
 var logger = require('../utils/logger');
+var Template = require('../models/template').Template;
 
 /**
  * @api {get} /templates Get Template(s)
@@ -27,20 +23,25 @@ var logger = require('../utils/logger');
  *     }
  *
  */
-exports.get = function(req, res, next){
+exports.get = (req, res, next) => {
 	var isList = true;
 	var query = Template.find({}).populate({path:'author', select:'username name email'});
 	if(req.params.name){ //Get data for a specific template
-		console.log('template get request with id:', req.params.name);
+		logger.log({description: 'Template request.', params: req.params,  func: 'get', obj: 'TemplatesCtrls'});
 		query = Template.findOne({name:req.params.name}).populate({path:'author', select:'username name title email'});
 		isList = false;
 	}
-	query.exec(function (err, result){
-		if(err) { return next(err);}
-		if(!result){
-			return next (new Error('Template could not be found'));
+	query.then((result) => {
+		if(!result && isList){
+			logger.info({description: 'Template could not be found.',  func: 'get', obj: 'TemplatesCtrls'});
+			res.status(400).send('Template could not be found.');
+		} else {
+			logger.log({description: 'Template found successfully.',  func: 'get', obj: 'TemplatesCtrls'});
+			res.send(result);
 		}
-		res.send(result);
+	}, (err) => {
+		logger.log({description: 'Error getting template(s).', error: err, func: 'get', obj: 'TemplatesCtrls'});
+		res.status(500).send('Error getting template(s).');
 	});
 };
 
@@ -62,22 +63,22 @@ exports.get = function(req, res, next){
  *     }
  *
  */
-exports.add = function(req, res, next){
+exports.add = (req, res, next) => {
 	//Query for existing template with same name
 	if(!_.has(req.body, "name")){
 		res.status(400).send("Name is required to create a new app");
 	} else {
-		console.log('add request with name: ' + req.body.name + ' with body:', req.body);
+		logger.log({description: 'Template add request.', name: req.body.name, func: 'add', obj: 'TemplatesCtrls'});
 		var appData = _.extend({}, req.body);
 		if(!_.has(appData, 'author')){
-			console.log('No author provided. Using account', req.user);
+			logger.log('No author provided. Using account', req.user);
 			appData.author = req.user.accountId;
 		}
 		var query = Template.findOne({"name":req.body.name}); // find using name field
-		query.exec(function (qErr, qResult){
-			if (qErr) { return next(qErr); }
+		query.then((qResult) => {
 			if(qResult){ //Matching template already exists
-				return next(new Error('Template with this name already exists.'));
+				logger.info({description: 'Template with provided name already exists.', func: 'add', obj: 'TemplatesCtrls'});
+				return res.status(400).send('Template with provided name already exists.');
 			}
 			//template does not already exist
 			//Handle string list of tags as tag param
@@ -88,16 +89,19 @@ exports.add = function(req, res, next){
 			if(_.has(appData, 'frameworks')){
 				appData.frameworks = appData.frameworks.split(",");
 			}
-			console.log('creating new template with:', appData);
+			logger.log({description: 'Creating new template.', template: appData, }, appData);
 			var template = new Template(appData);
-			template.createNew(req).then(function (newTemplate){
-				console.log('Template created successfully:', newTemplate);
+			template.createNew(req).then( (newTemplate) => {
+				logger.log({description: 'Template created successfully.', func: 'add', obj: 'TemplatesCtrls'});
 				res.json(newTemplate);
-			}, function(err){
-				console.log('Error creating new template:', err);
+			}, (err) => {
+				logger.error({description: 'Error creating new template.', error: err, func: 'add', obj: 'TemplatesCtrls'});
 				//TODO: Handle different errors here
 				res.status(400).json(err);
 			});
+		}, (err) => {
+			logger.error({description: 'Error creating new template.', error: err, func: 'add', obj: 'TemplatesCtrls'});
+			res.status(500).send('Error adding template.');
 		});
 	}
 };
@@ -123,16 +127,16 @@ exports.add = function(req, res, next){
  *
  *
  */
-exports.update = function(req, res, next){
-	console.log('app update request with name: ' + req.params.name + ' with body:', req.body);
+exports.update = (req, res, next) => {
+	logger.log('app update request with name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name){
-		Template.update({name:req.params.name}, req.body, {upsert:false}, function (err, numberAffected, result) {
+		Template.update({name:req.params.name}, req.body, {upsert:false},  (err, numberAffected, result)  => {
 			if (err) { return next(err); }
 			//TODO: respond with updated data instead of passing through req.body
-			console.log('template data update successful:', numberAffected, result);
-			result.uploadFiles(req).then(function(){
+			logger.log('template data update successful:', numberAffected, result);
+			result.uploadFiles(req).then(() => {
 				res.json(req.body);
-			}, function (err){
+			},  (err) => {
 				res.status(500).send({message:'Error uploading files to template'});
 			});
 		});
@@ -160,21 +164,27 @@ exports.update = function(req, res, next){
  *
  *
  */
-exports.upload = function(req, res, next){
-	console.log('app update request with name: ' + req.params.name + ' with body:', req.body);
+exports.upload = (req, res, next) => {
+	logger.log('app update request with name: ' + req.params.name + ' with body:', req.body);
 	if(req.params.name){
-		Template.findOne({name:req.params.name}, function (err, template) {
-			if (err) { return next(err); }
+		var query = Template.findOne({name:req.params.name});
+		query.then((template) => {
 			//TODO: respond with updated data instead of passing through req.body
-			console.log('template found successfully:', template);
-			template.uploadFiles(req).then(function(){
+			logger.log({description: 'Template found successfully.', template: template, func: 'upload', obj: 'TemplatesCtrls'});
+			template.uploadFiles(req).then(() => {
+				logger.log({description: 'Files uploaded successfully.', template: template, func: 'upload', obj: 'TemplatesCtrls'});
 				res.json({message:'Files uploaded successfully'});
-			}, function (err){
-				res.status(500).send({message:'Error uploading files to template'});
+			}, (err) => {
+				logger.error({description: 'Error uploading files to template.', error: err, func: 'upload', obj: 'TemplatesCtrls'});
+				res.status(500).send('Error uploading files to template');
 			});
+		}, (err) => {
+			logger.error({description: 'Error finding template.', error: err, func: 'upload', obj: 'TemplatesCtrls'});
+			res.status(500).send('Error finding template.');
 		});
 	} else {
-		res.status(400).send({message:'Template name required'});
+		logger.info({description: 'Template name is required to upload files.', error: err, func: 'upload', obj: 'TemplatesCtrls'});
+		res.status(400).send('Template name required.');
 	}
 };
 /**
@@ -197,7 +207,7 @@ exports.upload = function(req, res, next){
  *
  */
 exports.delete = function(req, res, next){
-	console.log('delete request:', req.params);
+	logger.log('delete request:', req.params);
 	if(!_.has(req.body, 'name')){
 		res.status(400).send('Template name required to delete template.');
 	} else {
@@ -205,7 +215,7 @@ exports.delete = function(req, res, next){
 		query.exec(function (err, result){
 			if (err) { return next(err); }
 			if (!result) {
-				console.log('no result');
+				logger.log('no result');
 				return next(new Error('Template does not exist.'));
 			}
 				res.json(result);
@@ -233,16 +243,15 @@ exports.delete = function(req, res, next){
  *
  */
 exports.search = function(req, res, next){
-	// var urlParams = url.parse(req.url, true).query;
 	var nameQuery = createTemplateQuery('name', req.params.searchQuery);
 	// var emailQuery = createAccountQuery('email', req.params.searchQuery);
 	//Search templates by name
-	w.runQuery(nameQuery).then(function(nameResults){
+	nameQuery.then(function(nameResults){
 		if(_.isArray(nameResults) && nameResults.length == 0){
 			res.json(nameResults);
 			//TODO: Search tags
-			// w.runQuery(emailQuery).then(function (emailResults){
-			// 	console.log('Template search by tags resulted:', emailResults);
+			// emailQuery.then(function (emailResults){
+			// 	logger.log('Template search by tags resulted:', emailResults);
 			// 	res.json(emailResults);
 			// }, function (err){
 			// 	res.status(500).send({message:'Template cound not be found'});

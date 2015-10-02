@@ -1,8 +1,8 @@
 var Session = require('../models/session').Session;
 var mongoose = require('mongoose');
 var url = require('url');
-var _ = require('underscore');
-var Q = require('q');
+var _ = require('lodash');
+
 /**
  * @description Session controller functions
  */
@@ -11,28 +11,21 @@ var Q = require('q');
  * @params {String} email - Email of Session
  * @params {String} password - Password of Session
  */
-exports.get = function(req, res, next){
-	var isList = true;
+exports.get = (req, res, next) => {
 	var query = Session.find({});
 	if(req.params.id){ //Get data for a specific Session
-		console.log('Session request:', req.params.id);
+		logger.log({description: 'Session request.', id: req.params.id, func: 'get', obj: 'SessionCtrls'});
 		query = Session.findById(req.params.id);
-		isList = false;
 	}
-	query.exec(function (err, result){
-		if(err) {
-			console.error('[SessionCtrl.get()] Error querying session:', err);
-			return res.status(500).send('Error ending session.');
-		}
+	query.then((result) => {
 		if(!result){
-			console.error('[SessionCtrl.get()] Session could not be found.');
+			logger.error({description: 'Session could not be found.', func: 'get', obj: 'SessionCtrls'});
 			return res.status(400).send('Session could not be ended.');
 		}
-		var resData = result;
-		if(!isList){
-			resData = result.strip();
-		}
-		res.send(resData);
+		res.send(result);
+	}, (err) => {
+		logger.error({description: 'Error querying session.', error: err, func: 'get', obj: 'SessionCtrls'});
+		res.status(500).send('Error ending session.');
 	});
 };
 
@@ -45,19 +38,19 @@ exports.get = function(req, res, next){
 
  * @params {Boolean} tempPassword - Whether or not to set a temporary password (Also set if there is no password param)
  */
-exports.add = function(req, res, next){
+exports.add = (req, res, next) => {
 	//Session does not already exist
 	var Session = new Session(req.body);
-	Session.save(function (err, result) {
-		if(err) {
-			console.error('[SessionCtrl.add()] Error saving session:', err);
-			return res.status(500).send('Error starting new session.');
-		}
+	Session.save((result)  => {
 		if(!result){
-			console.error('[SessionCtrl.add()] Session could not be saved.');
-			return res.status(400).send('Session could not be created.');
+			logger.error({description: 'Session could not be added.', func: 'add', obj: 'SessionCtrls'});
+			res.status(400).send('Session could not be created.');
+		} else {
+			res.json(result);
 		}
-		res.json(result);
+	}, (err) => {
+		logger.error({description: 'Error saving session.', error: err, func: 'add', obj: 'SessionCtrls'});
+		res.status(500).send('Error starting new session.');
 	});
 };
 /** Update Ctrl
@@ -68,14 +61,14 @@ exports.add = function(req, res, next){
  * @params {String} name - Name of Session
  * @params {String} title - Title of Session
  */
-exports.update = function(req, res, next){
-	Session.update({_id:req.id}, req.body, {upsert:true}, function (err, numberAffected, result) {
+exports.update = (req, res, next) => {
+	Session.update({_id:req.id}, req.body, {upsert:true},  (err, numberAffected, result)  => {
 		if(err) {
-			console.error('[SessionCtrl.update()] Error updating session:', err);
+			logger.error({description: 'Error updating session.', error: err, func: 'update', obj: 'SessionCtrls'});
 			return res.status(500).send('Error updating session.');
 		}
 		if(!result){
-			console.error('[SessionCtrl.update()] Session could not be updated.');
+			logger.error({description: 'Session could not be updated.', func: 'update', obj: 'SessionCtrls'});
 			return res.status(400).send('Session could not be updated.');
 		}
 		res.json(result);
@@ -85,19 +78,17 @@ exports.update = function(req, res, next){
  * @description Delete a Session
  * @params {String} email - Email of Session
  */
-exports.delete = function(req, res, next){
+exports.delete = (req, res, next) => {
 	var urlParams = url.parse(req.url, true).query;
 	var query = Session.findOneAndRemove({'_id':req.params.id}); // find and delete using id field
-	query.exec(function (err, result){
-		if(err) {
-			console.error('[SessionCtrl.delete()] Error deleting session:', err);
-			return res.status(500).send('Error deleting session.');
-		}
+	query.then((result) => {
 		if(!result){
-			console.error('[SessionCtrl.delete()] Session could not be deleted.');
+			logger.error({description: 'Sessiong could not be deleted.', func: 'delete', obj: 'SessionCtrls'});
 			return res.status(400).send('Session could not be deleted.');
 		}
 		res.json(result);
+	}, (err) => {
+		logger.error({description: 'Error deleting session.', error: err, func: 'delete', obj: 'SessionCtrls'});
+		return res.status(500).send('Error deleting session.');
 	});
 };
-
