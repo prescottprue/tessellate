@@ -1,10 +1,10 @@
 angular.module('tessellate', [
-    'ui.router', 
-    'ngMaterial', 
+    'ui.router',
+    'ngMaterial',
     'ngMessages',
 
     'tessellate.account',
-    'tessellate.home', 
+    'tessellate.home',
     'tessellate.applications',
     'tessellate.templates'
   ])
@@ -12,7 +12,7 @@ angular.module('tessellate', [
   delete $httpProvider.defaults.headers.common['X-Requested-With'];
 })
 .service('$grout', ['$window', '$log', '$q', function ($window, $log, $q) {
-  var grout = new $window.Grout({localServer:false});
+  var grout = new $window.Grout({localServer:true});
   // $log.info('new grout:', grout);
   return grout;
 }])

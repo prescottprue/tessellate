@@ -30,7 +30,7 @@ var Session = require('../models/session').Session;
  *     }
  *
  */
-exports.signup = (req, res, next) => {
+exports.signup = function(req, res, next) {
 	var query;
 	logger.log({description: 'Signup request.', body: req.body});
 	//Check for username or email
@@ -58,7 +58,7 @@ exports.signup = (req, res, next) => {
 		});
 	}, (err) => {
 		logger.error({description: 'Error querying for account.', error: err, func: 'signup', obj: 'AuthCtrl'});
-		res.status(500).send('Error querying for account.'); 
+		res.status(500).send('Error querying for account.');
 	});
 };
 
@@ -90,7 +90,7 @@ exports.signup = (req, res, next) => {
  *     }
  *
  */
-exports.login = (req, res, next) => {
+exports.login = function(req, res, next) {
 	var query;
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
 		res.status(400).json({code:400, message:"Accountname or Email required to login"});
@@ -136,7 +136,7 @@ exports.login = (req, res, next) => {
  *     }
  *
  */
-exports.logout = (req, res, next) => {
+exports.logout = function(req, res, next) {
 	//TODO:Invalidate token
 	var account = new Account(req.user);
 	// logger.log('ending accounts session:', account);
@@ -169,7 +169,7 @@ exports.logout = (req, res, next) => {
  *     }
  *
  */
-exports.verify = (req, res, next) => {
+exports.verify = function(req, res, next) {
 	//TODO:Actually verify account instead of just returning account data
 	// logger.log('verify request:', req.user);
 	var query;
