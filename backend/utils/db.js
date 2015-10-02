@@ -26,7 +26,7 @@ if(conf.config.envName !== 'test') {
 		console.error('Mongoose error:', err);
 	});
 	tessellate.on('connected', function () {
-		console.error('Connected to DB');
+		console.error('Connected to test DB');
 		setTimeout(function () {
 			tessellate.close();
 		}, 1000);

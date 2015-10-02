@@ -1,6 +1,6 @@
 // var mongoose = require('mongoose');
-// var config = require('../backend/env/development');
 var expect = require("chai").expect;
+process.env.NODE_ENV = 'test';
 var AccountModel = require('../backend/models/account');
 var Account = require('../backend/models/account').Account;
 var AccountSchema = Account.base.modelSchemas.Account;
