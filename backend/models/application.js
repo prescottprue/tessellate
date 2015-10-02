@@ -314,13 +314,13 @@ ApplicationSchema.methods = {
 			accountUsername = accountData;
 		}
 		//Find account based on username then see if its id is within either list
-		var accountQuery = this.model('Account').findOne({username:accountUsername});
+		var accountQuery = this.model('Account').findOne({username:accountUsername}).select({password: 0});
 		return accountQuery.then((account) => {
 			if(!account){
 				logger.info({message:'Account not found.', obj:'Application', func:'findAccount'});
 				return Promise.reject({message:'Account not found', status:'NOT_FOUND'});
 			}
-			if(this.directories.length < 1 && this.groups.length < 1) {
+			if(!_.has(this, 'directories') && !_.has(this, 'groups')) {
 				logger.info({message:'Application does not have any groups or directories. Login Not possible. This application does not have any user groups or directories.', obj:'Application', func:'findAccount'});
 				return Promise.reject({message:'Application does not have any user groups or directories.'});
 			}
