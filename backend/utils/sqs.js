@@ -1,103 +1,109 @@
 //Interface with amazons messaging service
 var AWS = require('aws-sdk');
-var sqsQueueUrl = 'https://sqs.us-east-1.amazonaws.com/823322155619/TemplateCopying';
-var q = require('q'), sqs;
+var _ = require('lodash');
+var conf = require('../config/default');
+var logger = require('./logger');
 
-var sourceS3Conf = new AWS.Config({
-	region:'us-east-1',
-  accessKeyId: process.env.HYPERCUBE_S3_KEY || "",
-  secretAccessKey: process.env.HYPERCUBE_S3_SECRET || ""
-});
-    AWS.config.update({
-      accessKeyId: process.env.HYPERCUBE_S3_KEY|| process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.HYPERCUBE_S3_SECRET || process.env.AWS_SECRET_KEY,
-      region: 'us-east-1'
-    });
-// Instantiate SQS client
-sqs = new AWS.SQS();
-
-exports.doOnReceive = function(action){
-	return receiveMessage(action);
-};
-
-exports.add = function(body, attrs){
+var sqs = configureSQS();
+//Add message to SQS queue (will be consumed by worker)
+exports.add = (body, attrs) => {
 	//action, src, dest, author
-	var d = q.defer();
 	var params = {
     MessageBody: body,
-    QueueUrl: sqsQueueUrl,
+    QueueUrl: conf.aws.sqsQueueUrl,
     DelaySeconds: 0,
     MessageAttributes:{
     }
   };
-  sqs.sendMessage(params, function (err, data) {
+  return sqs.sendMessage(params, (err, data)  => {
     if (err) {
       console.log(err, err.stack);
-      d.reject(err);
+			return Promise.reject(err);
     }
     else {
-      d.resolve(data);
+      return Promise.resolve(data);
     };
   });
-  return d.promise;
 };
-
-function sendMessage(messageBody, messageAttrs){
-	//action, src, dest, author
-	var d = q.defer();
-	 var params = {
-    MessageBody: messageBody,
-    QueueUrl: sqsQueueUrl,
-    DelaySeconds: 0,
-    MessageAttributes:{
-
-    }
-  };
-  sqs.sendMessage(params, function (err, data) {
-    if (err) {
-      console.log(err, err.stack);
-      d.reject(err);
-    } // an error occurred
-    else {
-      console.log('Victory, message sent for ' + encodeURIComponent(request.params.name) + '!');
-      d.resolve(data);
-    };
-  });
-  return d.promise;
+//Configure SQS
+function configureSQS() {
+	if(!_.has(conf.aws, 'sqsQueueUrl')) {
+		logger.error({description: 'SQS_QUEUE_URL environment variable not set. SQS will not be available.', func: 'configureSQS', file: 'sqs'});
+		return;
+	}
+	if(!_.has(conf.aws, 'key') || !_.has(conf.aws, 'secret')) {
+		logger.error({description: 'AWS Environment variables not set. SQS will not be available.', func: 'configureSQS', file: 'sqs'});
+		return;
+	}
+	var sourceS3Conf = new AWS.Config({
+	  accessKeyId: conf.aws.key,
+	  secretAccessKey: conf.aws.secret,
+		region:'us-east-1'
+	});
+	AWS.config.update({
+	  accessKeyId: conf.aws.key,
+	  secretAccessKey: conf.aws.secret,
+	  region: 'us-east-1'
+	});
+	// Instantiate SQS client
+	return new AWS.SQS();
 }
-
-function receiveMessage(actionPromise){
-	var d = q.defer();
-	sqs.receiveMessage({
-  	QueueUrl: sqsQueueUrl,
-  	MaxNumberOfMessages: 1, // how many messages do we wanna retrieve?
-  	VisibilityTimeout: 60, // seconds - how long we want a lock on this job
-  	WaitTimeSeconds: 3 // seconds - how long should we wait for a message?
-	}, function(err, data) {
-   // If there are any messages to get
-   if (data.Messages) {
-    // Get the first message (should be the only one since we said to only get one above)
-    var message = data.Messages[0];
-    var body = JSON.parse(message.Body);
-    //TODO: Check that actionPromise is a function and returns a promise
-    // Now this is where you'd do something with this message
-    q.all([actionPromise(message, body), removeFromQueue(message)]).then(function(){
-    	console.log('Action completed and message removed');
-    	d.resolve(message);
-    }, function(err){
-    	d.reject(err);
-    });
-   }
- });
-	return d.promise;
-}
-function removeFromQueue(message) {
-	var q = q.defer();
-  sqs.deleteMessage({
-    QueueUrl: sqsQueueUrl,
-    ReceiptHandle: message.ReceiptHandle
-  }, function(err, data) {
-    // If we errored, tell us that we did
-    err && console.log(err);
-   });
-};
+// exports.doOnReceive = (action) => {
+// 	return receiveMessage(action);
+// };
+//
+// function sendMessage(messageBody, messageAttrs){
+// 	//action, src, dest, author
+// 	 var params = {
+//     MessageBody: messageBody,
+//     QueueUrl: sqsQueueUrl,
+//     DelaySeconds: 0,
+//     MessageAttributes:{
+//     }
+//   };
+//   return sqs.sendMessage(params, (err, data) => {
+//     if (err) {
+//       console.log(err, err.stack);
+//       return Promise.reject(err);
+//     } // an error occurred
+//     else {
+//       console.log('Victory, message sent for ' + encodeURIComponent(request.params.name) + '!');
+//       return Promise.resolve(data);
+//     };
+//   });
+// }
+//
+// function receiveMessage(actionPromise){
+// 	return sqs.receiveMessage({
+//   	QueueUrl: sqsQueueUrl,
+//   	MaxNumberOfMessages: 1, // how many messages do we wanna retrieve?
+//   	VisibilityTimeout: 60, // seconds - how long we want a lock on this job
+//   	WaitTimeSeconds: 3 // seconds - how long should we wait for a message?
+// 	},  (err, data) => {
+//    // If there are any messages to get
+//    if (data.Messages) {
+//     // Get the first message (should be the only one since we said to only get one above)
+//     var message = data.Messages[0];
+//     var body = JSON.parse(message.Body);
+//     //TODO: Check that actionPromise is a function and returns a promise
+//     // Now this is where you'd do something with this message
+//     Promise.all([actionPromise(message, body), removeFromQueue(message)]).then(() => {
+//     	console.log('Action completed and message removed');
+//     	return Promise.resolve(message);
+//     }, function(err){
+//     	return Promise.reject(err);
+//     });
+//    }
+//  });
+// }
+// function removeFromQueue(message) {
+// 	var q = q.defer();
+//   return sqs.deleteMessage({
+//     QueueUrl: sqsQueueUrl,
+//     ReceiptHandle: message.ReceiptHandle
+//   }, (err, data) => {
+//     // If we errored, tell us that we did
+//     console.log(err);
+// 		return Promise.reject(err);
+//   });
+// };

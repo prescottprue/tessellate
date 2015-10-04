@@ -4,86 +4,58 @@
 
 var aws = require('aws-sdk'),
 s3Sdk = require('s3'),
-q = require('q'),
-_ = require('underscore'),
+_ = require('lodash'),
 logger = require('./logger');
 
+var sourceS3Conf, s3, s3Client;
 //Load config variables
 var conf = require('../config/default').config;
-
-//Setup S3 Config
-var sourceS3Conf = new aws.Config({
-  accessKeyId: conf.s3.key,
-  secretAccessKey: conf.s3.secret
-});
-var s3 = new aws.S3(sourceS3Conf);
-var s3Client = s3Sdk.createClient({
-	s3Options:{
-		accessKeyId: conf.s3.key,
-		secretAccessKey: conf.s3.secret
-	}
-});
+configureS3();
 
 /** Create new S3 bucket and set default cors settings, and set index.html is website
  * @function createBucketSite
  * @params {string} newBucketName Name of new bucket to create
  */
-exports.createBucketSite = function(bucketName){
-	logger.log('createBucketSite called', bucketName);
-	var d = q.defer();
-	if(bucketName) {
-			logger.log('[createBucketSite] bucket name:', bucketName);
-			createS3Bucket(bucketName).then(function(bucketData){
-				logger.log('[createBucketSite] createS3Bucket successful:', bucketData);
-				setBucketCors(bucketName).then(function(){
-					logger.log('[createBucketSite] setBucketCors successful. BucketData:', bucketData);
-					// d.resolve(bucketData);
-					setBucketWebsite(bucketName).then(function(){
-						logger.log('[createBucketSite] setBucketWebsite successful. BucketData:', bucketData);
-						d.resolve(bucketData);
-					}, function (err){
-						logger.error('Error setting bucket site', err);
-						d.reject(err);
-					});
-				}, function (err){
-					logger.error('Error setting new bucket cors config', err);
-					d.reject(err);
-				});
-			}, function (err){
-				logger.error('Error creating new bucket', err);
-				d.reject(err);
-			});
-	} else {
-		d.reject({status:500, message:'Invalid Bucket Name'});
-	}
-	return d.promise;
-}
+exports.createBucketSite = (bucketName) => {
+	logger.log({description: 'createBucketSite called', bucketName: bucketName});
+  if(!bucketName){
+    return Promise.reject({status:400, message:'Bucket name is required to create bucket.'});
+  }
+  var runBucketCreation = new Promise.all([createS3Bucket(bucketName), setBucketCors(bucketName), setBucketWebsite(bucketName)]);
+  return runBucketCreation.then((data) => {
+    logger.log({description: 'Bucket site created successfully.', promiseData: data, bucketData: data[0], func: 'createBucketSite', obj: 's3'});
+    return data[0];
+  }, (err) => {
+    logger.error({description: 'Error setting new bucket cors config', error: err, func: 'createBucketSite', obj: 's3'});
+    return Promise.reject({message: 'Error creating bucket site.'});
+  });
+};
 /** Delete an S3 Bucket
  * @function createBucketSite
  * @params {string} bucketName Name of new bucket to delete
  */
-exports.deleteBucket = function(bucketName){
+exports.deleteBucket = (bucketName) => {
 	return deleteS3Bucket(bucketName);
 };
 
 /** Get List of buckets
  * @function getBuckets
  */
-exports.getBuckets = function(){
+exports.getBuckets = () => {
 	return getBuckets();
 };
 
 /** Save a file to an S3 bucket
  * @function saveFile
  */
-exports.saveFile = function(bucketName, fileKey, fileContents){
+exports.saveFile = (bucketName, fileKey, fileContents) => {
 	return saveToBucket(bucketName, fileKey, fileContents);
 };
 
 /** Get list of files within an S3 bucket
  * @function saveFile
  */
-exports.getFiles = function(bucketName){
+exports.getFiles = (bucketName) => {
 	return getObjects(bucketName);
 };
 
@@ -91,18 +63,18 @@ exports.getFiles = function(bucketName){
  * @function saveFile
  */
 exports.getSignedUrl = function(urlData){
-	var d = q.defer();
 	var params = {Bucket: urlData.bucket, Key: urlData.key};
-	s3.getSignedUrl(urlData.action, params, function (err, url) {
-	  if(err){
-	  	logger.log('Error getting signed url:', err);
-	  	d.reject(err);
-	  } else {
-	  	logger.log('The URL is', url);
-	  	d.resolve(url);
-	  }
-	});
-	return d.promise;
+  return new Promise((resolve, reject) => {
+    s3.getSignedUrl(urlData.action, params, (err, url) => {
+  	  if(err){
+  	  	logger.log({description: 'Error getting signed url:', err: err, func: 'getSignedUrl', obj: 's3'});
+  	  	reject(err);
+  	  } else {
+  	  	logger.log({description: 'Signed url generated.', url: url, func: 'getSignedUrl', obj: 's3'});
+  	  	resolve(url);
+  	  }
+  	});
+  });
 };
 /** Upload a local directory to a bucket
  * @function uploadToBucket
@@ -111,29 +83,48 @@ exports.getSignedUrl = function(urlData){
  */
 exports.uploadDir = uploadDirToBucket;
 
-
-
 //----------------- Helper Functions ------------------//
-
+/** Configure S3
+ * @function configureS3
+ */
+function configureS3() {
+  if(!_.has(conf.aws, 'key') || !_.has(conf.aws, 'secret')){
+    logger.error({description: 'AWS Environment variables not set. S3 will not be enabled.', func: 'configureS3', file: 's3'});
+    return;
+  }
+  //Setup S3 Config
+  sourceS3Conf = new aws.Config({
+    accessKeyId: conf.aws.key,
+    secretAccessKey: conf.aws.secret
+  });
+  s3 = new aws.S3(sourceS3Conf);
+  s3Client = s3Sdk.createClient({
+  	s3Options:{
+  		accessKeyId: conf.aws.key,
+  		secretAccessKey: conf.aws.secret
+  	}
+  });
+}
 /** Get S3 Buckets
  * @function uploadToBucket
  * @params {string} bucketName Name of bucket to upload to
  */
 function getBuckets(){
-	var d = q.defer();
-	s3.listBuckets(function(err, data) {
-	  if (err) { logger.log("Error:", err);
-		  d.reject(err);
-		}
-	  else {
-	    for (var index in data.Buckets) {
-	      var bucket = data.Buckets[index];
-	      logger.log("Bucket: ", bucket.Name, ' : ', bucket.CreationDate);
-	    }
-	    d.resolve(data.Buckets);
-	  }
-	});
-	return d.promise;
+  return new Promise((resolve, reject) => {
+    s3.listBuckets((err, data) => {
+  	  if (err) {
+        logger.log({description: "Error:", error: err, func: 'getBuckets', obj: 's3'});
+  		  reject(err);
+  		}
+  	  else {
+  	    // for (var index in data.Buckets) {
+  	    //   var bucket = data.Buckets[index];
+  	    // }
+        logger.log({description: 'Buckets loaded successfully. ', buckets: data.Buckets, func: 'getBuckets', obj: 's3'});
+  	    resolve(data.Buckets);
+  	  }
+  	});
+  });
 }
 /** Create a new bucket
 * @function createS3Bucket
@@ -142,49 +133,50 @@ function getBuckets(){
 function createS3Bucket(bucketName){
 	// logger.log('createS3Bucket called', bucketName);
 	var newBucketName = bucketName.toLowerCase();
-	var d = q.defer();
-	s3.createBucket({Bucket: newBucketName, ACL:'public-read'},function(err, data) {
-		if(err){
-			logger.error('[createS3Bucket] error creating bucket:', err);
-			d.reject({status:500, error:err});
-		} else {
-			logger.log('[createS3Bucket] bucketCreated successfully:', data);
-			// Setup Bucket website
-			var dataContents = data.toString();
-			// TODO: Return more accurate information here
-			d.resolve({name:newBucketName.toLowerCase(), websiteUrl:""});
-		}
-	});
-	return d.promise;
+  return new Promise((resolve, reject) => {
+    s3.createBucket({Bucket: newBucketName, ACL:'public-read'}, (err, data) => {
+  		if(err){
+  			logger.error({description: 'Error creating bucket.', err: err, func: 'createS3Bucket'});
+  			reject({status:500, error:err});
+  		} else {
+  			logger.log({description: 'Bucket created successfully:', data: data, func: 'createS3Bucket'});
+  			// Setup Bucket website
+  			var dataContents = data.toString();
+  			// TODO: Return more accurate information here
+  			resolve({name: newBucketName.toLowerCase(), websiteUrl: ''});
+  		}
+  	});
+  })
 }
 
 /** Remove all contents then delete an S3 bucket
 * @function deleteS3Bucket
 * @params {string} bucketName Name of bucket to delete
 */
-function deleteS3Bucket(bucketName){
+function deleteS3Bucket(bucketName) {
 	// logger.log('deleteS3Bucket called', bucketName);
-	var d = q.defer();
 	// Empty bucket
-	var deleteTask = s3Client.deleteDir({Bucket: bucketName});
-	deleteTask.on('error', function(err){
-		logger.error('error deleting bucket:', err);
-		d.reject(err);
-	});
-	deleteTask.on('end', function(){
-		logger.log(bucketName + ' bucket emptied of files successfully');
-		// Delete bucket
-		s3.deleteBucket({Bucket: bucketName}, function(err, data) {
-			if(err){
-				logger.error('[deleteS3Bucket()] Error deleting bucket:', err);
-				d.reject(err);
-			} else {
-				// Setup Bucket website
-				d.resolve({message: bucketName + ' Bucket deleted successfully'});
-			}
-		});
-	});
-	return d.promise;
+  return new Promise((resolve, reject) => {
+    var deleteTask = s3Client.deleteDir({Bucket: bucketName});
+  	deleteTask.on('error', (err) => {
+  		logger.error('error deleting bucket:', err);
+  		reject(err);
+  	});
+  	deleteTask.on('end', () => {
+  		logger.log({ description: 'Bucket emptied of files successfully.', bucketName: bucketName, func: 'deleteS3Bucket', file: 's3'});
+  		// Delete bucket
+  		s3.deleteBucket({Bucket: bucketName}, (err, data)  => {
+  			if(err){
+  				logger.error({description: 'Error deleting bucket:', error: err, func: 'deleteS3Bucket', file: 's3'});
+  				reject(err);
+  			} else {
+  				// Setup Bucket website
+          logger.log({description: 'Bucket deleted successfully.', bucketName: bucketName, error: err, func: 'deleteS3Bucket', file: 's3'});
+  				resolve({message: bucketName + ' Bucket deleted successfully'});
+  			}
+  		});
+  	});
+  });
 }
 /** Set Cors configuration for an S3 bucket
 * @function setBucketCors
@@ -192,39 +184,30 @@ function deleteS3Bucket(bucketName){
 */
 //TODO: Set this when creating bucket?
 function setBucketCors(bucketName){
-	// logger.log('[setBucketCors()] Bucket Name:', bucketName);
-	var d = q.defer();
-	s3.putBucketCors({
-		Bucket:bucketName,
-		CORSConfiguration:{
-			CORSRules: [
-	      {
-	        AllowedHeaders: [
-	          '*',
-	        ],
-	        AllowedMethods: [
-	          'HEAD','GET', 'PUT', 'POST'
-	        ],
-	        AllowedOrigins: [
-	          'http://*', 'https://*'
-	        ],
-	        // ExposeHeaders: [
-	        //   'STRING_VALUE',
-	        // ],
-	        MaxAgeSeconds: 3000
-	      },
-	    ]
-		}
-	}, function(err, data){
-		if(err){
-			logger.error('Error creating bucket website setup');
-			d.reject({status:500, error:err});
-		} else {
-			// logger.log('bucket cors set successfully resolving:');
-			d.resolve();
-		}
-	});
-	return d.promise;
+	logger.log({description: 'Bucket Name:', bucketName: bucketName, func: 'setBucketCors'});
+  var corsOptions = {
+    Bucket:bucketName,
+    CORSConfiguration:{
+      CORSRules: [{
+        AllowedHeaders: ['*'],
+        AllowedMethods: ['HEAD','GET', 'PUT', 'POST'],
+        AllowedOrigins: ['http://*', 'https://*'],
+        MaxAgeSeconds: 3000
+        // ExposeHeaders: ['STRING_VALUE'],
+      }]
+    }
+  };
+  return new Promise((resolve, reject) => {
+    s3.putBucketCors(corsOptions, (err, data) => {
+  		if(err){
+  			logger.error({description: 'Error creating bucket website setup.', error: err, func: 'setBucketCors'});
+  			reject({status:500, error:err});
+  		} else {
+  			logger.log({description: 'Bucket cors set successfully resolving.', data: data});
+  			resolve();
+  		}
+  	});
+  });
 }
 
 /** Set website configuration for an S3 bucket
@@ -233,24 +216,25 @@ function setBucketCors(bucketName){
 */
 function setBucketWebsite(bucketName){
 	// logger.log('[setBucketWebsite()] setBucketWebsite called:', bucketName);
-	var d = q.defer();
-	s3.putBucketWebsite({
-		Bucket: bucketName,
-		WebsiteConfiguration:{
-			IndexDocument:{
-				Suffix:'index.html'
-			}
-		}
-	}, function(err, data){
-		if(err){
-			logger.error('[setBucketWebsite()] Error creating bucket website setup');
-			d.reject({status:500, error:err});
-		} else {
-			// logger.log('[setBucketWebsite()] website config set for ' + bucketName, data);
-			d.resolve();
-		}
-	});
-	return d.promise;
+  var websiteConfig = {
+    Bucket: bucketName,
+    WebsiteConfiguration:{
+      IndexDocument:{
+        Suffix:'index.html'
+      }
+    }
+  };
+  return new Promise((resolve, reject) => {
+    s3.putBucketWebsite(websiteConfig, (err, data) => {
+  		if(err){
+  			logger.error({description: 'Error creating bucket website setup.', error: err, func: 'setBucketWebsite'});
+  			reject({status:500, error:err});
+  		} else {
+  			logger.log({description: 'Website config set. ', bucketName: bucketName, data: data, func: 'setBucketWebsite'});
+  			resolve();
+  		}
+  	});
+  });
 }
 
 /** Upload file contents to S3 given bucket, file key and file contents
@@ -262,22 +246,22 @@ function setBucketWebsite(bucketName){
  */
 function saveToBucket(bucketName, fileData){
 	// logger.log('[saveToBucket] saveToBucket called', arguments);
-  var d = q.defer();
   var saveParams = {Bucket:bucketName, Key:fileData.key,  Body: fileData.content, ACL:'public-read'};
   if(_.has(fileData, 'contentType')){
   	saveParams.ContentType = fileData.contentType;
   }
-  s3.putObject(saveParams, function(err, data){
-  	//[TODO] Add putting object ACL (make public)
-    if(!err){
-      // logger.log('[saveToBucket] file saved successfully. Returning:', data);
-      d.resolve(data);
-    } else {
-      logger.log('[saveToBucket] error saving file:', err);
-      d.reject(err);
-    }
+  return new Promise((resolve, reject) => {
+    s3.putObject(saveParams, (err, data) => {
+    	//[TODO] Add putting object ACL (make public)
+      if(!err){
+        logger.log({description: 'File saved successfully.', data: data, func: 'saveToBucket'});
+        resolve(data);
+      } else {
+        logger.error({description: 'Error saving file.', error: err, func: 'saveToBucket'});
+        reject(err);
+      }
+    });
   });
-  return d.promise;
 }
 
 /** Upload local directory contents to provided S3 Bucket
@@ -286,15 +270,14 @@ function saveToBucket(bucketName, fileData){
  * @params {string} localDir - Local directory to upload to S3
  */
 function uploadDirToBucket(bucketPath, localDir){
-	// logger.log('uploadDirToBucket called:', bucketName);
+	logger.log({description: 'uploadDirToBucket called:', bucketPath: bucketPath, func: 'uploadDirToBucket', obj: 's3'});
 	var prefix = "", bucketName = bucketPath;
 	var bucketPathArray = bucketName.split("/");
-	logger.log('bucketPathArray:', bucketPathArray);
 	if(bucketPathArray.length > 0){
+    logger.log({description: 'BucketPathArray built', array: bucketPathArray, func: 'uploadDirToBucket', obj: 's3'});
 		bucketName = bucketPathArray[0];
 		prefix = bucketPathArray.slice(1).join("/");
 	}
-	var d = q.defer();
 	var upParams = {
 	  localDir: localDir,
 	  s3Params: {
@@ -303,22 +286,23 @@ function uploadDirToBucket(bucketPath, localDir){
 	    ACL:'public-read'
 	  },
 	};
-	var uploader = s3Client.uploadDir(upParams);
-	uploader.on('error', function(err) {
-  	logger.error("[uploadToBucket] unable to sync:", err);
-  	d.reject(err);
-	});
-	// uploader.on('progress', function() {
-	//   logger.log("progress", uploader.progressAmount, uploader.progressTotal);
-	// });
-	uploader.on('end', function() {
-	  logger.log("[uploadToBucket] Upload succesful");
-		// [TODO] Delete new app folders
-	  var bucketUrl = bucketName + '.s3-website-us-east-1.amazonaws.com';
-	  logger.log('[uploadToBucket] uploader returning:', bucketUrl);
-	  d.resolve(bucketUrl);
-	});
-	return d.promise;
+  return new Promise((resolve, reject) => {
+    var uploader = s3Client.uploadDir(upParams);
+  	uploader.on('error', (err) => {
+    	logger.error({description: 'Unable to upload directory to bucket.', error: err, func: 'uploadDirToBucket', obj: 's3'});
+    	reject(err);
+  	});
+  	// uploader.on('progress', () => {
+  	//   logger.log("progress", uploader.progressAmount, uploader.progressTotal);
+  	// });
+  	uploader.on('end', () => {
+  	  logger.log({description: 'Upload succesful.', func: 'uploadDirToBucket'});
+  		// [TODO] Delete new app folders
+  	  var bucketUrl = bucketName + '.s3-website-us-east-1.amazonaws.com';
+  	  logger.log({description: 'Uploader finished. Bucket url generated.', bucketName: bucketName, bucketUrl: bucketUrl, func: 'uploadDirToBucket'});
+  	  resolve(bucketUrl);
+  	});
+  });
 }
 
 /** Insert data into template files
@@ -347,20 +331,20 @@ function templateLocalDir(dirPath, templateData){
 }
 
 //Get list of objects contained within bucket
-function getObjects(bucketName){
-	var d = q.defer();
-	if(!bucketName){
-		d.reject({message:'Bucket name required to get objects'});
-	}
-	s3.listObjects({Bucket:bucketName}, function(err, data) {
-	  if (err) {
-	  	logger.log("Error:", err);
-		  d.reject(err);
-		}
-	  else {
-	  	// logger.log("[getObjects] listObjects returned:", data);
-	    d.resolve(data);
-	  }
-	});
-	return d.promise;
+function getObjects(bucketName) {
+  return new Promise((resolve, reject) => {
+    if(!bucketName){
+      logger.error({description: 'Bucket name required to get objects.', func: 'getObjects'});
+  		return reject({message:'Bucket name required to get objects'});
+  	}
+    s3.listObjects({Bucket:bucketName}, (err, data) => {
+  	  if (err) {
+  	  	logger.error({description: 'Error listing objects.', error: err, func: 'getObjects'});
+  		  reject(err);
+  		} else {
+  	  	logger.log({description: 'listObjects returned.', data: data, func: 'getObjects'});
+  	    resolve(data);
+  	  }
+  	});
+  });
 }

@@ -179,7 +179,11 @@ ApplicationSchema.methods = {
 		}
 		logger.log({description: 'Applying template to project.', templateName: templateName, func: 'applyTemplate', obj: 'Application'});
 		//TODO: Check that the template was actually uploaded
-		return sqs.add(this.frontend.bucketName + ':' + templateName);
+		if(conf.aws.sqsQueueUrl){
+			return sqs.add(this.frontend.bucketName + ':' + templateName);
+		} else {
+			//TODO: Download then upload locally instead of pushing to worker queue
+		}
 	},
 	addCollaborators: (usersArray) => {
 		logger.log({description: 'Add collaborators to application called.', usersArray: usersArray, func: 'addCollaborators', obj: 'Application'});

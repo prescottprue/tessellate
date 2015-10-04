@@ -15,7 +15,7 @@ exports.log = function(logData){
     callExternalLogger('log', logData);
 	} else {
     console.log(msgStr);
-    callExternalLogger('log', logData);
+    // callExternalLogger('log', logData);
 	}
 };
 exports.info = function(logData){
@@ -27,7 +27,7 @@ exports.info = function(logData){
     callExternalLogger('info', logData);
 	} else {
 		console.log(msgStr);
-    callExternalLogger('info', logData);
+    // callExternalLogger('info', logData);
 	}
 };
 exports.debug = function(logData){
