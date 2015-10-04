@@ -1,18 +1,66 @@
-/** s3 connection helpers
+/** s3 Utility
  *	@description functionality for accessing/reading/writing to and from S3. These functions are used by files such as fileStorage.js
  */
-
 var aws = require('aws-sdk'),
 s3Sdk = require('s3'),
 _ = require('lodash'),
 logger = require('./logger');
-
 var sourceS3Conf, s3, s3Client;
+
 //Load config variables
 var conf = require('../config/default').config;
 configureS3();
 
-/** Create new S3 bucket and set default cors settings, and set index.html is website
+/**
+ * @description Delete an S3 Bucket
+ * @function deleteBucket
+ * @params {string} bucketName Name of new bucket to delete
+ */
+exports.deleteBucket = deleteS3Bucket;
+
+/**
+ * @description Get List of buckets
+ * @function getBuckets
+ */
+exports.getBuckets = getBuckets;
+
+/**
+ * @description Save a file to an S3 bucket
+ * @function saveFile
+ * @param {string} bucketName - Name of bucket to save file to
+ * @param {string} fileKey - Key of file to save
+ * @param {string} fileContents - Contents of file to save
+ */
+exports.saveFile = saveToBucket;
+
+/**
+ * @description Get list of files within an S3 bucket
+ * @function saveFile
+ */
+exports.getFiles = getObjects;
+
+/**
+ * @description Upload a local directory to a bucket
+ * @function uploadToBucket
+ * @params {string} bucketName Name of bucket to upload to
+ * @params {string} bucketName Name of bucket to upload to
+ */
+exports.uploadDir = uploadDirToBucket;
+
+/**
+ * @description Copy one Bucket to another Bucket including the use of prefixes
+ * @function copyBucketToBucket
+ * @params {string|object} srcBucketInfo Object with name and prefix or name of bucket to copy as string
+ * @params {string} srcBucketInfo.name Name of bucket to copy from
+ * @params {string} srcBucketInfo.prefix Prefix of bucket to copy from
+ * @params {string|object} destBucketName Object with name and prefix or name of bucket to copy src to
+ * @params {string} srcBucketInfo.name Name of bucket to copy to
+ * @params {string} srcBucketInfo.prefix Prefix of bucket to copy to
+ */
+exports.copyBucketToBucket = copyBucketToBucket;
+
+/**
+ * @description Create new S3 bucket and set default cors settings, and set index.html is website
  * @function createBucketSite
  * @params {string} newBucketName Name of new bucket to create
  */
@@ -30,39 +78,14 @@ exports.createBucketSite = (bucketName) => {
     return Promise.reject({message: 'Error creating bucket site.'});
   });
 };
-/** Delete an S3 Bucket
- * @function createBucketSite
- * @params {string} bucketName Name of new bucket to delete
- */
-exports.deleteBucket = (bucketName) => {
-	return deleteS3Bucket(bucketName);
-};
-
-/** Get List of buckets
- * @function getBuckets
- */
-exports.getBuckets = () => {
-	return getBuckets();
-};
-
-/** Save a file to an S3 bucket
- * @function saveFile
- */
-exports.saveFile = (bucketName, fileKey, fileContents) => {
-	return saveToBucket(bucketName, fileKey, fileContents);
-};
-
-/** Get list of files within an S3 bucket
- * @function saveFile
- */
-exports.getFiles = (bucketName) => {
-	return getObjects(bucketName);
-};
 
 /** Get a signed url
  * @function saveFile
+ * @param {object} urlData
+ * @param {string} urlData.bucket - Bucket name for which to get signed url
+ * @param {string} urlData.key - Key of object for which to get signed url
  */
-exports.getSignedUrl = function(urlData){
+exports.getSignedUrl = (urlData) => {
 	var params = {Bucket: urlData.bucket, Key: urlData.key};
   return new Promise((resolve, reject) => {
     s3.getSignedUrl(urlData.action, params, (err, url) => {
@@ -76,15 +99,10 @@ exports.getSignedUrl = function(urlData){
   	});
   });
 };
-/** Upload a local directory to a bucket
- * @function uploadToBucket
- * @params {string} bucketName Name of bucket to upload to
- * @params {string} bucketName Name of bucket to upload to
- */
-exports.uploadDir = uploadDirToBucket;
 
 //----------------- Helper Functions ------------------//
-/** Configure S3
+/**
+* @description Configure AWS and S3 modules
  * @function configureS3
  */
 function configureS3() {
@@ -105,7 +123,8 @@ function configureS3() {
   	}
   });
 }
-/** Get S3 Buckets
+/**
+ * @description Get S3 Buckets
  * @function uploadToBucket
  * @params {string} bucketName Name of bucket to upload to
  */
@@ -126,12 +145,13 @@ function getBuckets(){
   	});
   });
 }
-/** Create a new bucket
+/**
+* @description Create a new bucket
 * @function createS3Bucket
-* @params {string} bucketName Name of bucket to create
+* @param {string} bucketName Name of bucket to create
 */
 function createS3Bucket(bucketName){
-	// logger.log('createS3Bucket called', bucketName);
+	logger.log({description: 'CreateS3Bucket called.', bucketName: bucketName});
 	var newBucketName = bucketName.toLowerCase();
   return new Promise((resolve, reject) => {
     s3.createBucket({Bucket: newBucketName, ACL:'public-read'}, (err, data) => {
@@ -148,15 +168,15 @@ function createS3Bucket(bucketName){
   	});
   })
 }
-
-/** Remove all contents then delete an S3 bucket
+/**
+* @description Remove all contents then delete an S3 bucket
 * @function deleteS3Bucket
-* @params {string} bucketName Name of bucket to delete
+* @param {string} bucketName - Name of bucket to delete
 */
 function deleteS3Bucket(bucketName) {
 	// logger.log('deleteS3Bucket called', bucketName);
-	// Empty bucket
   return new Promise((resolve, reject) => {
+		// Empty bucket
     var deleteTask = s3Client.deleteDir({Bucket: bucketName});
   	deleteTask.on('error', (err) => {
   		logger.error('error deleting bucket:', err);
@@ -180,11 +200,10 @@ function deleteS3Bucket(bucketName) {
 }
 /** Set Cors configuration for an S3 bucket
 * @function setBucketCors
-* @params {string} newBucketName Name of bucket to set Cors configuration for
+* @param {string} newBucketName Name of bucket to set Cors configuration for
 */
 //TODO: Set this when creating bucket?
 function setBucketCors(bucketName){
-	logger.log({description: 'Bucket Name:', bucketName: bucketName, func: 'setBucketCors'});
   var corsOptions = {
     Bucket:bucketName,
     CORSConfiguration:{
@@ -197,22 +216,76 @@ function setBucketCors(bucketName){
       }]
     }
   };
+	logger.log({description: 'Cors Options being applied to bucket.', bucketName: bucketName, corsOptions: corsOptions, func: 'setBucketCors'});
   return new Promise((resolve, reject) => {
     s3.putBucketCors(corsOptions, (err, data) => {
   		if(err){
   			logger.error({description: 'Error creating bucket website setup.', error: err, func: 'setBucketCors'});
   			reject({status:500, error:err});
   		} else {
-  			logger.log({description: 'Bucket cors set successfully resolving.', data: data});
+  			logger.log({description: 'Bucket cors set successfully.', data: data});
   			resolve();
   		}
   	});
   });
 }
-
-/** Set website configuration for an S3 bucket
+/**
+* @description Copy one Bucket to another Bucket including the use of prefixes
+ * @function copyBucketToBucket
+ * @param {string|object} srcBucketInfo Object with name and prefix or name of bucket to copy as string
+ * @param {string} srcBucketInfo.name Name of bucket to copy from
+ * @param {string} srcBucketInfo.prefix Prefix of bucket to copy from
+ * @param {string|object} destBucketName Object with name and prefix or name of bucket to copy src to
+ * @param {string} srcBucketInfo.name Name of bucket to copy to
+ * @param {string} srcBucketInfo.prefix Prefix of bucket to copy to
+ */
+ //TODO: Provide the option to delete the local copy or not after operation is complete
+function copyBucketToBucket(srcBucketInfo, destBucketInfo) {
+	logger.log({description: 'copyBucketToBucket called.', srcBucket: srcBucketInfo, destBucket: destBucketInfo, func: 'copyBucketToBucket'});
+	var srcBucket = {prefix:''};
+	var destBucket = {prefix:''};
+	//Handle strings and objects
+	if(_.isString(srcBucketInfo)){
+		srcBucket.name = srcBucketInfo;
+	} else {
+		srcBucket.name = srcBucketInfo.name;
+		if(_.has(srcBucketInfo, 'prefix')){
+			srcBucket.prefix = srcBucketInfo.prefix;
+		}
+	}
+	if(_.isString(destBucketInfo)){
+		destBucket.name = destBucketInfo;
+	} else {
+		destBucket.name = destBucketInfo.name;
+		if(_.has(destBucketInfo, 'prefix')){
+			destBucket.prefix = destBucketInfo.prefix;
+		}
+	}
+	var tempFolder = localFileStore + srcBucket.name;
+	return downloadBucketToDir(srcBucket, tempFolder).then((downloadRes) => {
+		logger.log({description: 'Bucket downloaded successfully.', downloadRes: downloadRes, func: 'copyBucketToBucket'});
+		return uploadDirToBucket(destBucket, tempFolder).then((uploadRes) => {
+			logger.log({description: 'Bucket uploaded successfully.', downloadRes: downloadRes, func: 'copyBucketToBucket'});
+			return rimraf(tempFolder, (err) => {
+				if(err){
+					logger.error({description: 'Error removing local directory.', error: err, func: 'copyBucketToBucket'});
+					return Promise.reject({message: 'Error removing local directory.'});
+				}
+				return Promise.resolve(destBucket);
+			});
+		},  (err) => {
+			logger.log({description: 'Bucket upload error.', error: err, func: 'copyBucketToBucket'});
+			return Promise.reject(err);
+		});
+	},  (err) => {
+		logger.log({description: 'Bucket download error.', error: err, func: 'copyBucketToBucket'});
+		return Promise.reject(err);
+	});
+}
+/**
+* @description Set website configuration for an S3 bucket
 * @function setBucketWebsite
-* @params {string} newBucketName Name of bucket for which to set website configuration
+* @param {string} newBucketName Name of bucket for which to set website configuration
 */
 function setBucketWebsite(bucketName){
 	// logger.log('[setBucketWebsite()] setBucketWebsite called:', bucketName);
@@ -239,10 +312,10 @@ function setBucketWebsite(bucketName){
 
 /** Upload file contents to S3 given bucket, file key and file contents
  * @function saveToBucket
- * @params {string} bucketName - Name of bucket to upload to
- * @params {object} fileData - Object containing file information
- * @params {string} fileData.key - Key of file to save
- * @params {string} fileData.content - File contents in string form
+ * @param {string} bucketName - Name of bucket to upload to
+ * @param {object} fileData - Object containing file information
+ * @param {string} fileData.key - Key of file to save
+ * @param {string} fileData.content - File contents in string form
  */
 function saveToBucket(bucketName, fileData){
 	// logger.log('[saveToBucket] saveToBucket called', arguments);
@@ -266,8 +339,8 @@ function saveToBucket(bucketName, fileData){
 
 /** Upload local directory contents to provided S3 Bucket
  * @function saveToBucket
- * @params {string} bucketPath - Name or Name/location of bucket to upload files to
- * @params {string} localDir - Local directory to upload to S3
+ * @param {string} bucketPath - Name or Name/location of bucket to upload files to
+ * @param {string} localDir - Local directory to upload to S3
  */
 function uploadDirToBucket(bucketPath, localDir){
 	logger.log({description: 'uploadDirToBucket called:', bucketPath: bucketPath, func: 'uploadDirToBucket', obj: 's3'});
@@ -307,8 +380,8 @@ function uploadDirToBucket(bucketPath, localDir){
 
 /** Insert data into template files
  * @function uploadToBucket
- * @params {array} filesArray List of template files as strings
- * @params {object} templateData Data to be templated into the file
+ * @param {array} filesArray List of template files as strings
+ * @param {object} templateData Data to be templated into the file
  */
 function templateFiles(filesArray, templateData){
 	//TODO: Template each file
@@ -321,8 +394,8 @@ function templateFiles(filesArray, templateData){
 
 /** Insert data into a local directory of template files
  * @function uploadToBucket
- * @params {array} filesArray
- * @params {object} templateData Data to be templated into the file
+ * @param {array} filesArray
+ * @param {object} templateData Data to be templated into the file
  */
 function templateLocalDir(dirPath, templateData){
 	//TODO: Template each file loaded from path directory
@@ -330,7 +403,12 @@ function templateLocalDir(dirPath, templateData){
 	// var compiledFile = template(templateData);
 }
 
-//Get list of objects contained within bucket
+/**
+ * @description Insert data into a local directory of template files
+ * @function uploadToBucket
+ * @param {array} filesArray
+ * @param {object} templateData Data to be templated into the file
+ */
 function getObjects(bucketName) {
   return new Promise((resolve, reject) => {
     if(!bucketName){

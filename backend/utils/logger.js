@@ -1,10 +1,14 @@
+/**
+ * @description Logger utility that handles Internal and external logging based on environment config
+ */
 var conf = require('../config/default').config;
 var _ = require('underscore');
 var winston = require('winston');
 require('winston-loggly');
-
 var externalLoggerExists = null;
+
 configureExternalLogger();
+// TODO: Handle log level
 
 exports.log = function(logData){
 	var msgStr = buildMessageStr(logData);
@@ -66,6 +70,12 @@ exports.error = function(logData){
     callExternalLogger('error', logData);
 	}
 };
+/**
+ * @description Build a message string based on multiple types of logdata. String is human reading and includes line breaks.
+ * @param {object|string} logData - Object or string containing a log to be turned into a string.
+ * @param {object} logData.func - Function where the log is occuring
+ * @param {object} logData.obj - Object that contains the function where the log is occuring.
+ */
 function buildMessageStr(logData){
 	var msg = "";
 	//TODO: Attach time stamp
@@ -90,7 +100,9 @@ function buildMessageStr(logData){
 	}
 	return msg + '\n';
 }
-
+/**
+ * @description Configure external logging server. Currently Loggly. Requires LOGGLY_TOKEN environment variable
+ */
 function configureExternalLogger(){
   if(_.has(process.env, 'LOGGLY_TOKEN')){
     externalLoggerExists = true;
@@ -105,6 +117,11 @@ function configureExternalLogger(){
     externalLoggerExists = false;
   }
 }
+/**
+ * @description Call external logging service with loggin type.
+ * @param {string} type - Type of log.
+ * @param {object|string} msgData - Object or String data of message to log.
+ */
 function callExternalLogger(type, msgData) {
   try {
     console[type](msgData);

@@ -1,7 +1,7 @@
 //Interface with amazons messaging service
 var AWS = require('aws-sdk');
 var _ = require('lodash');
-var conf = require('../config/default');
+var conf = require('../config/default').config;
 var logger = require('./logger');
 
 var sqs = configureSQS();

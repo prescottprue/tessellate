@@ -11,7 +11,7 @@ module.exports = {
 	aws: {
 		key: process.env.TESSELLATE_AWS_KEY,
 		secret: process.env.TESSELLATE_AWS_SECRET,
-		sqsQueueUrl: process.env.TESSELLATE_SQS_QUEUE,
+		// sqsQueueUrl: process.env.TESSELLATE_SQS_QUEUE, //Remove to run worker task locally
 		appBucketsPrefix: "tessellate-app-",
 		platformBucket: "tessellate-templates",
 		projectBucketPrefix: "projects",

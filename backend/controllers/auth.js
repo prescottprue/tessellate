@@ -96,9 +96,13 @@ exports.login = function(req, res, next) {
 		res.status(400).json({code:400, message:"Accountname or Email required to login"});
 	} else {
 		if(_.has(req.body, "username")){
-			query = Account.findOne({"username":req.body.username}).populate({path:'groups', select:'name'}); // find using username field
+			query = Account.findOne({"username":req.body.username})
+				.populate({path:'groups', select:'name'})
+				.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using username field
 		} else {
-			query = Account.findOne({"email":req.body.email}); // find using email field
+			query = Account.findOne({"email":req.body.email})
+			.populate({path:'groups', select:'name'})
+			.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using email field
 		}
 		query.then((currentAccount) => {
 			if(!currentAccount){
@@ -176,11 +180,13 @@ exports.verify = function(req, res, next) {
 	if(req.user){
 		//Find by username in token
 		if(_.has(req.user, "username")){
-			query = Account.findOne({username:req.user.username});
+			query = Account.findOne({username:req.user.username})
+			.select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
 		}
 		//Find by username in token
 		else {
-			query = Account.findOne({email:req.user.email});
+			query = Account.findOne({email:req.user.email})
+			.select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
 		}
 		query.then((result) => {
 			if(!result){ //Matching account already exists
