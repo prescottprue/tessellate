@@ -219,6 +219,7 @@ AccountSchema.methods = {
 		return new Promise((resolve, reject) => {
 			Session.update({_id:self.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, (err, affect, result) => {
 				if(err){
+					logger.info({description: 'Error ending session.', error: err, func: 'endSession', obj: 'Account'});
 					return reject({message: 'Error ending session.'});
 				}
 				if (affect.nModified > 0) {
@@ -228,8 +229,8 @@ AccountSchema.methods = {
 					}
 					resolve(result);
 				} else {
-					logger.error({description: 'Session could not be ended.', func: 'endSession', obj: 'Account'});
-					reject({message: 'Session could not be ended.'});
+					logger.warn({description: 'Affect number incorrect?', func: 'endSession', affect: affect, sesson: result, error: err, obj: 'Account'});
+					resolve({id: self.sessionId});
 				}
 			});
 		});
