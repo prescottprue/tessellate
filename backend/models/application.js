@@ -76,7 +76,7 @@ ApplicationSchema.methods = {
 	findPromise: (appName) => {
 		logger.log({description: 'Find application called.', func: 'findPromise', obj: 'Application'});
 		var query = this.model('Application').findOne({name:appName}).populate({path:'owner', select:'username name title email'});
-		return query.then((err, foundApp) => {
+		return query.then((foundApp) => {
 			if(!foundApp){
 				logger.error({description: 'Application not found.', func: 'findPromise', obj: 'Application'});
 				return Promise.reject({message: 'Application not found.'});
@@ -91,10 +91,11 @@ ApplicationSchema.methods = {
 	},
 	createWithTemplate: (templateName) => {
 		logger.log({description: 'Create application with template called.', templateName: templateName, application: this, func: 'createWithTemplate', obj: 'Application'});
-		return this.createWithStorage().then((newApplication) => {
+		var self = this;
+		return self.createWithStorage().then((newApplication) => {
 			// console.log('[application.createWithStorage] new app saved successfully', newApplication);
 			logger.log({description: 'Create with storage successful.', newApplication: newApplicaiton, func: 'createWithTemplate', obj: 'Application'});
-			return this.applyTemplate(templateName).then(() => {
+			return self.applyTemplate(templateName).then(() => {
 				// console.log('[application.createWithStorage] storage created successfully', newApplication);
 				logger.info({description: 'Publish file called.',  func: 'createWithTemplate', obj: 'Application'});
 				return newApplication;
@@ -110,10 +111,11 @@ ApplicationSchema.methods = {
 	createWithStorage: () => {
 		logger.log({description: 'Create with storage called.', application: this, func: 'createWithStorage', obj: 'Application'});
 		// TODO: Add a new group by default
-		return this.saveNew().then((newApplication) => {
-			logger.log({description: 'Create with storage called.', application: this, func: 'createWithStorage', obj: 'Application'});
-			return this.createStorage().then(() => {
-				logger.info({description: 'Create with storage called.', application: this, func: 'createWithStorage', obj: 'Application'});
+		var self = this;
+		return self.saveNew().then((newApplication) => {
+			logger.log({description: 'Create with storage called.', application: self, func: 'createWithStorage', obj: 'Application'});
+			return self.createStorage().then(() => {
+				logger.info({description: 'Create with storage called.', application: self, func: 'createWithStorage', obj: 'Application'});
 				return newApplication;
 			}, (err) => {
 				logger.error({description: 'Error create application with storage.', error: err, func: 'createWithStorage', obj: 'Application'});
@@ -128,18 +130,19 @@ ApplicationSchema.methods = {
 		//TODO: Handle storageData including provider and name prefix
 		logger.log({description: 'Create storage for application called.', storageData: storageData, func: 'createStorage', obj: 'Application'});
 		var bucketName = bucketPrefix + this.name;
+		var self = this;
 		bucketName = bucketName.toLowerCase();
 		return fileStorage.createBucket(bucketName).then((bucket) => {
 			logger.log({description: 'New bucket storage created for application.', bucket: bucket, func: 'createStorage', obj: 'Application'});
 			// TODO: Handle different bucket regions and site urls
-			this.frontend = {
+			self.frontend = {
 				bucketName:bucketName,
 				provider:'Amazon',
 				siteUrl:bucketName + '.s3-website-us-east-1.amazonaws.com',
 				bucketUrl:'s3.amazonaws.com/' + bucketName
 			};
 			// console.log('[createStorage()] about to save new with bucket info:', self);
-			return this.saveNew().then((appWithStorage) => {
+			return self.saveNew().then((appWithStorage) => {
 				// console.log('[createStorage()]AppsWithStorage saved with storage:', appWithStorage);
 				logger.info({description: 'App with storage created successfully.', app: appWithStorage, func: 'createStorage', obj: 'Application'});
 				return appWithStorage;
@@ -171,7 +174,6 @@ ApplicationSchema.methods = {
 				}
 			});
 		}
-		return d.promise;
 	},
 	applyTemplate: (templateName) => {
 		if(!templateName || _.isUndefined(templateName)){
@@ -188,6 +190,7 @@ ApplicationSchema.methods = {
 	addCollaborators: (usersArray) => {
 		logger.log({description: 'Add collaborators to application called.', usersArray: usersArray, func: 'addCollaborators', obj: 'Application'});
 		var userPromises = [];
+		var self = this;
 		//TODO: Check to see if user exists and is already a collaborator before adding
 		//TODO: Check to see if usersArray is a list of objects(userData) or numbers(userIds)
 		if(usersArray && _.isArray(usersArray)){
@@ -197,10 +200,10 @@ ApplicationSchema.methods = {
 				//Push promise to promises array
 				userPromises.push(d);
 				logger.log({description: 'Account find promise pushed to promise array.', userData: user, func: 'addCollaborators', obj: 'Application'});
-				this.findAccount(user).then((foundAccount) => {
+				self.findAccount(user).then((foundAccount) => {
 					logger.info({description: 'Found account, adding to collaborators.', foundAccount: foundAccount, func: 'addCollaborators', obj: 'Application'});
 					//Add Account's ObjectID to application's collaborators
-					this.collaborators.push(foundAccount._id);
+					self.collaborators.push(foundAccount._id);
 					d.resolve(foundAccount);
 				}, (err) => {
 					logger.error({description: 'Error account in application.', error: err, func: 'addCollaborators', obj: 'Application'});
@@ -211,7 +214,7 @@ ApplicationSchema.methods = {
 		//Run all users account promises then Add save promise to end of promises list
 		return q.all(accountPromises).then((accountsArray) => {
 			logger.log({description: 'collaborators all found:', accountsArray: accountsArray, func: 'addCollaborators', obj: 'Application'});
-			return this.saveNew();
+			return self.saveNew();
 		}, (err) => {
 			logger.error({description: 'Error with accountPromises', error: err, func: 'addCollaborators', obj: 'Application'});
 			return err;
@@ -235,7 +238,8 @@ ApplicationSchema.methods = {
 	},
 	signup: (signupData) => {
 		logger.log({description: 'Signup to application called.', signupData: signupData, application: this, func: 'signup', obj: 'Application'});
-		return this.findAccount(signupData).then((foundAccount) => {
+		var self = this;
+		return self.findAccount(signupData).then((foundAccount) => {
 			logger.info({description: 'Account already exists in application directories', foundAccount: foundAccount, func: 'signup', obj: 'Application'});
 			return Promise.reject({message:'Account already exists in application.', status: 'EXISTS'});
 		}, (err) => {
@@ -243,13 +247,13 @@ ApplicationSchema.methods = {
 			if(err && err.status == 'NOT_FOUND'){
 				//Account does not already exists
 				logger.log({description: 'Account does not already exist in directories', func: 'signup', obj: 'Application'});
-				var Account = this.model('Account');
+				var Account = self.model('Account');
 				var account = new Account(signupData);
 				logger.log({description: 'New account object created.', account: account, func: 'signup', obj: 'Application'});
 				return account.createWithPass(signupData.password).then((newAccount) => {
 					//Account did not yet exist, so it was created
 					logger.info({description: 'New account created successfully.', newAccount: newAccount, func: 'signup', obj: 'Application'});
-					return this.addAccountToDirectory(newAccount).then((directoryWithAccount) => {
+					return self.addAccountToDirectory(newAccount).then((directoryWithAccount) => {
 						logger.info({description: 'New account added to application directory successfully.', newAccount: newAccount, directory: directoryWithAccount, func: 'signup', obj: 'Application'});
 						//Log in to newly created account
 						return newAccount.login(signupData.password).then((loginRes) => {
@@ -269,15 +273,15 @@ ApplicationSchema.methods = {
 					if(err && err.status == 'EXISTS'){
 						//Add to account to directory
 						logger.log({description: 'User already exists. Adding account to application directory.', func: 'signup', obj: 'Application'});
-						return this.addAccountToDirectory(account).then((directoryWithAccount) => {
+						return self.addAccountToDirectory(account).then((directoryWithAccount) => {
 							logger.log({description: 'Account added to directory successfully.', directory: directoryWithAccount, func: 'signup', obj: 'Application'});
-							d.resolve(directoryWithAccount);
+							return directoryWithAccount;
 						}, (err) => {
 							logger.error({description: 'Error adding account to directory', error: err, func: 'signup', obj: 'Application'});
 							return Promise.reject(err);
 						});
 					} else {
-						logger.error('[Application.signup()] Error creating new account.', err);
+						logger.error({description: 'Error creating new account.', error: err, func: 'signup', obj: 'Application'});
 						return Promise.reject(err);
 					}
 				});
@@ -311,26 +315,23 @@ ApplicationSchema.methods = {
 	//Find account and make sure it is within application accounts, groups, and directories
 	findAccount: (accountData) => {
 		var accountUsername;
-		logger.log({description: 'Find account called.', accountData: accountData, func: 'findAccount', obj: 'Application'});
+		var self = this;
+		logger.log({description: 'Find account called.', application: self, accountData: accountData, func: 'findAccount', obj: 'Application'});
 		if(_.has(accountData, 'username')){
 			accountUsername = accountData.username
 		} else if(_.isString(accountData)){
 			accountUsername = accountData;
 		}
 		//Find account based on username then see if its id is within either list
-		var accountQuery = this.model('Account').findOne({username:accountUsername}).select({password: 0});
+		var accountQuery = this.model('Account').findOne({username:accountUsername});
 		return accountQuery.then((account) => {
 			if(!account){
 				logger.info({message:'Account not found.', obj:'Application', func:'findAccount'});
 				return Promise.reject({message:'Account not found', status:'NOT_FOUND'});
 			}
-			if(!_.has(this, 'directories') && !_.has(this, 'groups')) {
-				logger.info({message:'Application does not have any groups or directories. Login Not possible. This application does not have any user groups or directories.', obj:'Application', func:'findAccount'});
-				return Promise.reject({message:'Application does not have any user groups or directories.'});
-			}
-			logger.log({message:'Account found, looking for it in application.', application:this, account:account, obj:'Application', func:'findAccount'})
-			return this.accountExistsInApp(account).then(() => {
-				logger.log({message:'Account exists in application.', application:this, account:account, obj:'Application', func:'findAccount'})
+			logger.log({message:'Account found, looking for it in application.', application:self, account:account, obj:'Application', func:'findAccount'})
+			return self.accountExistsInApp(account).then(() => {
+				logger.log({message:'Account exists in application.', application:self, account:account, obj:'Application', func:'findAccount'})
 				return account;
 			}, (err) => {
 				logger.error({message: 'Error looking for account in app', account:account, error: JSON.stringify(err), obj:'Application', func:'findAccount'})
@@ -345,22 +346,26 @@ ApplicationSchema.methods = {
 	//See if located account is within application directories/groups/accounts
 	//TODO: Accept username as well and find account from username
 	accountExistsInApp: (account) => {
-		var query = this.model('Application').findById(this._id)
+		var self = this;
+		logger.log({message:'Account exists in app called.', selfData: self, obj:'Application', func:'accountExistsInApp'});
+		var query = self.model('Application').findById(self._id)
 		.populate({path:'directories', select:'accounts groups'})
 		.populate({path:'groups', select:'accounts'});
 		return query.then((selfData) => {
+			logger.log({message:'Application loaded.', selfData: selfData, obj:'Application', func:'accountExistsInApp'});
 			var existsInDirectories = _.any(selfData.directories, (directory) => {
 				//TODO: Check groups in directories as well
-				logger.log({message:'Searching for account within directory.', directory:directory, accounts:directory.accounts, groups:directory.groups, obj:'Application', func:'accountExistsInApp'});
+				logger.log({message:'Searching for account within directory.', account: account, directory:directory, accounts:directory.accounts, groups:directory.groups, obj:'Application', func:'accountExistsInApp'});
 				return _.any(directory.accounts, (testAccountId) => {
-					return account._id.toString() === testAccountId;
+					return account._id.toString() === testAccountId.toString();
 				});
 			});
 			var existsInGroups = _.any(selfData.groups, (group) => {
 				return _.any(group.accounts, (testAccountId) => {
-					return account._id.toString() === testAccountId;
+					return account._id.toString() === testAccountId.toString();
 				});
 			});
+			logger.log({message:'Checked directories and groups.', isInDirectories: existsInDirectories, isInGroups: existsInGroups, obj:'Application', func:'accountExistsInApp'});
 			if(existsInDirectories || existsInGroups){
 				logger.info({message:'Account found within application.', obj:'Application', func:'accountExistsInApp', existsInGroups:existsInGroups, existsInDirectories:existsInDirectories});
 				return Promise.resolve(true);
@@ -441,6 +446,7 @@ ApplicationSchema.methods = {
 		// 	console.error('This group already exists application');
 		// 	return;
 		// }
+		var self = this;
 		//Add application id to group
 		groupData.application = this._id;
 		//Add applicaiton id to search
@@ -459,8 +465,8 @@ ApplicationSchema.methods = {
 		//Do not search for group if a group object was passed
 		if(_.has(groupData, '_id') || groupData instanceof this.model('Group')){
 			logger.log({description:'Group instance was passed, adding it to application.', groupData: groupData, func:'addGroup', obj: 'Application'});
-			this.groups.push(groupData._id);
-			return this.saveNew().then((savedApp) => {
+			self.groups.push(groupData._id);
+			return self.saveNew().then((savedApp) => {
 				logger.info({description:'Group successfully added to application.', func:'addGroup', obj: 'Application'});
 				return groupData;
 			}, (err) => {
@@ -468,19 +474,19 @@ ApplicationSchema.methods = {
 				return Promise.reject(err);
 			});
 		} else {
-			var query = this.model('Group').findOne(findObj);
+			var query = self.model('Group').findOne(findObj);
 			logger.log({description:'Find object constructed.', find: findObj, func:'addGroup', obj: 'Application'});
 			return query.then((group) => {
 				if(!group){
 					logger.info({description:'Group does not already exist.', func:'addGroup', obj: 'Application'});
 					//Group does not already exist, create it
-					var Group = this.model('Group');
+					var Group = self.model('Group');
 					var group = new Group(groupData);
 					return group.saveNew().then((newGroup) => {
 						logger.info({description:'Group created successfully. Adding to application.', func:'addGroup', obj: 'Application'});
 						//Add group to application
-						this.groups.push(newGroup._id);
-						return this.saveNew().then((savedApp) => {
+						self.groups.push(newGroup._id);
+						return self.saveNew().then((savedApp) => {
 							logger.info({description:'Group successfully added to application.', func:'addGroup', obj: 'Application'});
 							return newGroup;
 						}, (err) => {
@@ -495,8 +501,8 @@ ApplicationSchema.methods = {
 					//TODO: Decide if this should happen?
 					//Group already exists, add it to applicaiton
 					logger.log({description:'Group already exists. Adding to application.', group: group, func:'addGroup', obj: 'Application'});
-					this.groups.push(group._id);
-					return this.saveNew().then((savedApp) => {
+					self.groups.push(group._id);
+					return self.saveNew().then((savedApp) => {
 						logger.info({description:'Group successfully added to application.', group: group, savedApp: savedApp, func:'addGroup', obj: 'Application'});
 						return group;
 					}, (err) => {
@@ -530,6 +536,7 @@ ApplicationSchema.methods = {
 	deleteGroup: (groupData) => {
 		logger.log({description:'Delete group called.', groupData: groupData, app: this, func:'deleteGroup', obj: 'Application'});
 		var groupInApp = _.findWhere(this.groups, {name: groupData.name});
+		var self = this;
 		//TODO: Check groups before to make sure that group by that name exists
 		if(!groupInApp){
 			logger.log({description:'Group with provided name does not exist within application.', groupData: groupData, app: this, func:'deleteGroup', obj: 'Application'});
@@ -543,7 +550,7 @@ ApplicationSchema.methods = {
 			} else {
 				logger.info({description:'Group deleted successfully. Removing from application.', returnedData: group, func:'deleteGroup', obj: 'Application'});
 				//Remove group from application's groups
-				_.remove(this.groups, (currentGroup) => {
+				_.remove(self.groups, (currentGroup) => {
 					//Handle currentGroups being list of IDs
 					if(_.isObject(currentGroup) && _.has(currentGroup, '_id') && currentGroup._id == group._id){
 						logger.info({description:'Removed group by object with id param.', returnedData: group, func:'deleteGroup', obj: 'Application'});
@@ -622,32 +629,32 @@ ApplicationSchema.methods = {
 	}
 };
 //TODO: See if this is used
-function findAccount(find){
-	logger.log({description: 'Find account called.', findData: find, func: 'findAccount', file: 'Application Model'});
-	var findObj = {};
-	if(_.isString(find)){
-		//Assume username
-		findObj = {username:find};
-	} else if(_.isNumber()){
-		//Assume find is objectId
-		findObj._id = find;
-	} else {
-		//Assume find is object
-		findObj = find;
-	}
-	logger.log({description: 'Find object built.', findObj: findObj, func: 'findAccount', file: 'Application Model'});
-	return Account.find(findObj).then((foundAccount) => {
-		if(!foundAccount){
-			logger.error({description: 'Account could not be found.', func: 'findAccount', file: 'Application Model'});
-			return Promise.reject({message:'Account could not be found'});
-		}
-		logger.info({description: 'Account found successfully.', foundAccount: foundAccount, func: 'findAccount', file: 'Application Model'});
-		return foundAccount;
-	}, () => {
-		logger.error({description: 'Error finding account.', error: err, func: 'findAccount', file: 'Application Model'});
-		return Promise.reject({message:'Error Adding collaborator.', error:err});
-	});
-}
+// function findAccount(find){
+// 	logger.log({description: 'Find account called.', findData: find, func: 'findAccount', file: 'Application Model'});
+// 	var findObj = {};
+// 	if(_.isString(find)){
+// 		//Assume username
+// 		findObj = {username:find};
+// 	} else if(_.isNumber()){
+// 		//Assume find is objectId
+// 		findObj._id = find;
+// 	} else {
+// 		//Assume find is object
+// 		findObj = find;
+// 	}
+// 	logger.log({description: 'Find object built.', findObj: findObj, func: 'findAccount', file: 'Application Model'});
+// 	return Account.find(findObj).then((foundAccount) => {
+// 		if(!foundAccount){
+// 			logger.error({description: 'Account could not be found.', func: 'findAccount', file: 'Application Model'});
+// 			return Promise.reject({message:'Account could not be found'});
+// 		}
+// 		logger.info({description: 'Account found successfully.', foundAccount: foundAccount, func: 'findAccount', file: 'Application Model'});
+// 		return foundAccount;
+// 	}, () => {
+// 		logger.error({description: 'Error finding account.', error: err, func: 'findAccount', file: 'Application Model'});
+// 		return Promise.reject({message:'Error Adding collaborator.', error:err});
+// 	});
+// }
 /*
  * Construct `Account` model from `AccountSchema`
  */

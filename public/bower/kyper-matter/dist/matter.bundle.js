@@ -35,7 +35,7 @@ module.exports = function (token) {
   if (!token) {
     throw new Error('Invalid token specified');
   }
-  
+
   return json_parse(base64_url_decode(token.split('.')[1]));
 };
 
@@ -12474,9 +12474,14 @@ var reduce = require('reduce');
  * Root reference for iframes.
  */
 
-var root = 'undefined' == typeof window
-  ? (this || self)
-  : window;
+var root;
+if (typeof window !== 'undefined') { // Browser window
+  root = window;
+} else if (typeof self !== 'undefined') { // Web Worker
+  root = self;
+} else { // Other environments
+  root = this;
+}
 
 /**
  * Noop.
@@ -12812,6 +12817,20 @@ Response.prototype.setHeaderProperties = function(header){
 };
 
 /**
+ * Force given parser
+ *
+ * Sets the body parser no matter type.
+ *
+ * @param {Function}
+ * @api public
+ */
+
+Response.prototype.parse = function(fn){
+  this.parser = fn;
+  return this;
+};
+
+/**
  * Parse the given body `str`.
  *
  * Used for auto-parsing of bodies. Parsers
@@ -12823,7 +12842,7 @@ Response.prototype.setHeaderProperties = function(header){
  */
 
 Response.prototype.parseBody = function(str){
-  var parse = request.parse[this.type];
+  var parse = this.parser || request.parse[this.type];
   return parse && str && (str.length || str instanceof Object)
     ? parse(str)
     : null;
@@ -12859,7 +12878,7 @@ Response.prototype.setStatusProperties = function(status){
   var type = status / 100 | 0;
 
   // status / class
-  this.status = status;
+  this.status = this.statusCode = status;
   this.statusType = type;
 
   // basics
@@ -13780,7 +13799,7 @@ Emitter.prototype.hasListeners = function(event){
  * TODO: combatible error handling?
  */
 
-module.exports = function(arr, fn, initial){  
+module.exports = function(arr, fn, initial){
   var idx = 0;
   var len = arr.length;
   var curr = arguments.length == 3
@@ -13790,7 +13809,7 @@ module.exports = function(arr, fn, initial){
   while (idx < len) {
     curr = fn.call(null, curr, arr[idx], ++idx, arr);
   }
-  
+
   return curr;
 };
 },{}],9:[function(require,module,exports){
@@ -13801,7 +13820,8 @@ var config = {
 	serverUrl: 'http://tessellate.elasticbeanstalk.com',
 	tokenName: 'tessellate',
 	tokenDataName: 'tessellate-tokenData',
-	tokenUserDataName: 'tessellate-currentUser'
+	tokenUserDataName: 'tessellate-currentUser',
+	logLevel: 'debug'
 };
 exports['default'] = config;
 module.exports = exports['default'];
@@ -13880,7 +13900,7 @@ var Matter = (function () {
    */
 		value: function signup(signupData) {
 			_utilsLogger2['default'].log({ description: 'Signup called.', signupData: signupData, func: 'signup', obj: 'Matter' });
-			if (!signupData) {
+			if (!signupData || !_lodash2['default'].isObject(signupData) && !_lodash2['default'].isString(signupData)) {
 				_utilsLogger2['default'].error({ description: 'Signup information is required to signup.', func: 'signup', obj: 'Matter' });
 				return Promise.reject({ message: 'Login data is required to login.' });
 			}
@@ -13897,16 +13917,13 @@ var Matter = (function () {
 					_utilsLogger2['default'].error({ description: 'Error requesting signup.', signupData: signupData, error: errRes, func: 'signup', obj: 'Matter' });
 					return Promise.reject(errRes);
 				});
-			} else if (_lodash2['default'].isString(signupData)) {
+			} else {
 				//Handle 3rd Party signups
 				var auth = new _utilsProviderAuth2['default']({ provider: signupData, app: this });
 				return auth.signup(signupData).then(function (res) {
 					_utilsLogger2['default'].info({ description: 'Provider signup successful.', provider: signupData, res: res, func: 'signup', obj: 'Matter' });
 					return Promise.resolve(res);
 				});
-			} else {
-				_utilsLogger2['default'].error({ description: 'Incorrectly formatted signup information.', signupData: signupData, func: 'signup', obj: 'Matter' });
-				return Promise.reject({ message: 'Signup requires an object or a string.' });
 			}
 		}
 
@@ -13918,7 +13935,7 @@ var Matter = (function () {
 		value: function login(loginData) {
 			var _this = this;
 
-			if (!loginData) {
+			if (!loginData || !_lodash2['default'].isObject(loginData) && !_lodash2['default'].isString(loginData)) {
 				_utilsLogger2['default'].error({ description: 'Username/Email and Password are required to login', func: 'login', obj: 'Matter' });
 				return Promise.reject({ message: 'Login data is required to login.' });
 			}
@@ -13948,16 +13965,13 @@ var Matter = (function () {
 					}
 					return Promise.reject(errRes);
 				});
-			} else if (_lodash2['default'].isString(loginData)) {
+			} else {
 				//Provider login
 				var auth = new _utilsProviderAuth2['default']({ provider: loginData, app: this });
 				return auth.login().then(function (res) {
 					_utilsLogger2['default'].info({ description: 'Provider login successful.', provider: loginData, res: res, func: 'login', obj: 'Matter' });
 					return Promise.resolve(res);
 				});
-			} else {
-				_utilsLogger2['default'].error({ description: 'Incorrectly fomatted login information.', signupData: signupData, func: 'login', obj: 'Matter' });
-				return Promise.reject({ message: 'Login requires an object or a string.' });
 			}
 		}
 
@@ -13990,8 +14004,8 @@ var Matter = (function () {
 		value: function getCurrentUser() {
 			var _this3 = this;
 
-			if (this.storage.item(_config2['default'].tokenUserDataName)) {
-				return Promise.resove(this.storage.getItem(_config2['default'].tokenUserDataName));
+			if (this.currentUser) {
+				return Promise.resolve(this.currentUser);
 			} else {
 				if (this.isLoggedIn) {
 					return _utilsRequest2['default'].get(this.endpoint + '/user').then(function (response) {
@@ -14027,7 +14041,6 @@ var Matter = (function () {
 				return Promise.reject({ message: 'Must be logged in to update profile.' });
 			}
 			//Send update request
-			_utilsLogger2['default'].warn({ description: 'Calling update endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'updateProfile', obj: 'Matter' });
 			return _utilsRequest2['default'].put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
 				_utilsLogger2['default'].log({ description: 'Update profile request responded.', responseData: response, func: 'updateProfile', obj: 'Matter' });
 				_this4.currentUser = response;
@@ -14039,18 +14052,14 @@ var Matter = (function () {
 		}
 	}, {
 		key: 'changePassword',
-		value: function changePassword() {
-			var _this5 = this;
-
+		value: function changePassword(updateData) {
 			if (!this.isLoggedIn) {
 				_utilsLogger2['default'].error({ description: 'No current user profile for which to change password.', func: 'changePassword', obj: 'Matter' });
 				return Promise.reject({ message: 'Must be logged in to change password.' });
 			}
 			//Send update request
-			_utilsLogger2['default'].log({ description: 'Calling update endpoint to change password.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'changePassword', obj: 'Matter' });
 			return _utilsRequest2['default'].put(this.endpoint + '/user/' + this.token.data.username, updateData).then(function (response) {
 				_utilsLogger2['default'].log({ description: 'Update password request responded.', responseData: response, func: 'changePassword', obj: 'Matter' });
-				_this5.currentUser = response;
 				return response;
 			})['catch'](function (errRes) {
 				_utilsLogger2['default'].error({ description: 'Error requesting password change.', error: errRes, func: 'changePassword', obj: 'Matter' });
@@ -14060,17 +14069,13 @@ var Matter = (function () {
 	}, {
 		key: 'recoverPassword',
 		value: function recoverPassword() {
-			var _this6 = this;
-
 			if (!this.isLoggedIn) {
 				_utilsLogger2['default'].error({ description: 'No current user for which to recover password.', func: 'recoverPassword', obj: 'Matter' });
 				return Promise.reject({ message: 'Must be logged in to recover password.' });
 			}
 			//Send update request
-			_utilsLogger2['default'].log({ description: 'Calling recover password endpoint.', endpoint: this.endpoint + '/user/' + this.token.data.username, func: 'recoverPassword', obj: 'Matter' });
-			return _utilsRequest2['default'].put(this.endpoint + '/account/' + this.token.data.username + '/recover', updateData).then(function (response) {
+			return _utilsRequest2['default'].post(this.endpoint + '/accounts/' + this.token.data.username + '/recover').then(function (response) {
 				_utilsLogger2['default'].log({ description: 'Recover password request responded.', responseData: response, func: 'recoverPassword', obj: 'Matter' });
-				_this6.currentUser = response;
 				return response;
 			})['catch'](function (errRes) {
 				_utilsLogger2['default'].error({ description: 'Error requesting password recovery.', error: errRes, func: 'recoverPassword', obj: 'Matter' });
@@ -14086,7 +14091,7 @@ var Matter = (function () {
 
 		//Check that user is in a single group or in all of a list of groups
 		value: function isInGroup(checkGroups) {
-			var _this7 = this;
+			var _this5 = this;
 
 			if (!this.isLoggedIn) {
 				_utilsLogger2['default'].log({ description: 'No logged in user to check.', func: 'isInGroup', obj: 'Matter' });
@@ -14102,12 +14107,12 @@ var Matter = (function () {
 						//String list of groupts
 						_utilsLogger2['default'].info({ description: 'String list of groups.', list: groupsArray, func: 'isInGroup', obj: 'Matter' });
 						return {
-							v: _this7.isInGroups(groupsArray)
+							v: _this5.isInGroups(groupsArray)
 						};
 					} else {
 						//Single group
-						var groups = _this7.token.data.groups || [];
-						_utilsLogger2['default'].log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this7.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
+						var groups = _this5.token.data.groups || [];
+						_utilsLogger2['default'].log({ description: 'Checking if user is in group.', group: groupName, userGroups: _this5.token.data.groups || [], func: 'isInGroup', obj: 'Matter' });
 						return {
 							v: _lodash2['default'].any(groups, function (group) {
 								return groupName == group.name;
@@ -14130,19 +14135,28 @@ var Matter = (function () {
 	}, {
 		key: 'isInGroups',
 		value: function isInGroups(checkGroups) {
-			var _this8 = this;
+			var _this6 = this;
 
+			if (!this.isLoggedIn) {
+				_utilsLogger2['default'].log({ description: 'No logged in user to check.', func: 'isInGroups', obj: 'Matter' });
+				return false;
+			}
 			//Check if user is in any of the provided groups
 			if (checkGroups && _lodash2['default'].isArray(checkGroups)) {
-				return _lodash2['default'].map(checkGroups, function (group) {
+				return _lodash2['default'].every(_lodash2['default'].map(checkGroups, function (group) {
 					if (_lodash2['default'].isString(group)) {
 						//Group is string
-						return _this8.isInGroup(group);
+						return _this6.isInGroup(group);
 					} else {
 						//Group is object
-						return _this8.isInGroup(group.name);
+						if (_lodash2['default'].has(group, 'name')) {
+							return _this6.isInGroup(group.name);
+						} else {
+							_utilsLogger2['default'].error({ description: 'Invalid group object.', group: group, func: 'isInGroups', obj: 'Matter' });
+							return false;
+						}
 					}
-				});
+				}), true);
 			} else if (checkGroups && _lodash2['default'].isString(checkGroups)) {
 				//TODO: Handle spaces within string list
 				var groupsArray = checkGroups.split(',');
@@ -14152,6 +14166,7 @@ var Matter = (function () {
 				return this.isInGroup(groupsArray[0]);
 			} else {
 				_utilsLogger2['default'].error({ description: 'Invalid groups list.', func: 'isInGroups', obj: 'Matter' });
+				return false;
 			}
 		}
 	}, {
@@ -14163,10 +14178,10 @@ var Matter = (function () {
 				_utilsLogger2['default'].info({ description: 'LocalServer option was set to true. Now server url is local server.', url: serverUrl, func: 'endpoint', obj: 'Matter' });
 			}
 			if (this.name == 'tessellate') {
-				//Remove url if host is server
-				if (typeof window !== 'undefined' && _lodash2['default'].has(window, 'location') && window.location.host === serverUrl) {
+				//Remove url if host is a tessellate server
+				if (typeof window !== 'undefined' && _lodash2['default'].has(window, 'location') && window.location.host.indexOf('tessellate') !== -1) {
 					serverUrl = '';
-					_utilsLogger2['default'].info({ description: 'Host is Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
+					_utilsLogger2['default'].info({ description: 'Host is Tessellate Server, serverUrl simplified!', url: serverUrl, func: 'endpoint', obj: 'Matter' });
 				}
 			} else {
 				serverUrl = serverUrl + '/apps/' + this.name;
@@ -14223,7 +14238,6 @@ var Matter = (function () {
 	return Matter;
 })();
 
-;
 exports['default'] = Matter;
 module.exports = exports['default'];
 
@@ -14251,7 +14265,7 @@ var domUtil = {
   *
   */
 	loadCss: function loadCss(src) {
-		if (!document) {
+		if (typeof document == 'undefined') {
 			_logger2['default'].error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
 			throw new Error('Document object is required to load assets.');
 		} else {
@@ -14272,7 +14286,7 @@ var domUtil = {
   *
   */
 	loadJs: function loadJs(src) {
-		if (window && !_lodash2['default'].has(window, 'document')) {
+		if (typeof window == 'undefined' || !_lodash2['default'].has(window, 'document')) {
 			_logger2['default'].error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
 			throw new Error('Document object is required to load assets.');
 		} else {
@@ -14292,7 +14306,7 @@ var domUtil = {
   *
   */
 	asyncLoadJs: function asyncLoadJs(src) {
-		if (!_lodash2['default'].has(window, 'document')) {
+		if (typeof window == 'undefined' || !_lodash2['default'].has(window, 'document')) {
 			_logger2['default'].error({ description: 'Document does not exsist to load assets into.', func: 'loadCss', obj: 'dom' });
 			throw new Error('Document object is required to load assets.');
 		} else {
@@ -14330,6 +14344,7 @@ var _lodash = require('lodash');
 var _lodash2 = _interopRequireDefault(_lodash);
 
 var data = {};
+
 var storage = Object.defineProperties({
 	/**
   * @description
@@ -14360,13 +14375,11 @@ var storage = Object.defineProperties({
 			window.sessionStorage.setItem(itemName, itemValue);
 		}
 	},
-
 	/**
   * @description
   * Safley gets an item from session storage. Alias: item()
   *
   * @param {String} itemName The items name
-  *
   * @return {String}
   *
   */
@@ -14434,13 +14447,21 @@ var storage = Object.defineProperties({
 				//Clear session storage
 				window.sessionStorage.clear();
 			} catch (err) {
-				_logger2['default'].warn('Session storage could not be cleared.', err);
+				_logger2['default'].warn({ description: 'Session storage could not be cleared.', error: err });
 			}
 		}
 	}
-
 }, {
 	localExists: {
+		/**
+   * @description
+   * Gets whether or not local storage exists.
+   *
+   * @param {String} itemName The items name
+   * @param {String} itemValue The items value
+   *
+   */
+
 		get: function get() {
 			var testKey = 'test';
 			if (typeof window != 'undefined' && typeof window.sessionStorage != 'undefined') {
@@ -14485,7 +14506,6 @@ var logLevel = 'debug';
 if (_config2['default'].logLevel) {
 	logLevel = _config2['default'].logLevel;
 }
-
 var logger = {
 	log: function log(logData) {
 		var msgArgs = buildMessageArgs(logData);
@@ -14635,10 +14655,10 @@ var ProviderAuth = (function () {
 		value: function loadHello() {
 			//Load hellojs script
 			//TODO: Replace this with es6ified version
-			if (window && !window.hello) {
+			if (typeof window != 'undefined' && !window.hello) {
 				return _dom2['default'].asyncLoadJs('https://s3.amazonaws.com/kyper-cdn/js/hello.js');
 			} else {
-				return Promise.resolve();
+				return Promise.reject();
 			}
 		}
 	}, {
@@ -14671,18 +14691,20 @@ var ProviderAuth = (function () {
 
 			return this.loadHello().then(function () {
 				return _request2['default'].get(_this.app.endpoint + '/providers').then(function (response) {
-					_logger2['default'].log({ description: 'Provider request successful.', response: response, func: 'signup', obj: 'ProviderAuth' });
+					_logger2['default'].log({ description: 'Provider request successful.', response: response, func: 'initHello', obj: 'ProviderAuth' });
 					var provider = response[_this.provider];
-					_logger2['default'].warn({ description: 'Provider found', provider: provider, func: 'login', obj: 'ProviderAuth' });
 					if (!provider) {
 						_logger2['default'].error({ description: 'Provider is not setup. Visit tessellate.kyper.io to enter your client id for ' + _this.provider, provider: _this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth' });
 						return Promise.reject({ message: 'Provider is not setup.' });
 					}
-					_logger2['default'].warn({ description: 'Providers config built', providersConfig: response, func: 'login', obj: 'ProviderAuth' });
+					_logger2['default'].log({ description: 'Providers config built', providersConfig: response, func: 'initHello', obj: 'ProviderAuth' });
 					return window.hello.init(response, { redirect_uri: 'redirect.html' });
+				}, function (err) {
+					_logger2['default'].error({ description: 'Error loading hellojs.', error: errRes, func: 'initHello', obj: 'ProviderAuth' });
+					return Promise.reject({ message: 'Error requesting application third party providers.' });
 				})['catch'](function (errRes) {
-					_logger2['default'].error({ description: 'Getting application data.', error: errRes, func: 'signup', obj: 'Matter' });
-					return Promise.reject(errRes);
+					_logger2['default'].error({ description: 'Error loading hellojs.', error: errRes, func: 'initHello', obj: 'ProviderAuth' });
+					return Promise.reject({ message: 'Error loading third party login capability.' });
 				});
 			});
 		}
@@ -14694,25 +14716,16 @@ var ProviderAuth = (function () {
 			//Initalize Hello
 			return this.initHello().then(function () {
 				return window.hello.login(_this2.provider);
+			}, function (err) {
+				_logger2['default'].error({ description: 'Error initalizing hellojs.', error: err, func: 'login', obj: 'Matter' });
+				return Promise.reject({ message: 'Error with third party login.' });
 			});
 		}
 	}, {
 		key: 'signup',
 		value: function signup() {
-			var _this3 = this;
-
-			//Initalize Hello
-			// if (!_.has(clientIds, this.provider)) {
-			// 	logger.error({description: `${this.provider} is not setup as a provider on Tessellate. Please visit tessellate.kyper.io to enter your provider information.`, provider: this.provider, clientIds: clientIds, func: 'login', obj: 'ProviderAuth'});
-			// 	return Promise.reject();
-			// }
 			//TODO: send info to server
-			return this.initHello().then(function () {
-				return window.hello.login(_this3.provider);
-			}, function (errRes) {
-				_logger2['default'].error({ description: 'Error signing up.', error: errRes, func: 'signup', obj: 'Matter' });
-				return Promise.reject({ message: 'Error signing up.' });
-			});
+			return this.login();
 		}
 	}]);
 
@@ -14764,12 +14777,12 @@ var request = {
 		return handleResponse(req);
 	},
 	put: function put(endpoint, data) {
-		var req = _superagent2['default'].put(endpoint).send(data);
+		var req = _superagent2['default'].put(endpoint, data);
 		req = addAuthHeader(req);
 		return handleResponse(req);
 	},
 	del: function del(endpoint, data) {
-		var req = _superagent2['default'].put(endpoint).send(data);
+		var req = _superagent2['default'].put(endpoint, data);
 		req = addAuthHeader(req);
 		return handleResponse(req);
 	}
