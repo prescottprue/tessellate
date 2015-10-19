@@ -11,7 +11,8 @@ var Account = require('./account');
 var mongoose = require('mongoose'),
 q = require('q'),
 _ = require('lodash'),
-sqs = require('../utils/sqs');
+sqs = require('../utils/sqs'),
+AuthRocket = require('authrocket');
 
 //Set bucket prefix based on config as well as default if config does not exist
 var bucketPrefix = "tessellate-";
@@ -32,6 +33,12 @@ var ApplicationSchema = new mongoose.Schema({
 		url:{type:String},
 		provider:{type:String},
 		appName:{type:String}
+	},
+	authRocket:{
+		jsUrl:{type:String},
+		apiUrl:{type:String},
+		accountId:{type:String},
+		realmId:{type:String}
 	},
 	providers:[{name:String, clientId:String}],
 	groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
@@ -624,8 +631,42 @@ ApplicationSchema.methods = {
 		} else {
 			//TODO: Create a base directory if none exist
 			logger.error({description: 'Application does not have any directories into which to add Account.', func: 'addAccountToDirectory', obj: 'Application'});
-			d.reject({message: 'Application does not have any directories into which to add Account.', status: 'NOT_FOUND'});
+			return Promise.reject({message: 'Application does not have any directories into which to add Account.', status: 'NOT_FOUND'});
 		}
+	},
+	appAuthRocket: () => {
+		var self = this;
+		logger.log({description: 'Authrocket data of application:', data: self.authRocket, func: 'authRocket', obj: 'Application'});
+		var authrocket = new AuthRocket(self.authRocket);
+		logger.log({description: 'New authrocket created.',authRocket: authrocket, func: 'authRocket', obj: 'Application'});
+		return authrocket;
+	},
+	authRocketSignup: (signupData) => {
+		return this.appAuthRocket().signup(signupData).then((signupRes) => {
+			logger.log({description: 'Successfully signed up through authrocket.', response: signupRes, func:'authRocketSignup', obj: 'Application'});
+			return signupRes;
+		}, (err) => {
+			logger.error({description: 'Error signing up through authrocket.', error: err, func:'authRocketSignup', obj: 'Application'});
+			return Promise.reject(err);
+		});
+	},
+	authRocketLogin: (loginData) => {
+		return this.appAuthRocket().login(loginData).then((loginRes) => {
+			logger.log({description: 'Successfully logged in through authrocket.', response: loginRes, func:'authRocketLogin', obj: 'Application'});
+			return loginRes;
+		}, (err) => {
+			logger.error({description: 'Error logging in through authrocket.', error: err, func:'authRocketLogin', obj: 'Application'});
+			return Promise.reject(err);
+		});
+	},
+	authRocketLogout: (logoutData) => {
+		return this.appAuthRocket().logout(logoutData).then((logoutRes) => {
+			logger.log({description: 'Successfully logged out through authrocket.', response: logoutRes, func:'authRocketLogout', obj: 'Application'});
+			return logoutRes;
+		}, (err) => {
+			logger.error({description: 'Error logging out through authrocket.', error: err, func:'authRocketLogout', obj: 'Application'});
+			return Promise.reject(err);
+		});
 	}
 };
 //TODO: See if this is used
