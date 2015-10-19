@@ -622,13 +622,13 @@ exports.login = (req, res, next) => {
 		findApplication(req.params.name).then( (foundApp) => {
 			logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
 			//Use authrocket login if application has authRocket data
-			if (_.has(foundApp, 'authRocket')) {
-				foundApp.authRocketLogin().then((loginRes) => {
+			if (foundApp.authRocket) {
+				foundApp.authRocketLogin(loginData).then((loginRes) => {
 					logger.log({description: 'Login through application auth rocket successful.', response: loginRes, func: 'login', obj: 'ApplicationsCtrl'});
 					res.send(loginRes);
 				},  (err) => {
 					logger.error({description: 'Error logging in through application authRocket.', error: err, func: 'login', obj: 'ApplicationsCtrl'});
-					res.status(400).send('Error logging in through authRocket.');
+					res.status(400).send(err);
 				});
 			} else {
 				foundApp.login(loginData).then( (loginRes) => {
@@ -682,7 +682,7 @@ exports.logout = (req, res, next) => {
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then( (foundApp) => {
 			logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
-			if(_.has(foundApp, 'authRocket')){
+			if(foundApp.authRocket){
 				foundApp.authRocketLogout(userData).then( () => {
 					logger.log({description: 'Logout successful.', func: 'logout', obj: 'ApplicationCtrl'});
 					res.send('Logout successful.');
@@ -733,18 +733,13 @@ exports.signup = (req, res, next) => {
 	logger.log({description: 'App signup request with app name.', appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then( (foundApp) => {
-			if(_.has(foundApp, 'authRocket')){
+			if(foundApp.authRocket){
 				foundApp.authRocketSignup(req.body).then( (signupRes) => {
 					logger.log({description: 'Signup to application successful.', res: signupRes, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
 					res.send(signupRes);
 				},  (err) => {
-					if(err && err.status == 'EXISTS'){
-						res.status(400).send('Account with this username already exists in application.');
-					} else {
-						//TODO: Handle wrong password
-						logger.error({description: 'Error signing up to application.', error: err, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
-						res.status(400).send('Error signing up.');
-					}
+					logger.error({description: 'Error signing up to application.', error: err, appName: req.params.name, body: req.body, func: 'signup', obj: 'ApplicationsCtrl'});
+					res.status(400).send(err);
 				});
 			} else {
 				foundApp.signup(req.body).then( (signupRes) => {

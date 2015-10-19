@@ -273,7 +273,16 @@ ApplicationSchema.methods = {
 						});
 					}, (err) => {
 						logger.error({description: 'Error adding account to directory.', newAccount: newAccount, func: 'signup', obj: 'Application'});
-						return Promise.reject(err);
+						// return Promise.reject(err);
+						//TODO: Handle applicaiton not having directories
+						return newAccount.login(signupData.password).then((loginRes) => {
+							logger.info({description: 'New account logged in successfully.', loginRes: loginRes, newAccount: newAccount, directory: directoryWithAccount, func: 'signup', obj: 'Application'});
+							//Respond with account and token
+							return loginRes;
+						}, (err) => {
+							logger.error({description: 'Error logging into newly created account.', newAccount: newAccount, func: 'signup', obj: 'Application'});
+							return Promise.reject(err);
+						});
 					});
 				}, (err) => {
 					//Handle username already existing return from createWithPass
