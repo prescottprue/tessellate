@@ -13,6 +13,11 @@ module.exports =  {
 			type:'GET',
 			endpoint:'/',
 			controller: indexCtrls.main
+		},
+		{
+			type:'POST',
+			endpoint:'/test',
+			controller: indexCtrls.test
 		}
 	],
 	auth:[
@@ -117,7 +122,7 @@ module.exports =  {
 			endpoint: '/apps/:name',
 			controller:appCtrls.get
 		},
-		
+
 		{
 			type:'GET',
 			endpoint: '/apps/:name/providers',
