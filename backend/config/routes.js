@@ -15,7 +15,7 @@ module.exports =  {
 			controller: indexCtrls.main
 		},
 		{
-			type:'POST',
+			type:'GET',
 			endpoint:'/test',
 			controller: indexCtrls.test
 		}

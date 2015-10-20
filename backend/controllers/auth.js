@@ -43,13 +43,13 @@ exports.signup = function(req, res, next) {
 		return res.status(400).json({code:400, message:"Username or Email required to signup"});
 	}
 	if(authRocketEnabled){
-		return authrocket.signup(req.body).then((signupRes) => {
+		authrocket.signup(req.body).then((signupRes) => {
 			logger.log({description: 'Successfully signed up through authrocket.', response: signupRes, func: 'signup', obj: 'AuthCtrls'});
 			//TODO: Record user within internal auth system
-			return signupRes;
+			res.send(signupRes);
 		}, (err) => {
 			logger.error({description: 'Error signing up through auth rocket.', error: err, func: 'signup', obj: 'AuthCtrls'});
-			return Promise.reject(err);
+			res.send(err);
 		});
 	} else {
 		//Basic Internal Signup
@@ -115,13 +115,13 @@ exports.login = function(req, res, next) {
 	} else {
 		if(authRocketEnabled){
 			//Authrocket login
-			return authrocket.login(req.body).then((loginRes) => {
+			authrocket.login(req.body).then((loginRes) => {
 				logger.log({description: 'Successfully logged in through authrocket.', response: loginRes, func: 'login', obj: 'AuthCtrls'});
 				//TODO: Record login within internal auth system
-				return loginRes;
+				res.send(loginRes);
 			}, (err) => {
 				logger.error({description: 'Error logging in through auth rocket.', error: err, func: 'login', obj: 'AuthCtrls'});
-				return Promise.reject(err);
+				res.send(err);
 			});
 		} else {
 			//Basic Internal login
