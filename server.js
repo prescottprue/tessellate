@@ -30,8 +30,8 @@ app.use(cors());
 app.options('*', cors()); // include before other routes
 
 //Protect all routes except allowedPaths by requiring Authorization header
-var allowedPaths = ['/', '/test', '/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
-app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));
+// var allowedPaths = ['/', '/test', '/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
+// app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));
 //Handle unauthorized errors
 app.use(function (err, req, res, next) {
   if (err.name === 'UnauthorizedError') {
