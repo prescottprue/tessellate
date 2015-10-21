@@ -81,7 +81,7 @@ exports.get = (req, res, next) => {
 	}
 	query.then((result) => {
 		if(!result){
-			logger.error({description: 'Error finding Application(s).'});
+			logger.error({description: 'Error finding Application(s).', func: 'get', obj: 'ApplicationsCtrls'});
 			return res.status(400).send('Application(s) could not be found.');
 		}
 		logger.log({description: 'Application(s) found.', result: result, func: 'get', obj: 'ApplicationsCtrls'});
@@ -242,17 +242,19 @@ exports.add = (req, res, next) => {
 exports.update = (req, res, next) => {
 	logger.log({description: 'App update request.', params: req.params});
 	if(req.params.name){
-		Application.update({name:req.params.name}, req.body, {upsert:false},  (err, numberAffected, result)  => {
+		Application.update({name:req.params.name}, req.body, {upsert:false},  (err, affected, result)  => {
 			if(err){
-				logger.error('[ApplicationsCtrl.update()] Error getting application:', JSON.stringify(err));
+				logger.error({description: 'Error updating application.', error: err, func: 'update', obj: 'ApplicationsCtrls'});
 				return res.status(500).send('Error updating Application.');
 			}
 			//TODO: respond with updated data instead of passing through req.body
-			logger.log('Application update successful. Num affected:', numberAffected);
-			if(numberAffected.nModified == 0 || numberAffected.n == 0){
+			logger.log({description: 'Application update successful.', affected: affected, func: 'update', obj: 'ApplicationsCtrls'});
+			if(affected.nModified == 0 || affected.n == 0){
 				//TODO: Handle Application not found
+				logger.error({description: 'Application not found.', affected: affected, func: 'update', obj: 'ApplicationsCtrls'});
 				res.status(400).send({message:'Application not found'});
 			} else {
+				logger.error({description: 'Application updated successfully.', affected: affected, func: 'update', obj: 'ApplicationsCtrls'});
 				res.json(req.body);
 			}
 		});
@@ -843,7 +845,7 @@ exports.verify = (req, res, next) => {
 exports.groups = (req, res, next) => {
 	logger.log({description: 'App get group(s) request called.', appName: req.params.name, body: req.body, func: 'groups'});
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then( (foundApp) => {
+		findApplication(req.params.name).then((foundApp) => {
 			//Check application's groups
 			if(!req.params.groupName){
 				logger.info({description: "Application's groups found.", foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
@@ -854,25 +856,46 @@ exports.groups = (req, res, next) => {
 					logger.info({description: "Application group found.", group: group, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
 					res.send(group);
 				} else {
-					//Group has not been added to application
-					var query = Group.findOne({name: req.params.groupName, application: foundApp._id});
-					query.exec( (err, groupWithoutApp) => {
-						if(err){
+					//Check for application's auth rocket data
+					if (foundApp.authRocket) {
+
+
+
+
+
+
+
+
+
+						
+						authRocket.Orgs().get().then((loginRes) => {
+							logger.log({description: 'Login through application auth rocket successful.', response: loginRes, func: 'login', obj: 'ApplicationsCtrl'});
+							res.send(loginRes);
+						},  (err) => {
+							logger.error({description: 'Error logging in through application authRocket.', error: err, func: 'login', obj: 'ApplicationsCtrl'});
+							res.status(400).send(err);
+						});
+					} else {
+						//Group has not been added to application
+						var query = Group.findOne({name: req.params.groupName, application: foundApp._id});
+						query.then((groupWithoutApp) => {
+							if(!groupWithoutApp){
+								logger.error({description: 'Group not found.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+								res.status(400).send('Group not found.');
+							} else {
+								logger.log({description: 'Group found, but not within application. Adding to application.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+								foundApp.addGroup(groupWithoutApp).then( (newGroup) => {
+									logger.info({description: 'Existing group added to applicaiton.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
+									res.send(groupWithoutApp);
+								}, (err) => {
+									res.status(500).send('Error adding existing group to application.');
+								});
+							}
+						}, (err) => {
 							logger.error({description: 'Error finding group.', error: err, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
 							res.status(500).send('Error finding group.');
-						} else if(!groupWithoutApp){
-							logger.error({description: 'Group not found.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
-							res.status(400).send('Group not found.');
-						} else {
-							logger.log({description: 'Group found, but not within application. Adding to application.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
-							foundApp.addGroup(groupWithoutApp).then( (newGroup) => {
-								logger.info({description: 'Existing group added to applicaiton.', group: groupWithoutApp, foundApp: foundApp, func: 'groups', obj: 'ApplicationsCtrl'});
-								res.send(groupWithoutApp);
-							}, (err) => {
-								res.status(500).send('Error adding existing group to application.');
-							});
-						}
-					});
+						});
+					}
 				}
 			}
 		},  (err) => {

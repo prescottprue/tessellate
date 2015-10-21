@@ -10,13 +10,14 @@ exports.docs = function(req, res, next){
 	res.render('docs', { title: 'Tessellate Server' });
 };
 exports.test = function(req, res, next){
-	authrocket.Users.get().then(function(usersList){
+	console.log('test request');
+	authrocket.Orgs().get().then(function(usersList){
 		console.error('users list loaded.', usersList);
 		res.send(usersList);
 	}, (err) => {
 		console.error('Error getting users', err);
 		res.status(500).send(err);
-	})
+	});
 };
 // exports.test = function(req, res, next){
 // 	console.log('Test called', req.body);
