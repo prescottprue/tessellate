@@ -619,8 +619,9 @@ exports.addCollaborators = (req, res, next) => {
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.login = (req, res, next) => {
 	logger.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
-	if(req.params.name && req.body && _.has(req.body, 'username') && _.has(req.body, 'password')){ //Get data for a specific application
-		var loginData = {username:req.body.username, password:req.body.password};
+	if(req.params.name && req.body && (_.has(req.body, 'username') || _.has(req.body, 'email')) && _.has(req.body, 'password')){ //Get data for a specific application
+		var loginData = _.has(req.body, 'username') ? {username:req.body.username} : {email:req.body.email};
+		loginData.password = req.body.password;
 		findApplication(req.params.name).then( (foundApp) => {
 			logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
 			//Use authrocket login if application has authRocket data
@@ -867,7 +868,7 @@ exports.groups = (req, res, next) => {
 
 
 
-						
+
 						authRocket.Orgs().get().then((loginRes) => {
 							logger.log({description: 'Login through application auth rocket successful.', response: loginRes, func: 'login', obj: 'ApplicationsCtrl'});
 							res.send(loginRes);
