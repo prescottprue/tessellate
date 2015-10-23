@@ -618,12 +618,22 @@ exports.addCollaborators = (req, res, next) => {
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.login = (req, res, next) => {
-	logger.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
+	logger.log({description: 'App Login request with app name: ',  appName: req.params.name, body: req.body, func: 'login', obj: 'ApplicationCtrl'});
 	if(req.params.name && req.body && (_.has(req.body, 'username') || _.has(req.body, 'email')) && _.has(req.body, 'password')){ //Get data for a specific application
-		var loginData = _.has(req.body, 'username') ? {username:req.body.username} : {email:req.body.email};
-		loginData.password = req.body.password;
+		var loginData =  {password: req.body.password};
+		if (_.has(req.body, 'username')) {
+			if(req.body.username.indexOf('@') !== -1){
+				loginData.email = req.body.username;
+			} else {
+				loginData.username = req.body.username
+			}
+		}
+		if (_.has(req.body, 'email')) {
+			loginData.email = req.body.email;
+		}
+		logger.log({description: 'LoginData built', loginData: loginData, func: 'login', obj: 'ApplicationCtrl'})
 		findApplication(req.params.name).then( (foundApp) => {
-			logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
+			logger.info({description: 'Application found successfully.', foundApp: foundApp, func: 'login', obj: 'ApplicationCtrl'});
 			//Use authrocket login if application has authRocket data
 			if (foundApp.authRocket) {
 				foundApp.authRocketLogin(loginData).then((loginRes) => {
@@ -634,12 +644,18 @@ exports.login = (req, res, next) => {
 					res.status(400).send(err);
 				});
 			} else {
-				foundApp.login(loginData).then( (loginRes) => {
-					logger.log({description: 'Login Successful.', response: loginRes, func: 'login', obj: 'ApplicationsCtrl'});
+				foundApp.login(loginData).then((loginRes) => {
+					logger.log({
+						description: 'Login Successful.', response: loginRes,
+						func: 'login', obj: 'ApplicationsCtrl'
+					});
 					res.send(loginRes);
 				},  (err) => {
 					//TODO: Handle wrong password
-					logger.error({description: 'Error logging in.', error: err, func: 'login', obj: 'ApplicationsCtrl'});
+					logger.error({
+						description: 'Error logging in.', error: err,
+						func: 'login', obj: 'ApplicationsCtrl'
+					});
 					res.status(400).send('Login Error.');
 				});
 			}

@@ -110,27 +110,39 @@ exports.signup = function(req, res, next) {
  */
 exports.login = function(req, res, next) {
 	var query;
-	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
-		res.status(400).json({code:400, message:"Accountname or Email required to login"});
+	console.log('login request:', req.body);
+	if((!_.has(req.body, "username") && !_.has(req.body, "email")) || !_.has(req.body, "password")){
+		res.status(400).json({code:400, message:"Username or Email required to login"});
 	} else {
+		var loginData =  {password: req.body.password};
+		if (_.has(req.body, 'username')) {
+			if(req.body.username.indexOf('@') !== -1){
+				loginData.email = req.body.username;
+			} else {
+				loginData.username = req.body.username
+			}
+		}
+		if (_.has(req.body, 'email')) {
+			loginData.email = req.body.email;
+		}
 		if(authRocketEnabled){
 			//Authrocket login
-			authrocket.login(req.body).then((loginRes) => {
+			authrocket.login(loginData).then((loginRes) => {
 				logger.log({description: 'Successfully logged in through authrocket.', response: loginRes, func: 'login', obj: 'AuthCtrls'});
 				//TODO: Record login within internal auth system
 				res.send(loginRes);
 			}, (err) => {
 				logger.error({description: 'Error logging in through auth rocket.', error: err, func: 'login', obj: 'AuthCtrls'});
-				res.send(err);
+				res.status(400).send(err);
 			});
 		} else {
 			//Basic Internal login
-			if(_.has(req.body, "username")){
-				query = Account.findOne({"username":req.body.username})
+			if(_.has(loginData, "username")){
+				query = Account.findOne({"username":loginData.username})
 					.populate({path:'groups', select:'name'})
 					.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using username field
 			} else {
-				query = Account.findOne({"email":req.body.email})
+				query = Account.findOne({"email":loginData.email})
 				.populate({path:'groups', select:'name'})
 				.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using email field
 			}

@@ -2,7 +2,6 @@ var logger = require('../utils/logger');
 var AuthRocket = require('authrocket');
 var authrocket = new AuthRocket();
 var Application = require('../models/application').Application;
-console.log('authrocket:', authrocket.Users);
 exports.main = function(req, res, next){
 	res.render('index', { title: 'Tessellate Server' });
 };

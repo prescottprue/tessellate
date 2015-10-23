@@ -9,7 +9,7 @@
     "url": "https://github.com/kypertech/tessellate.git"
   },
   "dependencies": {
-    "authrocket": "0.0.4",
+    "authrocket": "0.0.6",
     "aws-sdk": "^2.1.35",
     "babel": "^5.8.23",
     "bcrypt": "^0.8.3",
