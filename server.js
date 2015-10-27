@@ -1,3 +1,5 @@
+require('newrelic');
+
 var express = require('express'),
 path = require('path'),
 favicon = require('serve-favicon'),
@@ -13,8 +15,7 @@ var app = express();
 
 var routes = require('./backend/config/routes');
 var routeBuilder = require('./backend/utils/routeBuilder')(app);
-var analyticsUtil = require('./backend/utils/appDynamics');
-analyticsUtil.init();
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -30,7 +31,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 //Enable all preflight requests
 app.options('*', cors()); // include before other routes
-
 //Protect all routes except allowedPaths by requiring Authorization header
 // var allowedPaths = ['/', '/test', '/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
 // app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));

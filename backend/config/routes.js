@@ -14,11 +14,11 @@ module.exports =  {
 			endpoint:'/',
 			controller: indexCtrls.main
 		},
-		{
-			type:'GET',
-			endpoint:'/test',
-			controller: indexCtrls.test
-		}
+		// {
+		// 	type:'GET',
+		// 	endpoint:'/test',
+		// 	controller: indexCtrls.test
+		// }
 	],
 	auth:[
 		{
