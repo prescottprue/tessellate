@@ -13,6 +13,8 @@ var app = express();
 
 var routes = require('./backend/config/routes');
 var routeBuilder = require('./backend/utils/routeBuilder')(app);
+var analyticsUtil = require('./backend/utils/appDynamics');
+analyticsUtil.init();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
