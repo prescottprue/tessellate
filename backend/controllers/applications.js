@@ -618,54 +618,50 @@ exports.addCollaborators = (req, res, next) => {
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.login = (req, res, next) => {
-	logger.log({description: 'App Login request with app name: ',  appName: req.params.name, body: req.body, func: 'login', obj: 'ApplicationCtrl'});
-	if(req.params.name && req.body && (_.has(req.body, 'username') || _.has(req.body, 'email')) && _.has(req.body, 'password')){ //Get data for a specific application
-		var loginData =  {password: req.body.password};
-		if (_.has(req.body, 'username')) {
-			if(req.body.username.indexOf('@') !== -1){
-				loginData.email = req.body.username;
-			} else {
-				loginData.username = req.body.username
-			}
-		}
-		if (_.has(req.body, 'email')) {
-			loginData.email = req.body.email;
-		}
-		logger.log({description: 'LoginData built', loginData: loginData, func: 'login', obj: 'ApplicationCtrl'})
-		findApplication(req.params.name).then( (foundApp) => {
-			logger.info({description: 'Application found successfully.', foundApp: foundApp, func: 'login', obj: 'ApplicationCtrl'});
-			//Use authrocket login if application has authRocket data
-			if (foundApp.authRocket) {
-				foundApp.authRocketLogin(loginData).then((loginRes) => {
-					logger.log({description: 'Login through application auth rocket successful.', response: loginRes, func: 'login', obj: 'ApplicationsCtrl'});
-					res.send(loginRes);
-				},  (err) => {
-					logger.error({description: 'Error logging in through application authRocket.', error: err, func: 'login', obj: 'ApplicationsCtrl'});
-					res.status(400).send(err);
-				});
-			} else {
-				foundApp.login(loginData).then((loginRes) => {
-					logger.log({
-						description: 'Login Successful.', response: loginRes,
-						func: 'login', obj: 'ApplicationsCtrl'
-					});
-					res.send(loginRes);
-				},  (err) => {
-					//TODO: Handle wrong password
-					logger.error({
-						description: 'Error logging in.', error: err,
-						func: 'login', obj: 'ApplicationsCtrl'
-					});
-					res.status(400).send('Login Error.');
-				});
-			}
-		},  (err) => {
-			logger.error('Error:', err);
-			res.status(400).send('Application not found.');
-		});
-	} else {
-		res.status(400).send('Application name and accounts array are required to add collaborators.');
+	logger.log({description: 'App Login request.',  appName: req.params.name, body: req.body, func: 'login', obj: 'ApplicationCtrl'});
+	if(!req.params.name || !req.body) {
+		return res.status(400).send('Application name and accounts array are required to add collaborators.');
 	}
+	if ((!_.has(req.body, 'username') && !_.has(req.body, 'email')) || !_.has(req.body, 'password')){ //Get data for a specific application
+		logger.log({description: 'Username/Email and password are required to login.',  appName: req.params.name, body: req.body, func: 'login', obj: 'ApplicationCtrl'});
+		return res.status(400).send('Username/Email and Password are required to login.');
+	}
+	var loginData =  {password: req.body.password};
+	if (_.has(req.body, 'username')) {
+		if(req.body.username.indexOf('@') !== -1){
+			loginData.email = req.body.username;
+		} else {
+			loginData.username = req.body.username
+		}
+	}
+	if (_.has(req.body, 'email')) {
+		loginData.email = req.body.email;
+	}
+	// logger.log({description: 'LoginData built', loginData: loginData, func: 'login', obj: 'ApplicationCtrl'})
+	findApplication(req.params.name).then((foundApp) => {
+		logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'login', obj: 'ApplicationCtrl'});
+		//Use authrocket login if application has authRocket data
+			foundApp.login(loginData).then((loginRes) => {
+				logger.log({
+					description: 'Login Successful.', response: loginRes,
+					func: 'login', obj: 'ApplicationsCtrl'
+				});
+				res.send(loginRes);
+			}, (err) => {
+				//TODO: Handle wrong password
+				logger.error({
+					description: 'Error logging in.', error: err,
+					func: 'login', obj: 'ApplicationsCtrl'
+				});
+				res.status(400).send(err || 'Login Error.');
+			});
+	}, (err) => {
+		logger.error({
+			description: 'Error finding applicaiton.', error: err,
+			func: 'login', obj: 'ApplicationsCtrl'
+		});
+		res.status(400).send('Application not found.');
+	});
 };
 
 /**
