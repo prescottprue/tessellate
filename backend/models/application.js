@@ -248,6 +248,7 @@ ApplicationSchema.methods = {
 			return sqs.add(this.frontend.bucketName + ':' + templateName);
 		} else {
 			//TODO: Download then upload locally instead of pushing to worker queue
+			logger.error({description: 'Queue url is currently required to create new templates This will be changed soon.', templateName: templateName, func: 'applyTemplate', obj: 'Application'});
 		}
 	},
 	addCollaborators: (usersArray) => {
@@ -308,18 +309,21 @@ ApplicationSchema.methods = {
 		//Search for account in application's directories
 		logger.log({
 			description: 'Login to application called.',
-			loginData: loginData, application: this,
 			func: 'login', obj: 'Application'
 		});
 		//Login to authrocket if data is available
 		if(this.authRocket && this.authRocket.jsUrl){
-			if(!_.has(loginData, 'email')){
-				//TODO: lookup user data from mongodb then login to authRocket
+			if(!_.has(loginData, 'username')){
+				//TODO: lookup user data from mongodb then login to allow authRocket login by email
 				logger.log({
 					description: 'Username is currently required to login due to AuthRocket. This will be fixed soon.',
 					func: 'login', obj: 'Application'
 				});
 				return Promise.reject('Username is currently required to login due to AuthRocket. This will be fixed soon.');
+			}
+			//Remove email from data (causes error with authrocket request)
+			if(_.has(loginData, 'email')){
+				delete loginData.email;
 			}
 			return this.authRocketLogin(loginData).then((loggedInData) =>{
 				logger.info({
