@@ -124,12 +124,13 @@ exports.login = function(req, res, next) {
 	if(authRocketEnabled){
 		//Authrocket login
 		//Remove email to avoid Auth Rocket error
-		if (_.has(req.body, 'email')) {
+		if (_.has(loginData, 'email')) {
 			delete loginData.email;
 		}
 		if(!_.has(req.body, 'username')) {
 			return res.status(400).send('Username is required to login.');
 		}
+		console.log('calling auth rocket with:', loginData);
 		authrocket.login(loginData).then((loginRes) => {
 			logger.log({description: 'Successfully logged in through authrocket.', func: 'login', obj: 'AuthCtrls'});
 			//TODO: Record login within internal auth system
