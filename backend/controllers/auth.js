@@ -110,61 +110,67 @@ exports.signup = function(req, res, next) {
  */
 exports.login = function(req, res, next) {
 	var query;
-	console.log('login request:', req.body);
 	if((!_.has(req.body, "username") && !_.has(req.body, "email")) || !_.has(req.body, "password")){
-		res.status(400).json({code:400, message:"Username or Email required to login"});
-	} else {
-		var loginData =  {password: req.body.password};
-		if (_.has(req.body, 'username')) {
-			if(req.body.username.indexOf('@') !== -1){
-				loginData.email = req.body.username;
-			} else {
-				loginData.username = req.body.username
-			}
+		return res.status(400).send("Username/Email and password required to login");
+	}
+	var loginData =  {password: req.body.password};
+	if (_.has(req.body, 'username')) {
+		if(req.body.username.indexOf('@') !== -1){
+			loginData.email = req.body.username;
+		} else {
+			loginData.username = req.body.username
 		}
+	}
+	if(authRocketEnabled){
+		//Authrocket login
+		//Remove email to avoid Auth Rocket error
+		if (_.has(req.body, 'email')) {
+			delete loginData.email;
+		}
+		if(!_.has(req.body, 'username')) {
+			return res.status(400).send('Username is required to login.');
+		}
+		authrocket.login(loginData).then((loginRes) => {
+			logger.log({description: 'Successfully logged in through authrocket.', func: 'login', obj: 'AuthCtrls'});
+			//TODO: Record login within internal auth system
+			//TODO: Return account along with token data
+			res.send(loginRes);
+		}, (err) => {
+			logger.error({description: 'Error logging in through auth rocket.', error: err, func: 'login', obj: 'AuthCtrls'});
+			res.status(400).send('Invalid Credentials');
+		});
+	} else {
 		if (_.has(req.body, 'email')) {
 			loginData.email = req.body.email;
 		}
-		if(authRocketEnabled){
-			//Authrocket login
-			authrocket.login(loginData).then((loginRes) => {
-				logger.log({description: 'Successfully logged in through authrocket.', response: loginRes, func: 'login', obj: 'AuthCtrls'});
-				//TODO: Record login within internal auth system
+		//Basic Internal login
+		if(_.has(loginData, 'username')){
+			query = Account.findOne({'username':loginData.username})
+				.populate({path:'groups', select:'name'})
+				.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using username field
+		} else {
+			query = Account.findOne({'email':loginData.email})
+			.populate({path:'groups', select:'name'})
+			.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using email field
+		}
+		query.then((currentAccount) => {
+			if(!currentAccount){
+				logger.error({description: 'Account not found.', func: 'login', obj: 'AuthCtrl'});
+				// return next (new Error('Account could not be found'));
+				return res.status(409).send('Account not found.');
+			}
+			currentAccount.login(req.body.password).then((loginRes) => {
+				logger.log({description: 'Login Successful.', func: 'login', obj: 'AuthCtrl'});
 				res.send(loginRes);
 			}, (err) => {
-				logger.error({description: 'Error logging in through auth rocket.', error: err, func: 'login', obj: 'AuthCtrls'});
-				res.status(400).send(err);
+				//TODO: Handle wrong password
+				logger.log({description: 'Login Error.', error: err, func: 'login', obj: 'AuthCtrl'});
+				res.status(400).send('Error logging in.');
 			});
-		} else {
-			//Basic Internal login
-			if(_.has(loginData, "username")){
-				query = Account.findOne({"username":loginData.username})
-					.populate({path:'groups', select:'name'})
-					.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using username field
-			} else {
-				query = Account.findOne({"email":loginData.email})
-				.populate({path:'groups', select:'name'})
-				.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using email field
-			}
-			query.then((currentAccount) => {
-				if(!currentAccount){
-					logger.error({description: 'Account not found.', func: 'login', obj: 'AuthCtrl'});
-					// return next (new Error('Account could not be found'));
-					return res.status(409).send('Account not found.');
-				}
-				currentAccount.login(req.body.password).then((loginRes) => {
-					logger.log({description: 'Login Successful.', func: 'login', obj: 'AuthCtrl'});
-					res.send(loginRes);
-				}, (err) => {
-					//TODO: Handle wrong password
-					logger.log({description: 'Login Error.', error: err, func: 'login', obj: 'AuthCtrl'});
-					res.status(400).send('Error logging in.');
-				});
-			}, (err) => {
-				logger.error({description: 'Login error', error: err, func: 'login', obj: 'AuthCtrl'});
-				return res.status(500).send('Error logging in.');
-			});
-		}
+		}, (err) => {
+			logger.error({description: 'Login error', error: err, func: 'login', obj: 'AuthCtrl'});
+			return res.status(500).send('Error logging in.');
+		});
 	}
 };
 
