@@ -332,11 +332,11 @@ ApplicationSchema.methods = {
 				});
 				return loggedInData;
 			}, (err) => {
-				logger.error({
+				logger.warn({
 					description: 'Error logging in through authrocket.',
 					error: err, func: 'login', obj: 'Application'
 				});
-				return Promise.reject(err);
+				return Promise.reject('Invalid Credentials.');
 			});
 		} else {
 			//Applicaiton does not have auth rocket data
