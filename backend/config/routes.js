@@ -20,6 +20,13 @@ module.exports =  {
 		// 	controller: indexCtrls.test
 		// }
 	],
+	authRocket:[
+		{
+			type: 'POST',
+			endpoint: '/authrocket',
+			controller: indexCtrls.authrocket
+		}
+	],
 	auth:[
 		{
 			type:'POST',

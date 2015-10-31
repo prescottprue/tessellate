@@ -8,16 +8,25 @@ exports.main = function(req, res, next){
 exports.docs = function(req, res, next){
 	res.render('docs', { title: 'Tessellate Server' });
 };
-exports.test = function(req, res, next){
-	console.log('test request');
-	authrocket.Orgs().get().then(function(usersList){
-		console.error('users list loaded.', usersList);
-		res.send(usersList);
-	}, (err) => {
-		console.error('Error getting users', err);
-		res.status(500).send(err);
-	});
+exports.authrocket = function(req, res, next){
+	logger.log({description: 'Test request', body: req.body, func: 'authrocket'});
+	console.log(req.body);
+	res.send('Thanks');
 };
+exports.test = function(req, res, next){
+	console.log('test request', req.body);
+
+};
+// exports.test = function(req, res, next){
+// 	console.log('test request');
+// 	authrocket.Orgs().get().then(function(usersList){
+// 		console.error('users list loaded.', usersList);
+// 		res.send(usersList);
+// 	}, (err) => {
+// 		console.error('Error getting users', err);
+// 		res.status(500).send(err);
+// 	});
+// };
 // exports.test = function(req, res, next){
 // 	console.log('Test called', req.body);
 //
