@@ -9,7 +9,7 @@ var Account = require('../models/account').Account;
 var Session = require('../models/session').Session;
 var AuthRocket = require('authrocket');
 var authrocket = new AuthRocket();
-
+var jwt = require('jsonwebtoken');
 var authRocketEnabled = true;
 
 /**
@@ -130,12 +130,30 @@ exports.login = function(req, res, next) {
 		if(!_.has(req.body, 'username')) {
 			return res.status(400).send('Username is required to login.');
 		}
-		console.log('calling auth rocket with:', loginData);
+		logger.log({description: 'calling auth rocket with:', data: loginData, func: 'login', obj: 'AuthCtrls'});
 		authrocket.login(loginData).then((loginRes) => {
 			logger.log({description: 'Successfully logged in through authrocket.', func: 'login', obj: 'AuthCtrls'});
 			//TODO: Record login within internal auth system
 			//TODO: Return account along with token data
-			res.send(loginRes);
+			if(loginRes.token){
+				var token = jwt.decode(loginRes.token);
+				logger.log({description: 'token', token: token, func: 'login', obj: 'AuthCtrls'});
+				if(!process.env.AUTHROCKET_JWT_SECRET){
+					logger.log({description: 'Authrocket secret not available to verify token'});
+				} else{
+					var verify = jwt.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
+					logger.log({description: 'verify', verify: verify, func: 'login', obj: 'AuthCtrls'});
+				}
+			}
+			var account = {username: token.un, name: token.n, groups: token.m || []};
+			//Convert groups list to object from token if org/group data exists
+			if(account.groups.length >= 1 && account.groups[0].o){
+				account.groups = account.groups.map(function(group){
+					return {name: group.o, id: group.oid};
+				});
+			}
+			var response = {account: account, token: loginRes.token};
+			res.send(response);
 		}, (err) => {
 			logger.error({description: 'Error logging in through auth rocket.', error: err, func: 'login', obj: 'AuthCtrls'});
 			res.status(400).send('Invalid Credentials');
