@@ -17,6 +17,7 @@ module.exports = {
 		projectBucketPrefix: "projects",
 		componentBucketPrefix: "components"
 	},
+	authEnabled: true,
 	s3:{
 		key:process.env.TESSELLATE_AWS_KEY,
 		secret:process.env.TESSELLATE_AWS_SECRET,

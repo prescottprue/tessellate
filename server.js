@@ -6,56 +6,104 @@ favicon = require('serve-favicon'),
 cookieParser = require('cookie-parser'),
 bodyParser = require('body-parser'),
 jwt = require('express-jwt'),
-config = require('./backend/config/default').config,
-cors = require('cors'),
-systemUtils = require('./lib/systemUtils');
+cors = require('cors');
 
-var confFile = require('./config.json');
+var confFile = require('./config.json'),
+config = require('./backend/config/default').config,
+systemUtils = require('./lib/systemUtils'),
+logger = require('./backend/utils/logger');
+
 var app = express();
 
 var routes = require('./backend/config/routes');
 var routeBuilder = require('./backend/utils/routeBuilder')(app);
 
-// view engine setup
+/** View Engine Setup
+ * @description Apply ejs rending engine and views folder
+ */
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+/** Environment and variable setup
+ * @description Set node variables based on environment settings
+ */
 app.set('config', config);
 app.set('env', app.get('config').env);
-
-app.use(favicon(__dirname + '/public/favicon.ico'));
+/** Parsers
+ * @description Body and cookie parsers
+ */
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+/** Static files
+ * @description References to static files
+ */
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(express.static(path.join(__dirname, 'public')));
-//Set cors configuration
+
+/** CORS Configuration
+ * @description Enable cors and prefight on requests
+ */
 app.use(cors());
-//Enable all preflight requests
-app.options('*', cors()); // include before other routes
-//Protect all routes except allowedPaths by requiring Authorization header
-var allowedPaths = ['/', '/test', '/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
-var secret = config.jwtSecret;
-if(config.authRocket && config.authRocket.enabled){
-  if(!config.authRocket.secret){
-    logger.error({description: 'AuthRocket secret required to decode token. Check environment variables.', func: 'init', obj: 'server'});
-  } else {
-    // logger.log({description: 'authrocket secret is available. Using it for express jwt'});
-    secret = config.authRocket.secret;
+app.options('*', cors());
+
+/** Authentication
+ * @description Enable authentication based on config setting
+ */
+if(config.authEnabled){
+  var allowedPaths = [
+    '/', '/login',
+    '/logout', '/signup',
+    '/docs', '/docs/**',
+    /(\/apps\/.*\/login)/,
+    /(\/apps\/.*\/logout)/,
+    /(\/apps\/.*\/signup)/,
+    /(\/apps\/.*\/providers)/
+  ];
+  var secret = config.jwtSecret;
+  if (config.authRocket && config.authRocket.enabled) {
+    if (!config.authRocket.secret) {
+      logger.error({
+        description: 'AuthRocket secret required to decode token. Check environment variables.',
+        func: 'init', obj: 'server'
+      });
+    } else {
+      secret = config.authRocket.secret;
+      /** Route Protection
+       * @description Protect all routes except allowedPaths by requiring Authorization header
+       */
+      app.use(jwt({secret: secret}).unless({path:allowedPaths}));
+      /** Unauthorized Error Handler
+       * @description Respond with 401 when authorization token is invalid
+       */
+      app.use(function (err, req, res, next) {
+        if (err.name === 'UnauthorizedError') {
+          logger.error({
+            description: 'Error confirming token.',
+            error: err, obj: 'server'
+          });
+          return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
+        }
+      });
+    }
   }
+} else {
+  logger.warn({
+    description: 'Authentication is disabled. Endpoint results may be affected.',
+    obj: 'server'
+  });
 }
-// app.use(jwt({secret: secret}).unless({path:allowedPaths}));
-//Handle unauthorized errors
-app.use(function (err, req, res, next) {
-  if (err.name === 'UnauthorizedError') {
-    logger.error({'Error confirming token.', error: err, obj: 'server'});
-    return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
-  }
-});
-//Setup routes based on config
+
+/** Route Builder
+ * @description Setup routes based on config file
+ */
 routeBuilder(routes);
 
 //------------ Error handlers -----------//
 
-//Log Errors before they are handled
+/** Error Logger
+ * @description Log Errors before they are handled
+ */
 app.use(function (err, req, res, next) {
   console.log(err.message, req.originalUrl);
   if(err){
@@ -64,15 +112,18 @@ app.use(function (err, req, res, next) {
   res.send('Error: ' + err.message);
 });
 
-// catch 404 and forward to error handler
+/** Page Not Found Handler
+ * @description catch 404 and forward to error handler
+ */
 app.use(function (req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
-// development error handler
-// will print stacktrace
+/** Development Error Handler
+ * @description print stacktraces when in local environment
+ */
 if (app.get('env') === 'local') {
   app.use(function (err, req, res, next) {
     res.status(err.status || 500);
@@ -82,8 +133,9 @@ if (app.get('env') === 'local') {
     });
   });
 }
-// production error handler
-// no stacktraces leaked to user
+/** Production Error Handler
+ * @description keep stacktraces from being leaked to user
+ */
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
@@ -100,15 +152,14 @@ console.log('Server started...');
 console.log('Environment: ' + config.envName || 'ERROR');
 console.log('Port: ' + port);
 app.set('port', port);
-
+/**
+ * Create app server object based on settings
+ */
 var server = systemUtils.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
+/** Listen on provided port, on all network interfaces.
  */
-
 server.listen(port);
-
 
 module.exports = app;
 /**
