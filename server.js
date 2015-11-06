@@ -32,11 +32,21 @@ app.use(cors());
 //Enable all preflight requests
 app.options('*', cors()); // include before other routes
 //Protect all routes except allowedPaths by requiring Authorization header
-// var allowedPaths = ['/', '/test', '/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
-// app.use(jwt({secret: config.jwtSecret}).unless({path:allowedPaths}));
+var allowedPaths = ['/', '/test', '/login', '/logout', '/signup', '/docs', '/docs/**', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
+var secret = config.jwtSecret;
+if(config.authRocket && config.authRocket.enabled){
+  if(!config.authRocket.secret){
+    logger.error({description: 'AuthRocket secret required to decode token. Check environment variables.', func: 'init', obj: 'server'});
+  } else {
+    // logger.log({description: 'authrocket secret is available. Using it for express jwt'});
+    secret = config.authRocket.secret;
+  }
+}
+// app.use(jwt({secret: secret}).unless({path:allowedPaths}));
 //Handle unauthorized errors
 app.use(function (err, req, res, next) {
   if (err.name === 'UnauthorizedError') {
+    logger.error({'Error confirming token.', error: err, obj: 'server'});
     return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
   }
 });

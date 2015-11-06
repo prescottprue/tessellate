@@ -8,3 +8,4 @@ wiki
 !.elasticbeanstalk/*.global.yml
 newrelic_agent.log
 **/newrelic_agent.log
+npm-debug.log

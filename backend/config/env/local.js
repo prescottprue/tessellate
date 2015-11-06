@@ -17,5 +17,9 @@ module.exports = {
 		projectBucketPrefix: "projects",
 		componentBucketPrefix: "components"
 	},
+	authRocket:{
+		enabled: true,
+		secret: process.env.AUTHROCKET_JWT_SECRET
+	},
 	jwtSecret:"shhhhhhh"
 };

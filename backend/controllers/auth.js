@@ -10,7 +10,8 @@ var Session = require('../models/session').Session;
 var AuthRocket = require('authrocket');
 var authrocket = new AuthRocket();
 var jwt = require('jsonwebtoken');
-var authRocketEnabled = true;
+var conf = require('../config/default').config;
+var authRocketEnabled = conf.authRocket.enabled || true;
 
 /**
  * @api {post} /signup Sign Up
@@ -139,7 +140,7 @@ exports.login = function(req, res, next) {
 				var token = jwt.decode(loginRes.token);
 				logger.log({description: 'token', token: token, func: 'login', obj: 'AuthCtrls'});
 				if(!process.env.AUTHROCKET_JWT_SECRET){
-					logger.log({description: 'Authrocket secret not available to verify token'});
+					logger.error({description: 'Authrocket secret not available to verify token', func: 'login', obj: 'AuthCtrls'});
 				} else{
 					var verify = jwt.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
 					logger.log({description: 'verify', verify: verify, func: 'login', obj: 'AuthCtrls'});
