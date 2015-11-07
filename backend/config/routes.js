@@ -6,6 +6,8 @@ var appCtrls = require('../controllers/applications');
 var templateCtrls = require('../controllers/templates');
 var adminCtrl = require('../controllers/admin');
 var groupsCtrl = require('../controllers/groups');
+var authrocketCtrls = require('../controllers/authrocket');
+
 
 module.exports =  {
 	index:[
@@ -24,7 +26,7 @@ module.exports =  {
 		{
 			type: 'POST',
 			endpoint: '/authrocket',
-			controller: indexCtrls.authrocket
+			controller: authrocketCtrls.events
 		}
 	],
 	auth:[
