@@ -78,16 +78,11 @@ function userCreated(requestData){
     });
     return Promise.reject('user_id required');
   }
-  var findObj = {
-    authrocket:{
-      id: requestData.user_id
-    }
-  };
-  logger.info({
-    description: 'Find object build', findObj: findObj,
-    func: 'userCreated', obj: 'AuthrocketCtrls'
-  });
-  var account = new Account(findObj);
+  // logger.info({
+  //   description: 'Find object build', findObj: findObj,
+  //   func: 'userCreated', obj: 'AuthrocketCtrls'
+  // });
+  var account = new Account({id: requestData.user_id});
   return account.saveNew().then((newAccount) => {
     logger.error({
       description: 'New account created from authrocket user_created event.',

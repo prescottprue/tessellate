@@ -21,9 +21,7 @@ var AccountSchema = new mongoose.Schema(
 		password:{type: String},
 		sessionId:{type:mongoose.Schema.Types.ObjectId, ref:'Session'},
 		groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
-		authrocket:{
-			id:{type:String}
-		},
+		authrocketId:{type:String},
 		createdAt: { type: Date, default: Date.now},
 		updatedAt: { type: Date, default: Date.now}
 	},
@@ -177,18 +175,18 @@ AccountSchema.methods = {
 	 * @description DEPRECATED Wrap query in promise
 	 */
 	saveNew:() => {
-		logger.warn({description: 'saveNew is no longer nessesary since save returns a promise.', func: 'saveNew', obj: 'Account'});
-		return this.save().then((account) => {
-			if(!account){
-				logger.error({description: 'Account could not be saved.', account: this, func: 'saveNew', obj: 'Account'});
-				return Promise.reject({message: 'Account cannot be saved.'});
-			} else {
-				logger.log({description: 'Account saved successfully.', savedAccount: account, func: 'saveNew', obj: 'Account'});
-				return account;
-			}
-		}, (err) => {
-			logger.error({description: 'Error saving Account.', account: this, func: 'saveNew', obj: 'Account'});
-			return Promise.reject(err);
+		logger.warn({description: 'saveNew called.', account: this, func: 'saveNew', obj: 'Account'});
+		// logger.warn({description: 'saveNew is no longer nessesary since save returns a promise.', func: 'saveNew', obj: 'Account'});
+		return new Promise((resolve, reject) => {
+			this.save((err) => {
+				if(!err){
+					logger.log({description: 'Account saved successfully.', savedAccount: account, func: 'saveNew', obj: 'Account'});
+					resolve();
+				} else {
+					logger.error({description: 'Error saving Account.', account: this, func: 'saveNew', obj: 'Account'});
+					return reject(err);
+				}
+			});
 		});
 	},
 	/**
