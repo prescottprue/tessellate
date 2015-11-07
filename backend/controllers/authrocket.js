@@ -82,20 +82,19 @@ function userCreated(requestData){
   //   description: 'Find object build', findObj: findObj,
   //   func: 'userCreated', obj: 'AuthrocketCtrls'
   // });
-  var account = new Account({id: requestData.user_id});
+  var account = new Account({authrocketId: requestData.user_id});
   return account.saveNew().then((newAccount) => {
-    logger.error({
+    logger.warn({
       description: 'New account created from authrocket user_created event.',
       func: 'userCreated', obj: 'AuthrocketCtrls'
     });
-    return res.send('Thanks.');
+    return 'Thanks.';
   }, (err) => {
     logger.error({
       description: 'Error creating new account.', error: err,
       func: 'userCreated', obj: 'AuthrocketCtrls'
     });
-    // return res.status(500).send('Account could not be added.');
-    return res.send('Thanks.'); //Bogus response to authrocket
+    return 'Thanks'; //Bogus response to authrocket
   });
   // //Find account within mongo
 	// var query = Account.findOne(findObj);
@@ -130,16 +129,63 @@ function userUpdated(requestData){
     description: 'Authrocket user updated.', data: requestData,
     func: 'userCreated', obj: 'AuthrocketCtrls'
   });
-  return new Promise((resolve, reject) => {
-    resolve();
+  Account.findOne({authrocketId:requestData.user_id}, (err, account) => {
+    if(err){
+      logger.error({
+        description: 'Error finding account.', reqData: requestData,
+        error: err, func:'update', obj:'AccountsCtrl'
+      });
+      // res.status(500).send('Error finding account.');
+      res.status('Thanks');
+    } else if(!account){
+      logger.error({
+        description: 'Account with matching authrocket id not found',
+        reqData: requestData, func:'update', obj:'AccountsCtrl'
+      });
+      //TODO: Add to a new account or an account with matching username
+      // res.status(400).send('Account not found.');
+      res.status('Thanks');
+    } else {
+      //Select only valid parameters
+      logger.log({
+        description: 'Account before save.', account: account,
+        func: 'update', obj: 'AccountsCtrl'
+      });
+      return account.saveNew().then((savedAccount) => {
+        logger.log({
+          description: 'Account saved successfully.',
+          func: 'update', obj: 'AccountsCtrl'
+        });
+        return savedAccount;
+      }, (err) => {
+        logger.error({
+          description: 'Error saving account.', error: err,
+          func: 'update', obj: 'AccountsCtrl'
+        });
+        return Promise.reject('Error updating account.');
+      });
+    }
   });
 }
 function userDeleted(requestData){
   logger.log({
     description: 'Authrocket user deleted.', data: requestData,
-    func: 'userCreated', obj: 'AuthrocketCtrls'
+    func: 'userDelete', obj: 'AuthrocketCtrls'
   });
-  return new Promise((resolve, reject) => {
-    resolve();
-  });
+  if(requestData.user_id){
+		var query = Account.findOneAndRemove({authrocketId: requestData.user_id}); // find and delete using id field
+		return query.then((result) => {
+			logger.log({
+        description: 'Account deleted successfully:',
+        func: 'userDelected'
+      });
+			return result;
+		}, (err) => {
+			logger.error({
+        description: 'Account could not be deleted.',
+        error: err, func: 'userDeleted'
+      });
+      return Promise.reject('Account cound not be deleted')
+		});
+	}
 }
