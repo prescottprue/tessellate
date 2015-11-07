@@ -13,10 +13,10 @@ exports.events = (req, res, next) => {
     description: 'Authrocket event recieved.',
     body: req.body, func: 'authrocket'
   });
-  if(req.body.event_type){
-    switch(req.body.event_type){
+  if(req.body.event.event_type){
+    switch(req.body.event.event_type){
       case 'user.created':
-          userCreated(req.body).then(() => {
+          userCreated(req.body.event).then(() => {
             logger.warn({
               description: 'User created successfully.',
               body: req.body, func: 'authrocket'
@@ -58,17 +58,17 @@ exports.events = (req, res, next) => {
           body: req.body, func: 'events', obj: 'AuthrocketCtrls'
         });
     }
-
   } else {
     logger.error({
       description: 'Authrocket event did not have a type.',
       body: req.body, func: 'events', obj: 'AuthrocketCtrls'
     });
+    res.send('');
   }
 };
 function userCreated(requestData){
   logger.log({
-    description: 'Authrocket user created.', data: requestData,
+    description: 'Authrocket user created called.', data: requestData,
     func: 'userCreated', obj: 'AuthrocketCtrls'
   });
   if(!requestData.user_id){
@@ -83,43 +83,52 @@ function userCreated(requestData){
       id: requestData.user_id
     }
   };
-  //Find account within mongo
-	var query = Account.findOne(findObj);
-	return query.then((accountData) => {
-		if(!accountData){
-			logger.log({
-        message:'Account does not already exist',
-        func:'userCreated', obj:'AuthrocketCtrls'
-      });
-      var account = new Account(findObj);
-  		return account.saveNew().then((newAccount) => {
-        logger.error({
-          description: 'New account created from authrocket user_created event.',
-          func: 'userCreated', obj: 'AuthrocketCtrls'
-        });
-  			return res.send('Thanks.');
-  		}, (err) => {
-  			logger.error({
-          description: 'Error creating new account.', error: err,
-          func: 'userCreated', obj: 'AuthrocketCtrls'
-        });
-  			// return res.status(500).send('Account could not be added.');
-        return res.send('Thanks.'); //Bogus response to authrocket
-  		});
-		} else {
-      logger.warn({
-        message:'Account with matching user_id already exists.',
-        func:'userCreated', obj:'AuthrocketCtrls'
-      });
-      return res.send('Thanks.'); //Bogus response to authrocket
-		}
-	}, (err) => {
-		logger.error({
-      message:'Error finding account data.', error:err,
-      func:'userCreated', obj:'AuthrocketCtrls'
+  logger.info({
+    description: 'Find object build', findObj: findObj,
+    func: 'userCreated', obj: 'AuthrocketCtrls'
+  });
+  var account = new Account(findObj);
+  return account.saveNew().then((newAccount) => {
+    logger.error({
+      description: 'New account created from authrocket user_created event.',
+      func: 'userCreated', obj: 'AuthrocketCtrls'
     });
-		return res.status(500).send('Error getting account.');
-	});
+    return res.send('Thanks.');
+  }, (err) => {
+    logger.error({
+      description: 'Error creating new account.', error: err,
+      func: 'userCreated', obj: 'AuthrocketCtrls'
+    });
+    // return res.status(500).send('Account could not be added.');
+    return res.send('Thanks.'); //Bogus response to authrocket
+  });
+  // //Find account within mongo
+	// var query = Account.findOne(findObj);
+	// query.then((accountData) => {
+  //   logger.warn({
+  //     message:'Account query response', accountData: accountData,
+  //     func:'userCreated', obj:'AuthrocketCtrls'
+  //   });
+	// 	if(!accountData){
+	// 		logger.warn({
+  //       message:'Account does not already exist',
+  //       func:'userCreated', obj:'AuthrocketCtrls'
+  //     });
+  //
+	// 	} else {
+  //     logger.warn({
+  //       message:'Account with matching user_id already exists.',
+  //       func:'userCreated', obj:'AuthrocketCtrls'
+  //     });
+  //     return res.send('Thanks.'); //Bogus response to authrocket
+	// 	}
+	// }, (err) => {
+	// 	logger.error({
+  //     message:'Error finding account data.', error:err,
+  //     func:'userCreated', obj:'AuthrocketCtrls'
+  //   });
+	// 	return res.status(500).send('Error getting account.');
+	// });
 }
 function userUpdated(requestData){
   logger.log({
