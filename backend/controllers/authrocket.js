@@ -9,7 +9,7 @@ var Account = require('../models/account').Account;
  */
 exports.events = (req, res, next) => {
   //TODO:Link to user account if matching account already exists and does not have linked account
-  logger.log({
+  logger.warn({
     description: 'Authrocket event recieved.',
     body: req.body, func: 'authrocket'
   });
@@ -17,6 +17,10 @@ exports.events = (req, res, next) => {
     switch(req.body.event_type){
       case 'user.created':
           userCreated(req.body).then(() => {
+            logger.warn({
+              description: 'User created successfully.',
+              body: req.body, func: 'authrocket'
+            });
             res.send('Thanks'); //Respond to authrocket post
           }, (err) => {
             logger.error({

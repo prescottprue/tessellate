@@ -55,6 +55,7 @@ if(config.authEnabled){
     '/', '/login',
     '/logout', '/signup',
     '/docs', '/docs/**',
+    '/authrocket',
     /(\/apps\/.*\/login)/,
     /(\/apps\/.*\/logout)/,
     /(\/apps\/.*\/signup)/,
