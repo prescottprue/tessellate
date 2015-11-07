@@ -23,7 +23,7 @@ var logger = require('../utils/logger');
 var Application = require('../models/application').Application;
 var Account = require('../models/account').Account;
 var Group = require('../models/group').Group;
-
+var authUtil = require('../utils/auth');
 /**
  * @api {get} /applications Get Application(s)
  * @apiDescription Get a specific application's data or a list of applications.
@@ -68,11 +68,18 @@ var Group = require('../models/group').Group;
  *       "message":"Application not found."
  *     }
  */
+
 exports.get = (req, res, next) => {
+	// var user = authUtil.getUserFromRequest(req);
+	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
 	var isList = true;
-	var query = Application.find({}).populate({path:'owner', select:'username name title email'});
+	var query = Application.find({})
+	.populate({path:'owner', select:'username name title email'});
 	if(req.params.name){ //Get data for a specific application
-		logger.log('application request with id:', req.params.name);
+		logger.log({
+			description: 'Application get request.', name: req.params.name,
+			func: 'get', obj: 'ApplicationsCtrls'
+		});
 		query = Application.findOne({name:req.params.name})
 		.populate({path:'owner', select:'username name title email'})
 		.populate({path:'groups', select:'name accounts'})
@@ -170,8 +177,8 @@ exports.add = (req, res, next) => {
 			logger.log({description: 'No owner data provided. Using account.', account: req.user, func: 'add', obj: 'ApplicationsCtrl'});
 			if(_.has(req, 'userId')){
 				appData.owner = req.userId;
-			} else if (_.has(req, 'id')) {
-				appData.owner = req.userId;
+			} else if (_.has(req.user, 'id')) {
+				appData.owner = req.user.id;
 			}
 		}
 		findApplication(appName).then((foundApp) => {

@@ -11,8 +11,7 @@ var AuthRocket = require('authrocket');
 var authrocket = new AuthRocket();
 var jwt = require('jsonwebtoken');
 var conf = require('../config/default').config;
-var authRocketEnabled = conf.authRocket.enabled || true;
-
+var authRocketEnabled = conf.authRocket.enabled;
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new account and start a session as that new account

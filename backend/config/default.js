@@ -17,6 +17,7 @@ switch (env) {
 		config = require("./env/test");
 		break;
 	default:
+	console.log('-----------Setting default config');
 		config = require("./env/production");
 		break;
 }

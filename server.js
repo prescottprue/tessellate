@@ -69,24 +69,24 @@ if(config.authEnabled){
       });
     } else {
       secret = config.authRocket.secret;
-      /** Route Protection
-       * @description Protect all routes except allowedPaths by requiring Authorization header
-       */
-      app.use(jwt({secret: secret}).unless({path:allowedPaths}));
-      /** Unauthorized Error Handler
-       * @description Respond with 401 when authorization token is invalid
-       */
-      app.use(function (err, req, res, next) {
-        if (err.name === 'UnauthorizedError') {
-          logger.error({
-            description: 'Error confirming token.',
-            error: err, obj: 'server'
-          });
-          return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
-        }
-      });
     }
   }
+  /** Route Protection
+   * @description Protect all routes except allowedPaths by requiring Authorization header
+   */
+  app.use(jwt({secret: secret}).unless({path:allowedPaths}));
+  /** Unauthorized Error Handler
+   * @description Respond with 401 when authorization token is invalid
+   */
+  app.use(function (err, req, res, next) {
+    if (err.name === 'UnauthorizedError') {
+      logger.error({
+        description: 'Error confirming token.',
+        error: err, obj: 'server'
+      });
+      return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
+    }
+  });
 } else {
   logger.warn({
     description: 'Authentication is disabled. Endpoint results may be affected.',
