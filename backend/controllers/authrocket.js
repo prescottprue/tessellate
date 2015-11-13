@@ -11,8 +11,11 @@ exports.events = (req, res, next) => {
   //TODO:Link to user account if matching account already exists and does not have linked account
   logger.warn({
     description: 'Authrocket event recieved.',
-    body: req.body, func: 'authrocket'
+    body: req.body || req, func: 'authrocket'
   });
+  if(!req.body || !req.body.event){
+    return res.status(400).send('Event required.');
+  }
   if(req.body.event.event_type){
     switch(req.body.event.event_type){
       case 'user.created':
@@ -83,7 +86,22 @@ function userCreated(requestData){
     //   description: 'Find object build', findObj: findObj,
     //   func: 'userCreated', obj: 'AuthrocketCtrls'
     // });
-    var account = new Account({authrocketId: requestData.user_id});
+    var account = new Account({
+      authrocketId: requestData.user_id
+    });
+    //TODO: Load data from authrocket users endpoint to put in new user data
+
+
+
+
+
+
+
+
+
+
+
+
     account.saveNew().then((newAccount) => {
       logger.warn({
         description: 'New account created from authrocket user_created event.',
