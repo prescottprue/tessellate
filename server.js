@@ -47,53 +47,53 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 app.options('*', cors());
 
-/** Authentication
- * @description Enable authentication based on config setting
- */
-if(config.authEnabled){
-  var allowedPaths = [
-    '/', '/login',
-    '/logout', '/signup',
-    '/docs', '/docs/**',
-    '/authrocket',
-    /(\/apps\/.*\/login)/,
-    /(\/apps\/.*\/logout)/,
-    /(\/apps\/.*\/signup)/,
-    /(\/apps\/.*\/providers)/
-  ];
-  var secret = config.jwtSecret;
-  if (config.authRocket && config.authRocket.enabled) {
-    if (!config.authRocket.secret) {
-      logger.error({
-        description: 'AuthRocket secret required to decode token. Check environment variables.',
-        func: 'init', obj: 'server'
-      });
-    } else {
-      secret = config.authRocket.secret;
-    }
-  }
-  /** Route Protection
-   * @description Protect all routes except allowedPaths by requiring Authorization header
-   */
-  app.use(jwt({secret: secret}).unless({path:allowedPaths}));
-  /** Unauthorized Error Handler
-   * @description Respond with 401 when authorization token is invalid
-   */
-  app.use(function (err, req, res, next) {
-    if (err.name === 'UnauthorizedError') {
-      logger.error({
-        description: 'Error confirming token.',
-        error: err, obj: 'server'
-      });
-      return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
-    }
-  });
-} else {
-  logger.warn({
-    description: 'Authentication is disabled. Endpoint results may be affected.',
-    obj: 'server'
-  });
-}
+// /** Authentication
+//  * @description Enable authentication based on config setting
+//  */
+// if(config.authEnabled){
+//   var allowedPaths = [
+//     '/', '/login',
+//     '/logout', '/signup',
+//     '/docs', '/docs/**',
+//     '/authrocket',
+//     /(\/apps\/.*\/login)/,
+//     /(\/apps\/.*\/logout)/,
+//     /(\/apps\/.*\/signup)/,
+//     /(\/apps\/.*\/providers)/
+//   ];
+//   var secret = config.jwtSecret;
+//   if (config.authRocket && config.authRocket.enabled) {
+//     if (!config.authRocket.secret) {
+//       logger.error({
+//         description: 'AuthRocket secret required to decode token. Check environment variables.',
+//         func: 'init', obj: 'server'
+//       });
+//     } else {
+//       secret = config.authRocket.secret;
+//     }
+//   }
+//   /** Route Protection
+//    * @description Protect all routes except allowedPaths by requiring Authorization header
+//    */
+//   app.use(jwt({secret: secret}).unless({path:allowedPaths}));
+//   /** Unauthorized Error Handler
+//    * @description Respond with 401 when authorization token is invalid
+//    */
+//   app.use(function (err, req, res, next) {
+//     if (err.name === 'UnauthorizedError') {
+//       logger.error({
+//         description: 'Error confirming token.',
+//         error: err, obj: 'server'
+//       });
+//       return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
+//     }
+//   });
+// } else {
+//   logger.warn({
+//     description: 'Authentication is disabled. Endpoint results may be affected.',
+//     obj: 'server'
+//   });
+// }
 
 /** Route Builder
  * @description Setup routes based on config file
