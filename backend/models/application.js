@@ -370,7 +370,8 @@ ApplicationSchema.methods = {
 			func: 'signup', obj: 'Application'
 		});
 		var self = this;
-		if(self.authRocket && self.authRocket.jsUrl && self.authRocket.jsUrl.length > 1){
+		if(self.authRocket && self.authRocket.jsUrl && self.authRocket.jsUrl.length > 0){
+			//Signup through authrocket if authrocket info is available
 			return this.appAuthRocket().signup(signupData).then((newAccount) => {
 				logger.info({
 					description: 'Account created successfully.',
@@ -386,6 +387,7 @@ ApplicationSchema.methods = {
 			});
 		} else {
 			return self.findAccount(signupData).then((foundAccount) => {
+				//Handle account with matching information already existing
 				logger.info({
 					description: 'Account already exists in application directories',
 					foundAccount: foundAccount, func: 'signup', obj: 'Application'
@@ -411,9 +413,9 @@ ApplicationSchema.methods = {
 							description: 'New account created successfully.',
 							newAccount: newAccount, func: 'signup', obj: 'Application'
 						});
-						return self.addAccountToDirectory(newAccount).then((directoryWithAccount) => {
+						return self.addAccountToGroup(newAccount).then((directoryWithAccount) => {
 							logger.info({
-								description: 'New account added to application directory successfully.',
+								description: 'New account added to application group successfully.',
 								newAccount: newAccount, directory: directoryWithAccount,
 								func: 'signup', obj: 'Application'
 							});
@@ -435,25 +437,56 @@ ApplicationSchema.methods = {
 								return Promise.reject(err);
 							});
 						}, (err) => {
-							logger.error({
-								description: 'Error adding account to directory.',
+							//Handle error adding account to group
+							logger.warn({
+								description: 'Error adding account to group.',
 								newAccount: newAccount, func: 'signup', obj: 'Application'
 							});
-							// return Promise.reject(err);
-							//TODO: Handle application not having directories
-							return newAccount.login(signupData.password).then((loginRes) => {
+							//Handle application not having any groups
+							//TODO: Make this a seperate method that automatically names the group
+							return self.addGroup({name: self.name + '-accounts', accounts:[newAccount._id]}).then((newGroup) => {
 								logger.info({
-									description: 'New account logged in successfully.',
-									loginRes: loginRes, newAccount: newAccount,
-									directory: directoryWithAccount,
+									description: 'New group added successfully. Adding account to group.',
+									newAccount: newAccount, group: newGroup,
 									func: 'signup', obj: 'Application'
 								});
-								//Respond with account and token
-								return loginRes;
+								//Add account to new group
+								return newGroup.addAccount(newAccount).then((groupWithAccount) => {
+									logger.info({
+										description: 'New account added to application group successfully.',
+										newAccount: newAccount, group: groupWithAccount,
+										func: 'signup', obj: 'Application'
+									});
+									//Log in to newly created account
+									return newAccount.login(signupData.password).then((loginRes) => {
+										logger.info({
+											description: 'New account logged in successfully.',
+											loginRes: loginRes, newAccount: newAccount,
+											directory: groupWithAccount, func: 'signup',
+											obj: 'Application'
+										});
+										//Respond with account and token
+										return loginRes;
+									}, (err) => {
+										//Handle error with new account long
+										logger.error({
+											description: 'Error logging into newly created account.',
+											newAccount: newAccount, error: err,
+											func: 'signup', obj: 'Application'
+										});
+										return Promise.reject(err);
+									});
+								}, (err) => {
+									logger.error({
+										description: 'Error account to new group.',
+										func: 'signup', error: err, obj: 'Application'
+									});
+									return Promise.reject(err);
+								});
 							}, (err) => {
 								logger.error({
-									description: 'Error logging into newly created account.',
-									newAccount: newAccount, func: 'signup', obj: 'Application'
+									description: 'Error adding group to application.',
+									func: 'signup', obj: 'Application'
 								});
 								return Promise.reject(err);
 							});
@@ -463,23 +496,24 @@ ApplicationSchema.methods = {
 						if(err && err.status == 'EXISTS'){
 							//Add to account to directory
 							logger.log({
-								description: 'User already exists. Adding account to application directory.',
+								description: 'User already exists. Adding account to application group.',
 								func: 'signup', obj: 'Application'
 							});
-							return self.addAccountToDirectory(account).then((directoryWithAccount) => {
+							return self.addAccountToGroup(account).then((groupWithAccount) => {
 								logger.log({
-									description: 'Account added to directory successfully.',
-									directory: directoryWithAccount, func: 'signup', obj: 'Application'
+									description: 'Account added to group successfully.',
+									directory: groupWithAccount, func: 'signup', obj: 'Application'
 								});
-								return directoryWithAccount;
+								return groupWithAccount;
 							}, (err) => {
 								logger.error({
-									description: 'Error adding account to directory',
+									description: 'Error adding account to group.',
 									error: err, func: 'signup', obj: 'Application'
 								});
 								return Promise.reject(err);
 							});
 						} else {
+							//Handle error other than username already existing
 							logger.error({
 								description: 'Error creating new account.',
 								error: err, func: 'signup', obj: 'Application'
@@ -488,10 +522,10 @@ ApplicationSchema.methods = {
 						}
 					});
 				} else {
-					//Error other than account not found
+					//Handle error other than username already existing
 					logger.error({
-						description: 'Error finding account.', error: err,
-						func: 'signup', obj: 'Application'
+						description: 'Error creating new account.',
+						error: err, func: 'signup', obj: 'Application'
 					});
 					return Promise.reject(err);
 				}
@@ -627,7 +661,10 @@ ApplicationSchema.methods = {
 	//TODO: Accept username as well and find account from username
 	accountExistsInApp: (account) => {
 		var self = this;
-		logger.log({message:'Account exists in app called.', selfData: self, obj:'Application', func:'accountExistsInApp'});
+		logger.log({
+			message:'Account exists in app called.', selfData: self,
+			obj:'Application', func:'accountExistsInApp'
+		});
 		var query = self.model('Application').findById(self._id)
 		.populate({path:'directories', select:'accounts groups'})
 		.populate({path:'groups', select:'accounts'});
@@ -700,7 +737,7 @@ ApplicationSchema.methods = {
 		// 	console.error('This group already exists application');
 		// 	return;
 		// }
-		if(this.authRocket){
+		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
 			//Authrocket group(org) management
 			return this.appAuthRocket().Orgs().add(groupData).then((updateRes) => {
 				logger.log({
@@ -989,6 +1026,82 @@ ApplicationSchema.methods = {
 	getStructure: () => {
 		return fileStorage.getFiles(this.frontend.bucketName);
 	},
+	addAccountToGroup: (accountData, groupId) => {
+		//TODO: Make this work with not just the first directory
+		logger.log({
+			description: 'Add account to directory called.',
+			accountData: accountData, groupId: groupId,
+			func: 'addAccountToGroup', obj: 'Application'
+		});
+		if(this.groups.length >= 1){
+			//Application has groups
+			logger.log({
+				description: 'Application has directories.',
+				func: 'addAccountToGroup', obj: 'Application'
+			});
+			//Add to 'default' group
+			if(!groupId){
+				//TODO: have this reference a set default instead of first group in list
+				groupId = this.directories[0]._id;
+				logger.log({
+					description: 'Group was not provided. Default directory used.',
+					id: groupId, func: 'addAccountToGroup', obj: 'Application'
+				});
+			}
+			logger.log({
+				description: 'Searching for group.', id: groupId,
+				accountData: accountData, func: 'addAccountToGroup',
+				obj: 'Application'
+			});
+			var query = this.model('Group')
+			.findOneById(groupId);
+			return query.then((foundGroup) => {
+				if(!foundGroup){
+					logger.error({
+						description: 'Directory not found.', id: groupId,
+						func: 'addAccountToGroup', obj: 'Application'
+					});
+					return Promise.reject({message: 'Group not found.'});
+				}
+				logger.log({
+					description: 'Group found. Adding account.',
+					directory: foundGroup,
+					func: 'addAccountToGroup', obj: 'Application'
+				});
+				//TODO: Make sure account does not already exist in directory before adding.
+				return foundGroup.addAccount(accountData).then((groupWithAccount) => {
+					logger.log({
+						description: 'Account successfully added to group.',
+						directory: groupWithAccount,
+						func: 'addAccountToGroup', obj: 'Application'
+					});
+					return groupWithAccount;
+				}, (err) => {
+					logger.error({
+						description: 'Error adding account to directory.', error: err,
+						func: 'addAccountToGroup', obj: 'Application'
+					});
+					return Promise.reject(err);
+				});
+			}, (err) => {
+				logger.error({
+					description: 'Error finding directory.', error: err,
+					id: directoryId, func: 'addAccountToGroup', obj: 'Application'
+				});
+				return Promise.reject(err);
+			});
+		} else {
+			//TODO: Create a base directory if none exist
+			logger.error({
+				description: 'Application does not have any directories into which to add Account.',
+				func: 'addAccountToGroup', obj: 'Application'
+			});
+			return Promise.reject({
+				message: 'Application does not have any directories into which to add Account.',
+				status: 'NOT_FOUND'
+			});
+		}
+	},
 	addAccountToDirectory: (accountData, directoryId) => {
 		//TODO: Make this work with not just the first directory
 		logger.log({
@@ -1017,7 +1130,7 @@ ApplicationSchema.methods = {
 				obj: 'Application'
 			});
 			var query = this.model('Directory')
-			.findOne({application: directoryId});
+			.findOneById(directoryId);
 			return query.then((foundDirectory) => {
 				if(!foundDirectory){
 					logger.error({
