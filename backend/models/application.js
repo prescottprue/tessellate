@@ -413,7 +413,10 @@ ApplicationSchema.methods = {
 						});
 						return self.addAccountToDirectory(newAccount).then((directoryWithAccount) => {
 							logger.info({
-								description: 'New account added to application directory successfully.', newAccount: newAccount, directory: directoryWithAccount, func: 'signup', obj: 'Application'});
+								description: 'New account added to application directory successfully.',
+								newAccount: newAccount, directory: directoryWithAccount,
+								func: 'signup', obj: 'Application'
+							});
 							//Log in to newly created account
 							return newAccount.login(signupData.password).then((loginRes) => {
 								logger.info({
@@ -437,7 +440,7 @@ ApplicationSchema.methods = {
 								newAccount: newAccount, func: 'signup', obj: 'Application'
 							});
 							// return Promise.reject(err);
-							//TODO: Handle applicaiton not having directories
+							//TODO: Handle application not having directories
 							return newAccount.login(signupData.password).then((loginRes) => {
 								logger.info({
 									description: 'New account logged in successfully.',
@@ -939,7 +942,8 @@ ApplicationSchema.methods = {
 							return true;
 						} else {
 							logger.error({
-								description:'Could not find group within application.', returnedData: group,
+								description:'Could not find group within application.',
+								returnedData: group,
 								func:'deleteGroup', obj: 'Application'
 							});
 							return false;
@@ -987,6 +991,11 @@ ApplicationSchema.methods = {
 	},
 	addAccountToDirectory: (accountData, directoryId) => {
 		//TODO: Make this work with not just the first directory
+		logger.log({
+			description: 'Add account to directory called.',
+			accountData: accountData, directoryId: directoryId,
+			func: 'addAccountToDirectory', obj: 'Application'
+		});
 		if(this.directories.length >= 1){
 			//Application has directories
 			logger.log({
@@ -1004,21 +1013,26 @@ ApplicationSchema.methods = {
 			}
 			logger.log({
 				description: 'Searching for directory.', id: directoryId,
-				accountData: accountData, func: 'addAccountToDirectory', obj: 'Application'
+				accountData: accountData, func: 'addAccountToDirectory',
+				obj: 'Application'
 			});
-			return dQuery.then((result) => {
-				if(!result){
-					logger.error({description: 'Directory not found.', id: directoryId,
-					func: 'addAccountToDirectory', obj: 'Application'
-				});
+			var query = this.model('Directory')
+			.findOne({application: directoryId});
+			return query.then((foundDirectory) => {
+				if(!foundDirectory){
+					logger.error({
+						description: 'Directory not found.', id: directoryId,
+						func: 'addAccountToDirectory', obj: 'Application'
+					});
 					return Promise.reject({message: 'Directory not found.'});
 				}
 				logger.log({
-					description: 'Directory found. Adding account.', directory: result,
+					description: 'Directory found. Adding account.',
+					directory: foundDirectory,
 					func: 'addAccountToDirectory', obj: 'Application'
 				});
 				//TODO: Make sure account does not already exist in directory before adding.
-				return result.addAccount(accountData).then((dirWithAccount) => {
+				return foundDirectory.addAccount(accountData).then((dirWithAccount) => {
 					logger.log({
 						description: 'Account successfully added to directory.', directory: dirWithAccount,
 						func: 'addAccountToDirectory', obj: 'Application'
@@ -1044,7 +1058,10 @@ ApplicationSchema.methods = {
 				description: 'Application does not have any directories into which to add Account.',
 				func: 'addAccountToDirectory', obj: 'Application'
 			});
-			return Promise.reject({message: 'Application does not have any directories into which to add Account.', status: 'NOT_FOUND'});
+			return Promise.reject({
+				message: 'Application does not have any directories into which to add Account.',
+				status: 'NOT_FOUND'
+			});
 		}
 	},
 	appAuthRocket: () => {
