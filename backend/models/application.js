@@ -312,7 +312,7 @@ ApplicationSchema.methods = {
 			func: 'login', obj: 'Application'
 		});
 		//Login to authrocket if data is available
-		if(this.authRocket && this.authRocket.jsUrl){
+		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 1){
 			if(!_.has(loginData, 'username')){
 				//TODO: lookup user data from mongodb then login to allow authRocket login by email
 				logger.log({
@@ -370,7 +370,7 @@ ApplicationSchema.methods = {
 			func: 'signup', obj: 'Application'
 		});
 		var self = this;
-		if(this.authRocket){
+		if(self.authRocket && self.authRocket.jsUrl && self.authRocket.jsUrl.length > 1){
 			return this.appAuthRocket().signup(signupData).then((newAccount) => {
 				logger.info({
 					description: 'Account created successfully.',
