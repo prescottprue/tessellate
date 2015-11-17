@@ -56,10 +56,10 @@ ApplicationSchema.set('collection', 'applications');
 /*
  * Id virtual
  */
-ApplicationSchema.virtual('id')
-.get(function (){
-	return this._id;
-});
+// ApplicationSchema.virtual('id')
+// .get(function (){
+// 	return this._id;
+// });
 
 ApplicationSchema.methods = {
 	//Wrap save functionality in promise and handle errors
@@ -134,12 +134,12 @@ ApplicationSchema.methods = {
 		var self = this;
 		return self.saveNew().then((newApplication) => {
 			logger.log({
-				description: 'Create with storage called.', application: self,
+				description: 'New application added to db.', application: newApplication,
 				func: 'createWithStorage', obj: 'Application'
 			});
 			return self.createStorage().then(() => {
 				logger.info({
-					description: 'Create with storage called.', application: self,
+					description: 'Create storage was successful.', application: self,
 					func: 'createWithStorage', obj: 'Application'
 				});
 				return newApplication;
@@ -158,11 +158,11 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createStorage: (storageData) => {
+	createStorage: () => {
 		//TODO: Handle storageData including provider and name prefix
 		logger.log({
 			description: 'Create storage for application called.',
-			storageData: storageData, func: 'createStorage', obj: 'Application'
+			func: 'createStorage', obj: 'Application'
 		});
 		var bucketName = bucketPrefix + this.name;
 		var self = this;
@@ -363,13 +363,18 @@ ApplicationSchema.methods = {
 		}
 	},
 	signup: (signupData) => {
+		var self = this;
 		logger.log({
 			description: 'Signup to application called.',
-			signupData: signupData, application: this,
+			signupData: signupData, application: self,
 			func: 'signup', obj: 'Application'
 		});
-		var self = this;
 		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
+			logger.log({
+				description: 'Authrocket settings exist for application.',
+				signupData: signupData, application: this,
+				func: 'signup', obj: 'Application'
+			});
 			return this.appAuthRocket().signup(signupData).then((newAccount) => {
 				logger.info({
 					description: 'Account created through AuthRocket successfully.',
@@ -385,9 +390,14 @@ ApplicationSchema.methods = {
 			});
 		} else {
 			//Default account management
-			var Account = this.model('Account');
-			var account = new Account(signupData);
-			account.application = this._id;
+			logger.log({
+				description: 'Using default account management.',
+				application: self,
+				func: 'signup', obj: 'Application'
+			});
+			var AccountModel = self.model('Account');
+			var account = new AccountModel(signupData);
+			// account.application = self._id; //TODO: Find out why this isn't working?
 			logger.log({
 				description: 'New account object created.',
 				account: account, func: 'signup', obj: 'Application'
@@ -777,7 +787,7 @@ ApplicationSchema.methods = {
 		return fileStorage.getFiles(this.frontend.bucketName);
 	},
 	appAuthRocket: () => {
-		if(!this.authRocket && !this.authRocket.jsUrl){
+		if(!this.authRocket || !this.authRocket.jsUrl){
 			logger.error({
 				description: 'Application does not have AuthRocket settings.',
 				data: self.authRocket,
