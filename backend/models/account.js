@@ -135,12 +135,21 @@ AccountSchema.methods = {
 	 */
 	logout:() => {
 		//TODO: Invalidate token?
-		logger.log({description: 'Logout called.', func: 'logout', obj: 'Account'});
+		logger.log({
+			description: 'Logout called.',
+			func: 'logout', obj: 'Account'
+		});
 		return this.endSession().then(() => {
-			logger.log({description: 'Logout successful.', func: 'logout', obj: 'Account'});
+			logger.log({
+				description: 'Logout successful.',
+				func: 'logout', obj: 'Account'
+			});
 			return {message: 'Logout successful.'};
 		}, (err) => {
-			logger.error({description: 'Error ending session.', error: err, func: 'logout', obj: 'Account'});
+			logger.error({
+				description: 'Error ending session.',
+				error: err, func: 'logout', obj: 'Account'
+			});
 			return {message: 'Logout successful.'};
 		});
 	},
@@ -378,7 +387,7 @@ AccountSchema.methods = {
 							error: err, func: 'createWithPass', obj: 'Account'
 						});
 						return Promise.reject({
-							message: 'Email is associated with an existing account.', 
+							message: 'Email is associated with an existing account.',
 							status: 'EXISTS'
 						});
 					}

@@ -701,14 +701,19 @@ exports.logout = (req, res, next) => {
 	if(req.user){
 		userData = req.user;
 	}
-	if(req.body.token){
-		userData = {token: req.body.token};
+	if(!req.user && req.body){
+		userData = req.body;
 	}
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then((foundApp) => {
 			logger.log({
 				description: 'Application found successfully.',
 				foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'
+			});
+			logger.log({
+				description: 'Logging out of application.',
+				foundApp: foundApp, userData: userData,
+				func: 'logout', obj: 'ApplicationCtrl'
 			});
 			foundApp.logout(userData).then(() => {
 				logger.log({
@@ -718,7 +723,7 @@ exports.logout = (req, res, next) => {
 				res.send('Logout successful.');
 			}, (err) => {
 				logger.error({
-					description: 'Error finding application.',
+					description: 'Error logging out of application',
 					error: err, func: 'logout', obj: 'ApplicationCtrl'
 				});
 				res.status(400).send('Error logging out.');
@@ -732,7 +737,7 @@ exports.logout = (req, res, next) => {
 		});
 	} else {
 		logger.error({
-			description: 'Error logging out.',
+			description: 'Invalid logout request.',
 			func: 'logout', obj: 'ApplicationCtrl'
 		});
 		res.status(400).send('Error logging out.');
