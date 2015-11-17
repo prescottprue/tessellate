@@ -693,7 +693,10 @@ exports.login = (req, res, next) => {
  *
  */
 exports.logout = (req, res, next) => {
-	logger.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
+	logger.log({
+		description: 'App Logout request.',
+		appName: req.params.name, body: req.body
+	});
 	var userData;
 	if(req.user){
 		userData = req.user;
@@ -702,31 +705,37 @@ exports.logout = (req, res, next) => {
 		userData = {token: req.body.token};
 	}
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then( (foundApp) => {
-			logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
-			if(foundApp.authRocket){
-				foundApp.authRocketLogout(userData).then( () => {
-					logger.log({description: 'Logout successful.', func: 'logout', obj: 'ApplicationCtrl'});
-					res.send('Logout successful.');
-				},  (err) => {
-					logger.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
-					res.status(400).send(err);
+		findApplication(req.params.name).then((foundApp) => {
+			logger.log({
+				description: 'Application found successfully.',
+				foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'
+			});
+			foundApp.logout(userData).then(() => {
+				logger.log({
+					description: 'Logout successful.',
+					func: 'logout', obj: 'ApplicationCtrl'
 				});
-			} else {
-				foundApp.logout(userData).then( () => {
-					logger.log({description: 'Logout successful.', func: 'logout', obj: 'ApplicationCtrl'});
-					res.send('Logout successful.');
-				},  (err) => {
-					logger.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
-					res.status(400).send('Error logging out.');
+				res.send('Logout successful.');
+			}, (err) => {
+				logger.error({
+					description: 'Error finding application.',
+					error: err, func: 'logout', obj: 'ApplicationCtrl'
 				});
-			}
-		},  (err) => {
-			logger.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
+				res.status(400).send('Error logging out.');
+			});
+		}, (err) => {
+			logger.error({
+				description: 'Error finding application.',
+				error: err, func: 'logout', obj: 'ApplicationCtrl'
+			});
 			res.status(400).send('Application not found.');
 		});
 	} else {
-		res.status(400).send('Application name and accounts array are required to add collaborators.');
+		logger.error({
+			description: 'Error logging out.',
+			func: 'logout', obj: 'ApplicationCtrl'
+		});
+		res.status(400).send('Error logging out.');
 	}
 };
 
@@ -777,7 +786,7 @@ exports.signup = (req, res, next) => {
 						obj: 'ApplicationsCtrl'
 					});
 					res.send(signupRes);
-				},  (err) => {
+				}, (err) => {
 					logger.error({
 						description: 'Error signing up to application.',
 						error: err, appName: req.params.name,
@@ -798,7 +807,12 @@ exports.signup = (req, res, next) => {
 					res.send(signupRes);
 				},  (err) => {
 					if(err && err.status == 'EXISTS'){
-						res.status(400).send('Account with this username already exists in application.');
+						logger.error({
+							description: 'Account with matching credentials already exists.',
+							error: err, appName: req.params.name,
+							func: 'signup', obj: 'ApplicationsCtrl'
+						});
+						res.status(400).send(err);
 					} else {
 						//TODO: Handle wrong password
 						logger.error({
@@ -807,7 +821,7 @@ exports.signup = (req, res, next) => {
 							body: req.body, func: 'signup',
 							obj: 'ApplicationsCtrl'
 						});
-						res.status(400).send('Error signing up.');
+						res.status(400).send(err);
 					}
 				});
 			}

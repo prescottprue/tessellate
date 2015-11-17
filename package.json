@@ -2,7 +2,7 @@
   "name": "kyper-tessellate",
   "version": "0.0.1",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --harmony server.js",
     "start:es5": "node --harmony server.js"
   },
   "repository": {
@@ -24,7 +24,7 @@
     "jsonwebtoken": "^5.0.1",
     "lodash": "^3.10.1",
     "mkdirp": "^0.5.1",
-    "mongoose": "^4.2.6",
+    "mongoose": "^4.0.4",
     "newrelic": "^1.22.2",
     "q": "^1.4.1",
     "rimraf": "^2.4.3",

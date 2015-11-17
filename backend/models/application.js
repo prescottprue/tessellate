@@ -339,7 +339,17 @@ ApplicationSchema.methods = {
 			});
 		} else {
 			//Default user management
-			this.findAccount(loginData).then((foundAccount) => {
+			logger.log({
+				description: 'Default account management.',
+				loginData: loginData,
+				func: 'login', obj: 'Application'
+			});
+			return this.findAccount(loginData).then((foundAccount) => {
+				logger.log({
+					description: 'Account found.',
+					foundAccount: foundAccount,
+					func: 'login', obj: 'Application'
+				});
 				return foundAccount.login(loginData.password).then((loggedInData) => {
 					logger.info({
 						description: 'Login to application successful.',
@@ -363,12 +373,12 @@ ApplicationSchema.methods = {
 		}
 	},
 	signup: (signupData) => {
-		var self = this;
 		logger.log({
 			description: 'Signup to application called.',
-			signupData: signupData, application: self,
+			signupData: signupData, application: this,
 			func: 'signup', obj: 'Application'
 		});
+		var self = this;
 		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
 			logger.log({
 				description: 'Authrocket settings exist for application.',
@@ -392,28 +402,27 @@ ApplicationSchema.methods = {
 			//Default account management
 			logger.log({
 				description: 'Using default account management.',
-				application: self,
+				application: this, type: typeof this.model('Account'),
 				func: 'signup', obj: 'Application'
 			});
-			var AccountModel = self.model('Account');
+			var AccountModel = this.model('Account');
 			var account = new AccountModel(signupData);
-			// account.application = self._id; //TODO: Find out why this isn't working?
 			logger.log({
-				description: 'New account object created.',
-				account: account, func: 'signup', obj: 'Application'
+				description: 'Using default account management.',
+				application: account, type: typeof account,
+				func: 'signup', obj: 'Application'
 			});
-			return account.createWithPass(signupData.password).then((newAccount) => {
-				//Account did not yet exist, so it was created
-				logger.info({
-					description: 'New account created successfully. Logging in.',
-					newAccount: newAccount, func: 'signup', obj: 'Application'
+			return account.createWithPass(signupData.password, this._id).then((newAccount) => {
+				logger.log({
+					description: 'New account created.',
+					accountObj: newAccount,
+					func: 'signup', obj: 'Application'
 				});
 				return newAccount.login(signupData.password).then((loginRes) => {
 					logger.info({
 						description: 'New account logged in successfully.',
 						loginRes: loginRes, newAccount: newAccount,
-						directory: directoryWithAccount, func: 'signup',
-						obj: 'Application'
+						func: 'signup', obj: 'Application'
 					});
 					//Respond with account and token
 					return loginRes;
@@ -433,7 +442,7 @@ ApplicationSchema.methods = {
 					});
 				}
 				logger.error({
-					description: 'Error creating account',
+					description: 'Error creating account.',
 					error: err, func: 'signup', obj: 'Application'
 				});
 				return Promise.reject(err);
@@ -442,8 +451,19 @@ ApplicationSchema.methods = {
 	},
 	//Log user out of application
 	logout: (logoutData) => {
+		logger.log({
+			description: 'Logout of application called.',
+			data: logoutData, func: 'logout', obj: 'Application'
+		});
+		if(!logoutData){
+			logger.log({
+				description: 'Logout data is required to logout.',
+				func: 'logout', obj: 'Application'
+			});
+			return Promise.reject({message: 'Logout data requred.'});
+		}
 		//Log the user out
-		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
+		if(this.authRocket && this.authRocket.jsUrl){
 			return this.appAuthRocket().logout(logoutData).then((logoutRes) => {
 				return logoutRes;
 			}, (err) => {
@@ -457,7 +477,8 @@ ApplicationSchema.methods = {
 			//TODO: Make this work
 			// this.model('Account').findOne({username:logoutData.username});
 			logger.log({
-				description: 'Logout called.', logoutData: logoutData,
+				description: 'Default account management logout.',
+				logoutData: logoutData,
 				func: 'logout', obj: 'Application'
 			});
 			return this.findAccount(logoutData).then((foundAccount) => {
@@ -854,20 +875,20 @@ ApplicationSchema.methods = {
 	},
 	//Find account and make sure it is within application accounts, groups, and directories
 	findAccount: (accountData) => {
-		var accountUsername;
-		var self = this;
 		logger.log({
-			description: 'Find account called.', application: self,
+			description: 'Find account called.', application: this,
 			accountData: accountData, func: 'findAccount', obj: 'Application'
 		});
-		if(_.has(accountData, 'username')){
-			accountUsername = accountData.username
+		var self = this;
+		var findObj = {};
+		if(accountData && _.has(accountData, 'username')){
+			findObj.username = accountData.username
 		} else if(_.isString(accountData)){
-			accountUsername = accountData;
+			findObj.username = accountData;
 		}
-		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 1){
+		if(this.authRocket && this.authRocket.jsUrl){
 			//Get account from authrocket
-			return this.appAuthRocket().Users(accountUsername).get().then((loadedUser) => {
+			return this.appAuthRocket().Users(findObj.username).get().then((loadedUser) => {
 				logger.info({
 					description:'Account loaded from authrocket.',
 					obj:'Application', func:'findAccount'
@@ -875,17 +896,25 @@ ApplicationSchema.methods = {
 				return loadedUser;
 			}, (err) => {
 				logger.error({
-					description: 'Error getting account from authrocket.',
+					description: 'Error getting account from AuthRocket.',
 					error: err, obj:'Application', func:'findAccount'
 				});
 				return Promise.reject(err);
 			});
 		} else {
+			if(self._id){
+				findObj.application = self._id;
+			}
+			logger.info({
+				description:'Looking for account.',
+				findObj: findObj,
+				obj:'Application', func:'findAccount'
+			});
 			// Default account management
 			//Find account based on username then see if its id is within either list
-			var accountQuery = this.model('Account').findOne({username:accountUsername, application: self._id});
-			return accountQuery.then((account) => {
-				if(!account){
+			var accountQuery = self.model('Account').findOne(findObj);
+			return accountQuery.then((foundAccount) => {
+				if(!foundAccount){
 					logger.warn({
 						description:'Account not found.',
 						obj:'Application', func:'findAccount'
@@ -893,12 +922,15 @@ ApplicationSchema.methods = {
 					return Promise.reject({message:'Account not found', status:'NOT_FOUND'});
 				}
 				logger.log({
-					description:'Account found, looking for it in application.',
-					application:self, account:account, obj:'Application', func:'findAccount'
-				})
+					description:'Account found.',
+					application:self, foundAccount:foundAccount,
+					obj:'Application', func:'findAccount'
+				});
+				return foundAccount;
 			}, (err) => {
 				logger.error({
 					description:'Error finding account.',
+					error: err,
 					obj:'Application', func:'findAccount'
 				});
 				return Promise.reject(err);

@@ -101,12 +101,15 @@ AccountSchema.methods = {
 	 * @param {string} password - Attempt at password with which to login to account.
 	 */
 	login:(passwordAttempt) => {
-		logger.log({description: 'Login called.', func: 'login', obj: 'Account'});
+		logger.log({
+			description: 'Login called.',
+			func: 'login', obj: 'Account'
+		});
 		//Check password
 		var self = this; //this contexts were causing errors even though => should pass context automatically
 		if(!this.password){
 			logger.warn({description: 'Original query did not include password. Consider revising.', func: 'login', obj: 'Account'});
-			return this.model('Account').findById(self._id).then(self.login(passwordAttempt));
+			return this.model('Account').find(self._id).then(self.login(passwordAttempt));
 		}
 		return self.comparePassword(passwordAttempt).then(() => {
 			logger.log({description: 'Provided password matches.', func: 'login', obj: 'Account'});
@@ -146,8 +149,16 @@ AccountSchema.methods = {
 	 * @description Signup a new account
 	 */
 	signup: (signupData) => {
-		logger.log({description: 'Signup called.', signupData: signupData, func: 'Signup', obj: 'Account'});
-		var query;
+		logger.log({
+			description: 'Signup called.',
+			signupData: signupData,
+			func: 'Signup', obj: 'Account'
+		});
+		logger.error({
+			description: 'Sigup to account is disabled.',
+			func: 'Signup', obj: 'Account'
+		});
+		return Promise.reject({});
 	},
 	/**
 	 * @function comparePassword
@@ -155,15 +166,25 @@ AccountSchema.methods = {
 	 */
 	comparePassword: (passwordAttempt) => {
 		var selfPassword = this.password;
-		logger.log({description: 'Compare password called.', func: 'comparePassword', obj: 'Account'});
+		logger.log({
+			description: 'Compare password called.',
+			func: 'comparePassword', obj: 'Account'
+		});
 		return new Promise((resolve, reject) => {
 			bcrypt.compare(passwordAttempt, selfPassword, (err, passwordsMatch) => {
 				if(err){
-					logger.error({description: 'Error comparing password.', error: err, func: 'comparePassword', obj: 'Account'});
+					logger.error({
+						description: 'Error comparing password.',
+						error: err, func: 'comparePassword', obj: 'Account'
+					});
 					reject(err);
 				} else if(!passwordsMatch){
-					logger.warn({description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'});
-					reject({message:'Invalid authentication credentials'});
+					logger.warn({
+						description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'
+					});
+					reject({
+						message:'Invalid authentication credentials'
+					});
 				} else {
 					logger.log({description: 'Passwords match.', func: 'comparePassword', obj: 'Account'});
 					resolve(true);
@@ -176,15 +197,26 @@ AccountSchema.methods = {
 	 * @description DEPRECATED Wrap query in promise
 	 */
 	saveNew:() => {
-		logger.warn({description: 'saveNew called.', account: this, func: 'saveNew', obj: 'Account'});
+		logger.warn({
+			description: 'saveNew called.',
+			account: this, func: 'saveNew',
+			obj: 'Account'
+		});
+		var self = this;
 		// logger.warn({description: 'saveNew is no longer nessesary since save returns a promise.', func: 'saveNew', obj: 'Account'});
 		return new Promise((resolve, reject) => {
-			this.save((err) => {
+			self.save((err) => {
 				if(!err){
-					logger.log({description: 'Account saved successfully.', savedAccount: account, func: 'saveNew', obj: 'Account'});
+					logger.log({
+						description: 'Account saved successfully.',
+						savedAccount: self, func: 'saveNew', obj: 'Account'
+					});
 					resolve();
 				} else {
-					logger.error({description: 'Error saving Account.', account: this, func: 'saveNew', obj: 'Account'});
+					logger.error({
+						description: 'Error saving Account.',
+						account: self, func: 'saveNew', obj: 'Account'
+					});
 					return reject(err);
 				}
 			});
@@ -242,17 +274,33 @@ AccountSchema.methods = {
 	 * @description Hash provided password with salt
 	 */
 	hashPassword:(password) => {
-		logger.log({description: 'Hashing password.', func: 'hashPassword', obj: 'Account'});
+		logger.log({
+			description: 'Hashing password.',
+			func: 'hashPassword', obj: 'Account'
+		});
+		if(!password || !_.isString(password) || password.length < 0){
+			logger.log({
+				description: 'Valid password is required to hash.',
+				password: password, func: 'hashPassword', obj: 'Account'
+			});
+			return Promise.reject('Valid password is required to hash.');
+		}
 		return new Promise((resolve, reject) => {
 			bcrypt.genSalt(10, (err, salt) => {
 				if(err){
-					logger.log({description: 'Error generating salt', error: err, func: 'hashPassword', obj: 'Account'});
+					logger.log({
+						description: 'Error generating salt',
+						error: err, func: 'hashPassword', obj: 'Account'
+					});
 					return reject(err);
 				}
 			  bcrypt.hash(password, salt, (err, hash) => {
 					//Add hash to accountData
 					if(err){
-						logger.log({description: 'Error Hashing password.', error: err, func: 'hashPassword', obj: 'Account'});
+						logger.log({
+							description: 'Error Hashing password.',
+							error: err, func: 'hashPassword', obj: 'Account'
+						});
 						return reject(err);
 					}
 					resolve(hash);
@@ -264,31 +312,90 @@ AccountSchema.methods = {
 	 * @function createWithPass
 	 * @description Create new account
 	 * @param {string} password - Password with which to create account
+	 * @param {string} application - Application with which to create account
+
 	 */
-	createWithPass: (password) => {
+	createWithPass: (password, application) => {
 		var self = this;
-		var query = this.model('Account').findOne({username: self.username});
-		return query.then((result) => {
-			if(result){
-				logger.warn({description: 'A user with provided username already exists', user: result, func: 'createWithPass', obj: 'Account'});
+		if(!self.username){
+			logger.warn({
+				description: 'Username is required to create a new account.',
+				account: self, func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject({
+				message: 'Username required to create a new account.'
+			});
+		}
+		if(!password || !_.isString(password)){
+			logger.error({
+				description: 'Invalid password.',
+				account: self, password: password,
+				func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject({
+				message: 'Invalid password.'
+			});
+		}
+		var findObj = {username: self.username};
+		if(application) {
+			//TODO: Make sure that this is an id not an application object
+			findObj.application = application;
+		} else {
+			logger.warn({
+				description: 'Creating a user without an application.',
+				account: self, func: 'createWithPass', obj: 'Account'
+			});
+		}
+		var query = this.model('Account').findOne(findObj);
+		return query.then((foundAccount) => {
+			if(foundAccount){
+				logger.warn({
+					description: 'A user with provided username already exists',
+					user: foundAccount, func: 'createWithPass', obj: 'Account'
+				});
 				return Promise.reject({message: 'A user with that username already exists.'});
 			}
-			logger.log({description: 'User created successfully.', func: 'createWithPass', obj: 'Account'});
+			logger.log({
+				description: 'User does not already exist.',
+				func: 'createWithPass', obj: 'Account'
+			});
 			return self.hashPassword(password).then((hashedPass) => {
 				self.password = hashedPass;
 				return self.saveNew().then((newAccount) => {
-					logger.log({description: 'New account created successfully.', func: 'createWithPass', obj: 'Account'});
-					return newAccount;
+					logger.log({
+						description: 'New account created successfully.',
+						func: 'createWithPass', obj: 'Account'
+					});
+					return self;
 				}, (err) => {
-					logger.error({description: 'Error creating new account.', error: err, func: 'createWithPass', obj: 'Account'});
+					logger.error({
+						description: 'Error creating new account.',
+						error: err, func: 'createWithPass', obj: 'Account'
+					});
+					if(err && err.code && err.code === 11000){
+						logger.error({
+							description: 'Email is already taken.',
+							error: err, func: 'createWithPass', obj: 'Account'
+						});
+						return Promise.reject({
+							message: 'Email is associated with an existing account.', 
+							status: 'EXISTS'
+						});
+					}
 					return Promise.reject(err);
 				});
 			}, (err) => {
-				logger.error({description: 'Error hashing password.', error: err, func: 'createWithPass', obj: 'Account'});
+				logger.error({
+					description: 'Error hashing password.',
+					error: err, func: 'createWithPass', obj: 'Account'
+				});
 				return Promise.reject(err);
 			});
 		}, (err) => {
-			logger.error({description: 'Error searching for matching account.', error: err, func: 'createWithPass', obj: 'Account'});
+			logger.error({
+				description: 'Error searching for matching account.',
+				error: err, func: 'createWithPass', obj: 'Account'
+			});
 			return Promise.reject(err);
 		});
 	}
