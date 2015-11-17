@@ -108,24 +108,40 @@ AccountSchema.methods = {
 		//Check password
 		var self = this; //this contexts were causing errors even though => should pass context automatically
 		if(!this.password){
-			logger.warn({description: 'Original query did not include password. Consider revising.', func: 'login', obj: 'Account'});
-			return this.model('Account').find(self._id).then(self.login(passwordAttempt));
+			logger.warn({
+				description: 'Original query did not include password. Consider revising.',
+				func: 'login', obj: 'Account'
+			});
+			return this.model('Account').find({_id:self._id}).then(self.login(passwordAttempt));
 		}
 		return self.comparePassword(passwordAttempt).then(() => {
-			logger.log({description: 'Provided password matches.', func: 'login', obj: 'Account'});
+			logger.log({
+				description: 'Provided password matches.',
+				func: 'login', obj: 'Account'
+			});
 			//Start new session
 			return self.startSession().then((sessionInfo) => {
-				logger.log({description: 'Session started successfully.', func: 'login', obj: 'Account'});
+				logger.log({
+					description: 'Session started successfully.',
+					func: 'login', obj: 'Account'
+				});
 				//Create Token
 				this.sessionId = sessionInfo._id;
 				var token = self.generateToken(sessionInfo);
 				return {token: token, account: self.strip()};
 			}, (err) => {
-				logger.error({description: 'Error starting session.', error: err, func: 'login', obj: 'Account'});
+				logger.error({
+					description: 'Error starting session.',
+					error: err, func: 'login', obj: 'Account'
+				});
 				return Promise.reject(err);
 			});
 		}, (err) => {
-			logger.error({description: 'Error comparing password.', attempt: passwordAttempt, error: err, func: 'login', obj: 'Account'});
+			logger.error({
+				description: 'Error comparing password.',
+				attempt: passwordAttempt, error: err,
+				func: 'login', obj: 'Account'
+			});
 			return Promise.reject(err);
 		});
 	},

@@ -625,12 +625,20 @@ exports.addCollaborators = (req, res, next) => {
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.login = (req, res, next) => {
-	logger.log({description: 'App Login request.',  appName: req.params.name, body: req.body, func: 'login', obj: 'ApplicationCtrl'});
+	logger.log({
+		description: 'App Login request.',
+		appName: req.params.name, body: req.body,
+		func: 'login', obj: 'ApplicationCtrl'
+	});
 	if(!req.params.name || !req.body) {
 		return res.status(400).send('Application name and accounts array are required to add collaborators.');
 	}
 	if ((!_.has(req.body, 'username') && !_.has(req.body, 'email')) || !_.has(req.body, 'password')){ //Get data for a specific application
-		logger.log({description: 'Username/Email and password are required to login.',  appName: req.params.name, body: req.body, func: 'login', obj: 'ApplicationCtrl'});
+		logger.log({
+			description: 'Username/Email and password are required to login.',
+			appName: req.params.name, body: req.body,
+			func: 'login', obj: 'ApplicationCtrl'
+		});
 		return res.status(400).send('Username/Email and Password are required to login.');
 	}
 	var loginData =  {password: req.body.password};
@@ -646,7 +654,10 @@ exports.login = (req, res, next) => {
 	}
 	// logger.log({description: 'LoginData built', loginData: loginData, func: 'login', obj: 'ApplicationCtrl'})
 	findApplication(req.params.name).then((foundApp) => {
-		logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'login', obj: 'ApplicationCtrl'});
+		logger.log({
+			description: 'Application found successfully.',
+			foundApp: foundApp, func: 'login', obj: 'ApplicationCtrl'
+		});
 		//Use authrocket login if application has authRocket data
 			foundApp.login(loginData).then((loginRes) => {
 				logger.log({
@@ -817,7 +828,7 @@ exports.signup = (req, res, next) => {
 							error: err, appName: req.params.name,
 							func: 'signup', obj: 'ApplicationsCtrl'
 						});
-						res.status(400).send(err);
+						res.status(400).send(err.message || 'Account with matching credentials already exists.');
 					} else {
 						//TODO: Handle wrong password
 						logger.error({
@@ -826,7 +837,7 @@ exports.signup = (req, res, next) => {
 							body: req.body, func: 'signup',
 							obj: 'ApplicationsCtrl'
 						});
-						res.status(400).send(err);
+						res.status(400).send(err.message || 'Error signing up.');
 					}
 				});
 			}

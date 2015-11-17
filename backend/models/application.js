@@ -409,7 +409,7 @@ ApplicationSchema.methods = {
 			var account = new AccountModel(signupData);
 			logger.log({
 				description: 'Using default account management.',
-				application: account, type: typeof account,
+				application: account,
 				func: 'signup', obj: 'Application'
 			});
 			return account.createWithPass(signupData.password, this._id).then((newAccount) => {
