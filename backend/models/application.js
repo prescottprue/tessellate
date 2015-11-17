@@ -43,7 +43,6 @@ var ApplicationSchema = new mongoose.Schema({
 	providers:[{name:String, clientId:String}],
 	groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
 	collaborators:[{type: mongoose.Schema.Types.ObjectId, ref:'Account'}],
-	directories:[{type: mongoose.Schema.Types.ObjectId, ref:'Directory'}],
 	createdAt: { type: Date, default: Date.now},
 	updatedAt: { type: Date, default: Date.now}
 },
@@ -57,10 +56,10 @@ ApplicationSchema.set('collection', 'applications');
 /*
  * Id virtual
  */
-ApplicationSchema.virtual('id')
-.get(function (){
-	return this._id;
-});
+// ApplicationSchema.virtual('id')
+// .get(function (){
+// 	return this._id;
+// });
 
 ApplicationSchema.methods = {
 	//Wrap save functionality in promise and handle errors
@@ -135,12 +134,12 @@ ApplicationSchema.methods = {
 		var self = this;
 		return self.saveNew().then((newApplication) => {
 			logger.log({
-				description: 'Create with storage called.', application: self,
+				description: 'New application added to db.', application: newApplication,
 				func: 'createWithStorage', obj: 'Application'
 			});
 			return self.createStorage().then(() => {
 				logger.info({
-					description: 'Create with storage called.', application: self,
+					description: 'Create storage was successful.', application: self,
 					func: 'createWithStorage', obj: 'Application'
 				});
 				return newApplication;
@@ -159,11 +158,11 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createStorage: (storageData) => {
+	createStorage: () => {
 		//TODO: Handle storageData including provider and name prefix
 		logger.log({
 			description: 'Create storage for application called.',
-			storageData: storageData, func: 'createStorage', obj: 'Application'
+			func: 'createStorage', obj: 'Application'
 		});
 		var bucketName = bucketPrefix + this.name;
 		var self = this;
@@ -312,7 +311,7 @@ ApplicationSchema.methods = {
 			func: 'login', obj: 'Application'
 		});
 		//Login to authrocket if data is available
-		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 1){
+		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
 			if(!_.has(loginData, 'username')){
 				//TODO: lookup user data from mongodb then login to allow authRocket login by email
 				logger.log({
@@ -339,8 +338,18 @@ ApplicationSchema.methods = {
 				return Promise.reject('Invalid Credentials.');
 			});
 		} else {
-			//Applicaiton does not have auth rocket data
+			//Default user management
+			logger.log({
+				description: 'Default account management.',
+				loginData: loginData,
+				func: 'login', obj: 'Application'
+			});
 			return this.findAccount(loginData).then((foundAccount) => {
+				logger.log({
+					description: 'Account found.',
+					foundAccount: foundAccount,
+					func: 'login', obj: 'Application'
+				});
 				return foundAccount.login(loginData.password).then((loggedInData) => {
 					logger.info({
 						description: 'Login to application successful.',
@@ -356,8 +365,8 @@ ApplicationSchema.methods = {
 				});
 			}, (err) => {
 				logger.error({
-					description: 'Error finding account.', error: err,
-					func: 'login', obj: 'Application'
+					description: 'Error finding acocunt.',
+					error: err, func: 'login', obj: 'Application'
 				});
 				return Promise.reject(err);
 			});
@@ -370,11 +379,15 @@ ApplicationSchema.methods = {
 			func: 'signup', obj: 'Application'
 		});
 		var self = this;
-		if(self.authRocket && self.authRocket.jsUrl && self.authRocket.jsUrl.length > 0){
-			//Signup through authrocket if authrocket info is available
+		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
+			logger.log({
+				description: 'Authrocket settings exist for application.',
+				signupData: signupData, application: this,
+				func: 'signup', obj: 'Application'
+			});
 			return this.appAuthRocket().signup(signupData).then((newAccount) => {
 				logger.info({
-					description: 'Account created successfully.',
+					description: 'Account created through AuthRocket successfully.',
 					newAccount: newAccount, func: 'signup', obj: 'Application'
 				});
 				return newAccount;
@@ -386,157 +399,72 @@ ApplicationSchema.methods = {
 				return Promise.reject(err);
 			});
 		} else {
-			return self.findAccount(signupData).then((foundAccount) => {
-				//Handle account with matching information already existing
-				logger.info({
-					description: 'Account already exists in application directories',
-					foundAccount: foundAccount, func: 'signup', obj: 'Application'
+			//Default account management
+			logger.log({
+				description: 'Using default account management.',
+				application: this, type: typeof this.model('Account'),
+				func: 'signup', obj: 'Application'
+			});
+			var AccountModel = this.model('Account');
+			var account = new AccountModel(signupData);
+			logger.log({
+				description: 'Using default account management.',
+				application: account,
+				func: 'signup', obj: 'Application'
+			});
+			return account.createWithPass(signupData.password, this._id).then((newAccount) => {
+				logger.log({
+					description: 'New account created.',
+					accountObj: newAccount,
+					func: 'signup', obj: 'Application'
 				});
-				return Promise.reject({message:'Account already exists in application.', status: 'EXISTS'});
-			}, (err) => {
-				//TODO: Handle other errors
-				if(err && err.status == 'NOT_FOUND'){
-					//Account does not already exists
-					logger.log({
-						description: 'Account does not already exist in directories',
+				return newAccount.login(signupData.password).then((loginRes) => {
+					logger.info({
+						description: 'New account logged in successfully.',
+						loginRes: loginRes, newAccount: newAccount,
 						func: 'signup', obj: 'Application'
 					});
-					var Account = self.model('Account');
-					var account = new Account(signupData);
-					logger.log({
-						description: 'New account object created.',
-						account: account, func: 'signup', obj: 'Application'
-					});
-					return account.createWithPass(signupData.password).then((newAccount) => {
-						//Account did not yet exist, so it was created
-						logger.info({
-							description: 'New account created successfully.',
-							newAccount: newAccount, func: 'signup', obj: 'Application'
-						});
-						return self.addAccountToGroup(newAccount).then((directoryWithAccount) => {
-							logger.info({
-								description: 'New account added to application group successfully.',
-								newAccount: newAccount, directory: directoryWithAccount,
-								func: 'signup', obj: 'Application'
-							});
-							//Log in to newly created account
-							return newAccount.login(signupData.password).then((loginRes) => {
-								logger.info({
-									description: 'New account logged in successfully.',
-									loginRes: loginRes, newAccount: newAccount,
-									directory: directoryWithAccount, func: 'signup',
-									obj: 'Application'
-								});
-								//Respond with account and token
-								return loginRes;
-							}, (err) => {
-								logger.error({
-									description: 'Error logging into newly created account.',
-									newAccount: newAccount, func: 'signup', obj: 'Application'
-								});
-								return Promise.reject(err);
-							});
-						}, (err) => {
-							//Handle error adding account to group
-							logger.warn({
-								description: 'Error adding account to group.',
-								newAccount: newAccount, func: 'signup', obj: 'Application'
-							});
-							//Handle application not having any groups
-							//TODO: Make this a seperate method that automatically names the group
-							return self.addGroup({name: self.name + '-accounts', accounts:[newAccount._id]}).then((newGroup) => {
-								logger.info({
-									description: 'New group added successfully. Adding account to group.',
-									newAccount: newAccount, group: newGroup,
-									func: 'signup', obj: 'Application'
-								});
-								//Add account to new group
-								return newGroup.addAccount(newAccount).then((groupWithAccount) => {
-									logger.info({
-										description: 'New account added to application group successfully.',
-										newAccount: newAccount, group: groupWithAccount,
-										func: 'signup', obj: 'Application'
-									});
-									//Log in to newly created account
-									return newAccount.login(signupData.password).then((loginRes) => {
-										logger.info({
-											description: 'New account logged in successfully.',
-											loginRes: loginRes, newAccount: newAccount,
-											directory: groupWithAccount, func: 'signup',
-											obj: 'Application'
-										});
-										//Respond with account and token
-										return loginRes;
-									}, (err) => {
-										//Handle error with new account long
-										logger.error({
-											description: 'Error logging into newly created account.',
-											newAccount: newAccount, error: err,
-											func: 'signup', obj: 'Application'
-										});
-										return Promise.reject(err);
-									});
-								}, (err) => {
-									logger.error({
-										description: 'Error account to new group.',
-										func: 'signup', error: err, obj: 'Application'
-									});
-									return Promise.reject(err);
-								});
-							}, (err) => {
-								logger.error({
-									description: 'Error adding group to application.',
-									func: 'signup', obj: 'Application'
-								});
-								return Promise.reject(err);
-							});
-						});
-					}, (err) => {
-						//Handle username already existing return from createWithPass
-						if(err && err.status == 'EXISTS'){
-							//Add to account to directory
-							logger.log({
-								description: 'User already exists. Adding account to application group.',
-								func: 'signup', obj: 'Application'
-							});
-							return self.addAccountToGroup(account).then((groupWithAccount) => {
-								logger.log({
-									description: 'Account added to group successfully.',
-									directory: groupWithAccount, func: 'signup', obj: 'Application'
-								});
-								return groupWithAccount;
-							}, (err) => {
-								logger.error({
-									description: 'Error adding account to group.',
-									error: err, func: 'signup', obj: 'Application'
-								});
-								return Promise.reject(err);
-							});
-						} else {
-							//Handle error other than username already existing
-							logger.error({
-								description: 'Error creating new account.',
-								error: err, func: 'signup', obj: 'Application'
-							});
-							return Promise.reject(err);
-						}
-					});
-				} else {
-					//Handle error other than username already existing
+					//Respond with account and token
+					return loginRes;
+				}, (err) => {
 					logger.error({
-						description: 'Error creating new account.',
-						error: err, func: 'signup', obj: 'Application'
+						description: 'Error logging into newly created account.',
+						newAccount: newAccount, func: 'signup', obj: 'Application'
 					});
 					return Promise.reject(err);
+				});
+			}, (err) => {
+				//Handle username already existing return from createWithPass
+				if(err && err.status == 'EXISTS'){
+					logger.error({
+						description: 'Account already exists.',
+						func: 'signup', obj: 'Application'
+					});
 				}
+				logger.error({
+					description: 'Error creating account.',
+					error: err, func: 'signup', obj: 'Application'
+				});
+				return Promise.reject(err);
 			});
 		}
 	},
 	//Log user out of application
 	logout: (logoutData) => {
+		logger.log({
+			description: 'Logout of application called.',
+			data: logoutData, func: 'logout', obj: 'Application'
+		});
+		if(!logoutData){
+			logger.log({
+				description: 'Logout data is required to logout.',
+				func: 'logout', obj: 'Application'
+			});
+			return Promise.reject({message: 'Logout data requred.'});
+		}
 		//Log the user out
-		if(this.authRocket){
-			this.appAuthRocket().logout(logoutData).then((logoutRes) => {
+		if(this.authRocket && this.authRocket.jsUrl){
+			return this.appAuthRocket().logout(logoutData).then((logoutRes) => {
 				return logoutRes;
 			}, (err) => {
 				logger.error({
@@ -549,7 +477,8 @@ ApplicationSchema.methods = {
 			//TODO: Make this work
 			// this.model('Account').findOne({username:logoutData.username});
 			logger.log({
-				description: 'Logout called.', logoutData: logoutData,
+				description: 'Default account management logout.',
+				logoutData: logoutData,
 				func: 'logout', obj: 'Application'
 			});
 			return this.findAccount(logoutData).then((foundAccount) => {
@@ -581,153 +510,6 @@ ApplicationSchema.methods = {
 				return Promise.reject(err);
 			});
 		}
-	},
-	//Find account and make sure it is within application accounts, groups, and directories
-	findAccount: (accountData) => {
-		var accountUsername;
-		var self = this;
-		logger.log({
-			description: 'Find account called.', application: self,
-			accountData: accountData, func: 'findAccount', obj: 'Application'
-		});
-		if(_.has(accountData, 'username')){
-			accountUsername = accountData.username
-		} else if(_.isString(accountData)){
-			accountUsername = accountData;
-		}
-		if(this.authRocket && this.authRocket.jsUrl){
-			//Get account from authrocket
-			return this.appAuthRocket().Users(accountUsername).get().then((loadedUser) => {
-				logger.info({
-					description:'Account loaded from authrocket.',
-					obj:'Application', func:'findAccount'
-				});
-				return loadedUser;
-			}, (err) => {
-				logger.error({
-					description: 'Error getting account from authrocket.',
-					error: err, obj:'Application', func:'findAccount'
-				});
-				return Promise.reject(err);
-			});
-		} else {
-			// Default account management
-			//Find account based on username then see if its id is within either list
-			var accountQuery = this.model('Account').findOne({username:accountUsername});
-			return accountQuery.then((account) => {
-				if(!account){
-					logger.warn({
-						description:'Account not found.',
-						obj:'Application', func:'findAccount'
-					});
-					return Promise.reject({message:'Account not found', status:'NOT_FOUND'});
-				}
-				logger.log({
-					description:'Account found, looking for it in application.',
-					application:self, account:account, obj:'Application', func:'findAccount'
-				})
-				return self.accountExistsInApp(account).then((exists) => {
-					if(exists){
-						logger.log({
-							description:'Account exists in application.',
-							application:self, account:account, obj:'Application', func:'findAccount'
-						});
-						return account;
-					} else {
-						logger.log({
-							description:'Account exists, but not part of application.',
-							application:self, account:account, obj:'Application', func:'findAccount'
-						});
-						return Promise.reject('Account not found.');
-					}
-				}, (err) => {
-					logger.error({
-						description: 'Error looking for account in app',
-						error: err,
-						obj:'Application', func:'findAccount'
-					});
-					return Promise.reject(err);
-				});
-			}, (err) => {
-				logger.error({
-					description:'Error finding account.',
-					obj:'Application', func:'findAccount'
-				});
-				return Promise.reject(err);
-			});
-		}
-	},
-	//See if located account is within application directories/groups/accounts
-	//TODO: Accept username as well and find account from username
-	accountExistsInApp: (account) => {
-		var self = this;
-		logger.log({
-			message:'Account exists in app called.', selfData: self,
-			obj:'Application', func:'accountExistsInApp'
-		});
-		var query = self.model('Application').findById(self._id)
-		.populate({path:'directories', select:'accounts groups'})
-		.populate({path:'groups', select:'accounts'});
-		return query.then((selfData) => {
-			logger.log({
-				message:'Application loaded.', selfData: selfData,
-				obj:'Application', func:'accountExistsInApp'
-			});
-			var existsInDirectories = _.any(selfData.directories, (directory) => {
-				//TODO: Check groups in directories as well
-				logger.log({
-					message:'Searching for account within directory.', account: account,
-					directory:directory, accounts:directory.accounts, groups:directory.groups,
-					obj:'Application', func:'accountExistsInApp'
-				});
-				return _.any(directory.accounts, (testAccountId) => {
-					return account._id.toString() === testAccountId.toString();
-				});
-			});
-			var existsInGroups = _.any(selfData.groups, (group) => {
-				return _.any(group.accounts, (testAccountId) => {
-					return account._id.toString() === testAccountId.toString();
-				});
-			});
-			logger.log({
-				message:'Checked directories and groups.', isInDirectories: existsInDirectories, isInGroups: existsInGroups, obj:'Application', func:'accountExistsInApp'
-			});
-			if(existsInDirectories || existsInGroups){
-				logger.info({
-					message:'Account found within application.', existsInGroups:existsInGroups,
-					existsInDirectories:existsInDirectories, obj:'Application',
-					func:'accountExistsInApp',
-				});
-				return Promise.resolve(true);
-			} else {
-				logger.info({
-					message:'Account found, but not placed into application groups or directories.',
-					existsInGroups:existsInGroups, existsInDirectories:existsInDirectories,
-					obj:'Application', func:'accountExistsInApp'
-				});
-				return Promise.resolve(false);
-				// return selfData.addAccountToDirectory(account).then((newAccount) => {
-				// 	logger.info({
-				// 		message:'Account is now within application.', newAccount: newAccount,
-				// 		existsInGroups:existsInGroups, existsInDirectories:existsInDirectories,
-				// 		obj:'Application', func:'accountExistsInApp',
-				// 	});
-				// 	return newAccount;
-				// }, (err) => {
-				// 	logger.error({
-				// 		message:'Account could not be placed into application groups or directories.',
-				// 		error: err, obj:'Application', func:'accountExistsInApp'
-				// 	});
-				// 	return Promise.reject({message:'Account is not within application groups or directories.', status: 'NOT_FOUND'});
-				// });
-			}
-		}, (err) => {
-			logger.error({
-				message:'Error finding application.', error: err,
-				obj:'Application', func:'accountExistsInApp'
-			});
-			return Promise.reject({message: 'Error finding application.'});
-		});
 	},
 
 	//Add group to application
@@ -877,7 +659,7 @@ ApplicationSchema.methods = {
 			description:'Update group called.', groupData: groupData,
 			func:'updateGroup', obj: 'Application'
 		});
-		if(this.authRocket){
+		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
 			//Authrocket group(org) management
 			return this.appAuthRocket().Orgs({id: groupData.name}).update(groupData).then((updateRes) => {
 				logger.log({
@@ -1026,161 +808,18 @@ ApplicationSchema.methods = {
 	getStructure: () => {
 		return fileStorage.getFiles(this.frontend.bucketName);
 	},
-	addAccountToGroup: (accountData, groupId) => {
-		//TODO: Make this work with not just the first directory
-		logger.log({
-			description: 'Add account to directory called.',
-			accountData: accountData, groupId: groupId,
-			func: 'addAccountToGroup', obj: 'Application'
-		});
-		if(this.groups.length >= 1){
-			//Application has groups
-			logger.log({
-				description: 'Application has directories.',
-				func: 'addAccountToGroup', obj: 'Application'
-			});
-			//Add to 'default' group
-			if(!groupId){
-				//TODO: have this reference a set default instead of first group in list
-				groupId = this.directories[0]._id;
-				logger.log({
-					description: 'Group was not provided. Default directory used.',
-					id: groupId, func: 'addAccountToGroup', obj: 'Application'
-				});
-			}
-			logger.log({
-				description: 'Searching for group.', id: groupId,
-				accountData: accountData, func: 'addAccountToGroup',
-				obj: 'Application'
-			});
-			var query = this.model('Group')
-			.findOneById(groupId);
-			return query.then((foundGroup) => {
-				if(!foundGroup){
-					logger.error({
-						description: 'Directory not found.', id: groupId,
-						func: 'addAccountToGroup', obj: 'Application'
-					});
-					return Promise.reject({message: 'Group not found.'});
-				}
-				logger.log({
-					description: 'Group found. Adding account.',
-					directory: foundGroup,
-					func: 'addAccountToGroup', obj: 'Application'
-				});
-				//TODO: Make sure account does not already exist in directory before adding.
-				return foundGroup.addAccount(accountData).then((groupWithAccount) => {
-					logger.log({
-						description: 'Account successfully added to group.',
-						directory: groupWithAccount,
-						func: 'addAccountToGroup', obj: 'Application'
-					});
-					return groupWithAccount;
-				}, (err) => {
-					logger.error({
-						description: 'Error adding account to directory.', error: err,
-						func: 'addAccountToGroup', obj: 'Application'
-					});
-					return Promise.reject(err);
-				});
-			}, (err) => {
-				logger.error({
-					description: 'Error finding directory.', error: err,
-					id: directoryId, func: 'addAccountToGroup', obj: 'Application'
-				});
-				return Promise.reject(err);
-			});
-		} else {
-			//TODO: Create a base directory if none exist
-			logger.error({
-				description: 'Application does not have any directories into which to add Account.',
-				func: 'addAccountToGroup', obj: 'Application'
-			});
-			return Promise.reject({
-				message: 'Application does not have any directories into which to add Account.',
-				status: 'NOT_FOUND'
-			});
-		}
-	},
-	addAccountToDirectory: (accountData, directoryId) => {
-		//TODO: Make this work with not just the first directory
-		logger.log({
-			description: 'Add account to directory called.',
-			accountData: accountData, directoryId: directoryId,
-			func: 'addAccountToDirectory', obj: 'Application'
-		});
-		if(this.directories.length >= 1){
-			//Application has directories
-			logger.log({
-				description: 'Application has directories.',
-				func: 'addAccountToDirectory', obj: 'Application'
-			});
-			//Add to 'default' directory
-			if(!directoryId){
-				//TODO: have this reference a set defualt instead of first directory in list
-				directoryId = this.directories[0]._id;
-				logger.log({
-					description: 'Directory was not provided. Default directory used.',
-					id: directoryId, func: 'addAccountToDirectory', obj: 'Application'
-				});
-			}
-			logger.log({
-				description: 'Searching for directory.', id: directoryId,
-				accountData: accountData, func: 'addAccountToDirectory',
-				obj: 'Application'
-			});
-			var query = this.model('Directory')
-			.findOneById(directoryId);
-			return query.then((foundDirectory) => {
-				if(!foundDirectory){
-					logger.error({
-						description: 'Directory not found.', id: directoryId,
-						func: 'addAccountToDirectory', obj: 'Application'
-					});
-					return Promise.reject({message: 'Directory not found.'});
-				}
-				logger.log({
-					description: 'Directory found. Adding account.',
-					directory: foundDirectory,
-					func: 'addAccountToDirectory', obj: 'Application'
-				});
-				//TODO: Make sure account does not already exist in directory before adding.
-				return foundDirectory.addAccount(accountData).then((dirWithAccount) => {
-					logger.log({
-						description: 'Account successfully added to directory.', directory: dirWithAccount,
-						func: 'addAccountToDirectory', obj: 'Application'
-					});
-					return dirWithAccount;
-				}, (err) => {
-					logger.error({
-						description: 'Error adding account to directory.', error: err,
-						func: 'addAccountToDirectory', obj: 'Application'
-					});
-					return Promise.reject(err);
-				});
-			}, (err) => {
-				logger.error({
-					description: 'Error finding directory.', error: err,
-					id: directoryId, func: 'addAccountToDirectory', obj: 'Application'
-				});
-				return Promise.reject(err);
-			});
-		} else {
-			//TODO: Create a base directory if none exist
-			logger.error({
-				description: 'Application does not have any directories into which to add Account.',
-				func: 'addAccountToDirectory', obj: 'Application'
-			});
-			return Promise.reject({
-				message: 'Application does not have any directories into which to add Account.',
-				status: 'NOT_FOUND'
-			});
-		}
-	},
 	appAuthRocket: () => {
+		if(!this.authRocket || !this.authRocket.jsUrl){
+			logger.error({
+				description: 'Application does not have AuthRocket settings.',
+				data: self.authRocket,
+				func: 'authRocket', obj: 'Application'
+			});
+			return Promise.reject({message: 'AuthRocket settings do not exist.'});
+		}
 		var self = this;
 		logger.log({
-			description: 'Authrocket data of application:', data: self.authRocket,
+			description: 'Authrocket data of application.', data: self.authRocket,
 			func: 'authRocket', obj: 'Application'
 		});
 		var authrocket = new AuthRocket(self.authRocket);
@@ -1235,90 +874,219 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	//Add directory to application
-	addDirectory: (directoryData) => {
-		//TODO: Handle checking for and creating a new directory if one doesn't exist
-		//TODO: Make sure this directory does not already exist in this application
+	//Find account and make sure it is within application accounts, groups, and directories
+	findAccount: (accountData) => {
+		logger.log({
+			description: 'Find account called.', application: this,
+			accountData: accountData, func: 'findAccount', obj: 'Application'
+		});
 		var self = this;
-		var query = this.model('Directory').findOne({application: self._id, name: directoryData.name});
-		return query.then((directory) => {
-			if(err){
-				logger.error({
-					description:'Error adding directory.',
-					func:'deleteGroup', obj: 'Application'
-				});
-				return Promise.reject(err);
-			} else if(directory){
-				logger.error({
-					description:'Directory with this information already exists.',
-					func:'addDirectory', obj: 'Application'
-				});
-				return Promise.reject({message: 'Unable to add new directory'});
-			} else {
-				var newDirectory = new Directory({application:self._id, name: directoryData.name});
-				return newDirectory.saveNew();
-			}
-		}, (err) => {
-			logger.error({
-				description:'Error adding directory.', error: err,
-				func:'deleteGroup', obj: 'Application'
-			});
-			return Promise.reject({message: 'Error adding directory.'});
-		});
-	},
-	//Update directory in application
-	updateDirectory: (directoryData) => {
-		logger.log({
-			description:'Update directory called.',
-			func:'updateDirectory', obj: 'Application'
-		});
-		var query = this.model('Directory').findOne({application: this._id, name: directoryData.name});
-		return query.then((newDirectory) => {
-			if(err){
-				logger.error({
-					description:'Error updating directory.', error: err,
-					func:'updateDirectory', obj: 'Application'
-				});
-				return Promise.reject({message: 'Error updating directory.'});
-			} else if(!newDirectory){
-				logger.error({description:'', func:'updateDirectory', obj: 'Application'});
-				return Promise.reject({message: 'Unable to update directory'});
-			} else {
-				return newDirectory;
-			}
-		}, (err) => {
-			logger.error({
-				description:'Error updating directory.', error: err,
-				func:'updateDirectory', obj: 'Application'
-			});
-			return Promise.reject({message: 'Error updating directory.'});
-		});
-	},
-	//Delete directory from application
-	deleteDirectory: (directoryData) => {
-		logger.log({
-			description:'Delete directory called.',
-			func:'deleteDirectory', obj: 'Application'
-		});
-		var query = this.model('Directory').findOneAndRemove({application: this._id, name: directoryData.name});
-		return query.then((newDirectory) => {
-			if(err){
-				logger.error({
-					description:'Error deleting application directory.', error: err,
-					directoryData: directoryData, func:'deleteDirectory', obj: 'Application'
-				});
-				return Promise.reject(err);
-			} else {
+		var findObj = {};
+		if(accountData && _.has(accountData, 'username')){
+			findObj.username = accountData.username
+		} else if(_.isString(accountData)){
+			findObj.username = accountData;
+		}
+		if(this.authRocket && this.authRocket.jsUrl){
+			//Get account from authrocket
+			return this.appAuthRocket().Users(findObj.username).get().then((loadedUser) => {
 				logger.info({
-					description:'Directory deleted successfully.',
-					func:'deleteDirectory',obj: 'Application'
+					description:'Account loaded from authrocket.',
+					obj:'Application', func:'findAccount'
 				});
-				return {message: 'Directory deleted successfully.'};
+				return loadedUser;
+			}, (err) => {
+				logger.error({
+					description: 'Error getting account from AuthRocket.',
+					error: err, obj:'Application', func:'findAccount'
+				});
+				return Promise.reject(err);
+			});
+		} else {
+			if(self._id){
+				findObj.application = self._id;
 			}
-		}, (err) => {
-			return Promise.reject({message: 'Error deleting directory.'});
-		});
-	}
+			logger.info({
+				description:'Looking for account.',
+				findObj: findObj,
+				obj:'Application', func:'findAccount'
+			});
+			// Default account management
+			//Find account based on username then see if its id is within either list
+			var accountQuery = self.model('Account').findOne(findObj);
+			return accountQuery.then((foundAccount) => {
+				if(!foundAccount){
+					logger.warn({
+						description:'Account not found.',
+						obj:'Application', func:'findAccount'
+					});
+					return Promise.reject({message:'Account not found', status:'NOT_FOUND'});
+				}
+				logger.log({
+					description:'Account found.',
+					application:self, foundAccount:foundAccount,
+					obj:'Application', func:'findAccount'
+				});
+				return foundAccount;
+			}, (err) => {
+				logger.error({
+					description:'Error finding account.',
+					error: err,
+					obj:'Application', func:'findAccount'
+				});
+				return Promise.reject(err);
+			});
+		}
+	},
+	// addAccountToDirectory: (accountData, directoryId) => {
+	// 	//TODO: Make this work with not just the first directory
+	// 	if(this.directories.length >= 1){
+	// 		//Application has directories
+	// 		logger.log({
+	// 			description: 'Application has directories.',
+	// 			func: 'addAccountToDirectory', obj: 'Application'
+	// 		});
+	// 		//Add to 'default' directory
+	// 		if(!directoryId){
+	// 			//TODO: have this reference a set defualt instead of first directory in list
+	// 			directoryId = this.directories[0]._id;
+	// 			logger.log({
+	// 				description: 'Directory was not provided. Default directory used.',
+	// 				id: directoryId, func: 'addAccountToDirectory', obj: 'Application'
+	// 			});
+	// 		}
+	// 		logger.log({
+	// 			description: 'Searching for directory.', id: directoryId,
+	// 			accountData: accountData, func: 'addAccountToDirectory', obj: 'Application'
+	// 		});
+	// 		return dQuery.then((result) => {
+	// 			if(!result){
+	// 				logger.error({description: 'Directory not found.', id: directoryId,
+	// 				func: 'addAccountToDirectory', obj: 'Application'
+	// 			});
+	// 				return Promise.reject({message: 'Directory not found.'});
+	// 			}
+	// 			logger.log({
+	// 				description: 'Directory found. Adding account.', directory: result,
+	// 				func: 'addAccountToDirectory', obj: 'Application'
+	// 			});
+	// 			//TODO: Make sure account does not already exist in directory before adding.
+	// 			return result.addAccount(accountData).then((dirWithAccount) => {
+	// 				logger.log({
+	// 					description: 'Account successfully added to directory.', directory: dirWithAccount,
+	// 					func: 'addAccountToDirectory', obj: 'Application'
+	// 				});
+	// 				return dirWithAccount;
+	// 			}, (err) => {
+	// 				logger.error({
+	// 					description: 'Error adding account to directory.', error: err,
+	// 					func: 'addAccountToDirectory', obj: 'Application'
+	// 				});
+	// 				return Promise.reject(err);
+	// 			});
+	// 		}, (err) => {
+	// 			logger.error({
+	// 				description: 'Error finding directory.', error: err,
+	// 				id: directoryId, func: 'addAccountToDirectory', obj: 'Application'
+	// 			});
+	// 			return Promise.reject(err);
+	// 		});
+	// 	} else {
+	// 		//TODO: Create a base directory if none exist
+	// 		logger.error({
+	// 			description: 'Application does not have any directories into which to add Account.',
+	// 			func: 'addAccountToDirectory', obj: 'Application'
+	// 		});
+	// 		return Promise.reject({
+	// 			message: 'Application does not have any directories into which to add Account.',
+	// 			status: 'NOT_FOUND'
+	// 		});
+	// 	}
+	// },
+	// //Add directory to application
+	// addDirectory: (directoryData) => {
+	// 	//TODO: Handle checking for and creating a new directory if one doesn't exist
+	// 	//TODO: Make sure this directory does not already exist in this application
+	// 	var self = this;
+	// 	var query = this.model('Directory').findOne({application: self._id, name: directoryData.name});
+	// 	return query.then((directory) => {
+	// 		if(err){
+	// 			logger.error({
+	// 				description:'Error adding directory.',
+	// 				func:'deleteGroup', obj: 'Application'
+	// 			});
+	// 			return Promise.reject(err);
+	// 		} else if(directory){
+	// 			logger.error({
+	// 				description:'Directory with this information already exists.',
+	// 				func:'addDirectory', obj: 'Application'
+	// 			});
+	// 			return Promise.reject({message: 'Unable to add new directory'});
+	// 		} else {
+	// 			var newDirectory = new Directory({application:self._id, name: directoryData.name});
+	// 			return newDirectory.saveNew();
+	// 		}
+	// 	}, (err) => {
+	// 		logger.error({
+	// 			description:'Error adding directory.', error: err,
+	// 			func:'deleteGroup', obj: 'Application'
+	// 		});
+	// 		return Promise.reject({message: 'Error adding directory.'});
+	// 	});
+	// },
+	// //Update directory in application
+	// updateDirectory: (directoryData) => {
+	// 	logger.log({
+	// 		description:'Update directory called.',
+	// 		func:'updateDirectory', obj: 'Application'
+	// 	});
+	// 	var query = this.model('Directory').findOne({application: this._id, name: directoryData.name});
+	// 	return query.then((newDirectory) => {
+	// 		if(err){
+	// 			logger.error({
+	// 				description:'Error updating directory.', error: err,
+	// 				func:'updateDirectory', obj: 'Application'
+	// 			});
+	// 			return Promise.reject({message: 'Error updating directory.'});
+	// 		} else if(!newDirectory){
+	// 			logger.error({description:'', func:'updateDirectory', obj: 'Application'});
+	// 			return Promise.reject({message: 'Unable to update directory'});
+	// 		} else {
+	// 			return newDirectory;
+	// 		}
+	// 	}, (err) => {
+	// 		logger.error({
+	// 			description:'Error updating directory.', error: err,
+	// 			func:'updateDirectory', obj: 'Application'
+	// 		});
+	// 		return Promise.reject({message: 'Error updating directory.'});
+	// 	});
+	// },
+	// //Delete directory from application
+	// deleteDirectory: (directoryData) => {
+	// 	logger.log({
+	// 		description:'Delete directory called.',
+	// 		func:'deleteDirectory', obj: 'Application'
+	// 	});
+	// 	var query = this.model('Directory').findOneAndRemove({application: this._id, name: directoryData.name});
+	// 	return query.then((newDirectory) => {
+	// 		if(err){
+	// 			logger.error({
+	// 				description:'Error deleting application directory.', error: err,
+	// 				directoryData: directoryData, func:'deleteDirectory', obj: 'Application'
+	// 			});
+	// 			return Promise.reject(err);
+	// 		} else {
+	// 			logger.info({
+	// 				description:'Directory deleted successfully.',
+	// 				func:'deleteDirectory',obj: 'Application'
+	// 			});
+	// 			return {message: 'Directory deleted successfully.'};
+	// 		}
+	// 	}, (err) => {
+	// 		return Promise.reject({message: 'Error deleting directory.'});
+	// 	});
+	// }
 };
 /*
  * Construct `Account` model from `AccountSchema`

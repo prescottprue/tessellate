@@ -644,12 +644,20 @@ exports.addCollaborators = (req, res, next) => {
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 exports.login = (req, res, next) => {
-	logger.log({description: 'App Login request.',  appName: req.params.name, body: req.body, func: 'login', obj: 'ApplicationCtrl'});
+	logger.log({
+		description: 'App Login request.',
+		appName: req.params.name, body: req.body,
+		func: 'login', obj: 'ApplicationCtrl'
+	});
 	if(!req.params.name || !req.body) {
 		return res.status(400).send('Application name and accounts array are required to add collaborators.');
 	}
 	if ((!_.has(req.body, 'username') && !_.has(req.body, 'email')) || !_.has(req.body, 'password')){ //Get data for a specific application
-		logger.log({description: 'Username/Email and password are required to login.',  appName: req.params.name, body: req.body, func: 'login', obj: 'ApplicationCtrl'});
+		logger.log({
+			description: 'Username/Email and password are required to login.',
+			appName: req.params.name, body: req.body,
+			func: 'login', obj: 'ApplicationCtrl'
+		});
 		return res.status(400).send('Username/Email and Password are required to login.');
 	}
 	var loginData =  {password: req.body.password};
@@ -716,40 +724,54 @@ exports.login = (req, res, next) => {
  *
  */
 exports.logout = (req, res, next) => {
-	logger.log('App Login request with app name: ' + req.params.name + ' with body:', req.body);
+	logger.log({
+		description: 'App Logout request.',
+		appName: req.params.name, body: req.body
+	});
 	var userData;
 	if(req.user){
 		userData = req.user;
 	}
-	if(req.body.token){
-		userData = {token: req.body.token};
+	if(!req.user && req.body){
+		userData = req.body;
 	}
 	if(req.params.name && req.body){ //Get data for a specific application
-		findApplication(req.params.name).then( (foundApp) => {
-			logger.log({description: 'Application found successfully.', foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'});
-			if(foundApp.authRocket){
-				foundApp.authRocketLogout(userData).then( () => {
-					logger.log({description: 'Logout successful.', func: 'logout', obj: 'ApplicationCtrl'});
-					res.send('Logout successful.');
-				},  (err) => {
-					logger.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
-					res.status(400).send(err);
+		findApplication(req.params.name).then((foundApp) => {
+			logger.log({
+				description: 'Application found successfully.',
+				foundApp: foundApp, func: 'logout', obj: 'ApplicationCtrl'
+			});
+			logger.log({
+				description: 'Logging out of application.',
+				foundApp: foundApp, userData: userData,
+				func: 'logout', obj: 'ApplicationCtrl'
+			});
+			foundApp.logout(userData).then(() => {
+				logger.log({
+					description: 'Logout successful.',
+					func: 'logout', obj: 'ApplicationCtrl'
 				});
-			} else {
-				foundApp.logout(userData).then( () => {
-					logger.log({description: 'Logout successful.', func: 'logout', obj: 'ApplicationCtrl'});
-					res.send('Logout successful.');
-				},  (err) => {
-					logger.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
-					res.status(400).send('Error logging out.');
+				res.send('Logout successful.');
+			}, (err) => {
+				logger.error({
+					description: 'Error logging out of application',
+					error: err, func: 'logout', obj: 'ApplicationCtrl'
 				});
-			}
-		},  (err) => {
-			logger.error({description: 'Error finding application.', error: err, func: 'logout', obj: 'ApplicationCtrl'});
+				res.status(400).send('Error logging out.');
+			});
+		}, (err) => {
+			logger.error({
+				description: 'Error finding application.',
+				error: err, func: 'logout', obj: 'ApplicationCtrl'
+			});
 			res.status(400).send('Application not found.');
 		});
 	} else {
-		res.status(400).send('Application name and accounts array are required to add collaborators.');
+		logger.error({
+			description: 'Invalid logout request.',
+			func: 'logout', obj: 'ApplicationCtrl'
+		});
+		res.status(400).send('Error logging out.');
 	}
 };
 
@@ -776,38 +798,75 @@ exports.logout = (req, res, next) => {
  */
 exports.signup = (req, res, next) => {
 	logger.log({
-		description: 'App signup request with app name.',
-		appName: req.params.name, body: req.body, func: 'signup',
-		obj: 'ApplicationsCtrl'
+		description: 'App signup request.',
+		appName: req.params.name, body: req.body,
+		func: 'signup', obj: 'ApplicationsCtrl'
 	});
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then((foundApp) => {
-			foundApp.signup(req.body).then( (signupRes) => {
+			logger.log({
+				description: 'App found.', foundApp: foundApp,
+				func: 'signup', obj: 'ApplicationsCtrl'
+			});
+			if(foundApp.authRocket && foundApp.authRocket.jsUrl){
 				logger.log({
-					description: 'Signup to application successful.',
-					res: signupRes, appName: req.params.name,
-					body: req.body, func: 'signup', obj: 'ApplicationsCtrl'
+					description: 'App signup request.',
+					appName: req.params.name, body: req.body,
+					func: 'signup', obj: 'ApplicationsCtrl'
 				});
-				res.send(signupRes);
-			},  (err) => {
-				if(err && err.status == 'EXISTS'){
-					res.status(400).send('Account with this username already exists in application.');
-				} else {
-					//TODO: Handle wrong password
+				foundApp.authRocketSignup(req.body).then( (signupRes) => {
+					logger.log({
+						description: 'Signup to application successful.',
+						res: signupRes, appName: req.params.name,
+						body: req.body, func: 'signup',
+						obj: 'ApplicationsCtrl'
+					});
+					res.send(signupRes);
+				}, (err) => {
 					logger.error({
 						description: 'Error signing up to application.',
 						error: err, appName: req.params.name,
 						body: req.body, func: 'signup',
 						obj: 'ApplicationsCtrl'
 					});
-					res.status(400).send('Error signing up.');
-				}
-			});
-		}, (err) => {
+					res.status(400).send(err);
+				});
+			} else {
+				var signupData = req.body;
+				signupData.application = foundApp._id;
+				foundApp.signup(signupData).then((signupRes) => {
+					logger.log({
+						description: 'Signup to application successful.',
+						res: signupRes, appName: req.params.name,
+						body: req.body, func: 'signup', obj: 'ApplicationsCtrl'
+					});
+					res.send(signupRes);
+				},  (err) => {
+					if(err && err.status == 'EXISTS'){
+						logger.error({
+							description: 'Account with matching credentials already exists.',
+							error: err, appName: req.params.name,
+							func: 'signup', obj: 'ApplicationsCtrl'
+						});
+						res.status(400).send(err.message || 'Account with matching credentials already exists.');
+					} else {
+						//TODO: Handle wrong password
+						logger.error({
+							description: 'Error signing up to application.',
+							error: err, appName: req.params.name,
+							body: req.body, func: 'signup',
+							obj: 'ApplicationsCtrl'
+						});
+						res.status(400).send(err.message || 'Error signing up.');
+					}
+				});
+			}
+		},  (err) => {
 			logger.error({
 				description: 'Error finding application.',
 				error: err, appName: req.params.name,
-				func: 'signup', obj: 'ApplicationsCtrl'
+				body: req.body, func: 'signup',
+				obj: 'ApplicationsCtrl'
 			});
 			res.status(400).send('Error finding application.');
 		});
@@ -978,16 +1037,29 @@ exports.groups = (req, res, next) => {
  *
  */
 exports.addGroup = (req, res, next) => {
-	logger.log({description: 'App add group request.', name: req.params.name, body: req.body, func: 'addGroup', obj: 'ApplicationsCtrls'});
+	logger.log({
+		description: 'App add group request.',
+		name: req.params.name, body: req.body,
+		func: 'addGroup', obj: 'ApplicationsCtrls'
+	});
 	if(req.params.name && req.body){ //Get data for a specific application
 		findApplication(req.params.name).then( (foundApp) => {
-			logger.log({description: 'Application found. Adding group.', app: foundApp, func: 'addGroup', obj: 'ApplicationsCtrls'});
+			logger.log({
+				description: 'Application found. Adding group.',
+				app: foundApp, func: 'addGroup', obj: 'ApplicationsCtrls'
+			});
 			foundApp.addGroup(req.body).then( (newGroup) => {
-				logger.info({description: 'Group added to applicaiton successfully.', newGroup: newGroup, func: 'addGroup', obj: 'ApplicationsCtrls'});
+				logger.info({
+					description: 'Group added to applicaiton successfully.',
+					newGroup: newGroup, func: 'addGroup', obj: 'ApplicationsCtrls'
+				});
 				res.send(newGroup);
 			},  (err) => {
 				//TODO: Handle wrong password
-				logger.error({description: 'Error adding group to application.', error: err, func: 'addGroup', obj: 'ApplicationsCtrls'});
+				logger.error({
+					description: 'Error adding group to application.',
+					error: err, func: 'addGroup', obj: 'ApplicationsCtrls'
+				});
 				res.status(400).send('Error adding group.');
 			});
 		},  (err) => {
@@ -1284,7 +1356,10 @@ exports.deleteDirectory = (req, res, next) => {
 //TODO: Allow choosing populate settings
 function findApplication(appName) {
 	if(!appName){
-		logger.error('Application name is required to find application.');
+		logger.error({
+			description: 'Application name is required to find application.',
+			error: err, func: 'findApplication'
+		});
 		Promise.reject({message: 'Application name required to find application.'});
 	} else {
 		var query = Application.findOne({name:appName})
@@ -1293,14 +1368,23 @@ function findApplication(appName) {
 		.populate({path:'directories', select:'name accounts groups'})
 		return query.then((foundApp) => {
 			if(!foundApp){
-				logger.error({description: 'Application not found', func: 'findApplication'});
+				logger.error({
+					description: 'Application not found',
+					func: 'findApplication'
+				});
 				return Promise.reject({message: 'Application not found'});
 			} else {
-				logger.log({description: 'Application found:', foundApp: foundApp, func: 'findApplication'});
+				logger.log({
+					description: 'Application found.',
+					foundApp: foundApp, func: 'findApplication'
+				});
 				return foundApp;
 			}
 		}, (err) => {
-			logger.error({description: 'Error finding application.', error: err, func: 'findApplication'});
+			logger.error({
+				description: 'Error finding application.',
+				error: err, func: 'findApplication'
+			});
 			return Promise.reject({message: 'Error finding application.'});
 		});
 	}

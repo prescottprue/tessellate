@@ -35,20 +35,32 @@ var authRocketEnabled = conf.authRocket.enabled;
  *     }
  *
  */
-exports.signup = function(req, res, next) {
+exports.signup = (req, res, next) => {
 	var query;
-	logger.log({description: 'Signup request.', body: req.body, func: 'signup', obj: 'AuthCtrls'});
+	logger.log({
+		description: 'Signup request.', body: req.body,
+		func: 'signup', obj: 'AuthCtrls'
+	});
 	//Check for username or email
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
-		return res.status(400).json({code:400, message:"Username or Email required to signup"});
+		return res.status(400).json({
+			code:400,
+			message:"Username or Email required to signup"
+		});
 	}
 	if(authRocketEnabled){
 		authrocket.signup(req.body).then((signupRes) => {
-			logger.log({description: 'Successfully signed up through authrocket.', response: signupRes, func: 'signup', obj: 'AuthCtrls'});
+			logger.log({
+				description: 'Successfully signed up through authrocket.',
+				response: signupRes, func: 'signup', obj: 'AuthCtrls'
+			});
 			//TODO: Record user within internal auth system
 			res.send(signupRes);
 		}, (err) => {
-			logger.error({description: 'Error signing up through auth rocket.', error: err, func: 'signup', obj: 'AuthCtrls'});
+			logger.error({
+				description: 'Error signing up through auth rocket.',
+				error: err, func: 'signup', obj: 'AuthCtrls'
+			});
 			res.send(err);
 		});
 	} else {
@@ -70,14 +82,20 @@ exports.signup = function(req, res, next) {
 			account.createWithPass(req.body.password).then((newAccount) => {
 				res.send(newAccount);
 			}, (err) => {
-				res.status(500).json({code:500, message:'Error hashing password', error:err});
+				res.status(500).json({
+					code:500,
+					message:'Error hashing password',
+					error:err
+				});
 			});
 		}, (err) => {
-			logger.error({description: 'Error querying for account.', error: err, func: 'signup', obj: 'AuthCtrl'});
+			logger.error({
+				description: 'Error querying for account.',
+				error: err, func: 'signup', obj: 'AuthCtrl'
+			});
 			res.status(500).send('Error querying for account.');
 		});
 	}
-
 };
 
 /**
@@ -108,7 +126,7 @@ exports.signup = function(req, res, next) {
  *     }
  *
  */
-exports.login = function(req, res, next) {
+exports.login = (req, res, next) => {
 	var query;
 	if((!_.has(req.body, "username") && !_.has(req.body, "email")) || !_.has(req.body, "password")){
 		return res.status(400).send("Username/Email and password required to login");
@@ -174,20 +192,31 @@ exports.login = function(req, res, next) {
 		}
 		query.then((currentAccount) => {
 			if(!currentAccount){
-				logger.error({description: 'Account not found.', func: 'login', obj: 'AuthCtrl'});
+				logger.error({
+					description: 'Account not found.', func: 'login', obj: 'AuthCtrl'
+				});
 				// return next (new Error('Account could not be found'));
 				return res.status(409).send('Account not found.');
 			}
 			currentAccount.login(req.body.password).then((loginRes) => {
-				logger.log({description: 'Login Successful.', func: 'login', obj: 'AuthCtrl'});
+				logger.log({
+					description: 'Login Successful.',
+					func: 'login', obj: 'AuthCtrl'
+				});
 				res.send(loginRes);
 			}, (err) => {
 				//TODO: Handle wrong password
-				logger.log({description: 'Login Error.', error: err, func: 'login', obj: 'AuthCtrl'});
+				logger.log({
+					description: 'Login Error.', error: err,
+					func: 'login', obj: 'AuthCtrl'
+				});
 				res.status(400).send('Error logging in.');
 			});
 		}, (err) => {
-			logger.error({description: 'Login error', error: err, func: 'login', obj: 'AuthCtrl'});
+			logger.error({
+				description: 'Login error', error: err,
+				func: 'login', obj: 'AuthCtrl'
+			});
 			return res.status(500).send('Error logging in.');
 		});
 	}
@@ -208,7 +237,7 @@ exports.login = function(req, res, next) {
  *     }
  *
  */
-exports.logout = function(req, res, next) {
+exports.logout = (req, res, next) => {
 	//TODO:Invalidate token
 	// logger.log({description: 'Ending accounts session.', account: account, func: 'logout', obj: 'AuthCtrl'});
 	if(authRocketEnabled){
@@ -259,7 +288,7 @@ exports.logout = function(req, res, next) {
  *     }
  *
  */
-exports.verify = function(req, res, next) {
+exports.verify = (req, res, next) => {
 	//TODO:Actually verify account instead of just returning account data
 	// logger.log('verify request:', req.user);
 	var query;

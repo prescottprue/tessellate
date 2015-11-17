@@ -85,6 +85,8 @@ if(config.authEnabled){
         description: 'Error confirming token.',
         error: err, obj: 'server'
       });
+      //TODO: look for application name
+      //TODO: Try decoding with application's authrocket secret
       return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
     }
   });
