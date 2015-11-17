@@ -20,6 +20,7 @@ var AccountSchema = new mongoose.Schema(
 		title:{type: String},
 		password:{type: String},
 		sessionId:{type:mongoose.Schema.Types.ObjectId, ref:'Session'},
+		application:{type:mongoose.Schema.Types.ObjectId, ref:'Application'},
 		groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
 		authrocketId:{type:String},
 		createdAt: { type: Date, default: Date.now},
