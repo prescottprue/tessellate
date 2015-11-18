@@ -1,4 +1,6 @@
 import 'newrelic';
+import 'babel-core/register';
+import 'babel-polyfill';
 
 import express from 'express';
 import path from 'path';
