@@ -5,10 +5,10 @@ var mongoose = require('mongoose');
 
 var SessionSchema = new mongoose.Schema({
 	accountId: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },
-	active: { type: Boolean, 'default': true },
-	createdAt: { type: Date, 'default': Date.now, index: true },
+	active: { type: Boolean, default: true },
+	createdAt: { type: Date, default: Date.now, index: true },
 	endedAt: { type: Date, index: true },
-	updatedAt: { type: Date, 'default': Date.now, index: true }
+	updatedAt: { type: Date, default: Date.now, index: true }
 });
 
 SessionSchema.set('collection', 'sessions');

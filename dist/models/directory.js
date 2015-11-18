@@ -18,8 +18,8 @@ var DirectorySchema = new mongoose.Schema({
 	name: { type: String, unique: true, index: true },
 	groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
 	accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
-	createdAt: { type: Date, 'default': Date.now },
-	updatedAt: { type: Date, 'default': Date.now }
+	createdAt: { type: Date, default: Date.now },
+	updatedAt: { type: Date, default: Date.now }
 }, {
 	toJSON: { virtuals: true }
 });

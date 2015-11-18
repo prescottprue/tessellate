@@ -1,8 +1,8 @@
+'use strict';
+
 /**
  * @description Utilites that build NodeJS routes from routes config
  */
-'use strict';
-
 var _ = require('lodash');
 var logger = require('./logger');
 /**

@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @description Application Controller
  */
@@ -17,8 +19,6 @@
  *       "error": "AccountNameTooShort"
  *     }
  */
-
-'use strict';
 
 var _ = require('lodash');
 var logger = require('../utils/logger');
@@ -297,7 +297,7 @@ exports.update = function (req, res, next) {
  *     }
  *
  */
-exports['delete'] = function (req, res, next) {
+exports.delete = function (req, res, next) {
 	var query = Application.findOneAndRemove({ 'name': req.params.name }); // find and delete using id field
 	query.then(function (result) {
 		if (result) {

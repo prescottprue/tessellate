@@ -108,7 +108,7 @@ exports.update = function (req, res, next) {
  * @description Delete a Group
  * @params {String} email - Email of Group
  */
-exports['delete'] = function (req, res, next) {
+exports.delete = function (req, res, next) {
 	var urlParams = url.parse(req.url, true).query;
 	deleteGroup(req.params).then(function (result) {
 		logger.log({ description: 'Group deleted successfully', func: 'delete', obj: 'GroupsCtrl' });

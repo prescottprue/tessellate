@@ -1,8 +1,8 @@
+'use strict';
+
 /**
  * @description Logger utility that handles Internal and external logging based on environment config
  */
-'use strict';
-
 var conf = require('../config/default').config;
 var _ = require('underscore');
 var winston = require('winston');

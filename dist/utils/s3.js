@@ -1,8 +1,8 @@
+'use strict';
+
 /** s3 Utility
  *	@description functionality for accessing/reading/writing to and from S3. These functions are used by files such as fileStorage.js
  */
-'use strict';
-
 var aws = require('aws-sdk'),
     s3Sdk = require('s3'),
     _ = require('lodash'),

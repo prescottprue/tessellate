@@ -1,8 +1,8 @@
+'use strict';
+
 /**
  * @description Template Controller
  */
-'use strict';
-
 var _ = require('lodash');
 var logger = require('../utils/logger');
 var Template = require('../models/template').Template;
@@ -212,7 +212,7 @@ exports.upload = function (req, res, next) {
  *
  *
  */
-exports['delete'] = function (req, res, next) {
+exports.delete = function (req, res, next) {
 	logger.log('delete request:', req.params);
 	if (!_.has(req.body, 'name')) {
 		res.status(400).send('Template name required to delete template.');

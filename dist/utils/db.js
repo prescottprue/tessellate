@@ -1,16 +1,26 @@
-// database handler
 'use strict';
 
-var conf = require('../config/default');
-var mongoose = require('mongoose');
-var dbUrl = conf.config.db.url;
+var _default = require('../config/default');
+
+var _default2 = _interopRequireDefault(_default);
+
+var _mongoose = require('mongoose');
+
+var _mongoose2 = _interopRequireDefault(_mongoose);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// database handler
+
+var dbUrl = _default2.default.config.db.url;
+var tessellate = undefined;
 //Add db name to url
-if (conf.config.db.name) {
-	dbUrl += "/" + conf.config.db.name;
+if (_default2.default.config.db.name) {
+	dbUrl += "/" + _default2.default.config.db.name;
 }
 // console.log('Connecting to mongo url:', dbUrl);
-if (conf.config.envName !== 'test') {
-	var tessellate = mongoose.createConnection(dbUrl);
+if (_default2.default.config.envName !== 'test') {
+	tessellate = _mongoose2.default.createConnection(dbUrl);
 	tessellate.on('error', function (err) {
 		console.error('Mongoose error:', err);
 	});
@@ -22,7 +32,7 @@ if (conf.config.envName !== 'test') {
 	});
 } else {
 	//TODO: handle mock mongo
-	var tessellate = mongoose.createConnection(dbUrl);
+	tessellate = _mongoose2.default.createConnection(dbUrl);
 	tessellate.on('error', function (err) {
 		console.error('Mongoose error:', err);
 	});

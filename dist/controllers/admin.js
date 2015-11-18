@@ -1,8 +1,8 @@
+'use strict';
+
 /**
  * @description Admin Controller
  */
-'use strict';
-
 var logger = require('../utils/logger');
 var fileStorage = require('../utils/fileStorage');
 var Application = require('../models/application').Application;

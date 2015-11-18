@@ -1,6 +1,8 @@
-//Internal Config/Utils/Classes
 'use strict';
 
+function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+
+//Internal Config/Utils/Classes
 var conf = require('../config/default').config,
     logger = require('../utils/logger'),
     db = require('../utils/db'),
@@ -24,11 +26,11 @@ if (_.has(conf, 's3') && _.has(conf.s3, 'bucketPrefix')) {
 //Application schema object
 var ApplicationSchema = new mongoose.Schema({
 	owner: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },
-	name: { type: String, 'default': '', unique: true, index: true },
+	name: { type: String, default: '', unique: true, index: true },
 	frontend: {
 		siteUrl: { type: String },
 		bucketUrl: { type: String },
-		provider: { type: String, 'default': 'Amazon' },
+		provider: { type: String, default: 'Amazon' },
 		bucketName: { type: String }
 	},
 	backend: {
@@ -45,8 +47,8 @@ var ApplicationSchema = new mongoose.Schema({
 	providers: [{ name: String, clientId: String }],
 	groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
 	collaborators: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
-	createdAt: { type: Date, 'default': Date.now },
-	updatedAt: { type: Date, 'default': Date.now }
+	createdAt: { type: Date, default: Date.now },
+	updatedAt: { type: Date, default: Date.now }
 }, {
 	toJSON: { virtuals: true }
 });
@@ -403,7 +405,7 @@ ApplicationSchema.methods = {
 			//Default account management
 			logger.log({
 				description: 'Using default account management.',
-				application: undefined, type: typeof undefined.model('Account'),
+				application: undefined, type: _typeof(undefined.model('Account')),
 				func: 'signup', obj: 'Application'
 			});
 			var AccountModel = undefined.model('Account');

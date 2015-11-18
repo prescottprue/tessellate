@@ -1,8 +1,8 @@
+'use strict';
+
 /** Authrocket controller
  *
  */
-'use strict';
-
 var logger = require('../utils/logger');
 var Account = require('../models/account').Account;
 

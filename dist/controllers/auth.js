@@ -1,8 +1,8 @@
+'use strict';
+
 /**
  * @description Authentication controller
  */
-'use strict';
-
 var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('lodash');

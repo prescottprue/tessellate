@@ -1,8 +1,8 @@
+'use strict';
+
 /** FileStorage Util
  *	@description standardized interface file storage so the service/platform used for storage can be changed without affecting file storage calls
  */
-'use strict';
-
 var _ = require('lodash');
 var conf = require('../config/default').config;
 

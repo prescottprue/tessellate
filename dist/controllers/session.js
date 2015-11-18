@@ -81,7 +81,7 @@ exports.update = function (req, res, next) {
  * @description Delete a Session
  * @params {String} email - Email of Session
  */
-exports['delete'] = function (req, res, next) {
+exports.delete = function (req, res, next) {
 	var urlParams = url.parse(req.url, true).query;
 	var query = Session.findOneAndRemove({ '_id': req.params.id }); // find and delete using id field
 	query.then(function (result) {

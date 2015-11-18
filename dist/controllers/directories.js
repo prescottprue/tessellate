@@ -1,8 +1,8 @@
+'use strict';
+
 /**
  * @description Directory controller functions
  */
-'use strict';
-
 var mongoose = require('mongoose');
 var url = require('url');
 var _ = require('lodash');
@@ -165,7 +165,7 @@ exports.update = function (req, res, next) {
  *     }
  *
  */
-exports['delete'] = function (req, res, next) {
+exports.delete = function (req, res, next) {
   // var urlParams = url.parse(req.url, true).query;
   if (_.has(req.params, "directoryName")) {
     var query = Directory.findOneAndRemove({ 'directoryName': req.params.directoryName }); // find and delete using id field

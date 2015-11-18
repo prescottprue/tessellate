@@ -1,8 +1,8 @@
+'use strict';
+
 /** sytemUtils
  * @description System utilities includes nodejs port management, server creation, and listeners.
  */
-'use strict';
-
 var server,
     port,
     debug = require('debug')('tessellate:server'),

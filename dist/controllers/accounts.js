@@ -1,11 +1,16 @@
-/**
- * @description Account controller functions
- */
 'use strict';
 
-var _ = require('lodash');
-var logger = require('../utils/logger');
-var Account = require('../models/account').Account;
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _logger = require('../utils/logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+var _account = require('../models/account');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * @api {get} /accounts Get Account(s)
@@ -30,24 +35,37 @@ var Account = require('../models/account').Account;
  *
  */
 exports.get = function (req, res, next) {
-  logger.log({ message: 'Account(s) get called.', func: 'get', obj: 'AccountCtrl' });
-  var query = Account.find({}, { username: 1, email: 1 });
-  if (_.has(req, 'params') && _.has(req.params, "username")) {
-    //Get data for a specific account
-    logger.log({ message: 'Get account called with username.', username: req.params.username, func: 'get', obj: 'AccountCtrl' });
-    query = Account.findOne({ username: req.params.username }, { password: 0, __v: 0 });
-  }
-  query.then(function (accountData) {
-    if (!accountData) {
-      logger.log({ message: 'No account data', func: 'get', obj: 'AccountCtrl' });
-      return res.send(400).send('Account not found.');
-    } else {
-      res.send(accountData);
-    }
-  }, function (err) {
-    logger.error({ message: 'Error finding account data.', error: err, func: 'get', obj: 'AccountCtrl' });
-    return res.status(500).send('Error getting account.');
-  });
+	_logger2.default.log({
+		message: 'Account(s) get called.',
+		func: 'get', obj: 'AccountCtrl'
+	});
+	var query = _account.Account.find({}, { username: 1, email: 1 });
+	if (_lodash2.default.has(req, 'params') && _lodash2.default.has(req.params, "username")) {
+		//Get data for a specific account
+		_logger2.default.log({
+			message: 'Get account called with username.',
+			username: req.params.username,
+			func: 'get', obj: 'AccountCtrl'
+		});
+		query = _account.Account.findOne({ username: req.params.username }, { password: 0, __v: 0 });
+	}
+	query.then(function (accountData) {
+		if (!accountData) {
+			_logger2.default.log({
+				message: 'No account data',
+				func: 'get', obj: 'AccountCtrl'
+			});
+			return res.send(400).send('Account not found.');
+		} else {
+			res.send(accountData);
+		}
+	}, function (err) {
+		_logger2.default.error({
+			message: 'Error finding account data.',
+			error: err, func: 'get', obj: 'AccountCtrl'
+		});
+		return res.status(500).send('Error getting account.');
+	});
 };
 /**
  * @api {post} /accounts Add Account
@@ -74,31 +92,34 @@ exports.get = function (req, res, next) {
  *     }
  *
  */
+/**
+ * @description Account controller functions
+ */
 exports.add = function (req, res, next) {
-  //Query for existing account with same _id
-  var query;
-  if (!_.has(req.body, "username") && !_.has(req.body, "email")) {
-    return res.status(400).json({ code: 400, message: "Accountname or Email required to add a new account" });
-  }
-  if (_.has(req.body, "username")) {
-    query = Account.findOne({ "username": req.body.username }); // find using username field
-  } else {
-      query = Account.findOne({ "email": req.body.email }); // find using email field
-    }
-  query.then(function () {
-    var account = new Account(req.body);
-    account.saveNew().then(function (newAccount) {
-      //TODO: Set temporary password
-      res.json(newAccount);
-    }, function (err) {
-      logger.error({ description: 'Error creating new account.', error: err, func: 'add', obj: 'AccountsCtrl' });
-      res.status(500).send('Account could not be added.');
-    });
-  }, function (err) {
-    //next() //Pass error on
-    logger.error({ description: 'Error creating new account.', error: err, func: 'add', obj: 'AccountsCtrl' });
-    res.status(500).send('Account could not be added.');
-  });
+	//Query for existing account with same _id
+	var query;
+	if (!_lodash2.default.has(req.body, "username") && !_lodash2.default.has(req.body, "email")) {
+		return res.status(400).json({ code: 400, message: "Accountname or Email required to add a new account" });
+	}
+	if (_lodash2.default.has(req.body, "username")) {
+		query = _account.Account.findOne({ "username": req.body.username }); // find using username field
+	} else {
+			query = _account.Account.findOne({ "email": req.body.email }); // find using email field
+		}
+	query.then(function () {
+		var account = new _account.Account(req.body);
+		account.saveNew().then(function (newAccount) {
+			//TODO: Set temporary password
+			res.json(newAccount);
+		}, function (err) {
+			_logger2.default.error({ description: 'Error creating new account.', error: err, func: 'add', obj: 'AccountsCtrl' });
+			res.status(500).send('Account could not be added.');
+		});
+	}, function (err) {
+		//next() //Pass error on
+		_logger2.default.error({ description: 'Error creating new account.', error: err, func: 'add', obj: 'AccountsCtrl' });
+		res.status(500).send('Account could not be added.');
+	});
 };
 /**
  * @api {put} /accounts Update Account
@@ -125,39 +146,39 @@ exports.add = function (req, res, next) {
  *
  */
 exports.update = function (req, res, next) {
-  logger.log({ description: 'Update account called.', body: req.body, params: req.params });
-  if (_.has(req.params, "username")) {
-    Account.findOne({ username: req.params.username }, function (err, account) {
-      if (err) {
-        logger.error({ description: 'Error finding account.', username: req.params.username, error: err, func: 'update', obj: 'AccountsCtrl' });
-        res.status(500).send('Error finding account.');
-      } else if (!account) {
-        res.status(400).send('Account not found.');
-      } else {
-        //Select only valid parameters
-        var updateData = _.pick(req.body, ['username', 'email', 'name', 'frontend', 'backend', 'groups', 'sessionId', 'password']);
-        //Apply each updated value to account.
-        _.each(_.keys(updateData), function (key) {
-          account[key] = updateData[key];
-        });
-        logger.log('account before save:', account);
-        account.saveNew().then(function (savedAccount) {
-          logger.log({ description: 'Account saved successfully.' });
-          res.json(savedAccount);
-        }, function (err) {
-          logger.error({ description: 'Error saving account.', error: err, func: 'update', obj: 'AccountsCtrl' });
-          res.status(500).send('Error updating account.');
-        });
-      }
-    });
-    // Account.update({username:req.params.username}, req.body, {upsert:false},  (err, numberAffected, result)  => {
-    // 	if (err) { return next(err); }
-    // 	//TODO: respond with updated data instead of passing through req.body
-    // 	res.json(req.body);
-    // });
-  } else {
-      res.status(400).send({ message: 'Account username is required to update.' });
-    }
+	_logger2.default.log({ description: 'Update account called.', body: req.body, params: req.params });
+	if (_lodash2.default.has(req.params, "username")) {
+		_account.Account.findOne({ username: req.params.username }, function (err, account) {
+			if (err) {
+				_logger2.default.error({ description: 'Error finding account.', username: req.params.username, error: err, func: 'update', obj: 'AccountsCtrl' });
+				res.status(500).send('Error finding account.');
+			} else if (!account) {
+				res.status(400).send('Account not found.');
+			} else {
+				//Select only valid parameters
+				var updateData = _lodash2.default.pick(req.body, ['username', 'email', 'name', 'frontend', 'backend', 'groups', 'sessionId', 'password']);
+				//Apply each updated value to account.
+				_lodash2.default.each(_lodash2.default.keys(updateData), function (key) {
+					account[key] = updateData[key];
+				});
+				_logger2.default.log('account before save:', account);
+				account.saveNew().then(function (savedAccount) {
+					_logger2.default.log({ description: 'Account saved successfully.' });
+					res.json(savedAccount);
+				}, function (err) {
+					_logger2.default.error({ description: 'Error saving account.', error: err, func: 'update', obj: 'AccountsCtrl' });
+					res.status(500).send('Error updating account.');
+				});
+			}
+		});
+		// Account.update({username:req.params.username}, req.body, {upsert:false},  (err, numberAffected, result)  => {
+		// 	if (err) { return next(err); }
+		// 	//TODO: respond with updated data instead of passing through req.body
+		// 	res.json(req.body);
+		// });
+	} else {
+			res.status(400).send({ message: 'Account username is required to update.' });
+		}
 };
 /**
  * @api {delete} /account/:id Delete Account
@@ -179,18 +200,18 @@ exports.update = function (req, res, next) {
  *     }
  *
  */
-exports['delete'] = function (req, res, next) {
-  // var urlParams = url.parse(req.url, true).query;
-  if (_.has(req.params, "username")) {
-    var query = Account.findOneAndRemove({ 'username': req.params.username }); // find and delete using id field
-    query.then(function (result) {
-      logger.log('Account deleted successfully:');
-      res.json(result);
-    }, function (err) {
-      logger.error('Account could not be deleted:', err);
-      res.status(500).send({ message: 'Account cound not be deleted' });
-    });
-  }
+exports.delete = function (req, res, next) {
+	// var urlParams = url.parse(req.url, true).query;
+	if (_lodash2.default.has(req.params, "username")) {
+		var query = _account.Account.findOneAndRemove({ 'username': req.params.username }); // find and delete using id field
+		query.then(function (result) {
+			_logger2.default.log('Account deleted successfully:');
+			res.json(result);
+		}, function (err) {
+			_logger2.default.error('Account could not be deleted:', err);
+			res.status(500).send({ message: 'Account cound not be deleted' });
+		});
+	}
 };
 /**
  * @api {get} /account/:id Search Accounts
@@ -213,37 +234,37 @@ exports['delete'] = function (req, res, next) {
  *
  */
 exports.search = function (req, res, next) {
-  // var urlParams = url.parse(req.url, true).query;
-  var usernameQuery = createAccountQuery('username', req.params.searchQuery);
-  var emailQuery = createAccountQuery('email', req.params.searchQuery);
-  //Search usernames
-  usernameQuery.then(function (usernameResults) {
-    if (_.isArray(usernameResults) && usernameResults.length == 0) {
-      //Search emails
-      emailQuery.then(function (emailResults) {
-        logger.log('Account search by email resulted:', emailResults);
-        res.json(emailResults);
-      }, function (err) {
-        res.status(500).send({ message: 'Account cound not be found' });
-      });
-    } else {
-      logger.log('Account search by username resulted:', usernameResults);
-      res.json(usernameResults);
-    }
-  }, function (err) {
-    logger.error({ description: 'Error searching for account.', error: err, func: 'search', obj: 'AccountsCtrls' });
-    res.status(500).send({ message: 'Account cound not be found' });
-  });
+	// var urlParams = url.parse(req.url, true).query;
+	var usernameQuery = createAccountQuery('username', req.params.searchQuery);
+	var emailQuery = createAccountQuery('email', req.params.searchQuery);
+	//Search usernames
+	usernameQuery.then(function (usernameResults) {
+		if (_lodash2.default.isArray(usernameResults) && usernameResults.length == 0) {
+			//Search emails
+			emailQuery.then(function (emailResults) {
+				_logger2.default.log('Account search by email resulted:', emailResults);
+				res.json(emailResults);
+			}, function (err) {
+				res.status(500).send({ message: 'Account cound not be found' });
+			});
+		} else {
+			_logger2.default.log('Account search by username resulted:', usernameResults);
+			res.json(usernameResults);
+		}
+	}, function (err) {
+		_logger2.default.error({ description: 'Error searching for account.', error: err, func: 'search', obj: 'AccountsCtrls' });
+		res.status(500).send({ message: 'Account cound not be found' });
+	});
 };
 /**
  * Create a account query based on provided key and value
  */
 function createAccountQuery(key, val) {
-  var queryArr = _.map(val.split(' '), function (qr) {
-    var queryObj = {};
-    queryObj[key] = new RegExp(_.escapeRegExp(qr), 'i');
-    return queryObj;
-  });
-  var find = { $or: queryArr };
-  return Account.find(find, { email: 1, name: 1, username: 1 }); // find and delete using id field
+	var queryArr = _lodash2.default.map(val.split(' '), function (qr) {
+		var queryObj = {};
+		queryObj[key] = new RegExp(_lodash2.default.escapeRegExp(qr), 'i');
+		return queryObj;
+	});
+	var find = { $or: queryArr };
+	return _account.Account.find(find, { email: 1, name: 1, username: 1 }); // find and delete using id field
 }

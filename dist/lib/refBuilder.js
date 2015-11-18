@@ -1,9 +1,9 @@
+"use strict";
+
 //WARNING: This is now handled at build time with gulp within the frontend
 /** refBuilder System Library
  *	@description Builds script references that are inserted into HTML templates
  */
-"use strict";
-
 var assets = require('../assets');
 
 exports.buildScriptTags = function (env) {

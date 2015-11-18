@@ -1,9 +1,9 @@
 /**
  * @description Account controller functions
  */
-var _ = require('lodash');
-var logger = require('../utils/logger');
-var Account = require('../models/account').Account;
+import _ from 'lodash';
+import logger from '../utils/logger';
+import {Account} from '../models/account';
 
 /**
  * @api {get} /accounts Get Account(s)
@@ -28,21 +28,34 @@ var Account = require('../models/account').Account;
  *
  */
 exports.get = (req, res, next) => {
-	logger.log({message:'Account(s) get called.', func:'get', obj:'AccountCtrl'})
+	logger.log({
+		message:'Account(s) get called.',
+		func:'get', obj:'AccountCtrl'
+	});
 	var query = Account.find({}, {username:1, email:1});
 	if(_.has(req, 'params') && _.has(req.params, "username")){ //Get data for a specific account
-		logger.log({message:'Get account called with username.', username:req.params.username, func:'get', obj:'AccountCtrl'})
+		logger.log({
+			message:'Get account called with username.',
+			username:req.params.username,
+			func:'get', obj:'AccountCtrl'
+		});
 		query = Account.findOne({username:req.params.username}, {password:0, __v:0});
 	}
 	query.then((accountData) => {
 		if(!accountData){
-			logger.log({message:'No account data', func:'get', obj:'AccountCtrl'})
+			logger.log({
+				message:'No account data',
+				func:'get', obj:'AccountCtrl'
+			});
 			return res.send(400).send('Account not found.');
 		} else {
 			res.send(accountData);
 		}
 	}, (err) => {
-		logger.error({message:'Error finding account data.', error:err, func:'get', obj:'AccountCtrl'})
+		logger.error({
+			message:'Error finding account data.',
+			error:err, func:'get', obj:'AccountCtrl'
+		});
 		return res.status(500).send('Error getting account.');
 	});
 };

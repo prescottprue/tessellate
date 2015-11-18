@@ -15,14 +15,14 @@ var logger = require('./../utils/logger');
 var templateBucket = "tessellate-templates";
 
 var TemplateSchema = new mongoose.Schema({
-	name: { type: String, 'default': '', unique: true, index: true },
+	name: { type: String, default: '', unique: true, index: true },
 	author: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },
 	location: { type: String },
 	description: { type: String },
 	tags: [{ type: String }],
 	frameworks: [{ type: String }],
-	createdAt: { type: Date, 'default': Date.now },
-	updatedAt: { type: Date, 'default': Date.now }
+	createdAt: { type: Date, default: Date.now },
+	updatedAt: { type: Date, default: Date.now }
 });
 
 TemplateSchema.set('collection', 'templates');

@@ -9,8 +9,8 @@ module.exports = function (modelConfig) {
   * Default values
   */
 	var schemaObj = {
-		createdAt: { type: Date, 'default': Date.now, index: true },
-		updatedAt: { type: Date, 'default': Date.now, index: true }
+		createdAt: { type: Date, default: Date.now, index: true },
+		updatedAt: { type: Date, default: Date.now, index: true }
 	};
 	var collectionName = "test";
 	var modelName = collectionName;

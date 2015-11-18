@@ -10,10 +10,10 @@ var logger = require('../utils/logger');
 
 var GroupSchema = new mongoose.Schema({
 	application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application' },
-	name: { type: String, 'default': '' },
+	name: { type: String, default: '' },
 	accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
-	createdAt: { type: Date, 'default': Date.now },
-	updatedAt: { type: Date, 'default': Date.now, index: true }
+	createdAt: { type: Date, default: Date.now },
+	updatedAt: { type: Date, default: Date.now, index: true }
 }, {
 	toJSON: { virtuals: true }
 });

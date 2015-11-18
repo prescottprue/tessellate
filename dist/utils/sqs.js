@@ -1,6 +1,6 @@
-//Interface with amazons messaging service
 'use strict';
 
+//Interface with amazons messaging service
 var AWS = require('aws-sdk');
 var _ = require('lodash');
 var conf = require('../config/default').config;
