@@ -2,7 +2,8 @@
   "name": "kyper-tessellate",
   "version": "0.0.1",
   "scripts": {
-    "start": "node --harmony server.js",
+    "build": "babel backend --out-dir dist",
+    "start": "node --harmony dist/index.js",
     "start:es5": "node --harmony server.js"
   },
   "repository": {
