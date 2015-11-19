@@ -100,7 +100,7 @@ AccountSchema.methods = {
 	 * @description Log account in based on password attempt
 	 * @param {string} password - Attempt at password with which to login to account.
 	 */
-	login:async (passwordAttempt) => {
+	login:(passwordAttempt) => {
 		logger.log({
 			description: 'Login called.',
 			func: 'login', obj: 'Account'
@@ -114,38 +114,36 @@ AccountSchema.methods = {
 			});
 			return this.model('Account').find({_id:self._id}).then(self.login(passwordAttempt));
 		}
-		try {
-			let passwordsMatch = await this.comparePassword(passwordAttempt);
+		return self.comparePassword(passwordAttempt).then(() => {
 			logger.log({
 				description: 'Provided password matches.',
-				match: passwordsMatch,
 				func: 'login', obj: 'Account'
 			});
-		}  catch(err){
+			//Start new session
+			return self.startSession().then((sessionInfo) => {
+				logger.log({
+					description: 'Session started successfully.',
+					func: 'login', obj: 'Account'
+				});
+				//Create Token
+				this.sessionId = sessionInfo._id;
+				var token = self.generateToken(sessionInfo);
+				return {token: token, account: self.strip()};
+			}, (err) => {
+				logger.error({
+					description: 'Error starting session.',
+					error: err, func: 'login', obj: 'Account'
+				});
+				return Promise.reject(err);
+			});
+		}, (err) => {
 			logger.error({
 				description: 'Error comparing password.',
 				attempt: passwordAttempt, error: err,
 				func: 'login', obj: 'Account'
 			});
 			return Promise.reject(err);
-		}
-		try {
-			let sessionInfo = await this.startSession();
-			logger.log({
-				description: 'Session started successfully.',
-				func: 'login', obj: 'Account'
-			});
-		} catch(err) {
-			logger.error({
-				description: 'Error starting session.',
-				error: err, func: 'login', obj: 'Account'
-			});
-			return Promise.reject(err);
-		}
-		//Create Token
-		this.sessionId = sessionInfo._id;
-		var token = self.generateToken(sessionInfo);
-		return {token: token, account: self.strip()};
+		});
 	},
 	/**
 	 * @function login
