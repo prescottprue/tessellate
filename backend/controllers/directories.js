@@ -90,12 +90,18 @@ exports.add = function(req, res, next){
 			//TODO: Set temporary password
 			res.json(newDirectory);
 		}, (err) => {
-			logger.error({'Error creating new directory:', error: err, func: 'add', obj: 'DirectoriesCtrls'});
+			logger.error({
+				description: 'Error creating new directory.',
+				error: err, func: 'add', obj: 'DirectoriesCtrls'
+			});
 			res.status(500).send('Directory could not be added');
 		});
 	}, (err) => {
 		//next() //Pass error on
-		logger.error({'Error querying directory.', error: err, func: 'add', obj: 'DirectoriesCtrls'});
+		logger.error({
+			description: 'Error querying directory.',
+			error: err, func: 'add', obj: 'DirectoriesCtrls'
+		});
 		res.status(500).send('Directory could not be added.');
 	});
 };

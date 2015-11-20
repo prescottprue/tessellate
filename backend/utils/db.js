@@ -1,37 +1,38 @@
 // database handler
-var conf = require('../config/default');
-var mongoose = require('mongoose');
-var dbUrl = conf.config.db.url;
+import conf from '../config/default';
+import mongoose from 'mongoose';
+let dbUrl = conf.config.db.url;
+let tessellate;
 //Add db name to url
 if(conf.config.db.name){
 	dbUrl += "/" + conf.config.db.name
 }
 // console.log('Connecting to mongo url:', dbUrl);
 if(conf.config.envName !== 'test') {
-	var tessellate = mongoose.createConnection(dbUrl);
-	tessellate.on('error',function (err) {
+	tessellate = mongoose.createConnection(dbUrl);
+	tessellate.on('error', (err) => {
 		console.error('Mongoose error:', err);
 	});
-	tessellate.on('connected', function () {
+	tessellate.on('connected', () => {
 		console.error('Connected to DB');
 	});
-	tessellate.on('disconnected', function () {
+	tessellate.on('disconnected', () => {
 		console.error('Disconnected from DB');
 	});
 
 } else {
 	//TODO: handle mock mongo
-	var tessellate = mongoose.createConnection(dbUrl);
-	tessellate.on('error',function (err) {
+	tessellate = mongoose.createConnection(dbUrl);
+	tessellate.on('error', (err) => {
 		console.error('Mongoose error:', err);
 	});
-	tessellate.on('connected', function () {
+	tessellate.on('connected', () => {
 		console.error('Connected to test DB');
-		setTimeout(function () {
+		setTimeout(() => {
 			tessellate.close();
 		}, 1000);
 	});
-	tessellate.on('disconnected', function () {
+	tessellate.on('disconnected', () => {
 		console.error('Disconnected from DB');
 	});
 }

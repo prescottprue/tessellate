@@ -1,10 +1,12 @@
+"use strict";
+
 module.exports = {
-	envName:'development',
-	db:{
-		url:process.env.TESSELLATE_DEV_MONGO
+	envName: 'development',
+	db: {
+		url: process.env.TESSELLATE_DEV_MONGO
 	},
 	logging: {
-		level:0,
+		level: 0,
 		external: false
 	},
 	aws: {
@@ -17,9 +19,9 @@ module.exports = {
 		componentBucketPrefix: "components"
 	},
 	authEnabled: true,
-	authRocket:{
+	authRocket: {
 		enabled: true,
 		secret: process.env.AUTHROCKET_JWT_SECRET
 	},
-	jwtSecret:"shhhhhhh"
+	jwtSecret: "shhhhhhh"
 };

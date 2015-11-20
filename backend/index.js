@@ -1,22 +1,23 @@
-require('newrelic');
+import 'newrelic';
+import 'babel-core/register';
 
-var express = require('express'),
-path = require('path'),
-favicon = require('serve-favicon'),
-cookieParser = require('cookie-parser'),
-bodyParser = require('body-parser'),
-jwt = require('express-jwt'),
-cors = require('cors');
+import express from 'express';
+import path from 'path';
+import favicon from 'serve-favicon';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import jwt from 'express-jwt';
+import cors from 'cors';
 
-var confFile = require('./config.json'),
-config = require('./backend/config/default').config,
-systemUtils = require('./lib/systemUtils'),
-logger = require('./backend/utils/logger');
+import confFile from '../config.json';
+import {config} from './config/default';
+import systemUtils from './lib/systemUtils';
+import logger from './utils/logger';
 
-var app = express();
+let app = express();
 
-var routes = require('./backend/config/routes');
-var routeBuilder = require('./backend/utils/routeBuilder')(app);
+import routes from './config/routes';
+let routeBuilder = require('./utils/routeBuilder')(app);
 
 /** View Engine Setup
  * @description Apply ejs rending engine and views folder
@@ -38,7 +39,7 @@ app.use(cookieParser());
 /** Static files
  * @description References to static files
  */
-app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + './../public/favicon.ico'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 /** CORS Configuration
@@ -51,7 +52,7 @@ app.options('*', cors());
  * @description Enable authentication based on config setting
  */
 if(config.authEnabled){
-  var allowedPaths = [
+  let allowedPaths = [
     '/', '/login',
     '/logout', '/signup',
     '/docs', '/docs/**',
@@ -61,7 +62,7 @@ if(config.authEnabled){
     /(\/apps\/.*\/signup)/,
     /(\/apps\/.*\/providers)/
   ];
-  var secret = config.jwtSecret;
+  let secret = config.jwtSecret;
   if (config.authRocket && config.authRocket.enabled) {
     if (!config.authRocket.secret) {
       logger.error({
@@ -79,7 +80,7 @@ if(config.authEnabled){
   /** Unauthorized Error Handler
    * @description Respond with 401 when authorization token is invalid
    */
-  app.use(function (err, req, res, next) {
+  app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
       logger.error({
         description: 'Error confirming token.',
@@ -102,13 +103,13 @@ if(config.authEnabled){
  */
 routeBuilder(routes);
 
-//------------ Error handlers -----------//
-
 /** Error Logger
  * @description Log Errors before they are handled
  */
-app.use(function (err, req, res, next) {
-  console.log(err.message, req.originalUrl);
+app.use((err, req, res, next) => {
+  logger.error({
+    message:err.message, url: req.originalUrl
+  });
   if(err){
     res.status(500);
   }
@@ -118,8 +119,8 @@ app.use(function (err, req, res, next) {
 /** Page Not Found Handler
  * @description catch 404 and forward to error handler
  */
-app.use(function (req, res, next) {
-  var err = new Error('Not Found');
+app.use((req, res, next) => {
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
@@ -128,7 +129,7 @@ app.use(function (req, res, next) {
  * @description print stacktraces when in local environment
  */
 if (app.get('env') === 'local') {
-  app.use(function (err, req, res, next) {
+  app.use((err, req, res, next) => {
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
@@ -139,7 +140,7 @@ if (app.get('env') === 'local') {
 /** Production Error Handler
  * @description keep stacktraces from being leaked to user
  */
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
@@ -150,7 +151,7 @@ app.use(function (err, req, res, next) {
 /**
  * Get port from environment and store in Express.
  */
-var port = systemUtils.normalizePort(process.env.PORT || confFile.server.port || 4000);
+let port = systemUtils.normalizePort(process.env.PORT || confFile.server.port || 4000);
 console.log('Server started...');
 console.log('Environment: ' + config.envName || 'ERROR');
 console.log('Port: ' + port);
@@ -158,14 +159,10 @@ app.set('port', port);
 /**
  * Create app server object based on settings
  */
-var server = systemUtils.createServer(app);
+let server = systemUtils.createServer(app);
 
 /** Listen on provided port, on all network interfaces.
  */
 server.listen(port);
 
 module.exports = app;
-/**
- * Load view helpers
- */
-require('./app-locals');
