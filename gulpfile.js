@@ -9,11 +9,12 @@ shell = require('gulp-shell'),
 _ = require('lodash'),
 reload = browserSync.reload,
 mocha = require('gulp-mocha');
-require('babel/register');
+require('babel-core/register');
+var runSequence = require('run-sequence');
 
 var config = require('./config.json');
 var assets = require('./assets');
-var refBuilder = require('./lib/refBuilder');
+var refBuilder = require('./backend/lib/refBuilder');
 
 var locatedStyleAssets = locateAssets('styles');
 var locatedAppAssets = locateAssets('app');
@@ -28,18 +29,9 @@ gulp.task('client', ['assetTags:dev'], function() {
     }
   });
 });
+gulp.task('build', shell.task(['npm run build']));
 
-//TODO: Make tasks to serve other environments
-//Backend Node Server
-gulp.task('serve', function () {
-  nodemon({
-    script: 'server.js',
-    port: config.server.port,
-    ext: 'js',
-    watch: config.server.folder,
-    env: { 'NODE_ENV': 'local' }
-  });
-});
+gulp.task('watch', shell.task(['npm run watch']));
 
 gulp.task('test', function(){
   gulp.src('test/**/*.spec.js')

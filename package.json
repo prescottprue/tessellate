@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "scripts": {
     "build": "babel backend --out-dir dist",
+    "watch": "babel backend --watch --out-dir dist",
     "clean": "rimraf lib dist coverage",
     "prepublish": "npm run clean && npm run build",
-    "start": "node dist/index.js",
-    "start:es5": "node --harmony server.js"
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -64,6 +64,7 @@
     "load-grunt-tasks": "^3.2.0",
     "mocha": "^2.3.3",
     "nodemon": "^1.8.1",
+    "run-sequence": "^1.1.5",
     "supertest": "^1.1.0",
     "tiny-lr": "^0.1.6"
   }

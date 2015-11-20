@@ -133,8 +133,6 @@ if (_default.config.authEnabled) {
  */
 routeBuilder(_routes2.default);
 
-//------------ Error handlers -----------//
-
 /** Error Logger
  * @description Log Errors before they are handled
  */

@@ -104,8 +104,6 @@ if(config.authEnabled){
  */
 routeBuilder(routes);
 
-//------------ Error handlers -----------//
-
 /** Error Logger
  * @description Log Errors before they are handled
  */
