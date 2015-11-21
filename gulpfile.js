@@ -29,9 +29,9 @@ gulp.task('client', ['assetTags:dev'], function() {
     }
   });
 });
-gulp.task('build', shell.task(['npm run build']));
+gulp.task('build', shell.task(['babel backend --out-dir dist']));
 
-gulp.task('watch', shell.task(['npm run watch']));
+gulp.task('watch', shell.task(['babel backend --out-dir dist --watch']));
 
 gulp.task('test', function(){
   gulp.src('test/**/*.spec.js')
