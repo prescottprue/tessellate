@@ -4,7 +4,7 @@
 /** refBuilder System Library
  *	@description Builds script references that are inserted into HTML templates
  */
-var assets = require('../assets');
+var assets = require('../../assets');
 
 exports.buildScriptTags = function (env) {
   if (!env) {

@@ -1,7 +1,5 @@
 'use strict';
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { var callNext = step.bind(null, "next"); var callThrow = step.bind(null, "throw"); function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(callNext, callThrow); } } callNext(); }); }; }
-
 //Internal Config/Utils/Classes
 var conf = require('../config/default').config,
     logger = require('../utils/logger'),
@@ -100,104 +98,51 @@ AccountSchema.methods = {
   * @description Log account in based on password attempt
   * @param {string} password - Attempt at password with which to login to account.
   */
-	login: (function () {
-		var _this = this;
-
-		var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(passwordAttempt) {
-			var self, passwordsMatch, _sessionInfo, token;
-
-			return regeneratorRuntime.wrap(function _callee$(_context) {
-				while (1) {
-					switch (_context.prev = _context.next) {
-						case 0:
-							logger.log({
-								description: 'Login called.',
-								func: 'login', obj: 'Account'
-							});
-							//Check password
-							self = _this; //this contexts were causing errors even though => should pass context automatically
-
-							if (_this.password) {
-								_context.next = 5;
-								break;
-							}
-
-							logger.warn({
-								description: 'Original query did not include password. Consider revising.',
-								func: 'login', obj: 'Account'
-							});
-							return _context.abrupt('return', _this.model('Account').find({ _id: self._id }).then(self.login(passwordAttempt)));
-
-						case 5:
-							_context.prev = 5;
-							_context.next = 8;
-							return _this.comparePassword(passwordAttempt);
-
-						case 8:
-							passwordsMatch = _context.sent;
-
-							logger.log({
-								description: 'Provided password matches.',
-								match: passwordsMatch,
-								func: 'login', obj: 'Account'
-							});
-							_context.next = 16;
-							break;
-
-						case 12:
-							_context.prev = 12;
-							_context.t0 = _context['catch'](5);
-
-							logger.error({
-								description: 'Error comparing password.',
-								attempt: passwordAttempt, error: _context.t0,
-								func: 'login', obj: 'Account'
-							});
-							return _context.abrupt('return', Promise.reject(_context.t0));
-
-						case 16:
-							_context.prev = 16;
-							_context.next = 19;
-							return _this.startSession();
-
-						case 19:
-							_sessionInfo = _context.sent;
-
-							logger.log({
-								description: 'Session started successfully.',
-								func: 'login', obj: 'Account'
-							});
-							_context.next = 27;
-							break;
-
-						case 23:
-							_context.prev = 23;
-							_context.t1 = _context['catch'](16);
-
-							logger.error({
-								description: 'Error starting session.',
-								error: _context.t1, func: 'login', obj: 'Account'
-							});
-							return _context.abrupt('return', Promise.reject(_context.t1));
-
-						case 27:
-							//Create Token
-							_this.sessionId = sessionInfo._id;
-							token = self.generateToken(sessionInfo);
-							return _context.abrupt('return', { token: token, account: self.strip() });
-
-						case 30:
-						case 'end':
-							return _context.stop();
-					}
-				}
-			}, _callee, _this, [[5, 12], [16, 23]]);
-		}));
-
-		return function login(_x) {
-			return ref.apply(this, arguments);
-		};
-	})(),
+	login: function login(passwordAttempt) {
+		logger.log({
+			description: 'Login called.',
+			func: 'login', obj: 'Account'
+		});
+		//Check password
+		var self = undefined; //this contexts were causing errors even though => should pass context automatically
+		if (!undefined.password) {
+			logger.warn({
+				description: 'Original query did not include password. Consider revising.',
+				func: 'login', obj: 'Account'
+			});
+			return undefined.model('Account').find({ _id: self._id }).then(self.login(passwordAttempt));
+		}
+		return self.comparePassword(passwordAttempt).then(function () {
+			logger.log({
+				description: 'Provided password matches.',
+				func: 'login', obj: 'Account'
+			});
+			//Start new session
+			return self.startSession().then(function (sessionInfo) {
+				logger.log({
+					description: 'Session started successfully.',
+					func: 'login', obj: 'Account'
+				});
+				//Create Token
+				undefined.sessionId = sessionInfo._id;
+				var token = self.generateToken(sessionInfo);
+				return { token: token, account: self.strip() };
+			}, function (err) {
+				logger.error({
+					description: 'Error starting session.',
+					error: err, func: 'login', obj: 'Account'
+				});
+				return Promise.reject(err);
+			});
+		}, function (err) {
+			logger.error({
+				description: 'Error comparing password.',
+				attempt: passwordAttempt, error: err,
+				func: 'login', obj: 'Account'
+			});
+			return Promise.reject(err);
+		});
+	},
 	/**
   * @function login
   * @description Log account out (end session and invalidate token)

@@ -1,6 +1,5 @@
 import 'newrelic';
 import 'babel-core/register';
-import 'babel-polyfill';
 
 import express from 'express';
 import path from 'path';
@@ -103,8 +102,6 @@ if(config.authEnabled){
  * @description Setup routes based on config file
  */
 routeBuilder(routes);
-
-//------------ Error handlers -----------//
 
 /** Error Logger
  * @description Log Errors before they are handled

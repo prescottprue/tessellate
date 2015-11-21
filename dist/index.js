@@ -4,8 +4,6 @@ require('newrelic');
 
 require('babel-core/register');
 
-require('babel-polyfill');
-
 var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
@@ -132,8 +130,6 @@ if (_default.config.authEnabled) {
  * @description Setup routes based on config file
  */
 routeBuilder(_routes2.default);
-
-//------------ Error handlers -----------//
 
 /** Error Logger
  * @description Log Errors before they are handled
