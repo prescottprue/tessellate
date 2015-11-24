@@ -71,7 +71,10 @@ var authUtil = require('../utils/auth');
 
 exports.get = (req, res, next) => {
 	// var user = authUtil.getUserFromRequest(req);
-	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
+	logger.log({
+		description: 'Get apps request.',
+		func: 'get', obj: 'ApplicationsCtrls'
+	});
 	var isList = true;
 	var query = Application.find({})
 	.populate({path:'owner', select:'username name title email'});
@@ -88,13 +91,19 @@ exports.get = (req, res, next) => {
 	}
 	query.then((result) => {
 		if(!result){
-			logger.error({description: 'Error finding Application(s).', func: 'get', obj: 'ApplicationsCtrls'});
+			logger.error({
+				description: 'Error finding Application(s).', func: 'get', obj: 'ApplicationsCtrls'
+			});
 			return res.status(400).send('Application(s) could not be found.');
 		}
-		logger.log({description: 'Application(s) found.', result: result, func: 'get', obj: 'ApplicationsCtrls'});
+		logger.log({
+			description: 'Application(s) found.', result: result, func: 'get', obj: 'ApplicationsCtrls'
+		});
 		res.send(result);
 	}, (err) => {
-		logger.error({description: 'Error getting application(s):', error: err, func: 'get', obj: 'ApplicationsCtrls'});
+		logger.error({
+			description: 'Error getting application(s):', error: err, func: 'get', obj: 'ApplicationsCtrls'
+		});
 		res.status(500).send('Error getting Application(s).');
 	});
 };
@@ -679,20 +688,20 @@ exports.login = (req, res, next) => {
 			obj: 'ApplicationCtrl'
 		});
 		//Use authrocket login if application has authRocket data
-			foundApp.login(loginData).then((loginRes) => {
-				logger.log({
-					description: 'Login Successful.', response: loginRes,
-					func: 'login', obj: 'ApplicationsCtrl'
-				});
-				res.send(loginRes);
-			}, (err) => {
-				//TODO: Handle wrong password
-				logger.error({
-					description: 'Error logging in.', error: err,
-					func: 'login', obj: 'ApplicationsCtrl'
-				});
-				res.status(400).send(err || 'Login Error.');
+		foundApp.login(loginData).then((loginRes) => {
+			logger.log({
+				description: 'Login Successful.', response: loginRes,
+				func: 'login', obj: 'ApplicationsCtrl'
 			});
+			res.send(loginRes);
+		}, (err) => {
+			//TODO: Handle wrong password
+			logger.error({
+				description: 'Error logging in.', error: err,
+				func: 'login', obj: 'ApplicationsCtrl'
+			});
+			res.status(400).send(err || 'Login Error.');
+		});
 	}, (err) => {
 		logger.error({
 			description: 'Error finding applicaiton.', error: err,
@@ -1332,8 +1341,8 @@ exports.updateDirectory = (req, res, next) => {
 exports.deleteDirectory = (req, res, next) => {
 	if(req.params.name && req.body){ //Get data for a specific application
 		logger.info({description: 'Application directory delete requested.', appName: req.params.name, body: req.body, func: 'deleteDirectory', obj: 'ApplicationsCtrl'});
-		findApplication(req.params.name).then( (foundApp) => {
-			foundApp.deleteDirectory(req.body.password).then( () => {
+		findApplication(req.params.name).then((foundApp) => {
+			foundApp.deleteDirectory(req.body.password).then(() => {
 				logger.info({description: 'Directory deleted successfully.', func: 'deleteDirectory', obj: 'ApplicationsCtrl'});
 				//TODO: Return something other than this message
 				res.send('Directory deleted successfully.');
@@ -1364,8 +1373,8 @@ function findApplication(appName) {
 	} else {
 		var query = Application.findOne({name:appName})
 		.populate({path:'owner', select:'username name email'})
-		.populate({path:'groups', select:'name accounts'})
-		.populate({path:'directories', select:'name accounts groups'})
+		// .populate({path:'groups', select:'name accounts'})
+		// .populate({path:'directories', select:'name accounts groups'})
 		return query.then((foundApp) => {
 			if(!foundApp){
 				logger.error({

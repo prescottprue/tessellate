@@ -21,7 +21,7 @@ module.exports = {
 		secret:process.env.TESSELLATE_AWS_SECRET,
 		bucketPrefix: "tessellate"
 	},
-	authEnabled: true,
+	authEnabled: process.env.AUTH_ENABLED || false,
 	authRocket:{
 		enabled: true,
 		secret: process.env.AUTHROCKET_JWT_SECRET

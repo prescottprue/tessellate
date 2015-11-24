@@ -73,7 +73,10 @@ var authUtil = require('../utils/auth');
 
 exports.get = function (req, res, next) {
 	// var user = authUtil.getUserFromRequest(req);
-	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
+	logger.log({
+		description: 'Get apps request.',
+		func: 'get', obj: 'ApplicationsCtrls'
+	});
 	var isList = true;
 	var query = Application.find({}).populate({ path: 'owner', select: 'username name title email' });
 	if (req.params.name) {
@@ -87,13 +90,19 @@ exports.get = function (req, res, next) {
 	}
 	query.then(function (result) {
 		if (!result) {
-			logger.error({ description: 'Error finding Application(s).', func: 'get', obj: 'ApplicationsCtrls' });
+			logger.error({
+				description: 'Error finding Application(s).', func: 'get', obj: 'ApplicationsCtrls'
+			});
 			return res.status(400).send('Application(s) could not be found.');
 		}
-		logger.log({ description: 'Application(s) found.', result: result, func: 'get', obj: 'ApplicationsCtrls' });
+		logger.log({
+			description: 'Application(s) found.', result: result, func: 'get', obj: 'ApplicationsCtrls'
+		});
 		res.send(result);
 	}, function (err) {
-		logger.error({ description: 'Error getting application(s):', error: err, func: 'get', obj: 'ApplicationsCtrls' });
+		logger.error({
+			description: 'Error getting application(s):', error: err, func: 'get', obj: 'ApplicationsCtrls'
+		});
 		res.status(500).send('Error getting Application(s).');
 	});
 };
@@ -1376,7 +1385,9 @@ function findApplication(appName) {
 		});
 		Promise.reject({ message: 'Application name required to find application.' });
 	} else {
-		var query = Application.findOne({ name: appName }).populate({ path: 'owner', select: 'username name email' }).populate({ path: 'groups', select: 'name accounts' }).populate({ path: 'directories', select: 'name accounts groups' });
+		var query = Application.findOne({ name: appName }).populate({ path: 'owner', select: 'username name email' });
+		// .populate({path:'groups', select:'name accounts'})
+		// .populate({path:'directories', select:'name accounts groups'})
 		return query.then(function (foundApp) {
 			if (!foundApp) {
 				logger.error({

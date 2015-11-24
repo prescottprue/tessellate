@@ -10,13 +10,13 @@ var conf = require('../config/default').config,
 var Directory = require('./directory');
 var Group = require('./group');
 var Account = require('./account');
-
 //External Libs
 var mongoose = require('mongoose'),
     q = require('q'),
     _ = require('lodash'),
     sqs = require('../utils/sqs'),
     AuthRocket = require('authrocket');
+var ObjectId = mongoose.Types.ObjectId;
 
 //Set bucket prefix based on config as well as default if config does not exist
 var bucketPrefix = "tessellate-";
@@ -25,7 +25,9 @@ if (_.has(conf, 's3') && _.has(conf.s3, 'bucketPrefix')) {
 }
 //Application schema object
 var ApplicationSchema = new mongoose.Schema({
-	owner: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },
+	owner: { type: mongoose.Schema.Types.ObjectId, ref: 'Account', default: function _default() {
+			return new ObjectId();
+		} },
 	name: { type: String, default: '', unique: true, index: true },
 	frontend: {
 		siteUrl: { type: String },
@@ -310,7 +312,7 @@ ApplicationSchema.methods = {
 	login: function login(loginData) {
 		//Search for account in application's directories
 		logger.log({
-			description: 'Login to application called.',
+			description: 'Login to application called.', application: undefined,
 			func: 'login', obj: 'Application'
 		});
 		//Login to authrocket if data is available
@@ -889,7 +891,7 @@ ApplicationSchema.methods = {
 		} else if (_.isString(accountData)) {
 			findObj.username = accountData;
 		}
-		if (undefined.authRocket && undefined.authRocket.jsUrl) {
+		if (undefined.authRocket && undefined.authRocket.jsUrl && undefined.authRocket.jsUrl.length > 0) {
 			//Get account from authrocket
 			return undefined.appAuthRocket().Users(findObj.username).get().then(function (loadedUser) {
 				logger.info({
@@ -1093,7 +1095,7 @@ ApplicationSchema.methods = {
 // 		return Promise.reject({message: 'Error deleting directory.'});
 // 	});
 // }
-db.tessellate.model('Application', ApplicationSchema);
+db.tessellate.model('Application', ApplicationSchema, 'applications');
 
 /*
  * Make model accessible from controllers
