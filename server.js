@@ -150,7 +150,11 @@ app.use(function (err, req, res, next) {
 /**
  * Get port from environment and store in Express.
  */
-var port = systemUtils.normalizePort(confFile.server.port || process.env.PORT || 4000);
+var portNumber = process.env.PORT || 4000;
+if(confFile && confFile.server && confFile.server.port && config.envName !== 'production') {
+  port = confFile.server.port;
+}
+var port = systemUtils.normalizePort(portNumber);
 console.log('Server started...');
 console.log('Environment: ' + config.envName || 'ERROR');
 console.log('Port: ' + port);
