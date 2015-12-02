@@ -73,28 +73,44 @@ exports.get = (req, res, next) => {
 	// var user = authUtil.getUserFromRequest(req);
 	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
 	var isList = true;
-	var query = Application.find({})
-	.populate({path:'owner', select:'username name title email'});
+	var findObj = {};
 	if(req.params.name){ //Get data for a specific application
 		logger.log({
 			description: 'Application get request.', name: req.params.name,
 			func: 'get', obj: 'ApplicationsCtrls'
 		});
-		query = Application.findOne({name:req.params.name})
-		.populate({path:'owner', select:'username name title email'})
-		.populate({path:'groups', select:'name accounts'})
-		.populate({path:'directories', select:'name accounts groups'});
+		findObj.name = req.params.name
 		isList = false;
 	}
+	if(req.user){
+		findObj.$or = [{'owner': req.user.accountId}, {'collaborators': {$in:[req.user.accountId]}}]
+	}
+	logger.log({
+		description: 'Get find object created.', findObj: findObj,
+		func: 'get', obj: 'ApplicationsCtrls'
+	});
+	var query = Application.find(findObj)
+	.populate({path:'owner', select:'username name title email'})
+	.populate({path:'collaborators', select:'username name email'})
+	.populate({path:'groups', select:'name accounts'});
 	query.then((result) => {
 		if(!result){
-			logger.error({description: 'Error finding Application(s).', func: 'get', obj: 'ApplicationsCtrls'});
+			logger.error({
+				description: 'Error finding Application(s).',
+				func: 'get', obj: 'ApplicationsCtrls'
+			});
 			return res.status(400).send('Application(s) could not be found.');
 		}
-		logger.log({description: 'Application(s) found.', result: result, func: 'get', obj: 'ApplicationsCtrls'});
+		logger.log({
+			description: 'Application(s) found.', result: result,
+			func: 'get', obj: 'ApplicationsCtrls'
+		});
 		res.send(result);
 	}, (err) => {
-		logger.error({description: 'Error getting application(s):', error: err, func: 'get', obj: 'ApplicationsCtrls'});
+		logger.error({
+			description: 'Error getting application(s):',
+			error: err, func: 'get', obj: 'ApplicationsCtrls'
+		});
 		res.status(500).send('Error getting Application(s).');
 	});
 };
@@ -113,25 +129,40 @@ exports.get = (req, res, next) => {
 exports.getProviders = (req, res, next) => {
 	// var query = Application.find({}).populate({path:'owner', select:'username name title email'});
 	if(req.params.name){ //Get data for a specific application
-		logger.log({description: 'Get Providers request.', params: req.params, func: 'getProviders', obj: 'ApplicationsCtrls'});
+		logger.log({
+			description: 'Get Providers request.', params: req.params,
+			func: 'getProviders', obj: 'ApplicationsCtrls'
+		});
 		var query = Application.findOne({name:req.params.name});
 		query.then((result) => {
 			if(!result){
-				logger.error('[ApplicationsCtrl.get()] Error finding application(s).');
-				return res.status(400).send('Application(s) could not be found.');
+				logger.warn({
+					description: 'Application not found.',
+					func: 'getProviders', obj: 'ApplicationsCtrls'
+				});
+				return res.status(400).send('Application could not be found.');
 			}
 			var providerData = {};
 			_.each(result.providers, (provider) => {
 				providerData[provider.name] = provider.clientId;
 			});
-			logger.log({description: 'Provider data found.', providerData: providerData, func: 'getProviders', obj: 'ApplicationsCtrls'});
+			logger.log({
+				description: 'Provider data found.', providerData: providerData,
+				func: 'getProviders', obj: 'ApplicationsCtrls'
+			});
 			res.send(providerData);
 		}, (err) => {
-			logger.error({description: 'Error getting application(s).', error: err, func: 'getProviders', obj: 'ApplicationsCtrls'});
+			logger.error({
+				description: 'Error getting application(s).',
+				error: err, func: 'getProviders', obj: 'ApplicationsCtrls'
+			});
 			res.status(500).send('Error getting Application(s).');
 		});
 	} else {
-		logger.info({description: 'Application name required to get providers.', func: 'getProviders', obj: 'ApplicationsCtrls'});
+		logger.info({
+			description: 'Application name required to get providers.',
+			func: 'getProviders', obj: 'ApplicationsCtrls'
+		});
 		res.status(400).send('Application name required to get providers.');
 	}
 };
@@ -167,14 +198,21 @@ exports.getProviders = (req, res, next) => {
 exports.add = (req, res, next) => {
 	//Query for existing application with same _id
 	if(!_.has(req.body, "name")){
-		logger.error({description:'Application name required to create a new app.', name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'});
-		res.status(400).send("Name is required to create a new app");
+		logger.error({
+			description:'Application name required to create a new app.',
+			body: req.body, func: 'add', obj: 'ApplicationsCtrl'
+		});
+		res.status(400).send('Name is required to create a new app');
 	} else {
-		logger.log({description:'Applications add called with name.', name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'});
+		logger.log({
+			description:'Applications add called with name.',
+			name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'
+		});
 		var appData = _.extend({}, req.body);
 		var appName = req.body.name;
 		if(!_.has(appData, 'owner')){
-			logger.log({description: 'No owner data provided. Using account.', account: req.user, func: 'add', obj: 'ApplicationsCtrl'});
+			logger.log({
+				description: 'No owner data provided. Using account.', account: req.user, func: 'add', obj: 'ApplicationsCtrl'});
 			if(_.has(req, 'userId')){
 				appData.owner = req.userId;
 			} else if (_.has(req.user, 'id')) {
@@ -182,34 +220,55 @@ exports.add = (req, res, next) => {
 			}
 		}
 		findApplication(appName).then((foundApp) => {
-			logger.error({description: 'Application with this name already exists.', foundApp: foundApp, func: 'add', obj: 'ApplicationsCtrl'});
+			logger.error({
+				description: 'Application with this name already exists.',
+				foundApp: foundApp, func: 'add', obj: 'ApplicationsCtrl'
+			});
 			res.status(400).send('Application with this name already exists.');
 		}, (err) => {
 			if(err && err.status == 'EXISTS'){
 				res.status(400).send('Application with this name already exists.');
 			} else {
-				logger.log({description: 'Application does not already exist.', func: 'add', obj: 'Application'});
+				logger.log({
+					description: 'Application does not already exist.',
+					func: 'add', obj: 'Application'
+				});
 				//application does not already exist
 				var application = new Application(appData);
-				logger.log({description: 'Calling create with storage.', appData: appData, func: 'add', obj: 'Application'});
+				logger.log({
+					description: 'Calling create with storage.',
+					appData: appData, func: 'add', obj: 'Application'
+				});
 				//Create with template if one is provided
 				if(_.has(req.body,'template')){
 					//Template name was provided
 					application.createWithTemplate(req.body.template).then( (newApp) => {
-						logger.log({description: 'Application created with template.', newApp: newApp, func: 'add', obj: 'Application'});
+						logger.log({
+							description: 'Application created with template.',
+							newApp: newApp, func: 'add', obj: 'Application'
+						});
 						res.json(newApp);
 					}, (err) => {
-						logger.error({description: 'Error creating application.', error: err, func: 'add', obj: 'Application'});
+						logger.error({
+							description: 'Error creating application.',
+							error: err, func: 'add', obj: 'Application'
+						});
 						res.status(400).send('Error creating application.');
 					});
 				} else {
 					//Template parameter was not provided
-					application.createWithStorage(req.body).then( (newApp) => {
-						logger.log({description: 'Application created with storage.', newApp: newApp, func: 'add', obj: 'Application'});
+					application.createWithStorage(req.body).then((newApp) => {
+						logger.log({
+							description: 'Application created with storage.',
+							newApp: newApp, func: 'add', obj: 'Application'
+						});
 						res.json(newApp);
 					},  (err) => {
 						//TODO: Handle different errors here
-						logger.error({description: 'Error creating new application with storage.', error: err, func: 'add', obj: 'ApplicationsCtrl'});
+						logger.error({
+							description: 'Error creating new application with storage.',
+							error: err, func: 'add', obj: 'ApplicationsCtrl'
+						});
 						res.status(400).json('Error creating application.');
 					});
 				}

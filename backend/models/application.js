@@ -26,7 +26,7 @@ var ApplicationSchema = new mongoose.Schema({
 	frontend:{
 		siteUrl:{type:String},
 		bucketUrl:{type:String},
-		provider:{type:String, default:'Amazon'},
+		provider:{type:String},
 		bucketName:{type:String}
 	},
 	backend:{
