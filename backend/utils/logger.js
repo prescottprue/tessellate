@@ -101,21 +101,27 @@ function buildMessageStr(logData){
 	return msg + '\n';
 }
 /**
- * @description Configure external logging server. Currently Loggly. Requires LOGGLY_TOKEN environment variable
+ * @description Configure external logging server.
+ * Currently using Loggly through winston. Requires LOGGLY_TOKEN environment variable
  */
 function configureExternalLogger(){
-  if(_.has(process.env, 'LOGGLY_TOKEN')){
-    externalLoggerExists = true;
-    winston.add(winston.transports.Loggly, {
-        token: process.env.LOGGLY_TOKEN,
-        subdomain: "kyper",
-        tags: ["Winston-NodeJS"],
-        json:true
-    });
-  } else {
-    console.log('Loggly Token does not exist, so external logging can not be configured.');
-    externalLoggerExists = false;
-  }
+  if(conf.logging && conf.logging.enabled){
+		if(!_.has(process.env, 'LOGGLY_TOKEN')){
+			console.warn('Loggly Token does not exist, so external logging can not be configured.');
+			externalLoggerExists = false;
+			return;
+		}
+		externalLoggerExists = true;
+		winston.add(winston.transports.Loggly, {
+			token: process.env.LOGGLY_TOKEN,
+			subdomain: "kyper",
+			tags: ["Winston-NodeJS"],
+			json:true
+		});
+	} else {
+		console.log('External logging is disabled.');
+		externalLoggerExists = false;
+	}
 }
 /**
  * @description Call external logging service with loggin type.
@@ -123,14 +129,11 @@ function configureExternalLogger(){
  * @param {object|string} msgData - Object or String data of message to log.
  */
 function callExternalLogger(type, msgData) {
-	console.log('external logger being called with type and data');
-	console.log(type);
-	console.log(msgData);
-  try {
-    console[type](msgData);
-    externalLoggerExists ? winston.log(type, msgData) : console.log('External logging does not exist.');
-  } catch(err){
-    console.log('ERROR: External logging failed.');
-    console.log(JSON.stringify(err));
-  }
+	try {
+		console[type](msgData);
+		externalLoggerExists ? winston.log(type, msgData) : console.log('External logging does not exist.');
+	} catch(err){
+		console.log('ERROR: External logging failed.');
+		console.log(JSON.stringify(err));
+	}
 }
