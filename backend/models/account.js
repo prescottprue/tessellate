@@ -224,7 +224,7 @@ AccountSchema.methods = {
 	saveNew:() => {
 		logger.warn({
 			description: 'saveNew called.',
-			account: this, func: 'saveNew',
+			func: 'saveNew',
 			obj: 'Account'
 		});
 		var self = this;
@@ -368,10 +368,10 @@ AccountSchema.methods = {
 		} else {
 			logger.warn({
 				description: 'Creating a user without an application.',
-				account: self, func: 'createWithPass', obj: 'Account'
+				func: 'createWithPass', obj: 'Account'
 			});
 		}
-		var query = this.model('Account').findOne(findObj);
+		var query = self.model('Account').findOne(findObj);
 		return query.then((foundAccount) => {
 			if(foundAccount){
 				logger.warn({
@@ -386,12 +386,17 @@ AccountSchema.methods = {
 			});
 			return self.hashPassword(password).then((hashedPass) => {
 				self.password = hashedPass;
-				return self.saveNew().then((newAccount) => {
+				logger.log({
+					description: 'Before save.',
+					func: 'createWithPass', obj: 'Account'
+				});
+				return self.save().then((newAccount) => {
 					logger.log({
 						description: 'New account created successfully.',
+						newAccount: newAccount,
 						func: 'createWithPass', obj: 'Account'
 					});
-					return self;
+					return newAccount;
 				}, (err) => {
 					logger.error({
 						description: 'Error creating new account.',

@@ -123,6 +123,9 @@ function configureExternalLogger(){
  * @param {object|string} msgData - Object or String data of message to log.
  */
 function callExternalLogger(type, msgData) {
+	console.log('external logger being called with type and data');
+	console.log(type);
+	console.log(msgData);
   try {
     console[type](msgData);
     externalLoggerExists ? winston.log(type, msgData) : console.log('External logging does not exist.');
