@@ -74,25 +74,30 @@ exports.get = (req, res, next) => {
 	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
 	var isList = true;
 	var findObj = {};
+	var query;
 	if(req.params.name){ //Get data for a specific application
 		logger.log({
 			description: 'Application get request.', name: req.params.name,
 			func: 'get', obj: 'ApplicationsCtrls'
 		});
-		findObj.name = req.params.name
+		findObj.name = req.params.name;
 		isList = false;
-	}
-	if(req.user){
-		findObj.$or = [{'owner': req.user.accountId}, {'collaborators': {$in:[req.user.accountId]}}]
+		query = Application.findOne(findObj).populate({path:'owner', select:'username name email'})
+		.populate({path:'collaborators', select:'username name email'})
+		.populate({path:'groups', select:'name accounts'});
+	} else {
+		//Find applications that current user as owner or as a collaborator
+		if(req.user){
+			findObj.$or = [{'owner': req.user.accountId}, {'collaborators': {$in:[req.user.accountId]}}]
+		}
+		query = Application.find(findObj).populate({path:'owner', select:'username name email'})
+		.populate({path:'collaborators', select:'username name email'})
+		.populate({path:'groups', select:'name accounts'});
 	}
 	logger.log({
 		description: 'Get find object created.', findObj: findObj,
 		func: 'get', obj: 'ApplicationsCtrls'
 	});
-	var query = Application.find(findObj)
-	.populate({path:'owner', select:'username name title email'})
-	.populate({path:'collaborators', select:'username name email'})
-	.populate({path:'groups', select:'name accounts'});
 	query.then((result) => {
 		if(!result){
 			logger.error({
@@ -447,7 +452,7 @@ exports.files = (req, res, next) => {
 						structure: appFiles, func: 'files', obj: 'ApplicationsCtrls'
 					});
 					res.send(appFiles);
-				},  (err) => {
+				}, (err) => {
 					logger.error({
 						description: 'Error getting application file structure.',
 						error: err, func: 'files', obj: 'ApplicationsCtrls'
