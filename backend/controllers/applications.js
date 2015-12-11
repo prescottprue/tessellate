@@ -247,7 +247,8 @@ exports.add = (req, res, next) => {
 				//Create with template if one is provided
 				if(_.has(req.body,'template')){
 					//Template name was provided
-					application.createWithTemplate(req.body.template).then( (newApp) => {
+					var templateType = req.body.templateType ? req.body.templateType : 'firebase';
+					application.createWithTemplate(req.body.template, templateType).then( (newApp) => {
 						logger.log({
 							description: 'Application created with template.',
 							newApp: newApp, func: 'add', obj: 'Application'

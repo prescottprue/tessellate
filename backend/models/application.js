@@ -89,7 +89,7 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createWithTemplate: (templateName) => {
+	createWithTemplate: (templateName, templateType) => {
 		logger.log({
 			description: 'Create application with template called.', templateName: templateName,
 			application: this, func: 'createWithTemplate', obj: 'Application'
@@ -101,7 +101,7 @@ ApplicationSchema.methods = {
 				description: 'Create with storage successful.', newApplication: newApplicaiton,
 				func: 'createWithTemplate', obj: 'Application'
 			});
-			return self.applyTemplate(templateName).then(() => {
+			return self.applyTemplate(templateName, templateType).then(() => {
 				// console.log('[application.createWithStorage] storage created successfully', newApplication);
 				logger.info({
 					description: 'Publish file called.',
@@ -236,17 +236,23 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-	applyTemplate: (templateName) => {
+	applyTemplate: (templateName, templateType) => {
 		if(!templateName || _.isUndefined(templateName)){
 			templateName = 'default';
+		}
+		if(!templateType || _.isUndefined(templateType)){
+			templateName = 'firebase';
 		}
 		logger.log({
 			description: 'Applying template to project.',
 			templateName: templateName, func: 'applyTemplate', obj: 'Application'
 		});
 		//TODO: Check that the template was actually uploaded
+		//New message format
+		//fromName, fromType, toName, toType
+		var messageArray = [templateName, templateType, this.name, 'firebase'];
 		if(conf.aws.sqsQueueUrl){
-			return sqs.add(this.frontend.bucketName + ':' + templateName);
+			return sqs.add(messageArray.join('**'));
 		} else {
 			//TODO: Download then upload locally instead of pushing to worker queue
 			logger.error({

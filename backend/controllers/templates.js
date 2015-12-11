@@ -52,6 +52,7 @@ exports.get = (req, res, next) => {
  * @apiGroup Template
  *
  * @apiParam {String} name Name of template
+ * @apiParam {String} type Type/Location of template (git, Firebase, S3) to copy
  *
  * @apiSuccess {Object} templateData Object containing newly created template's data.
  *
@@ -243,6 +244,7 @@ exports.delete = function(req, res, next){
  *
  */
 exports.search = function(req, res, next){
+	//TODO: Search through firebase templates
 	var nameQuery = createTemplateQuery('name', req.params.searchQuery);
 	// var emailQuery = createAccountQuery('email', req.params.searchQuery);
 	//Search templates by name
@@ -267,7 +269,7 @@ exports.search = function(req, res, next){
 	});
 };
 /**
- * Create a account query based on provided key and value
+ * Create a account query based on provided key and value (in mongo)
  */
 function createTemplateQuery(key, val){
 	var queryArr = _.map(val.split(' '), function (qr) {
