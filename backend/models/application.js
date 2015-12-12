@@ -26,7 +26,7 @@ var ApplicationSchema = new mongoose.Schema({
 	frontend:{
 		siteUrl:{type:String},
 		bucketUrl:{type:String},
-		provider:{type:String, default:'Amazon'},
+		provider:{type:String},
 		bucketName:{type:String}
 	},
 	backend:{
@@ -64,33 +64,32 @@ ApplicationSchema.set('collection', 'applications');
 ApplicationSchema.methods = {
 	//Wrap save functionality in promise and handle errors
 	saveNew: () => {
-		logger.log({
-			description: 'Save application called.',
+		logger.warn({
+			description: 'saveNew called and is no longer nessesary.',
 			func: 'saveNew', obj: 'Application'
 		});
-		return this.save((err, savedApp) => {
-			if (err) {
-				logger.error({
-					description: 'Error saving Application.',
-					error: err, func: 'saveNew', obj: 'Application'
-				});
-				return Promise.reject(err);
-			} else if (!savedApp) {
+		return this.save().then((savedApp) => {
+			if (!savedApp) {
 				logger.error({
 					description: 'Unable to save Application.',
 					func: 'saveNew', obj: 'Application'
 				});
 				return Promise.reject({message: 'Application could not be saved.'});
-			} else {
-				logger.info({
-					description: 'Application saved successfully.', savedApp: savedApp,
-					func: 'saveNew', obj: 'Application'
-				});
-				return savedApp;
 			}
+			logger.info({
+				description: 'Application saved successfully.', savedApp: savedApp,
+				func: 'saveNew', obj: 'Application'
+			});
+			return savedApp;
+		}, (err) => {
+			logger.error({
+				description: 'Error saving Application.',
+				error: err, func: 'saveNew', obj: 'Application'
+			});
+			return Promise.reject(err);
 		});
 	},
-	createWithTemplate: (templateName) => {
+	createWithTemplate: (templateName, templateType) => {
 		logger.log({
 			description: 'Create application with template called.', templateName: templateName,
 			application: this, func: 'createWithTemplate', obj: 'Application'
@@ -102,7 +101,7 @@ ApplicationSchema.methods = {
 				description: 'Create with storage successful.', newApplication: newApplicaiton,
 				func: 'createWithTemplate', obj: 'Application'
 			});
-			return self.applyTemplate(templateName).then(() => {
+			return self.applyTemplate(templateName, templateType).then(() => {
 				// console.log('[application.createWithStorage] storage created successfully', newApplication);
 				logger.info({
 					description: 'Publish file called.',
@@ -132,7 +131,7 @@ ApplicationSchema.methods = {
 		// TODO: Add a new group by default
 		//TODO: Add realm to authrocket if authRocket data is included
 		var self = this;
-		return self.saveNew().then((newApplication) => {
+		return self.save().then((newApplication) => {
 			logger.log({
 				description: 'New application added to db.', application: newApplication,
 				func: 'createWithStorage', obj: 'Application'
@@ -237,17 +236,29 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-	applyTemplate: (templateName) => {
+	applyTemplate: (templateName, templateType) => {
 		if(!templateName || _.isUndefined(templateName)){
 			templateName = 'default';
 		}
-		logger.log({description: 'Applying template to project.', templateName: templateName, func: 'applyTemplate', obj: 'Application'});
+		if(!templateType || _.isUndefined(templateType)){
+			templateName = 'firebase';
+		}
+		logger.log({
+			description: 'Applying template to project.',
+			templateName: templateName, func: 'applyTemplate', obj: 'Application'
+		});
 		//TODO: Check that the template was actually uploaded
+		//New message format
+		//fromName, fromType, toName, toType
+		var messageArray = [templateName, templateType, this.name, 'firebase'];
 		if(conf.aws.sqsQueueUrl){
-			return sqs.add(this.frontend.bucketName + ':' + templateName);
+			return sqs.add(messageArray.join('**'));
 		} else {
 			//TODO: Download then upload locally instead of pushing to worker queue
-			logger.error({description: 'Queue url is currently required to create new templates This will be changed soon.', templateName: templateName, func: 'applyTemplate', obj: 'Application'});
+			logger.error({
+				description: 'Queue url is currently required to create new templates This will be changed soon.',
+				templateName: templateName, func: 'applyTemplate', obj: 'Application'
+			});
 		}
 	},
 	addCollaborators: (usersArray) => {
@@ -460,7 +471,9 @@ ApplicationSchema.methods = {
 				description: 'Logout data is required to logout.',
 				func: 'logout', obj: 'Application'
 			});
-			return Promise.reject({message: 'Logout data requred.'});
+			return Promise.reject({
+				message: 'Logout data requred.'
+			});
 		}
 		//Log the user out
 		if(this.authRocket && this.authRocket.jsUrl){
@@ -511,7 +524,6 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-
 	//Add group to application
 	addGroup: (groupData) => {
 		//TODO: make sure that group does not already exist in this application

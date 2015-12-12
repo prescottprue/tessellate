@@ -239,30 +239,61 @@ exports.login = (req, res, next) => {
  */
 exports.logout = (req, res, next) => {
 	//TODO:Invalidate token
-	// logger.log({description: 'Ending accounts session.', account: account, func: 'logout', obj: 'AuthCtrl'});
+	logger.log({
+		description: 'Logout called.',
+		authRocketEnabled: authRocketEnabled,
+		body: req.body,
+		func: 'logout', obj: 'AuthCtrl'
+	});
 	if(authRocketEnabled){
 		var token;
 		if(req.body && req.body.token){
 			token = req.body.token;
+		} else if(req.headers && (req.headers.authorization || req.header('Authorization'))){
+			logger.log({
+				description: 'Getting token from headers.',
+				headers: req.headers, func: 'logout', obj: 'AuthCtrl'
+			});
+			var header = req.headers.authorization || req.header('Authorization');
+			token = header.replace("Bearer ", "");
+		} else {
+			logger.warn({
+				description: 'Token required to logout.',
+				func: 'logout', obj: 'AuthCtrl'
+			});
+			return res.status(401).send('Token required to logout.');
 		}
-		if(req.headers && req.headers.Authorization){
-			token = req.headers.Authorization;
-		}
-		logger.log({description: 'Attempting log out through authrocket.', token: token, func: 'logout', obj: 'AuthCtrl'});
+		logger.log({
+			description: 'Attempting log out through authrocket.',
+			token: token, func: 'logout', obj: 'AuthCtrl'
+		});
 		authrocket.logout(token).then((logoutRes) => {
-			logger.log({description: 'Successfully logged out through authrocket.', response: logoutRes, func: 'logout', obj: 'AuthCtrl'});
+			logger.log({
+				description: 'Successfully logged out through authrocket.',
+				response: logoutRes, func: 'logout', obj: 'AuthCtrl'
+			});
 			res.send({message:'Logout successful.'});
 		}, (err) => {
-			logger.error({description: 'Error ending session.', error: err,  func: 'logout', obj: 'AuthCtrl'});
+			logger.error({
+				description: 'Error ending session.', error: err,
+				func: 'logout', obj: 'AuthCtrl'
+			});
 			res.status(500).send(err);
 		});
 	} else {
+		//TODO: Handle user not being in req.user
 		var account = new Account(req.user);
 		account.endSession().then(() => {
-			logger.log({description: 'Successfully ended session', func: 'logout', obj: 'AuthCtrl'});
+			logger.log({
+				description: 'Successfully ended session',
+				func: 'logout', obj: 'AuthCtrl'
+			});
 			res.send({message:'Logout successful.'});
 		}, (err) => {
-			logger.error({description: 'Error ending session.', error: err,  func: 'logout', obj: 'AuthCtrl'});
+			logger.error({
+				description: 'Error ending session.', error: err,
+				func: 'logout', obj: 'AuthCtrl'
+			});
 			res.status(500).send({message:'Error ending session.'});
 		});
 	}

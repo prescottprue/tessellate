@@ -13,10 +13,10 @@ import confFile from '../config.json';
 import {config} from './config/default';
 import systemUtils from './lib/systemUtils';
 import logger from './utils/logger';
+import routes from './config/routes';
 
 let app = express();
 
-import routes from './config/routes';
 let routeBuilder = require('./utils/routeBuilder')(app);
 
 /** View Engine Setup
@@ -151,7 +151,11 @@ app.use((err, req, res, next) => {
 /**
  * Get port from environment and store in Express.
  */
-let port = systemUtils.normalizePort(process.env.PORT || confFile.server.port || 4000);
+let portNumber = process.env.PORT || 4000;
+if(confFile && confFile.server && confFile.server.port && config.envName !== 'production') {
+  port = confFile.server.port;
+}
+let port = systemUtils.normalizePort(portNumber);
 console.log('Server started...');
 console.log('Environment: ' + config.envName || 'ERROR');
 console.log('Port: ' + port);

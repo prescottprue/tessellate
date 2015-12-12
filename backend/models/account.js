@@ -224,27 +224,22 @@ AccountSchema.methods = {
 	saveNew:() => {
 		logger.warn({
 			description: 'saveNew called.',
-			account: this, func: 'saveNew',
+			func: 'saveNew',
 			obj: 'Account'
 		});
 		var self = this;
-		// logger.warn({description: 'saveNew is no longer nessesary since save returns a promise.', func: 'saveNew', obj: 'Account'});
-		return new Promise((resolve, reject) => {
-			self.save((err) => {
-				if(!err){
-					logger.log({
-						description: 'Account saved successfully.',
-						savedAccount: self, func: 'saveNew', obj: 'Account'
-					});
-					resolve();
-				} else {
-					logger.error({
-						description: 'Error saving Account.',
-						account: self, func: 'saveNew', obj: 'Account'
-					});
-					return reject(err);
-				}
+		this.save().then((savedAccount) => {
+			logger.log({
+				description: 'Account saved successfully.',
+				savedAccount: self, func: 'saveNew', obj: 'Account'
 			});
+			return savedAccount;
+		}, (err) => {
+			logger.error({
+				description: 'Error saving Account.',
+				account: self, func: 'saveNew', obj: 'Account'
+			});
+			return Promise.reject(err);
 		});
 	},
 	/**
@@ -338,14 +333,13 @@ AccountSchema.methods = {
 	 * @description Create new account
 	 * @param {string} password - Password with which to create account
 	 * @param {string} application - Application with which to create account
-
 	 */
 	createWithPass: (password, application) => {
 		var self = this;
 		if(!self.username){
 			logger.warn({
 				description: 'Username is required to create a new account.',
-				account: self, func: 'createWithPass', obj: 'Account'
+				func: 'createWithPass', obj: 'Account'
 			});
 			return Promise.reject({
 				message: 'Username required to create a new account.'
@@ -354,7 +348,7 @@ AccountSchema.methods = {
 		if(!password || !_.isString(password)){
 			logger.error({
 				description: 'Invalid password.',
-				account: self, password: password,
+				password: password,
 				func: 'createWithPass', obj: 'Account'
 			});
 			return Promise.reject({
@@ -368,10 +362,10 @@ AccountSchema.methods = {
 		} else {
 			logger.warn({
 				description: 'Creating a user without an application.',
-				account: self, func: 'createWithPass', obj: 'Account'
+				func: 'createWithPass', obj: 'Account'
 			});
 		}
-		var query = this.model('Account').findOne(findObj);
+		var query = self.model('Account').findOne(findObj);
 		return query.then((foundAccount) => {
 			if(foundAccount){
 				logger.warn({
@@ -386,12 +380,17 @@ AccountSchema.methods = {
 			});
 			return self.hashPassword(password).then((hashedPass) => {
 				self.password = hashedPass;
-				return self.saveNew().then((newAccount) => {
+				logger.log({
+					description: 'Before save.',
+					func: 'createWithPass', obj: 'Account'
+				});
+				return self.save().then((newAccount) => {
 					logger.log({
 						description: 'New account created successfully.',
+						newAccount: newAccount,
 						func: 'createWithPass', obj: 'Account'
 					});
-					return self;
+					return newAccount;
 				}, (err) => {
 					logger.error({
 						description: 'Error creating new account.',
