@@ -58,7 +58,7 @@ AccountSchema.set('collection', 'accounts');
 // 	return namesArray;
 // });
 AccountSchema.virtual('id')
-.get(() => {
+.get(function() {
 	return this._id;
 })
 // .set( (id) => {
@@ -69,7 +69,7 @@ AccountSchema.methods = {
 	 * @function strip
 	 * @description Remove values that should not be sent
 	 */
-	strip: () => {
+	strip: function() {
 		var strippedAccount = _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
 		logger.log({description: 'Strip called.', strippedAccount: strippedAccount, func: 'strip', obj: 'Account'});
 		return _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
@@ -78,29 +78,46 @@ AccountSchema.methods = {
 	 * @function tokenData
 	 * @description Get data used within token
 	 */
-	tokenData: () => {
+	tokenData: function() {
 		var data = _.pick(this.toJSON(), ["username", "groups", "sessionId", "groupNames"]);
-		logger.log({description: 'Token data selected.', func: 'tokenData', obj: 'Account'});
-		data.accountId = this.toJSON().id;
+		logger.log({
+			description: 'Token data selected.',
+			func: 'tokenData', obj: 'Account'
+		});
+		data.accountId = this._id;
 		return data;
 	},
 	/**
 	 * @function generateToken
 	 * @description Encode a JWT with account info
 	 */
-	generateToken: (session) => {
-		logger.log({description: 'Generate token called.', func: 'generateToken', obj: 'Account'});
-		var tokenData = this.tokenData();
-		var token = jwt.sign(tokenData, conf.jwtSecret);
-		logger.log({description: 'Token generated.', func: 'generateToken', obj: 'Account'});
-		return token;
+	generateToken: function (session) {
+		logger.log({
+			description: 'Generate token called.',
+			func: 'generateToken', obj: 'Account'
+		});
+		try {
+			var tokenData = this.tokenData();
+			var token = jwt.sign(tokenData, conf.jwtSecret);
+			logger.log({
+				description: 'Token generated.',
+				func: 'generateToken', obj: 'Account'
+			});
+			return token;
+		} catch (err) {
+			logger.error({
+				description: 'Error generating token.',
+				error: err, func: 'generateToken', obj: 'Account'
+			});
+		}
+
 	},
 	/**
 	 * @function login
 	 * @description Log account in based on password attempt
 	 * @param {string} password - Attempt at password with which to login to account.
 	 */
-	login:(passwordAttempt) => {
+	login: function(passwordAttempt) {
 		logger.log({
 			description: 'Login called.',
 			func: 'login', obj: 'Account'
@@ -112,9 +129,9 @@ AccountSchema.methods = {
 				description: 'Original query did not include password. Consider revising.',
 				func: 'login', obj: 'Account'
 			});
-			return this.model('Account').find({_id:self._id}).then(self.login(passwordAttempt));
+			return this.model('Account').find({_id:this._id}).then(self.login(passwordAttempt));
 		}
-		return self.comparePassword(passwordAttempt).then(() => {
+		return this.comparePassword(passwordAttempt).then(() => {
 			logger.log({
 				description: 'Provided password matches.',
 				func: 'login', obj: 'Account'
@@ -123,10 +140,11 @@ AccountSchema.methods = {
 			return self.startSession().then((sessionInfo) => {
 				logger.log({
 					description: 'Session started successfully.',
+					sessiontInfo: sessionInfo,
 					func: 'login', obj: 'Account'
 				});
 				//Create Token
-				this.sessionId = sessionInfo._id;
+				self.sessionId = sessionInfo._id;
 				var token = self.generateToken(sessionInfo);
 				return {token: token, account: self.strip()};
 			}, (err) => {
@@ -149,7 +167,7 @@ AccountSchema.methods = {
 	 * @function login
 	 * @description Log account out (end session and invalidate token)
 	 */
-	logout:() => {
+	logout:function() {
 		//TODO: Invalidate token?
 		logger.log({
 			description: 'Logout called.',
@@ -173,7 +191,7 @@ AccountSchema.methods = {
 	 * @function signup
 	 * @description Signup a new account
 	 */
-	signup: (signupData) => {
+	signup: function (signupData) {
 		logger.log({
 			description: 'Signup called.',
 			signupData: signupData,
@@ -189,12 +207,12 @@ AccountSchema.methods = {
 	 * @function comparePassword
 	 * @description Compare a password attempt with account password
 	 */
-	comparePassword: (passwordAttempt) => {
-		var selfPassword = this.password;
+	comparePassword: function (passwordAttempt) {
 		logger.log({
 			description: 'Compare password called.',
 			func: 'comparePassword', obj: 'Account'
 		});
+		var selfPassword = this.password;
 		return new Promise((resolve, reject) => {
 			bcrypt.compare(passwordAttempt, selfPassword, (err, passwordsMatch) => {
 				if(err){
@@ -211,55 +229,44 @@ AccountSchema.methods = {
 						message:'Invalid authentication credentials'
 					});
 				} else {
-					logger.log({description: 'Passwords match.', func: 'comparePassword', obj: 'Account'});
+					logger.log({
+						description: 'Passwords match.',
+						func: 'comparePassword', obj: 'Account'
+					});
 					resolve(true);
 				}
 			});
 		});
 	},
 	/**
-	 * @function saveNew
-	 * @description DEPRECATED Wrap query in promise
-	 */
-	saveNew:() => {
-		logger.warn({
-			description: 'saveNew called.',
-			func: 'saveNew',
-			obj: 'Account'
-		});
-		var self = this;
-		this.save().then((savedAccount) => {
-			logger.log({
-				description: 'Account saved successfully.',
-				savedAccount: self, func: 'saveNew', obj: 'Account'
-			});
-			return savedAccount;
-		}, (err) => {
-			logger.error({
-				description: 'Error saving Account.',
-				account: self, func: 'saveNew', obj: 'Account'
-			});
-			return Promise.reject(err);
-		});
-	},
-	/**
 	 * @function startSession
 	 * @description Create a new session.
 	 */
-	startSession: () => {
-		var self = this;
-		logger.log({description: 'Start session called.', func: 'startSession', obj: 'Account', this: self});
-		var session = new Session({accountId:self._id});
+	startSession: function() {
+		logger.log({
+			description: 'Start session called.',
+			func: 'startSession', obj: 'Account'
+		});
+		var session = new Session({accountId:this._id});
 		return session.save().then((newSession) => {
 			if (!newSession) {
-				logger.error({description: 'New session was not created.', func: 'startSession', obj: 'Account'});
+				logger.error({
+					description: 'New session was not created.',
+					func: 'startSession', obj: 'Account'
+				});
 				return Promise.reject({message: 'Session could not be started.'});
 			} else {
-				logger.log({description: 'Session started successfully.', newSession: newSession, func: 'startSession', obj: 'Account'});
+				logger.log({
+					description: 'Session started successfully.',
+					newSession: newSession, func: 'startSession', obj: 'Account'
+				});
 				return newSession;
 			}
 		}, (err) => {
-			logger.error({description: 'Error saving new session.', error: err, func: 'startSession', obj: 'Account'});
+			logger.error({
+				description: 'Error saving new session.', error: err,
+				func: 'startSession', obj: 'Account'
+			});
 			return Promise.reject(err);
 		});
 	},
@@ -267,23 +274,34 @@ AccountSchema.methods = {
 	 * @function endSession
 	 * @description End a current account's session. Session is kept, but "active" parameter is set to false
 	 */
-	endSession: () => {
-		logger.log({description: 'End session called.', func: 'endSession', obj: 'Account'});
+	endSession: function() {
+		logger.log({
+			description: 'End session called.', func: 'endSession', obj: 'Account'
+		});
 		var self = this;
 		return new Promise((resolve, reject) => {
 			Session.update({_id:self.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, (err, affect, result) => {
 				if(err){
-					logger.info({description: 'Error ending session.', error: err, func: 'endSession', obj: 'Account'});
+					logger.info({
+						description: 'Error ending session.', error: err, func: 'endSession', obj: 'Account'
+					});
 					return reject({message: 'Error ending session.'});
 				}
 				if (affect.nModified > 0) {
-					logger.info({description: 'Session ended successfully.', session: result, affect: affect, func: 'endSession', obj: 'Account'});
+					logger.info({
+						description: 'Session ended successfully.', session: result, affect: affect, func: 'endSession', obj: 'Account'
+					});
 					if(affect.nModified != 1){
-						logger.error({description: 'More than one session modified.', session: result, affect: affect, func: 'endSession', obj: 'Account'});
+						logger.error({
+							description: 'More than one session modified.', session: result, affect: affect, func: 'endSession', obj: 'Account'
+						});
 					}
 					resolve(result);
 				} else {
-					logger.warn({description: 'Affect number incorrect?', func: 'endSession', affect: affect, sesson: result, error: err, obj: 'Account'});
+					logger.warn({
+						description: 'Affect number incorrect?', func: 'endSession',
+						affect: affect, sesson: result, error: err, obj: 'Account'
+					});
 					resolve({id: self.sessionId});
 				}
 			});
@@ -334,7 +352,7 @@ AccountSchema.methods = {
 	 * @param {string} password - Password with which to create account
 	 * @param {string} application - Application with which to create account
 	 */
-	createWithPass: (password, application) => {
+	createWithPass: function(password, application) {
 		var self = this;
 		if(!self.username){
 			logger.warn({

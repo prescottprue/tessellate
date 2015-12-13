@@ -27,20 +27,32 @@ exports.get = (req, res, next) => {
 	var isList = true;
 	var query = Template.find({}).populate({path:'author', select:'username name email'});
 	if(req.params.name){ //Get data for a specific template
-		logger.log({description: 'Template request.', params: req.params,  func: 'get', obj: 'TemplatesCtrls'});
-		query = Template.findOne({name:req.params.name}).populate({path:'author', select:'username name title email'});
+		logger.log({
+			description: 'Template request.',
+			params: req.params,  func: 'get', obj: 'TemplatesCtrls'
+		});
+		query = Template.findOne({name:req.params.name}).populate({path:'author', select:'username name email'});
 		isList = false;
 	}
 	query.then((result) => {
 		if(!result && isList){
-			logger.info({description: 'Template could not be found.',  func: 'get', obj: 'TemplatesCtrls'});
+			logger.info({
+				description: 'Template could not be found.',
+				func: 'get', obj: 'TemplatesCtrls'
+			});
 			res.status(400).send('Template could not be found.');
 		} else {
-			logger.log({description: 'Template found successfully.',  func: 'get', obj: 'TemplatesCtrls'});
+			logger.log({
+				description: 'Template found successfully.',
+				func: 'get', obj: 'TemplatesCtrls'
+			});
 			res.send(result);
 		}
 	}, (err) => {
-		logger.log({description: 'Error getting template(s).', error: err, func: 'get', obj: 'TemplatesCtrls'});
+		logger.log({
+			description: 'Error getting template(s).',
+			error: err, func: 'get', obj: 'TemplatesCtrls'
+		});
 		res.status(500).send('Error getting template(s).');
 	});
 };
@@ -69,16 +81,25 @@ exports.add = (req, res, next) => {
 	if(!_.has(req.body, "name")){
 		res.status(400).send("Name is required to create a new app");
 	} else {
-		logger.log({description: 'Template add request.', name: req.body.name, func: 'add', obj: 'TemplatesCtrls'});
+		logger.log({
+			description: 'Template add request.',
+			name: req.body.name, func: 'add', obj: 'TemplatesCtrls'
+		});
 		var appData = _.extend({}, req.body);
 		if(!_.has(appData, 'author')){
-			logger.log('No author provided. Using account', req.user);
+			logger.log({
+				description: 'No author provided. Using account', user: req.user,
+				func: 'add', obj: 'TemplatesCtrls'
+			});
 			appData.author = req.user.accountId;
 		}
 		var query = Template.findOne({"name":req.body.name}); // find using name field
 		query.then((qResult) => {
 			if(qResult){ //Matching template already exists
-				logger.info({description: 'Template with provided name already exists.', func: 'add', obj: 'TemplatesCtrls'});
+				logger.warn({
+					description: 'Template with provided name already exists.',
+					func: 'add', obj: 'TemplatesCtrls'
+				});
 				return res.status(400).send('Template with provided name already exists.');
 			}
 			//template does not already exist
@@ -90,18 +111,29 @@ exports.add = (req, res, next) => {
 			if(_.has(appData, 'frameworks')){
 				appData.frameworks = appData.frameworks.split(",");
 			}
-			logger.log({description: 'Creating new template.', template: appData, }, appData);
+			logger.log({
+				description: 'Creating new template.', template: appData,
+				func: 'add', obj: 'TemplatesCtrl'
+			});
 			var template = new Template(appData);
 			template.createNew(req).then( (newTemplate) => {
-				logger.log({description: 'Template created successfully.', func: 'add', obj: 'TemplatesCtrls'});
+				logger.log({
+					description: 'Template created successfully.',
+					func: 'add', obj: 'TemplatesCtrl'
+				});
 				res.json(newTemplate);
 			}, (err) => {
-				logger.error({description: 'Error creating new template.', error: err, func: 'add', obj: 'TemplatesCtrls'});
+				logger.error({
+					description: 'Error creating new template.',
+					error: err, func: 'add', obj: 'TemplatesCtrl'
+				});
 				//TODO: Handle different errors here
 				res.status(400).json(err);
 			});
 		}, (err) => {
-			logger.error({description: 'Error creating new template.', error: err, func: 'add', obj: 'TemplatesCtrls'});
+			logger.error({
+				description: 'Error creating new template.', error: err, func: 'add', obj: 'TemplatesCtrls'
+			});
 			res.status(500).send('Error adding template.');
 		});
 	}
@@ -129,20 +161,35 @@ exports.add = (req, res, next) => {
  *
  */
 exports.update = (req, res, next) => {
-	logger.log('app update request with name: ' + req.params.name + ' with body:', req.body);
+	logger.log({
+		description: 'app update request. ', name: req.params.name,
+		func: 'update', obj: 'TemplatesCtrl'
+	});
 	if(req.params.name){
 		Template.update({name:req.params.name}, req.body, {upsert:false},  (err, numberAffected, result)  => {
 			if (err) { return next(err); }
 			//TODO: respond with updated data instead of passing through req.body
-			logger.log('template data update successful:', numberAffected, result);
+			logger.log({
+				description: 'template data update successful:',
+				affected: numberAffected, result: result,
+				func: 'update', obj: 'TemplatesCtrl'
+			});
 			result.uploadFiles(req).then(() => {
 				res.json(req.body);
 			},  (err) => {
-				res.status(500).send({message:'Error uploading files to template'});
+				logger.error({
+					description: 'Error uploading files to Template.',
+					func: 'update', obj: 'TemplatesCtrl'
+				});
+				res.status(500).send('Error uploading files to template');
 			});
 		});
 	} else {
-		res.status(400).send({message:'Template name required'});
+		logger.warn({
+			description: 'Template name is required.',
+			func: 'update', obj: 'TemplatesCtrl'
+		});
+		res.status(400).send('Template name required');
 	}
 };
 /**
@@ -171,20 +218,35 @@ exports.upload = (req, res, next) => {
 		var query = Template.findOne({name:req.params.name});
 		query.then((template) => {
 			//TODO: respond with updated data instead of passing through req.body
-			logger.log({description: 'Template found successfully.', template: template, func: 'upload', obj: 'TemplatesCtrls'});
+			logger.log({
+				description: 'Template found successfully.',
+				template: template, func: 'upload', obj: 'TemplatesCtrls'
+			});
 			template.uploadFiles(req).then(() => {
-				logger.log({description: 'Files uploaded successfully.', template: template, func: 'upload', obj: 'TemplatesCtrls'});
-				res.json({message:'Files uploaded successfully'});
+				logger.log({
+					description: 'Files uploaded successfully.',
+					template: template, func: 'upload', obj: 'TemplatesCtrls'
+				});
+				res.send('Files uploaded successfully');
 			}, (err) => {
-				logger.error({description: 'Error uploading files to template.', error: err, func: 'upload', obj: 'TemplatesCtrls'});
+				logger.error({
+					description: 'Error uploading files to template.',
+					error: err, func: 'upload', obj: 'TemplatesCtrls'
+				});
 				res.status(500).send('Error uploading files to template');
 			});
 		}, (err) => {
-			logger.error({description: 'Error finding template.', error: err, func: 'upload', obj: 'TemplatesCtrls'});
+			logger.error({
+				description: 'Error finding template.', error: err,
+				func: 'upload', obj: 'TemplatesCtrls'
+			});
 			res.status(500).send('Error finding template.');
 		});
 	} else {
-		logger.info({description: 'Template name is required to upload files.', error: err, func: 'upload', obj: 'TemplatesCtrls'});
+		logger.info({
+			description: 'Template name is required to upload files.',
+			error: err, func: 'upload', obj: 'TemplatesCtrls'
+		});
 		res.status(400).send('Template name required.');
 	}
 };
@@ -208,18 +270,29 @@ exports.upload = (req, res, next) => {
  *
  */
 exports.delete = function(req, res, next){
-	logger.log('delete request:', req.params);
+	logger.log({
+		description: 'Delete request.', params: req.params,
+		func: 'delete', obj: 'TemplatesCtrl'
+	});
 	if(!_.has(req.body, 'name')){
 		res.status(400).send('Template name required to delete template.');
 	} else {
 		var query = Template.findOneAndRemove({'name':req.body.name}); // find and delete using id field
-		query.exec(function (err, result){
-			if (err) { return next(err); }
+		query.then(function (result){
 			if (!result) {
-				logger.log('no result');
-				return next(new Error('Template does not exist.'));
+				logger.warn({
+					description: 'Template not found',
+					func: 'delete', obj: 'TemplatesCtrl'
+				});
+				return res.status(400).send('Template not found.');
 			}
-				res.json(result);
+			res.json(result);
+		}, function(err) {
+			logger.error({
+				description: 'Error removing template.',
+				error: err, func: 'delete', obj: 'TemplatesCtrl'
+			});
+			res.status(500).send('Error removing template.');
 		});
 	}
 };
@@ -246,24 +319,23 @@ exports.delete = function(req, res, next){
 exports.search = function(req, res, next){
 	//TODO: Search through firebase templates
 	var nameQuery = createTemplateQuery('name', req.params.searchQuery);
-	// var emailQuery = createAccountQuery('email', req.params.searchQuery);
 	//Search templates by name
 	nameQuery.then(function(nameResults){
 		if(_.isArray(nameResults) && nameResults.length == 0){
 			res.json(nameResults);
 			//TODO: Search tags
-			// emailQuery.then(function (emailResults){
-			// 	logger.log('Template search by tags resulted:', emailResults);
-			// 	res.json(emailResults);
-			// }, function (err){
-			// 	res.status(500).send({message:'Template cound not be found'});
-			// });
 		} else {
-			logger.log({description: 'Template search by name returned.', results: nameResults, func: 'search', obj: 'TemplateCtrl'});
+			logger.log({
+				description: 'Template search by name returned.',
+				results: nameResults, func: 'search', obj: 'TemplateCtrl'
+			});
 			res.json(nameResults);
 		}
 	}, function (err){
-		logger.error({description: 'Template could not be found.', error: err, func: 'search', obj: 'TemplateCtrl'});
+		logger.error({
+			description: 'Template could not be found.',
+			error: err, func: 'search', obj: 'TemplateCtrl'
+		});
 		//TODO: Handle other errors here
 		res.status(400).send({message:'Template cound not be found.'});
 	});
@@ -278,5 +350,5 @@ function createTemplateQuery(key, val){
     return queryObj;
   });
   var find = {$or: queryArr};
-	return Template.find(find, {email:1, name:1, username:1}); // find and delete using id field
+	return Template.find(find, {}); // find and delete using id field
 }

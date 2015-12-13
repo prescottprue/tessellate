@@ -19,14 +19,14 @@ module.exports = {
 		componentBucketPrefix: "components"
 	},
 	authEnabled: true,
+	authRocket: {
+		enabled: false,
+		secret: process.env.AUTHROCKET_JWT_SECRET
+	},
 	s3: {
 		key: process.env.TESSELLATE_AWS_KEY,
 		secret: process.env.TESSELLATE_AWS_SECRET,
 		bucketPrefix: "tessellate-app-"
-	},
-	authRocket: {
-		enabled: true,
-		secret: process.env.AUTHROCKET_JWT_SECRET
 	},
 	jwtSecret: "shhhhhhh"
 };

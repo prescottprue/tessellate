@@ -103,10 +103,16 @@ function buildMessageStr(logData) {
 	return msg + '\n';
 }
 /**
- * @description Configure external logging server. Currently Loggly. Requires LOGGLY_TOKEN environment variable
+ * @description Configure external logging server.
+ * Currently using Loggly through winston. Requires LOGGLY_TOKEN environment variable
  */
 function configureExternalLogger() {
-	if (_.has(process.env, 'LOGGLY_TOKEN')) {
+	if (conf.logging && conf.logging.enabled) {
+		if (!_.has(process.env, 'LOGGLY_TOKEN')) {
+			console.warn('Loggly Token does not exist, so external logging can not be configured.');
+			externalLoggerExists = false;
+			return;
+		}
 		externalLoggerExists = true;
 		winston.add(winston.transports.Loggly, {
 			token: process.env.LOGGLY_TOKEN,
@@ -115,7 +121,7 @@ function configureExternalLogger() {
 			json: true
 		});
 	} else {
-		console.log('Loggly Token does not exist, so external logging can not be configured.');
+		console.log('External logging is disabled.');
 		externalLoggerExists = false;
 	}
 }

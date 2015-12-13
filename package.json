@@ -2,6 +2,9 @@
   "name": "kyper-tessellate",
   "version": "0.0.1",
   "scripts": {
+    "build": "babel backend --out-dir dist",
+    "watch": "babel backend --out-dir dist --watch",
+    "dev": "nodemon dist/index.js",
     "start": "node dist/index.js"
   },
   "repository": {

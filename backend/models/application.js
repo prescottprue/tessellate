@@ -89,20 +89,14 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createWithTemplate: (templateName, templateType) => {
+	createWithTemplate: function (templateName, templateType){
 		logger.log({
-			description: 'Create application with template called.', templateName: templateName,
-			application: this, func: 'createWithTemplate', obj: 'Application'
+			description: 'Create application with template called.',
+			templateData: templateData, application: this,
+			func: 'createWithTemplate', obj: 'Application'
 		});
-		var self = this;
-		return self.createWithStorage().then((newApplication) => {
-			// console.log('[application.createWithStorage] new app saved successfully', newApplication);
-			logger.log({
-				description: 'Create with storage successful.', newApplication: newApplicaiton,
-				func: 'createWithTemplate', obj: 'Application'
-			});
-			return self.applyTemplate(templateName, templateType).then(() => {
-				// console.log('[application.createWithStorage] storage created successfully', newApplication);
+		this.save().then((newApplication) => {
+			newApplication.applyTemplate(templateData, storageData).then(() => {
 				logger.info({
 					description: 'Publish file called.',
 					func: 'createWithTemplate', obj: 'Application'
@@ -115,15 +109,9 @@ ApplicationSchema.methods = {
 				});
 				return Promise.reject(err);
 			});
-		}, (err) => {
-			logger.error({
-				description: 'Error creating application with storage.', error: err,
-				func: 'createWithTemplate', obj: 'Application'
-			});
-			return Promise.reject(err);
 		});
 	},
-	createWithStorage: () => {
+	createWithStorage: function() {
 		logger.log({
 			description: 'Create with storage called.', application: this,
 			func: 'createWithStorage', obj: 'Application'
@@ -136,7 +124,7 @@ ApplicationSchema.methods = {
 				description: 'New application added to db.', application: newApplication,
 				func: 'createWithStorage', obj: 'Application'
 			});
-			return self.createStorage().then(() => {
+			return self.createFileStorage().then(() => {
 				logger.info({
 					description: 'Create storage was successful.', application: self,
 					func: 'createWithStorage', obj: 'Application'
@@ -157,11 +145,11 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createStorage: () => {
+	createStorage: function() {
 		//TODO: Handle storageData including provider and name prefix
 		logger.log({
 			description: 'Create storage for application called.',
-			func: 'createStorage', obj: 'Application'
+			func: 'createFileStorage', obj: 'Application'
 		});
 		var bucketName = bucketPrefix + this.name;
 		var self = this;
@@ -169,7 +157,7 @@ ApplicationSchema.methods = {
 		return fileStorage.createBucket(bucketName).then((bucket) => {
 			logger.log({
 				description: 'New bucket storage created for application.',
-				bucket: bucket, func: 'createStorage', obj: 'Application'
+				bucket: bucket, func: 'createFileStorage', obj: 'Application'
 			});
 			// TODO: Handle different bucket regions and site urls
 			self.frontend = {
@@ -178,30 +166,28 @@ ApplicationSchema.methods = {
 				siteUrl:bucketName + '.s3-website-us-east-1.amazonaws.com',
 				bucketUrl:'s3.amazonaws.com/' + bucketName
 			};
-			// console.log('[createStorage()] about to save new with bucket info:', self);
-			return self.saveNew().then((appWithStorage) => {
-				// console.log('[createStorage()]AppsWithStorage saved with storage:', appWithStorage);
+			return self.save().then((appWithStorage) => {
 				logger.info({
 					description: 'App with storage created successfully.',
-					app: appWithStorage, func: 'createStorage', obj: 'Application'
+					app: appWithStorage, func: 'createFileStorage', obj: 'Application'
 				});
 				return appWithStorage;
 			}, (err) => {
 				logger.error({
 					description: 'Error saving new application.', error: err,
-					func: 'createStorage', obj: 'Application'
+					func: 'createFileStorage', obj: 'Application'
 				});
 				return Promise.reject(err);
 			});
 		}, (err) => {
 			logger.error({
 				description: 'Error creating application bucket.', error: err,
-				func: 'createStorage', obj: 'Application'
+				func: 'createFileStorage', obj: 'Application'
 			});
 			return Promise.reject(err);
 		});
 	},
-	removeStorage: () => {
+	removeStorage: function() {
 		logger.log({
 			description: 'Remove application storage called.',
 			func: 'removeStorage', obj: 'Application'
@@ -213,6 +199,7 @@ ApplicationSchema.methods = {
 			});
 			return Promise.resolve({message: 'Storage removed successfully.'});
 		} else {
+			//TODO: Handle different types of storage other than S3
 			return fileStorage.deleteBucket(this.frontend.bucketName).then(() => {
 				logger.info({
 					description: 'Removing storage was not nessesary.',
@@ -236,7 +223,7 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-	applyTemplate: (templateName, templateType) => {
+	applyTemplate: function(templateName, templateType) {
 		if(!templateName || _.isUndefined(templateName)){
 			templateName = 'default';
 		}
@@ -261,7 +248,7 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-	addCollaborators: (usersArray) => {
+	addCollaborators: function(usersArray) {
 		logger.log({
 			description: 'Add collaborators to application called.',
 			usersArray: usersArray, func: 'addCollaborators', obj: 'Application'
@@ -315,7 +302,7 @@ ApplicationSchema.methods = {
 			return err;
 		});
 	},
-	login: (loginData) => {
+	login: function(loginData) {
 		//Search for account in application's directories
 		logger.log({
 			description: 'Login to application called.',
@@ -383,7 +370,7 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-	signup: (signupData) => {
+	signup: function(signupData) {
 		logger.log({
 			description: 'Signup to application called.',
 			signupData: signupData, application: this,
@@ -461,7 +448,7 @@ ApplicationSchema.methods = {
 		}
 	},
 	//Log user out of application
-	logout: (logoutData) => {
+	logout: function(logoutData) {
 		logger.log({
 			description: 'Logout of application called.',
 			data: logoutData, func: 'logout', obj: 'Application'
@@ -525,7 +512,7 @@ ApplicationSchema.methods = {
 		}
 	},
 	//Add group to application
-	addGroup: (groupData) => {
+	addGroup: function(groupData) {
 		//TODO: make sure that group does not already exist in this application
 		// if(indexOf(this.groups, group._id) == -1){
 		// 	console.error('This group already exists application');
@@ -666,7 +653,7 @@ ApplicationSchema.methods = {
 
 	},
 	//Update group within application
-	updateGroup: (groupData) => {
+	updateGroup: function(groupData) {
 		logger.log({
 			description:'Update group called.', groupData: groupData,
 			func:'updateGroup', obj: 'Application'
@@ -710,7 +697,7 @@ ApplicationSchema.methods = {
 		}
 	},
 	//Delete group from application
-	deleteGroup: (groupData) => {
+	deleteGroup: function(groupData) {
 		logger.log({
 			description:'Delete group called.', groupData: groupData,
 			app: this, func:'deleteGroup', obj: 'Application'
@@ -793,7 +780,7 @@ ApplicationSchema.methods = {
 		}
 	},
 	//Upload file to bucket
-	publishFile: (fileData) => {
+	publishFile: function(fileData) {
 		logger.log({
 			description: 'Publish file called.', fileData: fileData,
 			func: 'publishFile', obj: 'Application'
@@ -817,10 +804,10 @@ ApplicationSchema.methods = {
 		return fileStorage.signedUrl(urlData);
 	},
 	//TODO: Remove, this is handled within grout
-	getStructure: () => {
+	getStructure: function() {
 		return fileStorage.getFiles(this.frontend.bucketName);
 	},
-	appAuthRocket: () => {
+	appAuthRocket: function() {
 		if(!this.authRocket || !this.authRocket.jsUrl){
 			logger.error({
 				description: 'Application does not have AuthRocket settings.',
@@ -841,7 +828,7 @@ ApplicationSchema.methods = {
 		});
 		return authrocket;
 	},
-	authRocketSignup: (signupData) => {
+	authRocketSignup: function(signupData) {
 		return this.appAuthRocket().signup(signupData).then((signupRes) => {
 			logger.log({
 				description: 'Successfully signed up through authrocket.',
@@ -856,7 +843,7 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	authRocketLogin: (loginData) => {
+	authRocketLogin: function(loginData) {
 		return this.appAuthRocket().login(loginData).then((loginRes) => {
 			logger.log({
 				description: 'Successfully logged in through authrocket.',
@@ -871,7 +858,7 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	authRocketLogout: (logoutData) => {
+	authRocketLogout: function(logoutData) {
 		return this.appAuthRocket().logout(logoutData).then((logoutRes) => {
 			logger.log({
 				description: 'Successfully logged out through authrocket.',
@@ -887,7 +874,7 @@ ApplicationSchema.methods = {
 		});
 	},
 	//Find account and make sure it is within application accounts, groups, and directories
-	findAccount: (accountData) => {
+	findAccount: function(accountData) {
 		logger.log({
 			description: 'Find account called.', application: this,
 			accountData: accountData, func: 'findAccount', obj: 'Application'
@@ -950,7 +937,7 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-	// addAccountToDirectory: (accountData, directoryId) => {
+	// addAccountToDirectory: function(accountData, directoryId) {
 	// 	//TODO: Make this work with not just the first directory
 	// 	if(this.directories.length >= 1){
 	// 		//Application has directories
@@ -1016,7 +1003,7 @@ ApplicationSchema.methods = {
 	// 	}
 	// },
 	// //Add directory to application
-	// addDirectory: (directoryData) => {
+	// addDirectory: function(directoryData) {
 	// 	//TODO: Handle checking for and creating a new directory if one doesn't exist
 	// 	//TODO: Make sure this directory does not already exist in this application
 	// 	var self = this;
@@ -1047,7 +1034,7 @@ ApplicationSchema.methods = {
 	// 	});
 	// },
 	// //Update directory in application
-	// updateDirectory: (directoryData) => {
+	// updateDirectory: function(directoryData) {
 	// 	logger.log({
 	// 		description:'Update directory called.',
 	// 		func:'updateDirectory', obj: 'Application'
@@ -1075,7 +1062,7 @@ ApplicationSchema.methods = {
 	// 	});
 	// },
 	// //Delete directory from application
-	// deleteDirectory: (directoryData) => {
+	// deleteDirectory: function(directoryData) {
 	// 	logger.log({
 	// 		description:'Delete directory called.',
 	// 		func:'deleteDirectory', obj: 'Application'

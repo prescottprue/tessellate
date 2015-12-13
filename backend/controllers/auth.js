@@ -132,6 +132,7 @@ exports.login = (req, res, next) => {
 		return res.status(400).send("Username/Email and password required to login");
 	}
 	var loginData =  {password: req.body.password};
+	console.log('login request', req.body);
 	if (_.has(req.body, 'username')) {
 		if(req.body.username.indexOf('@') !== -1){
 			loginData.email = req.body.username;
@@ -148,19 +149,34 @@ exports.login = (req, res, next) => {
 		if(!_.has(req.body, 'username')) {
 			return res.status(400).send('Username is required to login.');
 		}
-		logger.log({description: 'calling auth rocket with:', data: loginData, func: 'login', obj: 'AuthCtrls'});
+		logger.log({
+			description: 'calling auth rocket with:',
+			data: loginData, func: 'login', obj: 'AuthCtrls'
+		});
 		authrocket.login(loginData).then((loginRes) => {
-			logger.log({description: 'Successfully logged in through authrocket.', func: 'login', obj: 'AuthCtrls'});
+			logger.log({
+				description: 'Successfully logged in through authrocket.',
+				func: 'login', obj: 'AuthCtrls'
+			});
 			//TODO: Record login within internal auth system
 			//TODO: Return account along with token data
 			if(loginRes.token){
 				var token = jwt.decode(loginRes.token);
-				logger.log({description: 'token', token: token, func: 'login', obj: 'AuthCtrls'});
+				logger.log({
+					description: 'token', token: token,
+					func: 'login', obj: 'AuthCtrls'
+				});
 				if(!process.env.AUTHROCKET_JWT_SECRET){
-					logger.error({description: 'Authrocket secret not available to verify token', func: 'login', obj: 'AuthCtrls'});
+					logger.error({
+						description: 'Authrocket secret not available to verify token',
+						func: 'login', obj: 'AuthCtrls'
+					});
 				} else{
 					var verify = jwt.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
-					logger.log({description: 'verify', verify: verify, func: 'login', obj: 'AuthCtrls'});
+					logger.log({
+						description: 'verify', verify: verify,
+						func: 'login', obj: 'AuthCtrls'
+					});
 				}
 			}
 			var account = {username: token.un, name: token.n, groups: token.m || []};
@@ -173,13 +189,13 @@ exports.login = (req, res, next) => {
 			var response = {account: account, token: loginRes.token};
 			res.send(response);
 		}, (err) => {
-			logger.error({description: 'Error logging in through auth rocket.', error: err, func: 'login', obj: 'AuthCtrls'});
+			logger.error({
+				description: 'Error logging in through auth rocket.',
+				error: err, func: 'login', obj: 'AuthCtrls'
+			});
 			res.status(400).send('Invalid Credentials');
 		});
 	} else {
-		if (_.has(req.body, 'email')) {
-			loginData.email = req.body.email;
-		}
 		//Basic Internal login
 		if(_.has(loginData, 'username')){
 			query = Account.findOne({'username':loginData.username})
@@ -193,11 +209,13 @@ exports.login = (req, res, next) => {
 		query.then((currentAccount) => {
 			if(!currentAccount){
 				logger.error({
-					description: 'Account not found.', func: 'login', obj: 'AuthCtrl'
+					description: 'Account not found.',
+					func: 'login', obj: 'AuthCtrl'
 				});
 				// return next (new Error('Account could not be found'));
 				return res.status(409).send('Account not found.');
 			}
+			console.log('account found', currentAccount);
 			currentAccount.login(req.body.password).then((loginRes) => {
 				logger.log({
 					description: 'Login Successful.',
@@ -206,7 +224,7 @@ exports.login = (req, res, next) => {
 				res.send(loginRes);
 			}, (err) => {
 				//TODO: Handle wrong password
-				logger.log({
+				logger.error({
 					description: 'Login Error.', error: err,
 					func: 'login', obj: 'AuthCtrl'
 				});
@@ -217,7 +235,7 @@ exports.login = (req, res, next) => {
 				description: 'Login error', error: err,
 				func: 'login', obj: 'AuthCtrl'
 			});
-			return res.status(500).send('Error logging in.');
+			res.status(500).send('Error logging in.');
 		});
 	}
 };

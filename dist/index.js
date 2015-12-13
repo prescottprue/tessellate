@@ -179,7 +179,11 @@ app.use(function (err, req, res, next) {
 /**
  * Get port from environment and store in Express.
  */
-var port = _systemUtils2.default.normalizePort(process.env.PORT || _config2.default.server.port || 4000);
+var portNumber = process.env.PORT || 4000;
+if (_config2.default && _config2.default.server && _config2.default.server.port && _default.config.envName !== 'production') {
+  port = _config2.default.server.port;
+}
+var port = _systemUtils2.default.normalizePort(portNumber);
 console.log('Server started...');
 console.log('Environment: ' + _default.config.envName || 'ERROR');
 console.log('Port: ' + port);

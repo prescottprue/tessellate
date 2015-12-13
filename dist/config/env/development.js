@@ -20,7 +20,7 @@ module.exports = {
 	},
 	authEnabled: true,
 	authRocket: {
-		enabled: true,
+		enabled: false,
 		secret: process.env.AUTHROCKET_JWT_SECRET
 	},
 	jwtSecret: "shhhhhhh"

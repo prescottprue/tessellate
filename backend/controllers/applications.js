@@ -18,12 +18,12 @@
  *     }
  */
 
-var _ = require('lodash');
-var logger = require('../utils/logger');
-var Application = require('../models/application').Application;
-var Account = require('../models/account').Account;
-var Group = require('../models/group').Group;
-var authUtil = require('../utils/auth');
+import _ from 'lodash';
+import logger from '../utils/logger';
+import { Application } from '../models/application';
+import { Account } from '../models/account';
+import { Group } from '../models/group';
+import authUtil from '../utils/auth';
 /**
  * @api {get} /applications Get Application(s)
  * @apiDescription Get a specific application's data or a list of applications.

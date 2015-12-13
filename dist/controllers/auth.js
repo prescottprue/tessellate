@@ -135,6 +135,7 @@ exports.login = function (req, res, next) {
 		return res.status(400).send("Username/Email and password required to login");
 	}
 	var loginData = { password: req.body.password };
+	console.log('login request', req.body);
 	if (_.has(req.body, 'username')) {
 		if (req.body.username.indexOf('@') !== -1) {
 			loginData.email = req.body.username;
@@ -151,19 +152,34 @@ exports.login = function (req, res, next) {
 		if (!_.has(req.body, 'username')) {
 			return res.status(400).send('Username is required to login.');
 		}
-		logger.log({ description: 'calling auth rocket with:', data: loginData, func: 'login', obj: 'AuthCtrls' });
+		logger.log({
+			description: 'calling auth rocket with:',
+			data: loginData, func: 'login', obj: 'AuthCtrls'
+		});
 		authrocket.login(loginData).then(function (loginRes) {
-			logger.log({ description: 'Successfully logged in through authrocket.', func: 'login', obj: 'AuthCtrls' });
+			logger.log({
+				description: 'Successfully logged in through authrocket.',
+				func: 'login', obj: 'AuthCtrls'
+			});
 			//TODO: Record login within internal auth system
 			//TODO: Return account along with token data
 			if (loginRes.token) {
 				var token = jwt.decode(loginRes.token);
-				logger.log({ description: 'token', token: token, func: 'login', obj: 'AuthCtrls' });
+				logger.log({
+					description: 'token', token: token,
+					func: 'login', obj: 'AuthCtrls'
+				});
 				if (!process.env.AUTHROCKET_JWT_SECRET) {
-					logger.error({ description: 'Authrocket secret not available to verify token', func: 'login', obj: 'AuthCtrls' });
+					logger.error({
+						description: 'Authrocket secret not available to verify token',
+						func: 'login', obj: 'AuthCtrls'
+					});
 				} else {
 					var verify = jwt.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
-					logger.log({ description: 'verify', verify: verify, func: 'login', obj: 'AuthCtrls' });
+					logger.log({
+						description: 'verify', verify: verify,
+						func: 'login', obj: 'AuthCtrls'
+					});
 				}
 			}
 			var account = { username: token.un, name: token.n, groups: token.m || [] };
@@ -176,13 +192,13 @@ exports.login = function (req, res, next) {
 			var response = { account: account, token: loginRes.token };
 			res.send(response);
 		}, function (err) {
-			logger.error({ description: 'Error logging in through auth rocket.', error: err, func: 'login', obj: 'AuthCtrls' });
+			logger.error({
+				description: 'Error logging in through auth rocket.',
+				error: err, func: 'login', obj: 'AuthCtrls'
+			});
 			res.status(400).send('Invalid Credentials');
 		});
 	} else {
-		if (_.has(req.body, 'email')) {
-			loginData.email = req.body.email;
-		}
 		//Basic Internal login
 		if (_.has(loginData, 'username')) {
 			query = Account.findOne({ 'username': loginData.username }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using username field
@@ -192,11 +208,13 @@ exports.login = function (req, res, next) {
 		query.then(function (currentAccount) {
 			if (!currentAccount) {
 				logger.error({
-					description: 'Account not found.', func: 'login', obj: 'AuthCtrl'
+					description: 'Account not found.',
+					func: 'login', obj: 'AuthCtrl'
 				});
 				// return next (new Error('Account could not be found'));
 				return res.status(409).send('Account not found.');
 			}
+			console.log('account found', currentAccount);
 			currentAccount.login(req.body.password).then(function (loginRes) {
 				logger.log({
 					description: 'Login Successful.',
@@ -205,7 +223,7 @@ exports.login = function (req, res, next) {
 				res.send(loginRes);
 			}, function (err) {
 				//TODO: Handle wrong password
-				logger.log({
+				logger.error({
 					description: 'Login Error.', error: err,
 					func: 'login', obj: 'AuthCtrl'
 				});
@@ -216,7 +234,7 @@ exports.login = function (req, res, next) {
 				description: 'Login error', error: err,
 				func: 'login', obj: 'AuthCtrl'
 			});
-			return res.status(500).send('Error logging in.');
+			res.status(500).send('Error logging in.');
 		});
 	}
 };
@@ -238,30 +256,61 @@ exports.login = function (req, res, next) {
  */
 exports.logout = function (req, res, next) {
 	//TODO:Invalidate token
-	// logger.log({description: 'Ending accounts session.', account: account, func: 'logout', obj: 'AuthCtrl'});
+	logger.log({
+		description: 'Logout called.',
+		authRocketEnabled: authRocketEnabled,
+		body: req.body,
+		func: 'logout', obj: 'AuthCtrl'
+	});
 	if (authRocketEnabled) {
 		var token;
 		if (req.body && req.body.token) {
 			token = req.body.token;
+		} else if (req.headers && (req.headers.authorization || req.header('Authorization'))) {
+			logger.log({
+				description: 'Getting token from headers.',
+				headers: req.headers, func: 'logout', obj: 'AuthCtrl'
+			});
+			var header = req.headers.authorization || req.header('Authorization');
+			token = header.replace("Bearer ", "");
+		} else {
+			logger.warn({
+				description: 'Token required to logout.',
+				func: 'logout', obj: 'AuthCtrl'
+			});
+			return res.status(401).send('Token required to logout.');
 		}
-		if (req.headers && req.headers.Authorization) {
-			token = req.headers.Authorization;
-		}
-		logger.log({ description: 'Attempting log out through authrocket.', token: token, func: 'logout', obj: 'AuthCtrl' });
+		logger.log({
+			description: 'Attempting log out through authrocket.',
+			token: token, func: 'logout', obj: 'AuthCtrl'
+		});
 		authrocket.logout(token).then(function (logoutRes) {
-			logger.log({ description: 'Successfully logged out through authrocket.', response: logoutRes, func: 'logout', obj: 'AuthCtrl' });
+			logger.log({
+				description: 'Successfully logged out through authrocket.',
+				response: logoutRes, func: 'logout', obj: 'AuthCtrl'
+			});
 			res.send({ message: 'Logout successful.' });
 		}, function (err) {
-			logger.error({ description: 'Error ending session.', error: err, func: 'logout', obj: 'AuthCtrl' });
+			logger.error({
+				description: 'Error ending session.', error: err,
+				func: 'logout', obj: 'AuthCtrl'
+			});
 			res.status(500).send(err);
 		});
 	} else {
+		//TODO: Handle user not being in req.user
 		var account = new Account(req.user);
 		account.endSession().then(function () {
-			logger.log({ description: 'Successfully ended session', func: 'logout', obj: 'AuthCtrl' });
+			logger.log({
+				description: 'Successfully ended session',
+				func: 'logout', obj: 'AuthCtrl'
+			});
 			res.send({ message: 'Logout successful.' });
 		}, function (err) {
-			logger.error({ description: 'Error ending session.', error: err, func: 'logout', obj: 'AuthCtrl' });
+			logger.error({
+				description: 'Error ending session.', error: err,
+				func: 'logout', obj: 'AuthCtrl'
+			});
 			res.status(500).send({ message: 'Error ending session.' });
 		});
 	}
