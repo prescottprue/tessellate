@@ -27,7 +27,7 @@ import {Account} from '../models/account';
  *     }
  *
  */
-exports.get = (req, res, next) => {
+export function get(req, res, next) {
 	logger.log({
 		message:'Account(s) get called.',
 		func:'get', obj:'AccountCtrl'
@@ -84,7 +84,7 @@ exports.get = (req, res, next) => {
  *     }
  *
  */
-exports.add = (req, res, next) => {
+export function add(req, res, next) {
 	//Query for existing account with same _id
 	var query;
 	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
@@ -134,7 +134,7 @@ exports.add = (req, res, next) => {
  *     }
  *
  */
-exports.update = (req, res, next) => {
+export function update(req, res, next) {
 	logger.log({description: 'Update account called.', body: req.body, params: req.params});
 	if(_.has(req.params, "username")){
 		Account.findOne({username:req.params.username}, (err, account) => {
@@ -189,7 +189,7 @@ exports.update = (req, res, next) => {
  *     }
  *
  */
-exports.delete = (req, res, next) => {
+export function del(req, res, next) {
 	// var urlParams = url.parse(req.url, true).query;
 	if(_.has(req.params, "username")){
 		var query = Account.findOneAndRemove({'username':req.params.username}); // find and delete using id field
@@ -222,7 +222,7 @@ exports.delete = (req, res, next) => {
  *     }
  *
  */
-exports.search = (req, res, next) => {
+export function search(req, res, next) {
 	// var urlParams = url.parse(req.url, true).query;
 	var usernameQuery = createAccountQuery('username', req.params.searchQuery);
 	var emailQuery = createAccountQuery('email', req.params.searchQuery);

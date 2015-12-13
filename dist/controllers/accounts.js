@@ -1,5 +1,14 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.get = get;
+exports.add = add;
+exports.update = update;
+exports.del = del;
+exports.search = search;
+
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -34,7 +43,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *     }
  *
  */
-exports.get = function (req, res, next) {
+function get(req, res, next) {
 	_logger2.default.log({
 		message: 'Account(s) get called.',
 		func: 'get', obj: 'AccountCtrl'
@@ -66,7 +75,10 @@ exports.get = function (req, res, next) {
 		});
 		return res.status(500).send('Error getting account.');
 	});
-};
+} /**
+   * @description Account controller functions
+   */
+;
 /**
  * @api {post} /accounts Add Account
  * @apiDescription Add a new account.
@@ -92,10 +104,7 @@ exports.get = function (req, res, next) {
  *     }
  *
  */
-/**
- * @description Account controller functions
- */
-exports.add = function (req, res, next) {
+function add(req, res, next) {
 	//Query for existing account with same _id
 	var query;
 	if (!_lodash2.default.has(req.body, "username") && !_lodash2.default.has(req.body, "email")) {
@@ -145,7 +154,7 @@ exports.add = function (req, res, next) {
  *     }
  *
  */
-exports.update = function (req, res, next) {
+function update(req, res, next) {
 	_logger2.default.log({ description: 'Update account called.', body: req.body, params: req.params });
 	if (_lodash2.default.has(req.params, "username")) {
 		_account.Account.findOne({ username: req.params.username }, function (err, account) {
@@ -200,7 +209,7 @@ exports.update = function (req, res, next) {
  *     }
  *
  */
-exports.delete = function (req, res, next) {
+function del(req, res, next) {
 	// var urlParams = url.parse(req.url, true).query;
 	if (_lodash2.default.has(req.params, "username")) {
 		var query = _account.Account.findOneAndRemove({ 'username': req.params.username }); // find and delete using id field
@@ -233,7 +242,7 @@ exports.delete = function (req, res, next) {
  *     }
  *
  */
-exports.search = function (req, res, next) {
+function search(req, res, next) {
 	// var urlParams = url.parse(req.url, true).query;
 	var usernameQuery = createAccountQuery('username', req.params.searchQuery);
 	var emailQuery = createAccountQuery('email', req.params.searchQuery);

@@ -1,12 +1,23 @@
 'use strict';
 
+var _default = require('../config/default');
+
+var _underscore = require('underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _winston = require('winston');
+
+var _winston2 = _interopRequireDefault(_winston);
+
+require('winston-loggly');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
  * @description Logger utility that handles Internal and external logging based on environment config
  */
-var conf = require('../config/default').config;
-var _ = require('underscore');
-var winston = require('winston');
-require('winston-loggly');
+
 var externalLoggerExists = null;
 
 configureExternalLogger();
@@ -14,9 +25,9 @@ configureExternalLogger();
 
 exports.log = function (logData) {
 	var msgStr = buildMessageStr(logData);
-	if (conf.envName === 'local') {
+	if (_default.config.envName === 'local') {
 		console.log(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (_default.config.envName === 'production') {
 		console.log(msgStr);
 		callExternalLogger('log', logData);
 	} else {
@@ -26,9 +37,9 @@ exports.log = function (logData) {
 };
 exports.info = function (logData) {
 	var msgStr = buildMessageStr(logData);
-	if (conf.envName == 'local') {
+	if (_default.config.envName == 'local') {
 		console.log(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (_default.config.envName === 'production') {
 		console.info(logData) || console.log(logData);
 		callExternalLogger('info', logData);
 	} else {
@@ -36,11 +47,11 @@ exports.info = function (logData) {
 		// callExternalLogger('info', logData);
 	}
 };
-exports.debug = function (logData) {
+exports.debug = function debug(logData) {
 	var msgStr = buildMessageStr(logData);
-	if (conf.envName == 'local') {
+	if (_default.config.envName == 'local') {
 		console.log(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (_default.config.envName === 'production') {
 		console.info(logData) || console.log(logData);
 		callExternalLogger('debug', logData);
 	} else {
@@ -48,11 +59,11 @@ exports.debug = function (logData) {
 		callExternalLogger('debug', logData);
 	}
 };
-exports.warn = function (logData) {
+exports.warn = function warn(logData) {
 	var msgStr = buildMessageStr(logData);
-	if (conf.envName == 'local') {
+	if (_default.config.envName == 'local') {
 		console.warn(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (_default.config.envName === 'production') {
 		console.warn(logData) || console.log(logData);
 		callExternalLogger('warn', logData);
 	} else {
@@ -60,11 +71,11 @@ exports.warn = function (logData) {
 		callExternalLogger('warn', logData);
 	}
 };
-exports.error = function (logData) {
+exports.error = function error(logData) {
 	var msgStr = buildMessageStr(logData);
-	if (conf.envName == 'local') {
+	if (_default.config.envName == 'local') {
 		console.error(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (_default.config.envName === 'production') {
 		console.error(logData) || console.log(logData);
 		callExternalLogger('error', logData);
 	} else {
@@ -81,13 +92,13 @@ exports.error = function (logData) {
 function buildMessageStr(logData) {
 	var msg = "";
 	//TODO: Attach time stamp
-	if (_.isObject(logData)) {
-		if (_.has(logData, 'obj') && _.has(logData, 'func')) {
+	if (_underscore2.default.isObject(logData)) {
+		if (_underscore2.default.has(logData, 'obj') && _underscore2.default.has(logData, 'func')) {
 			msg += '[' + logData.obj + '.' + logData.func + '()] ';
 		}
 		//Print each key and its value other than obj and func
-		_.each(_.omit(_.keys(logData), 'obj', 'func'), function (key, ind, list) {
-			if (_.isString(logData[key])) {
+		_underscore2.default.each(_underscore2.default.omit(_underscore2.default.keys(logData), 'obj', 'func'), function (key, ind, list) {
+			if (_underscore2.default.isString(logData[key])) {
 				msg += key + ': ' + logData[key] + ', ';
 			} else {
 				//Print objects differently
@@ -97,7 +108,7 @@ function buildMessageStr(logData) {
 				msg += '\n';
 			}
 		});
-	} else if (_.isString(logData)) {
+	} else if (_underscore2.default.isString(logData)) {
 		msg = logData;
 	}
 	return msg + '\n';
@@ -107,14 +118,14 @@ function buildMessageStr(logData) {
  * Currently using Loggly through winston. Requires LOGGLY_TOKEN environment variable
  */
 function configureExternalLogger() {
-	if (conf.logging && conf.logging.enabled) {
-		if (!_.has(process.env, 'LOGGLY_TOKEN')) {
+	if (_default.config.logging && _default.config.logging.enabled) {
+		if (!_underscore2.default.has(process.env, 'LOGGLY_TOKEN')) {
 			console.warn('Loggly Token does not exist, so external logging can not be configured.');
 			externalLoggerExists = false;
 			return;
 		}
 		externalLoggerExists = true;
-		winston.add(winston.transports.Loggly, {
+		_winston2.default.add(_winston2.default.transports.Loggly, {
 			token: process.env.LOGGLY_TOKEN,
 			subdomain: "kyper",
 			tags: ["Winston-NodeJS"],
@@ -133,7 +144,7 @@ function configureExternalLogger() {
 function callExternalLogger(type, msgData) {
 	try {
 		console[type](msgData);
-		externalLoggerExists ? winston.log(type, msgData) : console.log('External logging does not exist.');
+		externalLoggerExists ? _winston2.default.log(type, msgData) : console.log('External logging does not exist.');
 	} catch (err) {
 		console.log('ERROR: External logging failed.');
 		console.log(JSON.stringify(err));

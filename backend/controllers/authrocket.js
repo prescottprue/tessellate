@@ -1,13 +1,13 @@
 /** Authrocket controller
  *
  */
-var logger = require('../utils/logger');
-var Account = require('../models/account').Account;
+import logger from '../utils/logger';
+import { Account } from '../models/account';
 
 /**
  * @description handles events from authrocket hook POST requests
  */
-exports.events = (req, res, next) => {
+export function events(req, res, next) {
   //TODO:Link to user account if matching account already exists and does not have linked account
   logger.warn({
     description: 'Authrocket event recieved.',

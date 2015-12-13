@@ -1,11 +1,22 @@
 'use strict';
 
-/**
- * @description Admin Controller
- */
-var logger = require('../utils/logger');
-var fileStorage = require('../utils/fileStorage');
-var Application = require('../models/application').Application;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getBuckets = getBuckets;
+exports.deleteBucket = deleteBucket;
+
+var _logger = require('../utils/logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+var _fileStorage = require('../utils/fileStorage');
+
+var _fileStorage2 = _interopRequireDefault(_fileStorage);
+
+var _application = require('../models/application');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * @api {get} /admin/buckets Get Buckets
@@ -37,16 +48,19 @@ var Application = require('../models/application').Application;
  *     ]
  *
  */
-exports.getBuckets = function (req, res, next) {
+function getBuckets(req, res, next) {
   //TODO: Limit/paginate number of buckets returned
-  fileStorage.getBuckets().then(function (buckets) {
-    logger.log({ description: 'Buckets loaded.', buckets: buckets, func: 'getBuckets', obj: 'AdminCtrls' });
+  _fileStorage2.default.getBuckets().then(function (buckets) {
+    _logger2.default.log({ description: 'Buckets loaded.', buckets: buckets, func: 'getBuckets', obj: 'AdminCtrls' });
     res.send(buckets);
   }, function (err) {
-    logger.error({ description: 'Error getting buckets:', error: err, func: 'getBuckets', obj: 'AdminCtrls' });
+    _logger2.default.error({ description: 'Error getting buckets:', error: err, func: 'getBuckets', obj: 'AdminCtrls' });
     res.status(500).send('Error getting buckets.');
   });
-};
+} /**
+   * @description Admin Controller
+   */
+;
 /**
  * @api {delete} /admin/buckets Delete Bucket
  * @apiDescription Delete a bucket.
@@ -62,15 +76,15 @@ exports.getBuckets = function (req, res, next) {
  *     {url:"hypercube-exampleApp.s3.amazonaws.com"}
  *
  */
-exports.deleteBucket = function (req, res, next) {
+function deleteBucket(req, res, next) {
   if (!_.has(req.body, 'name')) {
     res.status(400).send('Bucket name required to delete bucket');
   } else {
-    fileStorage.deleteBucket(req.body.name).then(function (bucket) {
-      logger.log({ description: 'Bucket deleted successfully.', bucket: bucket, func: 'deleteBucket', obj: 'AdminCtrls' });
+    _fileStorage2.default.deleteBucket(req.body.name).then(function (bucket) {
+      _logger2.default.log({ description: 'Bucket deleted successfully.', bucket: bucket, func: 'deleteBucket', obj: 'AdminCtrls' });
       res.send(bucket);
     }, function (err) {
-      logger.error({ description: 'Error deleting bucket.', error: err, func: 'deleteBucket', obj: 'AdminCtrls' });
+      _logger2.default.error({ description: 'Error deleting bucket.', error: err, func: 'deleteBucket', obj: 'AdminCtrls' });
       res.status(500).send(err);
     });
   }

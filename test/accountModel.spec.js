@@ -1,10 +1,10 @@
 // var mongoose = require('mongoose');
-var expect = require("chai").expect;
+import { expect } from 'chai';
 process.env.NODE_ENV = 'test';
-var AccountModel = require('../backend/models/account');
-var Account = require('../backend/models/account').Account;
-var AccountSchema = Account.base.modelSchemas.Account;
-
+import AccountModel from '../backend/models/account';
+import { Account } from '../backend/models/account';
+let AccountSchema = Account.base.modelSchemas.Account;
+let mockAccount;
 describe('AccountModel', () => {
   it('exists', () => {
     expect(AccountModel).to.exist;
@@ -16,9 +16,15 @@ describe('AccountModel', () => {
     expect(AccountSchema.methods).to.be.an('object');
   });
   describe('login method', () => {
+    // beforeEach(() => {
+    //   mockAccount = new Account({email: 'test@test.com', username: 'test'});
+    // });
     it('exists', () => {
       expect(AccountSchema.methods).to.respondTo('login');
     });
+    // it('handles email and username', () => {
+    //   mockAccount.login('password');
+    // });
   });
   describe('logout method', () => {
     it('exists', () => {

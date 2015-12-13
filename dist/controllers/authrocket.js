@@ -1,17 +1,27 @@
 'use strict';
 
-/** Authrocket controller
- *
- */
-var logger = require('../utils/logger');
-var Account = require('../models/account').Account;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.events = events;
+
+var _logger = require('../utils/logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+var _account = require('../models/account');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  * @description handles events from authrocket hook POST requests
  */
-exports.events = function (req, res, next) {
+/** Authrocket controller
+ *
+ */
+function events(req, res, next) {
   //TODO:Link to user account if matching account already exists and does not have linked account
-  logger.warn({
+  _logger2.default.warn({
     description: 'Authrocket event recieved.',
     body: req.body || req, func: 'authrocket'
   });
@@ -22,13 +32,13 @@ exports.events = function (req, res, next) {
     switch (req.body.event.event_type) {
       case 'user.created':
         userCreated(req.body.event).then(function () {
-          logger.warn({
+          _logger2.default.warn({
             description: 'User created successfully.',
             body: req.body, func: 'authrocket'
           });
           res.send('Thanks'); //Respond to authrocket post
         }, function (err) {
-          logger.error({
+          _logger2.default.error({
             description: 'Error creating user in response to authrocket event.',
             body: req.body, func: 'events', obj: 'AuthrocketCtrls'
           });
@@ -39,7 +49,7 @@ exports.events = function (req, res, next) {
         userUpdated(req.body).then(function () {
           res.send('Thanks'); //Respond to authrocket post
         }, function (err) {
-          logger.error({
+          _logger2.default.error({
             description: 'Error updating user in response to authrocket event.',
             body: req.body, func: 'events', obj: 'AuthrocketCtrls'
           });
@@ -50,7 +60,7 @@ exports.events = function (req, res, next) {
         userDeleted(req.body).then(function () {
           res.send('Thanks'); //Respond to authrocket post
         }, function (err) {
-          logger.error({
+          _logger2.default.error({
             description: 'Error deleting user in response to authrocket event.',
             body: req.body, func: 'events', obj: 'AuthrocketCtrls'
           });
@@ -58,13 +68,13 @@ exports.events = function (req, res, next) {
         });
         break;
       default:
-        logger.error({
+        _logger2.default.error({
           description: 'Authrocket event did not get handled.',
           body: req.body, func: 'events', obj: 'AuthrocketCtrls'
         });
     }
   } else {
-    logger.error({
+    _logger2.default.error({
       description: 'Authrocket event did not have a type.',
       body: req.body, func: 'events', obj: 'AuthrocketCtrls'
     });
@@ -72,13 +82,13 @@ exports.events = function (req, res, next) {
   }
 };
 function userCreated(requestData) {
-  logger.log({
+  _logger2.default.log({
     description: 'Authrocket user created called.', data: requestData,
     func: 'userCreated', obj: 'AuthrocketCtrls'
   });
   return new Promise(function (resolve, reject) {
     if (!requestData.user_id) {
-      logger.error({
+      _logger2.default.error({
         description: 'user_id parameter is required.', data: requestData,
         func: 'userCreated', obj: 'AuthrocketCtrls'
       });
@@ -88,19 +98,19 @@ function userCreated(requestData) {
     //   description: 'Find object build', findObj: findObj,
     //   func: 'userCreated', obj: 'AuthrocketCtrls'
     // });
-    var account = new Account({
+    var account = new _account.Account({
       authrocketId: requestData.user_id
     });
     //TODO: Load data from authrocket users endpoint to put in new user data
 
     account.saveNew().then(function (newAccount) {
-      logger.warn({
+      _logger2.default.warn({
         description: 'New account created from authrocket user_created event.',
         func: 'userCreated', obj: 'AuthrocketCtrls'
       });
       resolve('Thanks.');
     }, function (err) {
-      logger.error({
+      _logger2.default.error({
         description: 'Error creating new account.', error: err,
         func: 'userCreated', obj: 'AuthrocketCtrls'
       });
@@ -136,21 +146,21 @@ function userCreated(requestData) {
   });
 }
 function userUpdated(requestData) {
-  logger.log({
+  _logger2.default.log({
     description: 'Authrocket user updated.', data: requestData,
     func: 'userCreated', obj: 'AuthrocketCtrls'
   });
   return new Promise(function (resolve, reject) {
-    Account.findOne({ authrocketId: requestData.user_id }, function (err, account) {
+    _account.Account.findOne({ authrocketId: requestData.user_id }, function (err, account) {
       if (err) {
-        logger.error({
+        _logger2.default.error({
           description: 'Error finding account.', reqData: requestData,
           error: err, func: 'update', obj: 'AccountsCtrl'
         });
         // res.status(500).send('Error finding account.');
         resolve();
       } else if (!account) {
-        logger.error({
+        _logger2.default.error({
           description: 'Account with matching authrocket id not found',
           reqData: requestData, func: 'update', obj: 'AccountsCtrl'
         });
@@ -159,18 +169,18 @@ function userUpdated(requestData) {
         resolve();
       } else {
         //Select only valid parameters
-        logger.log({
+        _logger2.default.log({
           description: 'Account before save.', account: account,
           func: 'update', obj: 'AccountsCtrl'
         });
         account.saveNew().then(function (savedAccount) {
-          logger.log({
+          _logger2.default.log({
             description: 'Account saved successfully.',
             func: 'update', account: savedAccount, obj: 'AccountsCtrl'
           });
           resolve(savedAccount);
         }, function (err) {
-          logger.error({
+          _logger2.default.error({
             description: 'Error saving account.', error: err,
             func: 'update', obj: 'AccountsCtrl'
           });
@@ -181,21 +191,21 @@ function userUpdated(requestData) {
   });
 }
 function userDeleted(requestData) {
-  logger.log({
+  _logger2.default.log({
     description: 'Authrocket user deleted.', data: requestData,
     func: 'userDelete', obj: 'AuthrocketCtrls'
   });
   return new Promise(function (resolve, reject) {
     if (requestData.user_id) {
-      var query = Account.findOneAndRemove({ authrocketId: requestData.user_id }); // find and delete using id field
+      var query = _account.Account.findOneAndRemove({ authrocketId: requestData.user_id }); // find and delete using id field
       query.then(function (result) {
-        logger.log({
+        _logger2.default.log({
           description: 'Account deleted successfully:',
           func: 'userDelected'
         });
         resolve(result);
       }, function (err) {
-        logger.error({
+        _logger2.default.error({
           description: 'Account could not be deleted.',
           error: err, func: 'userDeleted'
         });

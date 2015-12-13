@@ -22,7 +22,7 @@ let routeBuilder = require('./utils/routeBuilder')(app);
 /** View Engine Setup
  * @description Apply ejs rending engine and views folder
  */
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '..', 'views'));
 app.set('view engine', 'ejs');
 
 /** Environment and variable setup
@@ -40,7 +40,7 @@ app.use(cookieParser());
  * @description References to static files
  */
 app.use(favicon(__dirname + './../public/favicon.ico'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 /** CORS Configuration
  * @description Enable cors and prefight on requests

@@ -1,5 +1,27 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.get = get;
+exports.getProviders = getProviders;
+exports.add = add;
+exports.update = update;
+exports.del = del;
+exports.files = files;
+exports.publishFile = publishFile;
+exports.applyTemplate = applyTemplate;
+exports.addStorage = addStorage;
+exports.addCollaborators = addCollaborators;
+exports.login = login;
+exports.logout = logout;
+exports.signup = signup;
+exports.verify = verify;
+exports.groups = groups;
+exports.addGroup = addGroup;
+exports.updateGroup = updateGroup;
+exports.deleteGroup = deleteGroup;
+
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
@@ -85,12 +107,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *     }
  */
 
-exports.get = function (req, res, next) {
-	// var user = authUtil.getUserFromRequest(req);
+function get(req, res, next) {
+	// let user = authUtil.getUserFromRequest(req);
 	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
 	var isList = true;
 	var findObj = {};
-	var query;
+	var query = undefined;
 	if (req.params.name) {
 		//Get data for a specific application
 		_logger2.default.log({
@@ -144,46 +166,44 @@ exports.get = function (req, res, next) {
  * @apiSuccess {array} applications Array of applications if <code>name</code> is not provided.
  *
  */
-exports.getProviders = function (req, res, next) {
-	// var query = Application.find({}).populate({path:'owner', select:'username name title email'});
-	if (req.params.name) {
+function getProviders(req, res, next) {
+	if (!req.params.name) {
 		//Get data for a specific application
-		_logger2.default.log({
-			description: 'Get Providers request.', params: req.params,
-			func: 'getProviders', obj: 'ApplicationsCtrls'
-		});
-		var query = _application.Application.findOne({ name: req.params.name });
-		query.then(function (result) {
-			if (!result) {
-				_logger2.default.warn({
-					description: 'Application not found.',
-					func: 'getProviders', obj: 'ApplicationsCtrls'
-				});
-				return res.status(400).send('Application could not be found.');
-			}
-			var providerData = {};
-			_lodash2.default.each(result.providers, function (provider) {
-				providerData[provider.name] = provider.clientId;
-			});
-			_logger2.default.log({
-				description: 'Provider data found.', providerData: providerData,
-				func: 'getProviders', obj: 'ApplicationsCtrls'
-			});
-			res.send(providerData);
-		}, function (err) {
-			_logger2.default.error({
-				description: 'Error getting application(s).',
-				error: err, func: 'getProviders', obj: 'ApplicationsCtrls'
-			});
-			res.status(500).send('Error getting Application(s).');
-		});
-	} else {
-		_logger2.default.info({
+		_logger2.default.warn({
 			description: 'Application name required to get providers.',
 			func: 'getProviders', obj: 'ApplicationsCtrls'
 		});
-		res.status(400).send('Application name required to get providers.');
+		return res.status(400).send('Application name required to get providers.');
 	}
+	_logger2.default.log({
+		description: 'Get Providers request.', params: req.params,
+		func: 'getProviders', obj: 'ApplicationsCtrls'
+	});
+	var query = _application.Application.findOne({ name: req.params.name });
+	query.then(function (result) {
+		if (!result) {
+			_logger2.default.warn({
+				description: 'Application not found.',
+				func: 'getProviders', obj: 'ApplicationsCtrls'
+			});
+			return res.status(400).send('Application could not be found.');
+		}
+		var providerData = {};
+		_lodash2.default.each(result.providers, function (provider) {
+			providerData[provider.name] = provider.clientId;
+		});
+		_logger2.default.log({
+			description: 'Provider data found.', providerData: providerData,
+			func: 'getProviders', obj: 'ApplicationsCtrls'
+		});
+		res.send(providerData);
+	}, function (err) {
+		_logger2.default.error({
+			description: 'Error getting application(s).',
+			error: err, func: 'getProviders', obj: 'ApplicationsCtrls'
+		});
+		res.status(500).send('Error getting Application(s).');
+	});
 };
 
 /**
@@ -214,7 +234,7 @@ exports.getProviders = function (req, res, next) {
  *     }
  *
  */
-exports.add = function (req, res, next) {
+function add(req, res, next) {
 	//Query for existing application with same _id
 	if (!_lodash2.default.has(req.body, "name")) {
 		_logger2.default.error({
@@ -223,77 +243,79 @@ exports.add = function (req, res, next) {
 		});
 		res.status(400).send('Name is required to create a new app');
 	} else {
-		_logger2.default.log({
-			description: 'Applications add called with name.',
-			name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'
-		});
-		var appData = _lodash2.default.extend({}, req.body);
-		var appName = req.body.name;
-		if (!_lodash2.default.has(appData, 'owner')) {
+		(function () {
 			_logger2.default.log({
-				description: 'No owner data provided. Using account.', account: req.user, func: 'add', obj: 'ApplicationsCtrl' });
-			if (_lodash2.default.has(req, 'userId')) {
-				appData.owner = req.userId;
-			} else if (_lodash2.default.has(req.user, 'id')) {
-				appData.owner = req.user.id;
-			}
-		}
-		findApplication(appName).then(function (foundApp) {
-			_logger2.default.error({
-				description: 'Application with this name already exists.',
-				foundApp: foundApp, func: 'add', obj: 'ApplicationsCtrl'
+				description: 'Applications add called with name.',
+				name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'
 			});
-			res.status(400).send('Application with this name already exists.');
-		}, function (err) {
-			if (err && err.status == 'EXISTS') {
-				res.status(400).send('Application with this name already exists.');
-			} else {
+			var appData = _lodash2.default.extend({}, req.body);
+			var appName = req.body.name;
+			if (!_lodash2.default.has(appData, 'owner')) {
 				_logger2.default.log({
-					description: 'Application does not already exist.',
-					func: 'add', obj: 'Application'
-				});
-				//application does not already exist
-				var application = new _application.Application(appData);
-				_logger2.default.log({
-					description: 'Calling create with storage.',
-					appData: appData, func: 'add', obj: 'Application'
-				});
-				//Create with template if one is provided
-				if (_lodash2.default.has(req.body, 'template')) {
-					//Template name was provided
-					var templateType = req.body.templateType ? req.body.templateType : 'firebase';
-					application.createWithTemplate(req.body.template, templateType).then(function (newApp) {
-						_logger2.default.log({
-							description: 'Application created with template.',
-							newApp: newApp, func: 'add', obj: 'Application'
-						});
-						res.json(newApp);
-					}, function (err) {
-						_logger2.default.error({
-							description: 'Error creating application.',
-							error: err, func: 'add', obj: 'Application'
-						});
-						res.status(400).send('Error creating application.');
-					});
-				} else {
-					//Template parameter was not provided
-					application.createWithStorage(req.body).then(function (newApp) {
-						_logger2.default.log({
-							description: 'Application created with storage.',
-							newApp: newApp, func: 'add', obj: 'Application'
-						});
-						res.json(newApp);
-					}, function (err) {
-						//TODO: Handle different errors here
-						_logger2.default.error({
-							description: 'Error creating new application with storage.',
-							error: err, func: 'add', obj: 'ApplicationsCtrl'
-						});
-						res.status(400).json('Error creating application.');
-					});
+					description: 'No owner data provided. Using account.', account: req.user, func: 'add', obj: 'ApplicationsCtrl' });
+				if (_lodash2.default.has(req, 'userId')) {
+					appData.owner = req.userId;
+				} else if (_lodash2.default.has(req.user, 'id')) {
+					appData.owner = req.user.id;
 				}
 			}
-		});
+			findApplication(appName).then(function (foundApp) {
+				_logger2.default.error({
+					description: 'Application with this name already exists.',
+					foundApp: foundApp, func: 'add', obj: 'ApplicationsCtrl'
+				});
+				res.status(400).send('Application with this name already exists.');
+			}, function (err) {
+				if (err && err.status == 'EXISTS') {
+					res.status(400).send('Application with this name already exists.');
+				} else {
+					_logger2.default.log({
+						description: 'Application does not already exist.',
+						func: 'add', obj: 'Application'
+					});
+					//application does not already exist
+					var application = new _application.Application(appData);
+					_logger2.default.log({
+						description: 'Calling create with storage.',
+						appData: appData, func: 'add', obj: 'Application'
+					});
+					//Create with template if one is provided
+					if (_lodash2.default.has(req.body, 'template')) {
+						//Template name was provided
+						var templateType = req.body.templateType ? req.body.templateType : 'firebase';
+						application.createWithTemplate(req.body.template, templateType).then(function (newApp) {
+							_logger2.default.log({
+								description: 'Application created with template.',
+								newApp: newApp, func: 'add', obj: 'Application'
+							});
+							res.json(newApp);
+						}, function (err) {
+							_logger2.default.error({
+								description: 'Error creating application.',
+								error: err, func: 'add', obj: 'Application'
+							});
+							res.status(400).send('Error creating application.');
+						});
+					} else {
+						//Template parameter was not provided
+						application.createWithStorage(req.body).then(function (newApp) {
+							_logger2.default.log({
+								description: 'Application created with storage.',
+								newApp: newApp, func: 'add', obj: 'Application'
+							});
+							res.json(newApp);
+						}, function (err) {
+							//TODO: Handle different errors here
+							_logger2.default.error({
+								description: 'Error creating new application with storage.',
+								error: err, func: 'add', obj: 'ApplicationsCtrl'
+							});
+							res.status(400).json('Error creating application.');
+						});
+					}
+				}
+			});
+		})();
 	}
 };
 
@@ -325,7 +347,7 @@ exports.add = function (req, res, next) {
  *     }
  *
  */
-exports.update = function (req, res, next) {
+function update(req, res, next) {
 	_logger2.default.log({
 		description: 'App update request.', params: req.params,
 		func: 'update', obj: 'ApplicationsCtrls'
@@ -391,7 +413,7 @@ exports.update = function (req, res, next) {
  *     }
  *
  */
-exports.delete = function (req, res, next) {
+function del(req, res, next) {
 	var query = _application.Application.findOneAndRemove({ 'name': req.params.name }); // find and delete using id field
 	query.then(function (result) {
 		if (result) {
@@ -453,7 +475,7 @@ exports.delete = function (req, res, next) {
  *     }
  *
  */
-exports.files = function (req, res, next) {
+function files(req, res, next) {
 	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile =>
 	if (req.params.name) {
@@ -527,7 +549,7 @@ exports.files = function (req, res, next) {
  *
  */
 var localDir = "./public";
-exports.publishFile = function (req, res, next) {
+function publishFile(req, res, next) {
 	_logger2.default.info({
 		description: 'File publish request.', func: 'publishFile',
 		params: req.params, obj: 'ApplicationsCtrls'
@@ -608,7 +630,7 @@ exports.publishFile = function (req, res, next) {
  *
  */
 //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.applyTemplate = function (req, res, next) {
+function applyTemplate(req, res, next) {
 	_logger2.default.log({
 		description: 'apply template request with app name: ', name: req.params.name,
 		func: 'applyTemplate', obj: 'ApplicationsCtrl'
@@ -678,7 +700,7 @@ exports.applyTemplate = function (req, res, next) {
  *
  */
 //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.addStorage = function (req, res, next) {
+function addStorage(req, res, next) {
 	_logger2.default.log('add storage request with app name: ' + req.params.name + ' with body:', req.body);
 	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile =>
@@ -735,7 +757,7 @@ exports.addStorage = function (req, res, next) {
  *
  */
 //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.addCollaborators = function (req, res, next) {
+function addCollaborators(req, res, next) {
 	_logger2.default.log({
 		description: 'add storage request with app name: ', name: req.params.name,
 		func: 'addCollaborators', obj: 'ApplicationsCtrl'
@@ -799,7 +821,7 @@ exports.addCollaborators = function (req, res, next) {
  *
  */
 //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.login = function (req, res, next) {
+function login(req, res, next) {
 	_logger2.default.log({
 		description: 'App Login request.',
 		appName: req.params.name, body: req.body,
@@ -880,13 +902,13 @@ exports.login = function (req, res, next) {
  *
  *
  */
-exports.logout = function (req, res, next) {
+function logout(req, res, next) {
 	_logger2.default.log({
 		description: 'App Logout request.',
 		appName: req.params.name, body: req.body,
 		func: 'logout', obj: 'ApplicationCtrl'
 	});
-	var userData;
+	var userData = undefined;
 	if (req.user) {
 		userData = req.user;
 	}
@@ -955,7 +977,7 @@ exports.logout = function (req, res, next) {
  *
  *
  */
-exports.signup = function (req, res, next) {
+function signup(req, res, next) {
 	_logger2.default.log({
 		description: 'App signup request.',
 		appName: req.params.name, body: req.body,
@@ -1058,7 +1080,7 @@ exports.signup = function (req, res, next) {
  *     }
  *
  */
-exports.verify = function (req, res, next) {
+function verify(req, res, next) {
 	//TODO:Actually verify account instead of just returning account data
 	//TODO: Get applicaiton and verify that user exists within applicaiton
 	var findObj = {};
@@ -1124,7 +1146,7 @@ exports.verify = function (req, res, next) {
  *
  *
  */
-exports.groups = function (req, res, next) {
+function groups(req, res, next) {
 	_logger2.default.log({
 		description: 'App get group(s) request called.',
 		appName: req.params.name, body: req.body, func: 'groups'
@@ -1237,7 +1259,7 @@ exports.groups = function (req, res, next) {
  *
  *
  */
-exports.addGroup = function (req, res, next) {
+function addGroup(req, res, next) {
 	_logger2.default.log({
 		description: 'App add group request.',
 		name: req.params.name, body: req.body,
@@ -1296,7 +1318,7 @@ exports.addGroup = function (req, res, next) {
  *
  *
  */
-exports.updateGroup = function (req, res, next) {
+function updateGroup(req, res, next) {
 	_logger2.default.log({
 		description: 'Update application group called.',
 		appName: req.params.name, body: req.body,
@@ -1398,7 +1420,7 @@ exports.updateGroup = function (req, res, next) {
  *
  *
  */
-exports.deleteGroup = function (req, res, next) {
+function deleteGroup(req, res, next) {
 	_logger2.default.log({
 		description: 'App add group request with app name.', name: req.params.name,
 		func: 'deleteGroup', obj: 'ApplicationsCtrl'

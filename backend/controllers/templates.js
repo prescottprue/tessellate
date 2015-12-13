@@ -1,9 +1,9 @@
 /**
  * @description Template Controller
  */
-var _ = require('lodash');
-var logger = require('../utils/logger');
-var Template = require('../models/template').Template;
+import _ from 'lodash';
+import logger from '../utils/logger';
+import { Template } from '../models/template';
 
 /**
  * @api {get} /templates Get Template(s)
@@ -23,9 +23,9 @@ var Template = require('../models/template').Template;
  *     }
  *
  */
-exports.get = (req, res, next) => {
-	var isList = true;
-	var query = Template.find({}).populate({path:'author', select:'username name email'});
+export function get(req, res, next) {
+	let isList = true;
+	let query = Template.find({}).populate({path:'author', select:'username name email'});
 	if(req.params.name){ //Get data for a specific template
 		logger.log({
 			description: 'Template request.',
@@ -76,7 +76,7 @@ exports.get = (req, res, next) => {
  *     }
  *
  */
-exports.add = (req, res, next) => {
+export function add(req, res, next) {
 	//Query for existing template with same name
 	if(!_.has(req.body, "name")){
 		res.status(400).send("Name is required to create a new app");
@@ -85,7 +85,7 @@ exports.add = (req, res, next) => {
 			description: 'Template add request.',
 			name: req.body.name, func: 'add', obj: 'TemplatesCtrls'
 		});
-		var appData = _.extend({}, req.body);
+		let appData = _.extend({}, req.body);
 		if(!_.has(appData, 'author')){
 			logger.log({
 				description: 'No author provided. Using account', user: req.user,
@@ -93,7 +93,7 @@ exports.add = (req, res, next) => {
 			});
 			appData.author = req.user.accountId;
 		}
-		var query = Template.findOne({"name":req.body.name}); // find using name field
+		let query = Template.findOne({"name":req.body.name}); // find using name field
 		query.then((qResult) => {
 			if(qResult){ //Matching template already exists
 				logger.warn({
@@ -115,7 +115,7 @@ exports.add = (req, res, next) => {
 				description: 'Creating new template.', template: appData,
 				func: 'add', obj: 'TemplatesCtrl'
 			});
-			var template = new Template(appData);
+			let template = new Template(appData);
 			template.createNew(req).then( (newTemplate) => {
 				logger.log({
 					description: 'Template created successfully.',
@@ -160,7 +160,7 @@ exports.add = (req, res, next) => {
  *
  *
  */
-exports.update = (req, res, next) => {
+export function update(req, res, next) {
 	logger.log({
 		description: 'app update request. ', name: req.params.name,
 		func: 'update', obj: 'TemplatesCtrl'
@@ -212,10 +212,13 @@ exports.update = (req, res, next) => {
  *
  *
  */
-exports.upload = (req, res, next) => {
-	logger.log('app update request with name: ' + req.params.name + ' with body:', req.body);
+export function upload(req, res, next) {
+	logger.log({
+		description: 'App update request.',
+		template: template, func: 'upload', obj: 'TemplatesCtrls'
+	});
 	if(req.params.name){
-		var query = Template.findOne({name:req.params.name});
+		let query = Template.findOne({name:req.params.name});
 		query.then((template) => {
 			//TODO: respond with updated data instead of passing through req.body
 			logger.log({
@@ -269,7 +272,7 @@ exports.upload = (req, res, next) => {
  *
  *
  */
-exports.delete = function(req, res, next){
+export function del(req, res, next) {
 	logger.log({
 		description: 'Delete request.', params: req.params,
 		func: 'delete', obj: 'TemplatesCtrl'
@@ -277,7 +280,7 @@ exports.delete = function(req, res, next){
 	if(!_.has(req.body, 'name')){
 		res.status(400).send('Template name required to delete template.');
 	} else {
-		var query = Template.findOneAndRemove({'name':req.body.name}); // find and delete using id field
+		let query = Template.findOneAndRemove({'name':req.body.name}); // find and delete using id field
 		query.then(function (result){
 			if (!result) {
 				logger.warn({
@@ -316,9 +319,9 @@ exports.delete = function(req, res, next){
  *     }
  *
  */
-exports.search = function(req, res, next){
+export function search(req, res, next) {
 	//TODO: Search through firebase templates
-	var nameQuery = createTemplateQuery('name', req.params.searchQuery);
+	let nameQuery = createTemplateQuery('name', req.params.searchQuery);
 	//Search templates by name
 	nameQuery.then(function(nameResults){
 		if(_.isArray(nameResults) && nameResults.length == 0){
@@ -344,11 +347,11 @@ exports.search = function(req, res, next){
  * Create a account query based on provided key and value (in mongo)
  */
 function createTemplateQuery(key, val){
-	var queryArr = _.map(val.split(' '), function (qr) {
-    var queryObj = {};
+	let queryArr = _.map(val.split(' '), function (qr) {
+    let queryObj = {};
     queryObj[key] = new RegExp(_.escapeRegExp(qr), 'i');
     return queryObj;
   });
-  var find = {$or: queryArr};
+  let find = {$or: queryArr};
 	return Template.find(find, {}); // find and delete using id field
 }

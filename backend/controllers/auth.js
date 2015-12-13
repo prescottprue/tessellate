@@ -1,17 +1,18 @@
 /**
  * @description Authentication controller
  */
-var mongoose = require('mongoose');
-var url = require('url');
-var _ = require('lodash');
-var logger = require('../utils/logger');
-var Account = require('../models/account').Account;
-var Session = require('../models/session').Session;
-var AuthRocket = require('authrocket');
-var authrocket = new AuthRocket();
-var jwt = require('jsonwebtoken');
-var conf = require('../config/default').config;
-var authRocketEnabled = conf.authRocket.enabled;
+import mongoose from 'mongoose';
+import url from 'url';
+import _ from 'lodash';
+import logger from '../utils/logger';
+import { Account } from '../models/account';
+import { Session } from '../models/session';
+import AuthRocket from 'authrocket';
+import jwt from 'jsonwebtoken';
+import { config } from '../config/default';
+let authRocketEnabled = config.authRocket.enabled;
+let authrocket = new AuthRocket();
+
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new account and start a session as that new account
@@ -35,7 +36,7 @@ var authRocketEnabled = conf.authRocket.enabled;
  *     }
  *
  */
-exports.signup = (req, res, next) => {
+export function signup(req, res, next) {
 	var query;
 	logger.log({
 		description: 'Signup request.', body: req.body,
@@ -126,7 +127,7 @@ exports.signup = (req, res, next) => {
  *     }
  *
  */
-exports.login = (req, res, next) => {
+export function login(req, res, next) {
 	var query;
 	if((!_.has(req.body, "username") && !_.has(req.body, "email")) || !_.has(req.body, "password")){
 		return res.status(400).send("Username/Email and password required to login");
@@ -212,7 +213,6 @@ exports.login = (req, res, next) => {
 					description: 'Account not found.',
 					func: 'login', obj: 'AuthCtrl'
 				});
-				// return next (new Error('Account could not be found'));
 				return res.status(409).send('Account not found.');
 			}
 			console.log('account found', currentAccount);
@@ -255,7 +255,7 @@ exports.login = (req, res, next) => {
  *     }
  *
  */
-exports.logout = (req, res, next) => {
+export function logout(req, res, next) {
 	//TODO:Invalidate token
 	logger.log({
 		description: 'Logout called.',
@@ -337,7 +337,7 @@ exports.logout = (req, res, next) => {
  *     }
  *
  */
-exports.verify = (req, res, next) => {
+export function verify(req, res, next) {
 	//TODO:Actually verify account instead of just returning account data
 	// logger.log('verify request:', req.user);
 	var query;

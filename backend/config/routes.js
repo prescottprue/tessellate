@@ -1,15 +1,14 @@
-var express = require('express');
-var indexCtrls = require('../controllers/index');
-var authCtrls = require('../controllers/auth');
-var accountCtrls = require('../controllers/accounts');
-var appCtrls = require('../controllers/applications');
-var templateCtrls = require('../controllers/templates');
-var adminCtrl = require('../controllers/admin');
-var groupsCtrl = require('../controllers/groups');
-var authrocketCtrls = require('../controllers/authrocket');
+import express from 'express';
+import * as indexCtrls from '../controllers/index';
+import * as authCtrls from '../controllers/auth';
+import * as accountCtrls from '../controllers/accounts';
+import * as appCtrls from '../controllers/applications';
+import * as templateCtrls from '../controllers/templates';
+import * as adminCtrl from '../controllers/admin';
+import * as groupsCtrl from '../controllers/groups';
+import * as authrocketCtrls from '../controllers/authrocket';
 
-
-module.exports =  {
+export default {
 	index:[
 		{
 			type:'GET',
@@ -75,7 +74,7 @@ module.exports =  {
 		{
 			type:'DELETE',
 			endpoint: '/accounts/:username',
-			controller:accountCtrls['delete']
+			controller:accountCtrls.del
 		},
 		{
 			type:'GET',
@@ -112,7 +111,7 @@ module.exports =  {
 		{
 			type:'DELETE',
 			endpoint: '/users/:username',
-			controller:accountCtrls['delete']
+			controller:accountCtrls.del
 		},
 		{
 			type:'GET',
@@ -165,7 +164,7 @@ module.exports =  {
 		{
 			type:'DELETE',
 			endpoint: '/apps/:name',
-			controller:appCtrls['delete']
+			controller:appCtrls.del
 		},
 		{
 			type:'PUT',
@@ -262,7 +261,7 @@ module.exports =  {
 		{
 			type:'DELETE',
 			endpoint: '/templates/:name',
-			controller:templateCtrls['delete']
+			controller:templateCtrls.del
 		}
 	],
 	groups:[
@@ -289,7 +288,7 @@ module.exports =  {
 		{
 			type:'DELETE',
 			endpoint: '/groups/:name',
-			controller:groupsCtrl['delete']
+			controller:groupsCtrl.del
 		}
 	],
 	admin:[

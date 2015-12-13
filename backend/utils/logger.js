@@ -1,20 +1,20 @@
 /**
  * @description Logger utility that handles Internal and external logging based on environment config
  */
-var conf = require('../config/default').config;
-var _ = require('underscore');
-var winston = require('winston');
-require('winston-loggly');
-var externalLoggerExists = null;
+import { config } from '../config/default';
+import _ from 'underscore';
+import winston from 'winston';
+import 'winston-loggly';
+let externalLoggerExists = null;
 
 configureExternalLogger();
 // TODO: Handle log level
 
-exports.log = function(logData){
+exports.log =  function (logData) {
 	var msgStr = buildMessageStr(logData);
-	if(conf.envName === 'local'){
+	if(config.envName === 'local'){
     console.log(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (config.envName === 'production') {
 		console.log(msgStr);
     callExternalLogger('log', logData);
 	} else {
@@ -22,11 +22,11 @@ exports.log = function(logData){
     // callExternalLogger('log', logData);
 	}
 };
-exports.info = function(logData){
+exports.info = function(logData) {
 	var msgStr = buildMessageStr(logData);
-	if(conf.envName == 'local'){
+	if(config.envName == 'local'){
 		console.log(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (config.envName === 'production') {
 		console.info(logData) || console.log(logData);
     callExternalLogger('info', logData);
 	} else {
@@ -34,11 +34,11 @@ exports.info = function(logData){
     // callExternalLogger('info', logData);
 	}
 };
-exports.debug = function(logData){
+exports.debug =  function debug(logData) {
 	var msgStr = buildMessageStr(logData);
-	if(conf.envName == 'local'){
+	if(config.envName == 'local'){
 		console.log(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (config.envName === 'production') {
 		console.info(logData) || console.log(logData);
     callExternalLogger('debug', logData);
 	} else {
@@ -46,11 +46,11 @@ exports.debug = function(logData){
     callExternalLogger('debug', logData);
 	}
 };
-exports.warn = function(logData){
+exports.warn = function warn(logData) {
 	var msgStr = buildMessageStr(logData);
-	if(conf.envName == 'local'){
+	if(config.envName == 'local'){
 		console.warn(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (config.envName === 'production') {
 		console.warn(logData) || console.log(logData);
     callExternalLogger('warn', logData);
 	} else {
@@ -58,11 +58,11 @@ exports.warn = function(logData){
     callExternalLogger('warn', logData);
 	}
 };
-exports.error = function(logData){
+exports.error = function error(logData) {
 	var msgStr = buildMessageStr(logData);
-	if(conf.envName == 'local'){
+	if(config.envName == 'local'){
 		console.error(msgStr);
-	} else if (conf.envName === 'production') {
+	} else if (config.envName === 'production') {
 		console.error(logData) || console.log(logData);
     callExternalLogger('error', logData);
 	} else {
@@ -105,7 +105,7 @@ function buildMessageStr(logData){
  * Currently using Loggly through winston. Requires LOGGLY_TOKEN environment variable
  */
 function configureExternalLogger(){
-  if(conf.logging && conf.logging.enabled){
+  if(config.logging && config.logging.enabled){
 		if(!_.has(process.env, 'LOGGLY_TOKEN')){
 			console.warn('Loggly Token does not exist, so external logging can not be configured.');
 			externalLoggerExists = false;

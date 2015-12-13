@@ -1,8 +1,8 @@
 /**
  * @description Utilites that build NodeJS routes from routes config
  */
-var _ = require('lodash');
-var logger = require('./logger');
+import _ from 'lodash';
+import logger from './logger';
 /**
  * @description Export function that accepts app and sets up the routes based on the routes config
  */
@@ -37,7 +37,7 @@ function setupRoutes(app, routeConfig){
       return _.has(route, keyName);
     });
     if(hasRequiredKeys && !_.isFunction(route.controller)){
-      logger.log("WARNING: Route has invalid controller function: ", route);
+      logger.log("WARNING: Route has invalid controller function: ", JSON.stringify(route));
     }
     return (hasRequiredKeys && _.isFunction(route.controller));
   }

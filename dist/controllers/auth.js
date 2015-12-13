@@ -1,19 +1,51 @@
 'use strict';
 
-/**
- * @description Authentication controller
- */
-var mongoose = require('mongoose');
-var url = require('url');
-var _ = require('lodash');
-var logger = require('../utils/logger');
-var Account = require('../models/account').Account;
-var Session = require('../models/session').Session;
-var AuthRocket = require('authrocket');
-var authrocket = new AuthRocket();
-var jwt = require('jsonwebtoken');
-var conf = require('../config/default').config;
-var authRocketEnabled = conf.authRocket.enabled;
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.signup = signup;
+exports.login = login;
+exports.logout = logout;
+exports.verify = verify;
+
+var _mongoose = require('mongoose');
+
+var _mongoose2 = _interopRequireDefault(_mongoose);
+
+var _url = require('url');
+
+var _url2 = _interopRequireDefault(_url);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _logger = require('../utils/logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+var _account = require('../models/account');
+
+var _session = require('../models/session');
+
+var _authrocket = require('authrocket');
+
+var _authrocket2 = _interopRequireDefault(_authrocket);
+
+var _jsonwebtoken = require('jsonwebtoken');
+
+var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
+
+var _default = require('../config/default');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var authRocketEnabled = _default.config.authRocket.enabled; /**
+                                                             * @description Authentication controller
+                                                             */
+
+var authrocket = new _authrocket2.default();
+
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new account and start a session as that new account
@@ -37,14 +69,14 @@ var authRocketEnabled = conf.authRocket.enabled;
  *     }
  *
  */
-exports.signup = function (req, res, next) {
+function signup(req, res, next) {
 	var query;
-	logger.log({
+	_logger2.default.log({
 		description: 'Signup request.', body: req.body,
 		func: 'signup', obj: 'AuthCtrls'
 	});
 	//Check for username or email
-	if (!_.has(req.body, "username") && !_.has(req.body, "email")) {
+	if (!_lodash2.default.has(req.body, "username") && !_lodash2.default.has(req.body, "email")) {
 		return res.status(400).json({
 			code: 400,
 			message: "Username or Email required to signup"
@@ -52,14 +84,14 @@ exports.signup = function (req, res, next) {
 	}
 	if (authRocketEnabled) {
 		authrocket.signup(req.body).then(function (signupRes) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Successfully signed up through authrocket.',
 				response: signupRes, func: 'signup', obj: 'AuthCtrls'
 			});
 			//TODO: Record user within internal auth system
 			res.send(signupRes);
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error signing up through auth rocket.',
 				error: err, func: 'signup', obj: 'AuthCtrls'
 			});
@@ -67,10 +99,10 @@ exports.signup = function (req, res, next) {
 		});
 	} else {
 		//Basic Internal Signup
-		if (_.has(req.body, "username")) {
-			query = Account.findOne({ "username": req.body.username }); // find using username field
+		if (_lodash2.default.has(req.body, "username")) {
+			query = _account.Account.findOne({ "username": req.body.username }); // find using username field
 		} else {
-				query = Account.findOne({ "email": req.body.email }); // find using email field
+				query = _account.Account.findOne({ "email": req.body.email }); // find using email field
 			}
 		query.then(function (result) {
 			if (result) {
@@ -80,7 +112,7 @@ exports.signup = function (req, res, next) {
 			}
 			//account does not already exist
 			//Build account data from request
-			var account = new Account(req.body);
+			var account = new _account.Account(req.body);
 			// TODO: Start a session with new account
 			account.createWithPass(req.body.password).then(function (newAccount) {
 				res.send(newAccount);
@@ -92,7 +124,7 @@ exports.signup = function (req, res, next) {
 				});
 			});
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error querying for account.',
 				error: err, func: 'signup', obj: 'AuthCtrl'
 			});
@@ -129,14 +161,14 @@ exports.signup = function (req, res, next) {
  *     }
  *
  */
-exports.login = function (req, res, next) {
+function login(req, res, next) {
 	var query;
-	if (!_.has(req.body, "username") && !_.has(req.body, "email") || !_.has(req.body, "password")) {
+	if (!_lodash2.default.has(req.body, "username") && !_lodash2.default.has(req.body, "email") || !_lodash2.default.has(req.body, "password")) {
 		return res.status(400).send("Username/Email and password required to login");
 	}
 	var loginData = { password: req.body.password };
 	console.log('login request', req.body);
-	if (_.has(req.body, 'username')) {
+	if (_lodash2.default.has(req.body, 'username')) {
 		if (req.body.username.indexOf('@') !== -1) {
 			loginData.email = req.body.username;
 		} else {
@@ -146,37 +178,37 @@ exports.login = function (req, res, next) {
 	if (authRocketEnabled) {
 		//Authrocket login
 		//Remove email to avoid Auth Rocket error
-		if (_.has(loginData, 'email')) {
+		if (_lodash2.default.has(loginData, 'email')) {
 			delete loginData.email;
 		}
-		if (!_.has(req.body, 'username')) {
+		if (!_lodash2.default.has(req.body, 'username')) {
 			return res.status(400).send('Username is required to login.');
 		}
-		logger.log({
+		_logger2.default.log({
 			description: 'calling auth rocket with:',
 			data: loginData, func: 'login', obj: 'AuthCtrls'
 		});
 		authrocket.login(loginData).then(function (loginRes) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Successfully logged in through authrocket.',
 				func: 'login', obj: 'AuthCtrls'
 			});
 			//TODO: Record login within internal auth system
 			//TODO: Return account along with token data
 			if (loginRes.token) {
-				var token = jwt.decode(loginRes.token);
-				logger.log({
+				var token = _jsonwebtoken2.default.decode(loginRes.token);
+				_logger2.default.log({
 					description: 'token', token: token,
 					func: 'login', obj: 'AuthCtrls'
 				});
 				if (!process.env.AUTHROCKET_JWT_SECRET) {
-					logger.error({
+					_logger2.default.error({
 						description: 'Authrocket secret not available to verify token',
 						func: 'login', obj: 'AuthCtrls'
 					});
 				} else {
-					var verify = jwt.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
-					logger.log({
+					var verify = _jsonwebtoken2.default.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
+					_logger2.default.log({
 						description: 'verify', verify: verify,
 						func: 'login', obj: 'AuthCtrls'
 					});
@@ -192,7 +224,7 @@ exports.login = function (req, res, next) {
 			var response = { account: account, token: loginRes.token };
 			res.send(response);
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error logging in through auth rocket.',
 				error: err, func: 'login', obj: 'AuthCtrls'
 			});
@@ -200,37 +232,36 @@ exports.login = function (req, res, next) {
 		});
 	} else {
 		//Basic Internal login
-		if (_.has(loginData, 'username')) {
-			query = Account.findOne({ 'username': loginData.username }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using username field
+		if (_lodash2.default.has(loginData, 'username')) {
+			query = _account.Account.findOne({ 'username': loginData.username }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using username field
 		} else {
-				query = Account.findOne({ 'email': loginData.email }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using email field
+				query = _account.Account.findOne({ 'email': loginData.email }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using email field
 			}
 		query.then(function (currentAccount) {
 			if (!currentAccount) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Account not found.',
 					func: 'login', obj: 'AuthCtrl'
 				});
-				// return next (new Error('Account could not be found'));
 				return res.status(409).send('Account not found.');
 			}
 			console.log('account found', currentAccount);
 			currentAccount.login(req.body.password).then(function (loginRes) {
-				logger.log({
+				_logger2.default.log({
 					description: 'Login Successful.',
 					func: 'login', obj: 'AuthCtrl'
 				});
 				res.send(loginRes);
 			}, function (err) {
 				//TODO: Handle wrong password
-				logger.error({
+				_logger2.default.error({
 					description: 'Login Error.', error: err,
 					func: 'login', obj: 'AuthCtrl'
 				});
 				res.status(400).send('Error logging in.');
 			});
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Login error', error: err,
 				func: 'login', obj: 'AuthCtrl'
 			});
@@ -254,9 +285,9 @@ exports.login = function (req, res, next) {
  *     }
  *
  */
-exports.logout = function (req, res, next) {
+function logout(req, res, next) {
 	//TODO:Invalidate token
-	logger.log({
+	_logger2.default.log({
 		description: 'Logout called.',
 		authRocketEnabled: authRocketEnabled,
 		body: req.body,
@@ -267,31 +298,31 @@ exports.logout = function (req, res, next) {
 		if (req.body && req.body.token) {
 			token = req.body.token;
 		} else if (req.headers && (req.headers.authorization || req.header('Authorization'))) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Getting token from headers.',
 				headers: req.headers, func: 'logout', obj: 'AuthCtrl'
 			});
 			var header = req.headers.authorization || req.header('Authorization');
 			token = header.replace("Bearer ", "");
 		} else {
-			logger.warn({
+			_logger2.default.warn({
 				description: 'Token required to logout.',
 				func: 'logout', obj: 'AuthCtrl'
 			});
 			return res.status(401).send('Token required to logout.');
 		}
-		logger.log({
+		_logger2.default.log({
 			description: 'Attempting log out through authrocket.',
 			token: token, func: 'logout', obj: 'AuthCtrl'
 		});
 		authrocket.logout(token).then(function (logoutRes) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Successfully logged out through authrocket.',
 				response: logoutRes, func: 'logout', obj: 'AuthCtrl'
 			});
 			res.send({ message: 'Logout successful.' });
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error ending session.', error: err,
 				func: 'logout', obj: 'AuthCtrl'
 			});
@@ -299,15 +330,15 @@ exports.logout = function (req, res, next) {
 		});
 	} else {
 		//TODO: Handle user not being in req.user
-		var account = new Account(req.user);
+		var account = new _account.Account(req.user);
 		account.endSession().then(function () {
-			logger.log({
+			_logger2.default.log({
 				description: 'Successfully ended session',
 				func: 'logout', obj: 'AuthCtrl'
 			});
 			res.send({ message: 'Logout successful.' });
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error ending session.', error: err,
 				func: 'logout', obj: 'AuthCtrl'
 			});
@@ -336,33 +367,33 @@ exports.logout = function (req, res, next) {
  *     }
  *
  */
-exports.verify = function (req, res, next) {
+function verify(req, res, next) {
 	//TODO:Actually verify account instead of just returning account data
 	// logger.log('verify request:', req.user);
 	var query;
 	if (req.user) {
 		//Find by username in token
-		if (_.has(req.user, "username")) {
-			query = Account.findOne({ username: req.user.username }).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
+		if (_lodash2.default.has(req.user, "username")) {
+			query = _account.Account.findOne({ username: req.user.username }).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
 		}
 		//Find by username in token
 		else {
-				query = Account.findOne({ email: req.user.email }).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
+				query = _account.Account.findOne({ email: req.user.email }).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
 			}
 		query.then(function (result) {
 			if (!result) {
 				//Matching account already exists
 				// TODO: Respond with a specific error code
-				logger.error({ description: 'Account not found.', error: err, func: 'verify', obj: 'AuthCtrl' });
+				_logger2.default.error({ description: 'Account not found.', error: err, func: 'verify', obj: 'AuthCtrl' });
 				return res.status(400).send('Account with this information does not exist.');
 			}
 			res.json(result);
 		}, function (err) {
-			logger.error({ description: 'Error querying for account', error: err, func: 'verify', obj: 'AuthCtrl' });
+			_logger2.default.error({ description: 'Error querying for account', error: err, func: 'verify', obj: 'AuthCtrl' });
 			return res.status(500).send('Unable to verify token.');
 		});
 	} else {
-		logger.error({ description: 'Invalid auth token.', func: 'verify', obj: 'AuthCtrl' });
+		_logger2.default.error({ description: 'Invalid auth token.', func: 'verify', obj: 'AuthCtrl' });
 		res.status(401).json({ status: 401, message: 'Valid Auth token required to verify' });
 	}
 };

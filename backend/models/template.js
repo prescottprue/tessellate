@@ -1,51 +1,36 @@
-var mongoose = require('mongoose');
-var q = require('q');
-var _ = require('lodash');
-var formidable = require('formidable');
-var util = require('util');
-var mkdirp = require('mkdirp');
-var rimraf = require('rimraf');
-var db = require('./../utils/db');
-var fileStorage = require('../utils/fileStorage');
-var sqs = require('./../utils/sqs');
-var logger = require('./../utils/logger');
+import mongoose from 'mongoose';
+import q from 'q';
+import _ from 'lodash';
+import formidable from 'formidable';
+import util from 'util';
+import mkdirp from 'mkdirp';
+import rimraf from 'rimraf';
+import db from './../utils/db';
+import fileStorage from '../utils/fileStorage';
+import * as sqs from './../utils/sqs';
+import logger from './../utils/logger';
 
-var templateBucket = "tessellate-templates";
+let templateBucket = "tessellate-templates";
 
-var TemplateSchema = new mongoose.Schema({
-	name:{type:String, default:'', unique:true, index:true},
-	author:{type: mongoose.Schema.Types.ObjectId, ref:'Account'},
-	location:{type:String},
-	description:{type:String},
-	tags:[{type:String}],
-	frameworks:[{type:String}],
-	createdAt: { type: Date, default: Date.now},
-	updatedAt: { type: Date, default: Date.now}
-});
+let TemplateSchema = new mongoose.Schema(
+	{
+		name:{type:String, default:'', unique:true, index:true},
+		author:{type: mongoose.Schema.Types.ObjectId, ref:'Account'},
+		location:{
+			storageType: {type: String},
+			path: {type: String}
+		},
+		description:{type:String},
+		tags:[{type:String}],
+		frameworks:[{type:String}],
+		createdAt: { type: Date, default: Date.now},
+		updatedAt: { type: Date, default: Date.now}
+	}
+);
 
 TemplateSchema.set('collection', 'templates');
 
 TemplateSchema.methods = {
-	saveNew: function(){
-		var d = q.defer();
-		if(!this.location){
-			//Build location off of safe version of name
-			//TODO: Make this the safe version of name
-			this.location = templateBucket + '/' + this.name;
-		}
-		this.save(function (err, newTemplate) {
-			if (err) {
-				console.error('[Template.saveNew()] Error saving Template:', err);
-				return d.reject(err);
-			}
-			if (!newTemplate) {
-				console.error('[Template.saveNew()] Template could not be saved');
-				return d.reject({message: 'Template could not be saved.'});
-			}
-			d.resolve(newTemplate);
-		});
-		return d.promise;
-	},
 	uploadFiles:function(req){
 		var bucketName,localDirectory;
 		var d = q.defer();
@@ -58,16 +43,15 @@ TemplateSchema.methods = {
     fields = [];
     form.uploadDir = uploadDir
     form.keepExtensions = true;
-
 		mkdirp(form.uploadDir, (err) => {
 	    // path was created unless there was error
 	    //Parse form
 	    form.parse(req, (err) => {
 	    	if(err){
-	    		console.log('error parsing form:', err);
+	    		logger.log('error parsing form:', err);
 	    		d.reject(err);
 	    	}
-	    	console.log('Form parsed');
+	    	logger.log('Form parsed');
 	    });
 		});
     //TODO: Handle on error?
@@ -79,32 +63,32 @@ TemplateSchema.methods = {
 	    	file.path = path;
 			})
       .on('field', (field, value) => {
-        // console.log(field, value);
+        // logger.log(field, value);
         //Handle form fields other than files
         fields.push([field, value]);
       })
       .on('file', (field, file) => {
-        // console.log(field, file);
+        // logger.log(field, file);
         //Handle form files
         files.push([field, file]);
       })
       .on('end', () => {
-        console.log('-> upload done');
-        console.log('received files:\n\n '+util.inspect(files));
+        logger.log('-> upload done');
+        logger.log('received files:\n\n '+util.inspect(files));
         // res.writeHead(200, {'content-type': 'text/plain'});
         // res.write('received fields:\n\n '+util.inspect(fields));
         // res.write('\n\n');
         // res.end('received files:\n\n '+util.inspect(files));
     		//TODO: Upload files from disk to S3
-    		console.log('upload localdir called with:', self.location);
+    		logger.log('upload localdir called with:', self.location);
 				fileStorage.uploadLocalDir({bucket:self.location, localDir:uploadDir}).then(() => {
 					//TODO: Remove files from disk
-					console.log('files upload successful:');
+					logger.log('files upload successful:');
 					rimraf(uploadDir, (err) => {
 						if(!err){
 							d.resolve();
 						} else {
-							console.log('Error deleting folder after upload to template');
+							logger.log('Error deleting folder after upload to template');
 							d.reject(err);
 						}
 					});
@@ -119,20 +103,20 @@ TemplateSchema.methods = {
 		var d = q.defer();
 		var self = this;
 		//TODO: Verify that name is allowed to be used for bucket
-		return this.saveNew().then(() => {
+		return this.save().then(() => {
 			if(req.files){
 				this.uploadFiles(req).then(() => {
-					console.log('New template created and uploaded successfully');
+					logger.log('New template created and uploaded successfully');
 					return;
 				}, (err) => {
-					console.log('Error uploading files to new template:', err);
+					logger.log('Error uploading files to new template:', err);
 					return Promise.reject(err);
 				});
 			} else {
 				return this;
 			}
 		}, (err) => {
-			console.log('Error creating new template:', err);
+			logger.log('Error creating new template:', err);
 			return Promise.reject(err);
 		});
 		return d.promise;

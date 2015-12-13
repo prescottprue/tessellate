@@ -1,9 +1,9 @@
 /**
  * @description Admin Controller
  */
-var logger = require('../utils/logger');
-var fileStorage = require('../utils/fileStorage');
-var Application = require('../models/application').Application;
+import logger from '../utils/logger';
+import fileStorage from '../utils/fileStorage';
+import { Application } from '../models/application';
 
 /**
  * @api {get} /admin/buckets Get Buckets
@@ -35,7 +35,7 @@ var Application = require('../models/application').Application;
  *     ]
  *
  */
-exports.getBuckets = (req, res, next) => {
+export function getBuckets(req, res, next) {
 	//TODO: Limit/paginate number of buckets returned
 	fileStorage.getBuckets().then((buckets) => {
 		logger.log({description: 'Buckets loaded.', buckets: buckets, func: 'getBuckets', obj: 'AdminCtrls'});
@@ -60,7 +60,7 @@ exports.getBuckets = (req, res, next) => {
  *     {url:"hypercube-exampleApp.s3.amazonaws.com"}
  *
  */
-exports.deleteBucket = (req, res, next) => {
+export function deleteBucket(req, res, next) {
 	if(!_.has(req.body, 'name')){
 		res.status(400).send('Bucket name required to delete bucket');
 	} else {

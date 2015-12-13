@@ -1,45 +1,72 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.createBucket = createBucket;
+exports.deleteBucket = deleteBucket;
+exports.uploadFiles = uploadFiles;
+exports.getFiles = getFiles;
+exports.getBuckets = getBuckets;
+exports.saveFile = saveFile;
+exports.uploadLocalDir = uploadLocalDir;
+exports.signedUrl = signedUrl;
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _default = require('../config/default');
+
+var _s = require('./s3');
+
+var s3 = _interopRequireWildcard(_s);
+
+var _logger = require('./logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /** FileStorage Util
  *	@description standardized interface file storage so the service/platform used for storage can be changed without affecting file storage calls
  */
-var _ = require('lodash');
-var conf = require('../config/default').config;
-
-var s3 = require('./s3');
-var logger = require('./logger');
-
-exports.createBucket = function (bucketName) {
-	logger.log({ description: 'Create bucket called.', name: bucketName, func: 'createBucket', obj: 'fileStorage' });
+function createBucket(bucketName) {
+	_logger2.default.log({
+		description: 'Create bucket called.',
+		name: bucketName, func: 'createBucket', obj: 'fileStorage'
+	});
 	return s3.createBucketSite(bucketName);
 };
-exports.deleteBucket = function (bucketName) {
+function deleteBucket(bucketName) {
 	return s3.deleteBucket(bucketName);
 };
-exports.uploadFiles = function (bucketName, localDir) {
+function uploadFiles(bucketName, localDir) {
 	return s3.uploadFiles(bucketName, localDir);
 };
 //Get files stored within a bucket
-exports.getFiles = function (bucketName) {
+function getFiles(bucketName) {
 	return s3.getFiles(bucketName);
 };
-exports.getBuckets = function (bucketName, localDir) {
+function getBuckets(bucketName, localDir) {
 	return s3.getBuckets(bucketName, localDir);
 };
-exports.saveFile = function (bucketName, fileData) {
-	if (!_.has(fileData, 'key')) {
-		logger.error({ description: 'File key required to save', func: 'saveFile', obj: 'fileStorage' });
+function saveFile(bucketName, fileData) {
+	if (!_lodash2.default.has(fileData, 'key')) {
+		_logger2.default.error({ description: 'File key required to save', func: 'saveFile', obj: 'fileStorage' });
 	}
-	if (!_.has(fileData, 'content')) {
-		logger.error({ description: 'File content required to save', func: 'saveFile', obj: 'fileStorage' });
+	if (!_lodash2.default.has(fileData, 'content')) {
+		_logger2.default.error({ description: 'File content required to save', func: 'saveFile', obj: 'fileStorage' });
 	}
-	logger.log({ description: 'calling s3.saveFile with BucketName:', name: bucketName, data: fileData, func: 'saveFile', obj: 'fileStorage' });
+	_logger2.default.log({ description: 'calling s3.saveFile with BucketName:', name: bucketName, data: fileData, func: 'saveFile', obj: 'fileStorage' });
 	return s3.saveFile(bucketName, fileData);
 };
-exports.uploadLocalDir = function (uploadData) {
+function uploadLocalDir(uploadData) {
 	return s3.uploadDir(uploadData.bucket, uploadData.localDir);
 };
-exports.signedUrl = function (urlData) {
-	urlData.bucket = urlData.bucket;
+function signedUrl(urlData) {
+	urlData.bucketurlData.bu;
 	return s3.getSignedUrl(urlData);
 };

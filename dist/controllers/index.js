@@ -1,24 +1,42 @@
 'use strict';
 
-var logger = require('../utils/logger');
-var AuthRocket = require('authrocket');
-var authrocket = new AuthRocket();
-var Application = require('../models/application').Application;
-exports.main = function (req, res, next) {
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.main = main;
+exports.docs = docs;
+exports.authrocket = authrocket;
+exports.test = test;
+
+var _logger = require('../utils/logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+var _authrocket = require('authrocket');
+
+var _authrocket2 = _interopRequireDefault(_authrocket);
+
+var _application = require('../models/application');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var authrocket = new _authrocket2.default();
+
+function main(req, res, next) {
 	res.render('index', { title: 'Tessellate Server' });
 };
-exports.docs = function (req, res, next) {
+function docs(req, res, next) {
 	res.render('docs', { title: 'Tessellate Server' });
 };
-exports.authrocket = function (req, res, next) {
-	logger.log({ description: 'Test request', body: req.body, func: 'authrocket' });
+function authrocket(req, res, next) {
+	_logger2.default.log({ description: 'Test request', body: req.body, func: 'authrocket' });
 	console.log(req.body);
 	res.send('Thanks');
 };
-exports.test = function (req, res, next) {
+function test(req, res, next) {
 	console.log('test request', req.body);
 };
-// exports.test = function(req, res, next){
+// export function test(req, res, next){
 // 	console.log('test request');
 // 	authrocket.Orgs().get().then(function(usersList){
 // 		console.error('users list loaded.', usersList);
@@ -28,7 +46,7 @@ exports.test = function (req, res, next) {
 // 		res.status(500).send(err);
 // 	});
 // };
-// exports.test = function(req, res, next){
+// export function test(req, res, next){
 // 	console.log('Test called', req.body);
 //
 // 	var query = Application.findOne({name: 'tessellate'}).populate({path:'owner', select:'username name title email'});

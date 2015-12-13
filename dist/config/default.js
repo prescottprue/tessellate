@@ -1,7 +1,7 @@
 "use strict";
 
 var env = process.env.NODE_ENV;
-var config;
+var config = undefined;
 switch (env) {
 	case "local":
 		config = require("./env/local");

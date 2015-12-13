@@ -1,31 +1,63 @@
 'use strict';
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _mongoose = require('mongoose');
+
+var _mongoose2 = _interopRequireDefault(_mongoose);
+
+var _q = require('q');
+
+var _q2 = _interopRequireDefault(_q);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _sqs = require('../utils/sqs');
+
+var _sqs2 = _interopRequireDefault(_sqs);
+
+var _authrocket = require('authrocket');
+
+var _authrocket2 = _interopRequireDefault(_authrocket);
+
+var _default = require('../config/default');
+
+var _logger = require('../utils/logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+var _db = require('../utils/db');
+
+var _db2 = _interopRequireDefault(_db);
+
+var _fileStorage = require('../utils/fileStorage');
+
+var fileStorage = _interopRequireWildcard(_fileStorage);
+
+var _group2 = require('./group');
+
+var _group3 = _interopRequireDefault(_group2);
+
+var _account = require('./account');
+
+var _account2 = _interopRequireDefault(_account);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; } //External Libs
 
 //Internal Config/Utils/Classes
-var conf = require('../config/default').config,
-    logger = require('../utils/logger'),
-    db = require('../utils/db'),
-    fileStorage = require('../utils/fileStorage');
-var Directory = require('./directory');
-var Group = require('./group');
-var Account = require('./account');
-
-//External Libs
-var mongoose = require('mongoose'),
-    q = require('q'),
-    _ = require('lodash'),
-    sqs = require('../utils/sqs'),
-    AuthRocket = require('authrocket');
 
 //Set bucket prefix based on config as well as default if config does not exist
 var bucketPrefix = "tessellate-";
-if (_.has(conf, 's3') && _.has(conf.s3, 'bucketPrefix')) {
-	bucketPrefix = conf.s3.bucketPrefix;
+if (_lodash2.default.has(_default.config, 's3') && _lodash2.default.has(_default.config.s3, 'bucketPrefix')) {
+	bucketPrefix = _default.config.s3.bucketPrefix;
 }
 //Application schema object
-var ApplicationSchema = new mongoose.Schema({
-	owner: { type: mongoose.Schema.Types.ObjectId, ref: 'Account' },
+var ApplicationSchema = new _mongoose2.default.Schema({
+	owner: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Account' },
 	name: { type: String, default: '', unique: true, index: true },
 	frontend: {
 		siteUrl: { type: String },
@@ -45,8 +77,8 @@ var ApplicationSchema = new mongoose.Schema({
 		realmId: { type: String }
 	},
 	providers: [{ name: String, clientId: String }],
-	groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
-	collaborators: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
+	groups: [{ type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Group' }],
+	collaborators: [{ type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Account' }],
 	createdAt: { type: Date, default: Date.now },
 	updatedAt: { type: Date, default: Date.now }
 }, {
@@ -67,25 +99,25 @@ ApplicationSchema.set('collection', 'applications');
 ApplicationSchema.methods = {
 	//Wrap save functionality in promise and handle errors
 	saveNew: function saveNew() {
-		logger.warn({
+		_logger2.default.warn({
 			description: 'saveNew called and is no longer nessesary.',
 			func: 'saveNew', obj: 'Application'
 		});
 		return undefined.save().then(function (savedApp) {
 			if (!savedApp) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Unable to save Application.',
 					func: 'saveNew', obj: 'Application'
 				});
 				return Promise.reject({ message: 'Application could not be saved.' });
 			}
-			logger.info({
+			_logger2.default.info({
 				description: 'Application saved successfully.', savedApp: savedApp,
 				func: 'saveNew', obj: 'Application'
 			});
 			return savedApp;
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error saving Application.',
 				error: err, func: 'saveNew', obj: 'Application'
 			});
@@ -93,20 +125,20 @@ ApplicationSchema.methods = {
 		});
 	},
 	createWithTemplate: function createWithTemplate(templateName, templateType) {
-		logger.log({
+		_logger2.default.log({
 			description: 'Create application with template called.',
 			templateData: templateData, application: this,
 			func: 'createWithTemplate', obj: 'Application'
 		});
 		this.save().then(function (newApplication) {
 			newApplication.applyTemplate(templateData, storageData).then(function () {
-				logger.info({
+				_logger2.default.info({
 					description: 'Publish file called.',
 					func: 'createWithTemplate', obj: 'Application'
 				});
 				return newApplication;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error applying template to application.', error: err,
 					func: 'createWithTemplate', obj: 'Application'
 				});
@@ -115,7 +147,7 @@ ApplicationSchema.methods = {
 		});
 	},
 	createWithStorage: function createWithStorage() {
-		logger.log({
+		_logger2.default.log({
 			description: 'Create with storage called.', application: this,
 			func: 'createWithStorage', obj: 'Application'
 		});
@@ -123,25 +155,25 @@ ApplicationSchema.methods = {
 		//TODO: Add realm to authrocket if authRocket data is included
 		var self = this;
 		return self.save().then(function (newApplication) {
-			logger.log({
+			_logger2.default.log({
 				description: 'New application added to db.', application: newApplication,
 				func: 'createWithStorage', obj: 'Application'
 			});
 			return self.createFileStorage().then(function () {
-				logger.info({
+				_logger2.default.info({
 					description: 'Create storage was successful.', application: self,
 					func: 'createWithStorage', obj: 'Application'
 				});
 				return newApplication;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error create application with storage.', error: err,
 					func: 'createWithStorage', obj: 'Application'
 				});
 				return Promise.reject(err);
 			});
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error saving new application.', error: err,
 				func: 'createWithStorage', obj: 'Application'
 			});
@@ -150,7 +182,7 @@ ApplicationSchema.methods = {
 	},
 	createStorage: function createStorage() {
 		//TODO: Handle storageData including provider and name prefix
-		logger.log({
+		_logger2.default.log({
 			description: 'Create storage for application called.',
 			func: 'createFileStorage', obj: 'Application'
 		});
@@ -158,7 +190,7 @@ ApplicationSchema.methods = {
 		var self = this;
 		bucketName = bucketName.toLowerCase();
 		return fileStorage.createBucket(bucketName).then(function (bucket) {
-			logger.log({
+			_logger2.default.log({
 				description: 'New bucket storage created for application.',
 				bucket: bucket, func: 'createFileStorage', obj: 'Application'
 			});
@@ -170,20 +202,20 @@ ApplicationSchema.methods = {
 				bucketUrl: 's3.amazonaws.com/' + bucketName
 			};
 			return self.save().then(function (appWithStorage) {
-				logger.info({
+				_logger2.default.info({
 					description: 'App with storage created successfully.',
 					app: appWithStorage, func: 'createFileStorage', obj: 'Application'
 				});
 				return appWithStorage;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error saving new application.', error: err,
 					func: 'createFileStorage', obj: 'Application'
 				});
 				return Promise.reject(err);
 			});
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error creating application bucket.', error: err,
 				func: 'createFileStorage', obj: 'Application'
 			});
@@ -191,12 +223,12 @@ ApplicationSchema.methods = {
 		});
 	},
 	removeStorage: function removeStorage() {
-		logger.log({
+		_logger2.default.log({
 			description: 'Remove application storage called.',
 			func: 'removeStorage', obj: 'Application'
 		});
-		if (!_.has(this, 'frontend') || !_.has(this.frontend, 'bucketName')) {
-			logger.log({
+		if (!_lodash2.default.has(this, 'frontend') || !_lodash2.default.has(this.frontend, 'bucketName')) {
+			_logger2.default.log({
 				description: 'No frontend to remove storage of.',
 				func: 'removeStorage', obj: 'Application'
 			});
@@ -204,20 +236,20 @@ ApplicationSchema.methods = {
 		} else {
 			//TODO: Handle different types of storage other than S3
 			return fileStorage.deleteBucket(this.frontend.bucketName).then(function () {
-				logger.info({
+				_logger2.default.info({
 					description: 'Removing storage was not nessesary.',
 					func: 'removeStorage', obj: 'Application'
 				});
 				return { message: 'Bucket deleted successfully.' };
 			}, function (err) {
 				if (err && err.code == "NoSuchBucket") {
-					logger.log({
+					_logger2.default.log({
 						description: 'Removing storage was not nessesary.',
 						func: 'removeStorage', obj: 'Application'
 					});
 					return { message: 'No storage to remove.' };
 				} else {
-					logger.error({
+					_logger2.default.error({
 						description: 'Error deleting application storage bucket.',
 						func: 'removeStorage', obj: 'Application'
 					});
@@ -227,13 +259,13 @@ ApplicationSchema.methods = {
 		}
 	},
 	applyTemplate: function applyTemplate(templateName, templateType) {
-		if (!templateName || _.isUndefined(templateName)) {
+		if (!templateName || _lodash2.default.isUndefined(templateName)) {
 			templateName = 'default';
 		}
-		if (!templateType || _.isUndefined(templateType)) {
+		if (!templateType || _lodash2.default.isUndefined(templateType)) {
 			templateName = 'firebase';
 		}
-		logger.log({
+		_logger2.default.log({
 			description: 'Applying template to project.',
 			templateName: templateName, func: 'applyTemplate', obj: 'Application'
 		});
@@ -241,18 +273,18 @@ ApplicationSchema.methods = {
 		//New message format
 		//fromName, fromType, toName, toType
 		var messageArray = [templateName, templateType, this.name, 'firebase'];
-		if (conf.aws.sqsQueueUrl) {
-			return sqs.add(messageArray.join('**'));
+		if (_default.config.aws.sqsQueueUrl) {
+			return _sqs2.default.add(messageArray.join('**'));
 		} else {
 			//TODO: Download then upload locally instead of pushing to worker queue
-			logger.error({
+			_logger2.default.error({
 				description: 'Queue url is currently required to create new templates This will be changed soon.',
 				templateName: templateName, func: 'applyTemplate', obj: 'Application'
 			});
 		}
 	},
 	addCollaborators: function addCollaborators(usersArray) {
-		logger.log({
+		_logger2.default.log({
 			description: 'Add collaborators to application called.',
 			usersArray: usersArray, func: 'addCollaborators', obj: 'Application'
 		});
@@ -260,21 +292,21 @@ ApplicationSchema.methods = {
 		var self = this;
 		//TODO: Check to see if user exists and is already a collaborator before adding
 		//TODO: Check to see if usersArray is a list of objects(userData) or numbers(userIds)
-		if (usersArray && _.isArray(usersArray)) {
+		if (usersArray && _lodash2.default.isArray(usersArray)) {
 			usersArray.forEach(function (user) {
-				logger.log({
+				_logger2.default.log({
 					description: 'Finding account to add as collaborator.',
 					userData: user, func: 'addCollaborators', obj: 'Application'
 				});
-				var d = q.defer();
+				var d = _q2.default.defer();
 				//Push promise to promises array
 				userPromises.push(d);
-				logger.log({
+				_logger2.default.log({
 					description: 'Account find promise pushed to promise array.',
 					userData: user, func: 'addCollaborators', obj: 'Application'
 				});
 				self.findAccount(user).then(function (foundAccount) {
-					logger.info({
+					_logger2.default.info({
 						description: 'Found account, adding to collaborators.',
 						foundAccount: foundAccount, func: 'addCollaborators', obj: 'Application'
 					});
@@ -282,7 +314,7 @@ ApplicationSchema.methods = {
 					self.collaborators.push(foundAccount._id);
 					d.resolve(foundAccount);
 				}, function (err) {
-					logger.error({
+					_logger2.default.error({
 						description: 'Error account in application.',
 						error: err, func: 'addCollaborators', obj: 'Application'
 					});
@@ -292,13 +324,13 @@ ApplicationSchema.methods = {
 		}
 		//Run all users account promises then Add save promise to end of promises list
 		return Promise.all(accountPromises).then(function (accountsArray) {
-			logger.log({
+			_logger2.default.log({
 				description: 'collaborators all found:',
 				accountsArray: accountsArray, func: 'addCollaborators', obj: 'Application'
 			});
 			return self.saveNew();
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error with accountPromises',
 				error: err, func: 'addCollaborators', obj: 'Application'
 			});
@@ -307,32 +339,32 @@ ApplicationSchema.methods = {
 	},
 	login: function login(loginData) {
 		//Search for account in application's directories
-		logger.log({
+		_logger2.default.log({
 			description: 'Login to application called.',
 			func: 'login', obj: 'Application'
 		});
 		//Login to authrocket if data is available
 		if (this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0) {
-			if (!_.has(loginData, 'username')) {
+			if (!_lodash2.default.has(loginData, 'username')) {
 				//TODO: lookup user data from mongodb then login to allow authRocket login by email
-				logger.log({
+				_logger2.default.log({
 					description: 'Username is currently required to login due to AuthRocket. This will be fixed soon.',
 					func: 'login', obj: 'Application'
 				});
 				return Promise.reject('Username is currently required to login due to AuthRocket. This will be fixed soon.');
 			}
 			//Remove email from data (causes error with authrocket request)
-			if (_.has(loginData, 'email')) {
+			if (_lodash2.default.has(loginData, 'email')) {
 				delete loginData.email;
 			}
 			return this.authRocketLogin(loginData).then(function (loggedInData) {
-				logger.info({
+				_logger2.default.info({
 					description: 'Login through authrocket successful.',
 					loggedInData: loggedInData, func: 'login', obj: 'Application'
 				});
 				return loggedInData;
 			}, function (err) {
-				logger.warn({
+				_logger2.default.warn({
 					description: 'Error logging in through authrocket.',
 					error: err, func: 'login', obj: 'Application'
 				});
@@ -340,32 +372,32 @@ ApplicationSchema.methods = {
 			});
 		} else {
 			//Default user management
-			logger.log({
+			_logger2.default.log({
 				description: 'Default account management.',
 				loginData: loginData,
 				func: 'login', obj: 'Application'
 			});
 			return this.findAccount(loginData).then(function (foundAccount) {
-				logger.log({
+				_logger2.default.log({
 					description: 'Account found.',
 					foundAccount: foundAccount,
 					func: 'login', obj: 'Application'
 				});
 				return foundAccount.login(loginData.password).then(function (loggedInData) {
-					logger.info({
+					_logger2.default.info({
 						description: 'Login to application successful.',
 						loggedInData: loggedInData, func: 'login', obj: 'Application'
 					});
 					return loggedInData;
 				}, function (err) {
-					logger.error({
+					_logger2.default.error({
 						description: 'Error logging into acocunt.',
 						error: err, func: 'login', obj: 'Application'
 					});
 					return Promise.reject(err);
 				});
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error finding acocunt.',
 					error: err, func: 'login', obj: 'Application'
 				});
@@ -374,26 +406,26 @@ ApplicationSchema.methods = {
 		}
 	},
 	signup: function signup(signupData) {
-		logger.log({
+		_logger2.default.log({
 			description: 'Signup to application called.',
 			signupData: signupData, application: this,
 			func: 'signup', obj: 'Application'
 		});
 		var self = this;
 		if (this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Authrocket settings exist for application.',
 				signupData: signupData, application: this,
 				func: 'signup', obj: 'Application'
 			});
 			return this.appAuthRocket().signup(signupData).then(function (newAccount) {
-				logger.info({
+				_logger2.default.info({
 					description: 'Account created through AuthRocket successfully.',
 					newAccount: newAccount, func: 'signup', obj: 'Application'
 				});
 				return newAccount;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error signing up through authrocket.',
 					error: err, func: 'signup', obj: 'Application'
 				});
@@ -401,26 +433,26 @@ ApplicationSchema.methods = {
 			});
 		} else {
 			//Default account management
-			logger.log({
+			_logger2.default.log({
 				description: 'Using default account management.',
 				application: this, type: _typeof(this.model('Account')),
 				func: 'signup', obj: 'Application'
 			});
 			var AccountModel = this.model('Account');
 			var account = new AccountModel(signupData);
-			logger.log({
+			_logger2.default.log({
 				description: 'Using default account management.',
 				application: account,
 				func: 'signup', obj: 'Application'
 			});
 			return account.createWithPass(signupData.password, this._id).then(function (newAccount) {
-				logger.log({
+				_logger2.default.log({
 					description: 'New account created.',
 					accountObj: newAccount,
 					func: 'signup', obj: 'Application'
 				});
 				return newAccount.login(signupData.password).then(function (loginRes) {
-					logger.info({
+					_logger2.default.info({
 						description: 'New account logged in successfully.',
 						loginRes: loginRes, newAccount: newAccount,
 						func: 'signup', obj: 'Application'
@@ -428,7 +460,7 @@ ApplicationSchema.methods = {
 					//Respond with account and token
 					return loginRes;
 				}, function (err) {
-					logger.error({
+					_logger2.default.error({
 						description: 'Error logging into newly created account.',
 						newAccount: newAccount, func: 'signup', obj: 'Application'
 					});
@@ -437,12 +469,12 @@ ApplicationSchema.methods = {
 			}, function (err) {
 				//Handle username already existing return from createWithPass
 				if (err && err.status == 'EXISTS') {
-					logger.error({
+					_logger2.default.error({
 						description: 'Account already exists.',
 						func: 'signup', obj: 'Application'
 					});
 				}
-				logger.error({
+				_logger2.default.error({
 					description: 'Error creating account.',
 					error: err, func: 'signup', obj: 'Application'
 				});
@@ -452,12 +484,12 @@ ApplicationSchema.methods = {
 	},
 	//Log user out of application
 	logout: function logout(logoutData) {
-		logger.log({
+		_logger2.default.log({
 			description: 'Logout of application called.',
 			data: logoutData, func: 'logout', obj: 'Application'
 		});
 		if (!logoutData) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Logout data is required to logout.',
 				func: 'logout', obj: 'Application'
 			});
@@ -470,7 +502,7 @@ ApplicationSchema.methods = {
 			return this.appAuthRocket().logout(logoutData).then(function (logoutRes) {
 				return logoutRes;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error logging out through authrocket.', error: err,
 					data: logoutData, func: 'logout', obj: 'Application'
 				});
@@ -479,25 +511,25 @@ ApplicationSchema.methods = {
 		} else {
 			//TODO: Make this work
 			// this.model('Account').findOne({username:logoutData.username});
-			logger.log({
+			_logger2.default.log({
 				description: 'Default account management logout.',
 				logoutData: logoutData,
 				func: 'logout', obj: 'Application'
 			});
 			return this.findAccount(logoutData).then(function (foundAccount) {
-				logger.log({
+				_logger2.default.log({
 					description: 'Account found in application. Attempting to logout.',
 					account: foundAccount, func: 'logout', obj: 'Application'
 				});
 				return foundAccount.logout().then(function () {
-					logger.log({
+					_logger2.default.log({
 						description: 'Account logout successful.',
 						logoutData: logoutData, func: 'logout',
 						obj: 'Application'
 					});
 					return { message: 'Logout successful.' };
 				}, function (err) {
-					logger.error({
+					_logger2.default.error({
 						description: 'Error logging out of account.',
 						error: err, data: logoutData, func: 'logout',
 						obj: 'Application'
@@ -505,7 +537,7 @@ ApplicationSchema.methods = {
 					return Promise.reject(err);
 				});
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Account not found.',
 					error: err, data: logoutData,
 					func: 'logout', obj: 'Application'
@@ -516,6 +548,8 @@ ApplicationSchema.methods = {
 	},
 	//Add group to application
 	addGroup: function addGroup(groupData) {
+		var _this = this;
+
 		//TODO: make sure that group does not already exist in this application
 		// if(indexOf(this.groups, group._id) == -1){
 		// 	console.error('This group already exists application');
@@ -524,151 +558,161 @@ ApplicationSchema.methods = {
 		if (this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0) {
 			//Authrocket group(org) management
 			return this.appAuthRocket().Orgs().add(groupData).then(function (updateRes) {
-				logger.log({
+				_logger2.default.log({
 					description: 'Group/Org updated successfully.', groupData: groupData,
 					response: updateRes, func: 'updateGroup', obj: 'Application'
 				});
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error updating authrocket org.', data: groupData,
 					error: err, func: 'updateGroup', obj: 'Application'
 				});
 				return Promise.reject(err);
 			});
 		} else {
-			var self = this;
-			//Add application id to group
-			groupData.application = this._id;
-			//Add applicaiton id to search
-			var findObj = { application: this._id };
-			logger.log({
-				description: 'Add group to Application called.',
-				func: 'addGroup', obj: 'Application'
-			});
-			if (_.isString(groupData)) {
-				//Data is a string (name)
-				findObj.name = groupData;
-			} else if (_.has(groupData, 'name')) {
-				//Data is an object with a name
-				findObj.name = groupData.name;
-			} else {
-				logger.error({
-					description: 'Incorrectly formatted group data.',
-					groupData: groupData, func: 'addGroup', obj: 'Application'
-				});
-				return Promise.reject({ message: 'Group could not be added: Incorrectly formatted Group data.' });
-			}
-			//Do not search for group if a group object was passed
-			if (_.has(groupData, '_id') || groupData instanceof this.model('Group')) {
-				//Group object was passed
-				logger.log({
-					description: 'Group instance was passed, adding it to application.',
-					groupData: groupData, func: 'addGroup', obj: 'Application'
-				});
-				self.groups.push(groupData._id);
-				return self.saveNew().then(function (savedApp) {
-					logger.info({
-						description: 'Group successfully added to application.',
-						func: 'addGroup', obj: 'Application'
-					});
-					return groupData;
-				}, function (err) {
-					logger.error({
-						description: 'Error saving new group to application.', error: err,
-						func: 'addGroup', obj: 'Application'
-					});
-					return Promise.reject(err);
-				});
-			} else {
-				//Group object must be queried
-				var query = self.model('Group').findOne(findObj);
-				logger.log({
-					description: 'Find object constructed.', find: findObj,
+			var _ret = (function () {
+				var self = _this;
+				//Add application id to group
+				groupData.application = _this._id;
+				//Add applicaiton id to search
+				var findObj = { application: _this._id };
+				_logger2.default.log({
+					description: 'Add group to Application called.',
 					func: 'addGroup', obj: 'Application'
 				});
-				return query.then(function (group) {
-					if (!group) {
-						logger.info({
-							description: 'Group does not already exist.',
-							func: 'addGroup', obj: 'Application'
-						});
-						//Group does not already exist, create it
-						var Group = self.model('Group');
-						var group = new Group(groupData);
-						return group.saveNew().then(function (newGroup) {
-							logger.info({
-								description: 'Group created successfully. Adding to application.',
+				if (_lodash2.default.isString(groupData)) {
+					//Data is a string (name)
+					findObj.name = groupData;
+				} else if (_lodash2.default.has(groupData, 'name')) {
+					//Data is an object with a name
+					findObj.name = groupData.name;
+				} else {
+					_logger2.default.error({
+						description: 'Incorrectly formatted group data.',
+						groupData: groupData, func: 'addGroup', obj: 'Application'
+					});
+					return {
+						v: Promise.reject({ message: 'Group could not be added: Incorrectly formatted Group data.' })
+					};
+				}
+				//Do not search for group if a group object was passed
+				if (_lodash2.default.has(groupData, '_id') || groupData instanceof _this.model('Group')) {
+					//Group object was passed
+					_logger2.default.log({
+						description: 'Group instance was passed, adding it to application.',
+						groupData: groupData, func: 'addGroup', obj: 'Application'
+					});
+					self.groups.push(groupData._id);
+					return {
+						v: self.saveNew().then(function (savedApp) {
+							_logger2.default.info({
+								description: 'Group successfully added to application.',
 								func: 'addGroup', obj: 'Application'
 							});
-							//Add group to application
-							self.groups.push(newGroup._id);
-							return self.saveNew().then(function (savedApp) {
-								logger.info({
-									description: 'Group successfully added to application.',
-									func: 'addGroup', obj: 'Application'
-								});
-								return newGroup;
-							}, function (err) {
-								logger.error({
-									description: 'Error saving new group to application.', error: err,
-									func: 'addGroup', obj: 'Application'
-								});
-								return Promise.reject({ message: 'Error saving new group.' });
-							});
+							return groupData;
 						}, function (err) {
-							logger.error({
-								description: 'Error creating group.', error: err,
+							_logger2.default.error({
+								description: 'Error saving new group to application.', error: err,
 								func: 'addGroup', obj: 'Application'
-							});
-							return Promise.reject({ message: 'Error creating group.' });
-						});
-					} else {
-						//TODO: Decide if this should happen?
-						//Group already exists, add it to applicaiton
-						logger.log({
-							description: 'Group already exists. Adding to application.',
-							group: group, func: 'addGroup', obj: 'Application'
-						});
-						self.groups.push(group._id);
-						return self.saveNew().then(function (savedApp) {
-							logger.info({
-								description: 'Group successfully added to application.', group: group,
-								savedApp: savedApp, func: 'addGroup', obj: 'Application'
-							});
-							return group;
-						}, function (err) {
-							logger.error({
-								description: 'Error saving Group to application.', error: err,
-								group: group, func: 'addGroup', obj: 'Application'
 							});
 							return Promise.reject(err);
-						});
-					}
-				}, function (err) {
-					logger.error({
-						description: 'Error adding group to Application.',
-						error: err, func: 'addGroup', obj: 'Application'
+						})
+					};
+				} else {
+					//Group object must be queried
+					var query = self.model('Group').findOne(findObj);
+					_logger2.default.log({
+						description: 'Find object constructed.', find: findObj,
+						func: 'addGroup', obj: 'Application'
 					});
-					return Promise.reject({ message: 'Error adding group to Application.' });
-				});
-			}
+					return {
+						v: query.then(function (group) {
+							if (!group) {
+								_logger2.default.info({
+									description: 'Group does not already exist.',
+									func: 'addGroup', obj: 'Application'
+								});
+								//Group does not already exist, create it
+								var _Group = self.model('Group');
+								var _group = new _Group(groupData);
+								return _group.saveNew().then(function (newGroup) {
+									_logger2.default.info({
+										description: 'Group created successfully. Adding to application.',
+										func: 'addGroup', obj: 'Application'
+									});
+									//Add group to application
+									self.groups.push(newGroup._id);
+									return self.saveNew().then(function (savedApp) {
+										_logger2.default.info({
+											description: 'Group successfully added to application.',
+											func: 'addGroup', obj: 'Application'
+										});
+										return newGroup;
+									}, function (err) {
+										_logger2.default.error({
+											description: 'Error saving new group to application.', error: err,
+											func: 'addGroup', obj: 'Application'
+										});
+										return Promise.reject({ message: 'Error saving new group.' });
+									});
+								}, function (err) {
+									_logger2.default.error({
+										description: 'Error creating group.', error: err,
+										func: 'addGroup', obj: 'Application'
+									});
+									return Promise.reject({ message: 'Error creating group.' });
+								});
+							} else {
+								//TODO: Decide if this should happen?
+								//Group already exists, add it to applicaiton
+								_logger2.default.log({
+									description: 'Group already exists. Adding to application.',
+									group: group, func: 'addGroup', obj: 'Application'
+								});
+								self.groups.push(group._id);
+								return self.saveNew().then(function (savedApp) {
+									_logger2.default.info({
+										description: 'Group successfully added to application.', group: group,
+										savedApp: savedApp, func: 'addGroup', obj: 'Application'
+									});
+									return group;
+								}, function (err) {
+									_logger2.default.error({
+										description: 'Error saving Group to application.', error: err,
+										group: group, func: 'addGroup', obj: 'Application'
+									});
+									return Promise.reject(err);
+								});
+							}
+						}, function (err) {
+							_logger2.default.error({
+								description: 'Error adding group to Application.',
+								error: err, func: 'addGroup', obj: 'Application'
+							});
+							return Promise.reject({ message: 'Error adding group to Application.' });
+						})
+					};
+				}
+			})();
+
+			if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 		}
 	},
 	//Update group within application
 	updateGroup: function updateGroup(groupData) {
-		logger.log({
+		_logger2.default.log({
 			description: 'Update group called.', groupData: groupData,
 			func: 'updateGroup', obj: 'Application'
 		});
 		if (this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0) {
 			//Authrocket group(org) management
 			return this.appAuthRocket().Orgs({ id: groupData.name }).update(groupData).then(function (updateRes) {
-				logger.log({
+				_logger2.default.log({
 					description: 'Group/Org updated successfully.', groupData: groupData,
 					response: updateRes, func: 'updateGroup', obj: 'Application'
 				});
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error updating authrocket org.', data: groupData,
 					error: err, func: 'updateGroup', obj: 'Application'
 				});
@@ -678,19 +722,19 @@ ApplicationSchema.methods = {
 			var query = this.model('Group').update({ application: this._id, name: groupData.name });
 			return query.then(function (err, group) {
 				if (!group) {
-					logger.error({
+					_logger2.default.error({
 						description: 'Application Group could not be updated.', groupData: groupData,
 						func: 'updateGroup', obj: 'Application'
 					});
 					return Promise.reject({ message: 'Unable to update group.' });
 				}
-				logger.info({
+				_logger2.default.info({
 					description: 'Group Updated successfully.',
 					func: 'updateGroup', obj: 'Application'
 				});
 				return group;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error updating application Group.', func: 'updateGroup',
 					updatedGroup: group, obj: 'Application'
 				});
@@ -700,103 +744,111 @@ ApplicationSchema.methods = {
 	},
 	//Delete group from application
 	deleteGroup: function deleteGroup(groupData) {
-		var _this = this;
+		var _this2 = this;
 
-		logger.log({
+		_logger2.default.log({
 			description: 'Delete group called.', groupData: groupData,
 			app: this, func: 'deleteGroup', obj: 'Application'
 		});
 		if (this.authRocket) {
 			//Authrocket group(org) management
 			return this.appAuthRocket().Orgs({ id: groupData.name }).remove().then(function (removeRes) {
-				logger.log({
+				_logger2.default.log({
 					description: 'Delete group called.', groupData: groupData,
-					app: _this, func: 'deleteGroup', obj: 'Application'
+					app: _this2, func: 'deleteGroup', obj: 'Application'
 				});
 				return removeRes;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error deleting authrocket org.',
 					error: err, func: 'deleteGroup', obj: 'Application'
 				});
 				return Promise.reject(err);
 			});
 		} else {
-			//Standard group management
-			var groupInApp = _.findWhere(this.groups, { name: groupData.name });
-			var self = this;
-			//TODO: Check groups before to make sure that group by that name exists
-			if (!groupInApp) {
-				logger.log({
-					description: 'Group with provided name does not exist within application.',
-					groupData: groupData, app: this, func: 'deleteGroup', obj: 'Application'
-				});
-				return Promise.reject({ message: 'Group with that name does not exist within application.', status: 'NOT_FOUND' });
-			}
-			var query = this.model('Group').findOneAndRemove({ name: groupData.name });
-			return query.then(function (group) {
-				if (!group) {
-					logger.error({
-						description: 'Unable to find group to delete.',
-						func: 'deleteGroup', obj: 'Application'
+			var _ret2 = (function () {
+				//Standard group management
+				var groupInApp = _lodash2.default.findWhere(_this2.groups, { name: groupData.name });
+				var self = _this2;
+				//TODO: Check groups before to make sure that group by that name exists
+				if (!groupInApp) {
+					_logger2.default.log({
+						description: 'Group with provided name does not exist within application.',
+						groupData: groupData, app: _this2, func: 'deleteGroup', obj: 'Application'
 					});
-					return Promise.reject({ message: 'Unable delete group.', status: 'NOT_FOUND' });
-				} else {
-					logger.info({
-						description: 'Group deleted successfully. Removing from application.',
-						returnedData: group, func: 'deleteGroup', obj: 'Application'
-					});
-					//Remove group from application's groups
-					_.remove(self.groups, function (currentGroup) {
-						//Handle currentGroups being list of IDs
-						if (_.isObject(currentGroup) && _.has(currentGroup, '_id') && currentGroup._id == group._id) {
-							logger.info({
-								description: 'Removed group by object with id param.',
-								returnedData: group, func: 'deleteGroup', obj: 'Application'
-							});
-							return true;
-						} else if (_.isString(currentGroup) && currentGroup == group._id) {
-							//String containing group id
-							logger.info({
-								description: 'Removed group by string id.', currentGroup: currentGroup,
-								returnedData: group, func: 'deleteGroup', obj: 'Application'
-							});
-							return true;
-						} else {
-							logger.error({
-								description: 'Could not find group within application.',
-								returnedData: group,
+					return {
+						v: Promise.reject({ message: 'Group with that name does not exist within application.', status: 'NOT_FOUND' })
+					};
+				}
+				var query = _this2.model('Group').findOneAndRemove({ name: groupData.name });
+				return {
+					v: query.then(function (group) {
+						if (!group) {
+							_logger2.default.error({
+								description: 'Unable to find group to delete.',
 								func: 'deleteGroup', obj: 'Application'
 							});
-							return false;
+							return Promise.reject({ message: 'Unable delete group.', status: 'NOT_FOUND' });
+						} else {
+							_logger2.default.info({
+								description: 'Group deleted successfully. Removing from application.',
+								returnedData: group, func: 'deleteGroup', obj: 'Application'
+							});
+							//Remove group from application's groups
+							_lodash2.default.remove(self.groups, function (currentGroup) {
+								//Handle currentGroups being list of IDs
+								if (_lodash2.default.isObject(currentGroup) && _lodash2.default.has(currentGroup, '_id') && currentGroup._id == group._id) {
+									_logger2.default.info({
+										description: 'Removed group by object with id param.',
+										returnedData: group, func: 'deleteGroup', obj: 'Application'
+									});
+									return true;
+								} else if (_lodash2.default.isString(currentGroup) && currentGroup == group._id) {
+									//String containing group id
+									_logger2.default.info({
+										description: 'Removed group by string id.', currentGroup: currentGroup,
+										returnedData: group, func: 'deleteGroup', obj: 'Application'
+									});
+									return true;
+								} else {
+									_logger2.default.error({
+										description: 'Could not find group within application.',
+										returnedData: group,
+										func: 'deleteGroup', obj: 'Application'
+									});
+									return false;
+								}
+							});
+							//Resolve application's groups without group
+							return _this2.groups;
 						}
-					});
-					//Resolve application's groups without group
-					return _this.groups;
-				}
-			}, function (err) {
-				logger.error({
-					description: 'Error deleting group.',
-					func: 'deleteGroup', obj: 'Application'
-				});
-				return Promise.reject(err);
-			});
+					}, function (err) {
+						_logger2.default.error({
+							description: 'Error deleting group.',
+							func: 'deleteGroup', obj: 'Application'
+						});
+						return Promise.reject(err);
+					})
+				};
+			})();
+
+			if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
 		}
 	},
 	//Upload file to bucket
 	publishFile: function publishFile(fileData) {
-		logger.log({
+		_logger2.default.log({
 			description: 'Publish file called.', fileData: fileData,
 			func: 'publishFile', obj: 'Application'
 		});
 		return fileStorage.saveFile(this.frontend.bucketName, fileData).then(function (newFile) {
-			logger.info({
+			_logger2.default.info({
 				description: 'File published successfully.', newFile: newFile,
 				func: 'publishFile', obj: 'Application'
 			});
 			return newFile;
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'File published successfully.', error: err,
 				func: 'publishFile', obj: 'Application'
 			});
@@ -813,7 +865,7 @@ ApplicationSchema.methods = {
 	},
 	appAuthRocket: function appAuthRocket() {
 		if (!this.authRocket || !this.authRocket.jsUrl) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Application does not have AuthRocket settings.',
 				data: self.authRocket,
 				func: 'authRocket', obj: 'Application'
@@ -821,12 +873,12 @@ ApplicationSchema.methods = {
 			return Promise.reject({ message: 'AuthRocket settings do not exist.' });
 		}
 		var self = this;
-		logger.log({
+		_logger2.default.log({
 			description: 'Authrocket data of application.', data: self.authRocket,
 			func: 'authRocket', obj: 'Application'
 		});
-		var authrocket = new AuthRocket(self.authRocket);
-		logger.log({
+		var authrocket = new _authrocket2.default(self.authRocket);
+		_logger2.default.log({
 			description: 'New authrocket created.', authRocket: authrocket,
 			func: 'authRocket', obj: 'Application'
 		});
@@ -834,13 +886,13 @@ ApplicationSchema.methods = {
 	},
 	authRocketSignup: function authRocketSignup(signupData) {
 		return this.appAuthRocket().signup(signupData).then(function (signupRes) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Successfully signed up through authrocket.',
 				response: signupRes, func: 'authRocketSignup', obj: 'Application'
 			});
 			return signupRes;
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error signing up through authrocket.',
 				error: err, func: 'authRocketSignup', obj: 'Application'
 			});
@@ -849,13 +901,13 @@ ApplicationSchema.methods = {
 	},
 	authRocketLogin: function authRocketLogin(loginData) {
 		return this.appAuthRocket().login(loginData).then(function (loginRes) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Successfully logged in through authrocket.',
 				response: loginRes, func: 'authRocketLogin', obj: 'Application'
 			});
 			return loginRes;
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error logging in through authrocket.',
 				error: err, func: 'authRocketLogin', obj: 'Application'
 			});
@@ -864,13 +916,13 @@ ApplicationSchema.methods = {
 	},
 	authRocketLogout: function authRocketLogout(logoutData) {
 		return this.appAuthRocket().logout(logoutData).then(function (logoutRes) {
-			logger.log({
+			_logger2.default.log({
 				description: 'Successfully logged out through authrocket.',
 				response: logoutRes, func: 'authRocketLogout', obj: 'Application'
 			});
 			return logoutRes;
 		}, function (err) {
-			logger.error({
+			_logger2.default.error({
 				description: 'Error logging out through authrocket.',
 				error: err, func: 'authRocketLogout', obj: 'Application'
 			});
@@ -879,27 +931,27 @@ ApplicationSchema.methods = {
 	},
 	//Find account and make sure it is within application accounts, groups, and directories
 	findAccount: function findAccount(accountData) {
-		logger.log({
+		_logger2.default.log({
 			description: 'Find account called.', application: this,
 			accountData: accountData, func: 'findAccount', obj: 'Application'
 		});
 		var self = this;
 		var findObj = {};
-		if (accountData && _.has(accountData, 'username')) {
+		if (accountData && _lodash2.default.has(accountData, 'username')) {
 			findObj.username = accountData.username;
-		} else if (_.isString(accountData)) {
+		} else if (_lodash2.default.isString(accountData)) {
 			findObj.username = accountData;
 		}
 		if (this.authRocket && this.authRocket.jsUrl) {
 			//Get account from authrocket
 			return this.appAuthRocket().Users(findObj.username).get().then(function (loadedUser) {
-				logger.info({
+				_logger2.default.info({
 					description: 'Account loaded from authrocket.',
 					obj: 'Application', func: 'findAccount'
 				});
 				return loadedUser;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error getting account from AuthRocket.',
 					error: err, obj: 'Application', func: 'findAccount'
 				});
@@ -909,7 +961,7 @@ ApplicationSchema.methods = {
 			if (self._id) {
 				findObj.application = self._id;
 			}
-			logger.info({
+			_logger2.default.info({
 				description: 'Looking for account.',
 				findObj: findObj,
 				obj: 'Application', func: 'findAccount'
@@ -919,20 +971,20 @@ ApplicationSchema.methods = {
 			var accountQuery = self.model('Account').findOne(findObj);
 			return accountQuery.then(function (foundAccount) {
 				if (!foundAccount) {
-					logger.warn({
+					_logger2.default.warn({
 						description: 'Account not found.',
 						obj: 'Application', func: 'findAccount'
 					});
 					return Promise.reject({ message: 'Account not found', status: 'NOT_FOUND' });
 				}
-				logger.log({
+				_logger2.default.log({
 					description: 'Account found.',
 					application: self, foundAccount: foundAccount,
 					obj: 'Application', func: 'findAccount'
 				});
 				return foundAccount;
 			}, function (err) {
-				logger.error({
+				_logger2.default.error({
 					description: 'Error finding account.',
 					error: err,
 					obj: 'Application', func: 'findAccount'
@@ -945,161 +997,12 @@ ApplicationSchema.methods = {
 /*
  * Construct `Account` model from `AccountSchema`
  */
-// addAccountToDirectory: function(accountData, directoryId) {
-// 	//TODO: Make this work with not just the first directory
-// 	if(this.directories.length >= 1){
-// 		//Application has directories
-// 		logger.log({
-// 			description: 'Application has directories.',
-// 			func: 'addAccountToDirectory', obj: 'Application'
-// 		});
-// 		//Add to 'default' directory
-// 		if(!directoryId){
-// 			//TODO: have this reference a set defualt instead of first directory in list
-// 			directoryId = this.directories[0]._id;
-// 			logger.log({
-// 				description: 'Directory was not provided. Default directory used.',
-// 				id: directoryId, func: 'addAccountToDirectory', obj: 'Application'
-// 			});
-// 		}
-// 		logger.log({
-// 			description: 'Searching for directory.', id: directoryId,
-// 			accountData: accountData, func: 'addAccountToDirectory', obj: 'Application'
-// 		});
-// 		return dQuery.then((result) => {
-// 			if(!result){
-// 				logger.error({description: 'Directory not found.', id: directoryId,
-// 				func: 'addAccountToDirectory', obj: 'Application'
-// 			});
-// 				return Promise.reject({message: 'Directory not found.'});
-// 			}
-// 			logger.log({
-// 				description: 'Directory found. Adding account.', directory: result,
-// 				func: 'addAccountToDirectory', obj: 'Application'
-// 			});
-// 			//TODO: Make sure account does not already exist in directory before adding.
-// 			return result.addAccount(accountData).then((dirWithAccount) => {
-// 				logger.log({
-// 					description: 'Account successfully added to directory.', directory: dirWithAccount,
-// 					func: 'addAccountToDirectory', obj: 'Application'
-// 				});
-// 				return dirWithAccount;
-// 			}, (err) => {
-// 				logger.error({
-// 					description: 'Error adding account to directory.', error: err,
-// 					func: 'addAccountToDirectory', obj: 'Application'
-// 				});
-// 				return Promise.reject(err);
-// 			});
-// 		}, (err) => {
-// 			logger.error({
-// 				description: 'Error finding directory.', error: err,
-// 				id: directoryId, func: 'addAccountToDirectory', obj: 'Application'
-// 			});
-// 			return Promise.reject(err);
-// 		});
-// 	} else {
-// 		//TODO: Create a base directory if none exist
-// 		logger.error({
-// 			description: 'Application does not have any directories into which to add Account.',
-// 			func: 'addAccountToDirectory', obj: 'Application'
-// 		});
-// 		return Promise.reject({
-// 			message: 'Application does not have any directories into which to add Account.',
-// 			status: 'NOT_FOUND'
-// 		});
-// 	}
-// },
-// //Add directory to application
-// addDirectory: function(directoryData) {
-// 	//TODO: Handle checking for and creating a new directory if one doesn't exist
-// 	//TODO: Make sure this directory does not already exist in this application
-// 	var self = this;
-// 	var query = this.model('Directory').findOne({application: self._id, name: directoryData.name});
-// 	return query.then((directory) => {
-// 		if(err){
-// 			logger.error({
-// 				description:'Error adding directory.',
-// 				func:'deleteGroup', obj: 'Application'
-// 			});
-// 			return Promise.reject(err);
-// 		} else if(directory){
-// 			logger.error({
-// 				description:'Directory with this information already exists.',
-// 				func:'addDirectory', obj: 'Application'
-// 			});
-// 			return Promise.reject({message: 'Unable to add new directory'});
-// 		} else {
-// 			var newDirectory = new Directory({application:self._id, name: directoryData.name});
-// 			return newDirectory.saveNew();
-// 		}
-// 	}, (err) => {
-// 		logger.error({
-// 			description:'Error adding directory.', error: err,
-// 			func:'deleteGroup', obj: 'Application'
-// 		});
-// 		return Promise.reject({message: 'Error adding directory.'});
-// 	});
-// },
-// //Update directory in application
-// updateDirectory: function(directoryData) {
-// 	logger.log({
-// 		description:'Update directory called.',
-// 		func:'updateDirectory', obj: 'Application'
-// 	});
-// 	var query = this.model('Directory').findOne({application: this._id, name: directoryData.name});
-// 	return query.then((newDirectory) => {
-// 		if(err){
-// 			logger.error({
-// 				description:'Error updating directory.', error: err,
-// 				func:'updateDirectory', obj: 'Application'
-// 			});
-// 			return Promise.reject({message: 'Error updating directory.'});
-// 		} else if(!newDirectory){
-// 			logger.error({description:'', func:'updateDirectory', obj: 'Application'});
-// 			return Promise.reject({message: 'Unable to update directory'});
-// 		} else {
-// 			return newDirectory;
-// 		}
-// 	}, (err) => {
-// 		logger.error({
-// 			description:'Error updating directory.', error: err,
-// 			func:'updateDirectory', obj: 'Application'
-// 		});
-// 		return Promise.reject({message: 'Error updating directory.'});
-// 	});
-// },
-// //Delete directory from application
-// deleteDirectory: function(directoryData) {
-// 	logger.log({
-// 		description:'Delete directory called.',
-// 		func:'deleteDirectory', obj: 'Application'
-// 	});
-// 	var query = this.model('Directory').findOneAndRemove({application: this._id, name: directoryData.name});
-// 	return query.then((newDirectory) => {
-// 		if(err){
-// 			logger.error({
-// 				description:'Error deleting application directory.', error: err,
-// 				directoryData: directoryData, func:'deleteDirectory', obj: 'Application'
-// 			});
-// 			return Promise.reject(err);
-// 		} else {
-// 			logger.info({
-// 				description:'Directory deleted successfully.',
-// 				func:'deleteDirectory',obj: 'Application'
-// 			});
-// 			return {message: 'Directory deleted successfully.'};
-// 		}
-// 	}, (err) => {
-// 		return Promise.reject({message: 'Error deleting directory.'});
-// 	});
-// }
-db.tessellate.model('Application', ApplicationSchema);
+_db2.default.tessellate.model('Application', ApplicationSchema);
 
 /*
  * Make model accessible from controllers
  */
-var Application = db.tessellate.model('Application');
+var Application = _db2.default.tessellate.model('Application');
 Application.collectionName = ApplicationSchema.get('collection');
 
-exports.Application = db.tessellate.model('Application');
+exports.Application = _db2.default.tessellate.model('Application');

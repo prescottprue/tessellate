@@ -1,17 +1,17 @@
-var db = require('./../lib/db');
-var mongoose = require('mongoose');
-var _ = require('lodash');
+import db from './../lib/db';
+import mongoose from 'mongoose';
+import _ from 'lodash';
 
-module.exports = (modelConfig) => {
+export default function(modelConfig) {
 	/*
 	 * Default values
 	 */
-	var schemaObj = {
+	let schemaObj = {
 		createdAt: { type: Date, default: Date.now, index: true},
 		updatedAt: { type: Date, default: Date.now, index: true}
 	};
-	var collectionName = "test";
-	var modelName = collectionName;
+	let collectionName = "test";
+	let modelName = collectionName;
 	/*
 	 * Check modelConfig's schema parameter
 	 */
@@ -36,13 +36,13 @@ module.exports = (modelConfig) => {
 	}
 
 	// Set schema
-	var Schema = new mongoose.Schema(schemaObj);
+	let Schema = new mongoose.Schema(schemaObj);
 	// Set collection name
 	Schema.set('collection', modelConfig.collection);
 	// Construct model from `Schema`
 	db.hypercube.model(modelName, Schema);
 	// Make model accessible from controllers
-	var model = db.hypercube.model(modelName);
+	let model = db.hypercube.model(modelName);
 	//Set collection name
 	model.collectionName = Schema.get('collection');
 	//Export model name

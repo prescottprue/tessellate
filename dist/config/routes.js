@@ -1,16 +1,50 @@
 'use strict';
 
-var express = require('express');
-var indexCtrls = require('../controllers/index');
-var authCtrls = require('../controllers/auth');
-var accountCtrls = require('../controllers/accounts');
-var appCtrls = require('../controllers/applications');
-var templateCtrls = require('../controllers/templates');
-var adminCtrl = require('../controllers/admin');
-var groupsCtrl = require('../controllers/groups');
-var authrocketCtrls = require('../controllers/authrocket');
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
-module.exports = {
+var _express = require('express');
+
+var _express2 = _interopRequireDefault(_express);
+
+var _index = require('../controllers/index');
+
+var indexCtrls = _interopRequireWildcard(_index);
+
+var _auth = require('../controllers/auth');
+
+var authCtrls = _interopRequireWildcard(_auth);
+
+var _accounts = require('../controllers/accounts');
+
+var accountCtrls = _interopRequireWildcard(_accounts);
+
+var _applications = require('../controllers/applications');
+
+var appCtrls = _interopRequireWildcard(_applications);
+
+var _templates = require('../controllers/templates');
+
+var templateCtrls = _interopRequireWildcard(_templates);
+
+var _admin = require('../controllers/admin');
+
+var adminCtrl = _interopRequireWildcard(_admin);
+
+var _groups = require('../controllers/groups');
+
+var groupsCtrl = _interopRequireWildcard(_groups);
+
+var _authrocket = require('../controllers/authrocket');
+
+var authrocketCtrls = _interopRequireWildcard(_authrocket);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
 	index: [{
 		type: 'GET',
 		endpoint: '/',
@@ -63,7 +97,7 @@ module.exports = {
 	}, {
 		type: 'DELETE',
 		endpoint: '/accounts/:username',
-		controller: accountCtrls['delete']
+		controller: accountCtrls.del
 	}, {
 		type: 'GET',
 		endpoint: '/accounts/search/:searchQuery',
@@ -92,7 +126,7 @@ module.exports = {
 	}, {
 		type: 'DELETE',
 		endpoint: '/users/:username',
-		controller: accountCtrls['delete']
+		controller: accountCtrls.del
 	}, {
 		type: 'GET',
 		endpoint: '/users/search/:searchQuery',
@@ -133,7 +167,7 @@ module.exports = {
 	}, {
 		type: 'DELETE',
 		endpoint: '/apps/:name',
-		controller: appCtrls['delete']
+		controller: appCtrls.del
 	}, {
 		type: 'PUT',
 		endpoint: '/apps/:name/storage',
@@ -210,7 +244,7 @@ module.exports = {
 	}, {
 		type: 'DELETE',
 		endpoint: '/templates/:name',
-		controller: templateCtrls['delete']
+		controller: templateCtrls.del
 	}],
 	groups: [{
 		type: 'GET',
@@ -231,7 +265,7 @@ module.exports = {
 	}, {
 		type: 'DELETE',
 		endpoint: '/groups/:name',
-		controller: groupsCtrl['delete']
+		controller: groupsCtrl.del
 	}],
 	admin: [{
 		type: 'GET',

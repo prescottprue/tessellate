@@ -1,18 +1,18 @@
 //Internal Config/Utils/Classes
-var conf  = require('../config/default').config,
-logger = require('../utils/logger'),
-db = require('./../utils/db'),
-Session = require('./session').Session,
-Group = require('./group').Group;
+import { config }  from '../config/default';
+import logger from '../utils/logger';
+import db from './../utils/db';
+import { Session } from './session';
+import { Group } from './group';
 
 //External Libs
-var mongoose = require('mongoose'),
-_ = require('lodash'),
-jwt = require('jsonwebtoken'),
-bcrypt = require('bcrypt');
+import mongoose from 'mongoose';
+import _ from 'lodash';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 //Account Schema Object
-var AccountSchema = new mongoose.Schema(
+let AccountSchema = new mongoose.Schema(
 	{
 		username:{type:String, index:true, unique:true},
 		name:{type: String},
@@ -71,7 +71,10 @@ AccountSchema.methods = {
 	 */
 	strip: function() {
 		var strippedAccount = _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
-		logger.log({description: 'Strip called.', strippedAccount: strippedAccount, func: 'strip', obj: 'Account'});
+		logger.log({
+			description: 'Strip called.', strippedAccount: strippedAccount,
+			func: 'strip', obj: 'Account'
+		});
 		return _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
 	},
 	/**

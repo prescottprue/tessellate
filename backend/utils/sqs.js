@@ -1,16 +1,16 @@
-//Interface with amazons messaging service
-var AWS = require('aws-sdk');
-var _ = require('lodash');
-var conf = require('../config/default').config;
-var logger = require('./logger');
+//Interface with Amazon's queue/messaging service
+import logger from './logger';
+import _ from 'lodash';
+import { config } from '../config/default';
+import AWS from 'aws-sdk';
 
-var sqs = configureSQS();
+let sqs = configureSQS();
 //Add message to SQS queue (will be consumed by worker)
-exports.add = (body, attrs) => {
+export function add(body, attrs) {
 	//action, src, dest, author
 	var params = {
     MessageBody: body,
-    QueueUrl: conf.aws.sqsQueueUrl,
+    QueueUrl: config.aws.sqsQueueUrl,
     DelaySeconds: 0,
     MessageAttributes:{
     }
@@ -27,22 +27,22 @@ exports.add = (body, attrs) => {
 };
 //Configure SQS
 function configureSQS() {
-	if(!_.has(conf.aws, 'sqsQueueUrl')) {
+	if(!_.has(config.aws, 'sqsQueueUrl')) {
 		logger.error({description: 'SQS_QUEUE_URL environment variable not set. SQS will not be available.', func: 'configureSQS', file: 'sqs'});
 		return;
 	}
-	if(!_.has(conf.aws, 'key') || !_.has(conf.aws, 'secret')) {
+	if(!_.has(config.aws, 'key') || !_.has(config.aws, 'secret')) {
 		logger.error({description: 'AWS Environment variables not set. SQS will not be available.', func: 'configureSQS', file: 'sqs'});
 		return;
 	}
 	var sourceS3Conf = new AWS.Config({
-	  accessKeyId: conf.aws.key,
-	  secretAccessKey: conf.aws.secret,
+	  accessKeyId: config.aws.key,
+	  secretAccessKey: config.aws.secret,
 		region:'us-east-1'
 	});
 	AWS.config.update({
-	  accessKeyId: conf.aws.key,
-	  secretAccessKey: conf.aws.secret,
+	  accessKeyId: config.aws.key,
+	  secretAccessKey: config.aws.secret,
 	  region: 'us-east-1'
 	});
 	// Instantiate SQS client

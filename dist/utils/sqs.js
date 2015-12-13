@@ -1,18 +1,35 @@
 'use strict';
 
-//Interface with amazons messaging service
-var AWS = require('aws-sdk');
-var _ = require('lodash');
-var conf = require('../config/default').config;
-var logger = require('./logger');
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.add = add;
+
+var _logger = require('./logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _default = require('../config/default');
+
+var _awsSdk = require('aws-sdk');
+
+var _awsSdk2 = _interopRequireDefault(_awsSdk);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//Interface with Amazon's queue/messaging service
 
 var sqs = configureSQS();
 //Add message to SQS queue (will be consumed by worker)
-exports.add = function (body, attrs) {
+function add(body, attrs) {
 	//action, src, dest, author
 	var params = {
 		MessageBody: body,
-		QueueUrl: conf.aws.sqsQueueUrl,
+		QueueUrl: _default.config.aws.sqsQueueUrl,
 		DelaySeconds: 0,
 		MessageAttributes: {}
 	};
@@ -27,26 +44,26 @@ exports.add = function (body, attrs) {
 };
 //Configure SQS
 function configureSQS() {
-	if (!_.has(conf.aws, 'sqsQueueUrl')) {
-		logger.error({ description: 'SQS_QUEUE_URL environment variable not set. SQS will not be available.', func: 'configureSQS', file: 'sqs' });
+	if (!_lodash2.default.has(_default.config.aws, 'sqsQueueUrl')) {
+		_logger2.default.error({ description: 'SQS_QUEUE_URL environment variable not set. SQS will not be available.', func: 'configureSQS', file: 'sqs' });
 		return;
 	}
-	if (!_.has(conf.aws, 'key') || !_.has(conf.aws, 'secret')) {
-		logger.error({ description: 'AWS Environment variables not set. SQS will not be available.', func: 'configureSQS', file: 'sqs' });
+	if (!_lodash2.default.has(_default.config.aws, 'key') || !_lodash2.default.has(_default.config.aws, 'secret')) {
+		_logger2.default.error({ description: 'AWS Environment variables not set. SQS will not be available.', func: 'configureSQS', file: 'sqs' });
 		return;
 	}
-	var sourceS3Conf = new AWS.Config({
-		accessKeyId: conf.aws.key,
-		secretAccessKey: conf.aws.secret,
+	var sourceS3Conf = new _awsSdk2.default.Config({
+		accessKeyId: _default.config.aws.key,
+		secretAccessKey: _default.config.aws.secret,
 		region: 'us-east-1'
 	});
-	AWS.config.update({
-		accessKeyId: conf.aws.key,
-		secretAccessKey: conf.aws.secret,
+	_awsSdk2.default.config.update({
+		accessKeyId: _default.config.aws.key,
+		secretAccessKey: _default.config.aws.secret,
 		region: 'us-east-1'
 	});
 	// Instantiate SQS client
-	return new AWS.SQS();
+	return new _awsSdk2.default.SQS();
 }
 // exports.doOnReceive = (action) => {
 // 	return receiveMessage(action);

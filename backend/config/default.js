@@ -1,5 +1,5 @@
-var env = process.env.NODE_ENV;
-var config;
+let env = process.env.NODE_ENV;
+let config;
 switch (env) {
 	case "local":
 		config = require("./env/local");

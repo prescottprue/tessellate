@@ -1,17 +1,35 @@
 'use strict';
 
-var db = require('./../utils/db');
-var mongoose = require('mongoose');
-var q = require('q');
-var _ = require('underscore');
-var Application = require('./application').Application;
-var Account = require('./account').Account;
-var logger = require('../utils/logger');
+var _db = require('./../utils/db');
 
-var GroupSchema = new mongoose.Schema({
-	application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application' },
+var _db2 = _interopRequireDefault(_db);
+
+var _mongoose = require('mongoose');
+
+var _mongoose2 = _interopRequireDefault(_mongoose);
+
+var _q = require('q');
+
+var _q2 = _interopRequireDefault(_q);
+
+var _underscore = require('underscore');
+
+var _underscore2 = _interopRequireDefault(_underscore);
+
+var _application = require('./application');
+
+var _account = require('./account');
+
+var _logger = require('../utils/logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var GroupSchema = new _mongoose2.default.Schema({
+	application: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Application' },
 	name: { type: String, default: '' },
-	accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Account' }],
+	accounts: [{ type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Account' }],
 	createdAt: { type: Date, default: Date.now },
 	updatedAt: { type: Date, default: Date.now, index: true }
 }, {
@@ -25,61 +43,55 @@ GroupSchema.set('collection', 'groups');
  * Setup schema methods
  */
 GroupSchema.methods = {
-	//Wrap query in promise
-	saveNew: function saveNew() {
-		var d = q.defer();
-		this.save(function (err, result) {
-			if (err) {
-				d.reject(err);
-			}
-			if (!result) {
-				d.reject(new Error('New Group could not be saved'));
-			}
-			d.resolve(result);
-		});
-		return d.promise;
-	},
 	addAccount: function addAccount(account) {
 		//TODO: Handle adding an account to the group
-		this.saveNew().then(function () {}, function (err) {
-			logger.error('Error', err);
+		this.save().then(function (newAccount) {
+			return newAccount;
+		}, function (err) {
+			_logger2.default.error('Error', err);
 		});
 	},
 	findAccount: function findAccount(accountData) {
 		//TODO: Find by parameters other than username
-		if (accountData && _.has(accountData, 'username')) {
-			logger.log({ description: 'Account data.', accountData: accountData });
-			// var account = new Account({username:accountData.username});
-			// var query = Account.findOne({username:accountData.username});
-			logger.log('findAccount for group', undefined);
-			var aq = undefined.model('Account').findOne({ username: accountData.username }).populate({ path: 'groups', select: 'name accounts' }).select({ password: 0 });
-			// d.resolve(account);
-			return aq.then(function (result) {
-				if (!result) {
-					logger.error({ description: 'Error finding account.' });
-					return Promise.reject(null);
-				}
-				logger.log({ description: 'directory returned:', result: result, func: 'findAccount', obj: 'Group' });
-				return result;
-			}, function (err) {
-				logger.error({ description: 'Error getting account.', error: err, func: 'findAccount', obj: 'Group' });
-				return Promise.reject(err);
+		if (!accountData || !_underscore2.default.has(accountData, 'username')) {
+			_logger2.default.error({
+				description: 'Username required to find account.', func: 'findAccount', obj: 'Group'
 			});
-		} else {
-			logger.error({ description: 'Username required to find account.', func: 'findAccount', obj: 'Group' });
 			return Promise.reject({ message: 'Account not found.' });
 		}
+		_logger2.default.log({
+			description: 'Account data.', accountData: accountData
+		});
+		var aq = this.model('Account').findOne({ username: accountData.username }).populate({ path: 'groups', select: 'name accounts' }).select({ password: 0 });
+		// d.resolve(account);
+		return aq.then(function (result) {
+			if (!result) {
+				_logger2.default.error({
+					description: 'Error finding account.'
+				});
+				return Promise.reject(null);
+			}
+			_logger2.default.log({
+				description: 'directory returned:', result: result, func: 'findAccount', obj: 'Group'
+			});
+			return result;
+		}, function (err) {
+			_logger2.default.error({
+				description: 'Error getting account.', error: err, func: 'findAccount', obj: 'Group'
+			});
+			return Promise.reject(err);
+		});
 	}
 };
 /*
  * Construct `Account` model from `AccountSchema`
  */
-db.tessellate.model('Group', GroupSchema);
+_db2.default.tessellate.model('Group', GroupSchema);
 
 /*
  * Make model accessible from controllers
  */
-var Group = db.tessellate.model('Group');
+var Group = _db2.default.tessellate.model('Group');
 Group.collectionName = GroupSchema.get('collection');
 
-exports.Group = db.tessellate.model('Group');
+exports.Group = _db2.default.tessellate.model('Group');

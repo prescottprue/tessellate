@@ -69,12 +69,12 @@ import authUtil from '../utils/auth';
  *     }
  */
 
-exports.get = (req, res, next) => {
-	// var user = authUtil.getUserFromRequest(req);
+export function get(req, res, next) {
+	// let user = authUtil.getUserFromRequest(req);
 	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
-	var isList = true;
-	var findObj = {};
-	var query;
+	let isList = true;
+	let findObj = {};
+	let query;
 	if(req.params.name){ //Get data for a specific application
 		logger.log({
 			description: 'Application get request.', name: req.params.name,
@@ -131,45 +131,43 @@ exports.get = (req, res, next) => {
  * @apiSuccess {array} applications Array of applications if <code>name</code> is not provided.
  *
  */
-exports.getProviders = (req, res, next) => {
-	// var query = Application.find({}).populate({path:'owner', select:'username name title email'});
-	if(req.params.name){ //Get data for a specific application
-		logger.log({
-			description: 'Get Providers request.', params: req.params,
-			func: 'getProviders', obj: 'ApplicationsCtrls'
-		});
-		var query = Application.findOne({name:req.params.name});
-		query.then((result) => {
-			if(!result){
-				logger.warn({
-					description: 'Application not found.',
-					func: 'getProviders', obj: 'ApplicationsCtrls'
-				});
-				return res.status(400).send('Application could not be found.');
-			}
-			var providerData = {};
-			_.each(result.providers, (provider) => {
-				providerData[provider.name] = provider.clientId;
-			});
-			logger.log({
-				description: 'Provider data found.', providerData: providerData,
-				func: 'getProviders', obj: 'ApplicationsCtrls'
-			});
-			res.send(providerData);
-		}, (err) => {
-			logger.error({
-				description: 'Error getting application(s).',
-				error: err, func: 'getProviders', obj: 'ApplicationsCtrls'
-			});
-			res.status(500).send('Error getting Application(s).');
-		});
-	} else {
-		logger.info({
+export function getProviders(req, res, next) {
+	if(!req.params.name){ //Get data for a specific application
+		logger.warn({
 			description: 'Application name required to get providers.',
 			func: 'getProviders', obj: 'ApplicationsCtrls'
 		});
-		res.status(400).send('Application name required to get providers.');
+		return res.status(400).send('Application name required to get providers.');
 	}
+	logger.log({
+		description: 'Get Providers request.', params: req.params,
+		func: 'getProviders', obj: 'ApplicationsCtrls'
+	});
+	let query = Application.findOne({name:req.params.name});
+	query.then((result) => {
+		if(!result){
+			logger.warn({
+				description: 'Application not found.',
+				func: 'getProviders', obj: 'ApplicationsCtrls'
+			});
+			return res.status(400).send('Application could not be found.');
+		}
+		let providerData = {};
+		_.each(result.providers, (provider) => {
+			providerData[provider.name] = provider.clientId;
+		});
+		logger.log({
+			description: 'Provider data found.', providerData: providerData,
+			func: 'getProviders', obj: 'ApplicationsCtrls'
+		});
+		res.send(providerData);
+	}, (err) => {
+		logger.error({
+			description: 'Error getting application(s).',
+			error: err, func: 'getProviders', obj: 'ApplicationsCtrls'
+		});
+		res.status(500).send('Error getting Application(s).');
+	});
 };
 
 /**
@@ -200,7 +198,7 @@ exports.getProviders = (req, res, next) => {
  *     }
  *
  */
-exports.add = (req, res, next) => {
+export function add(req, res, next) {
 	//Query for existing application with same _id
 	if(!_.has(req.body, "name")){
 		logger.error({
@@ -213,8 +211,8 @@ exports.add = (req, res, next) => {
 			description:'Applications add called with name.',
 			name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'
 		});
-		var appData = _.extend({}, req.body);
-		var appName = req.body.name;
+		let appData = _.extend({}, req.body);
+		let appName = req.body.name;
 		if(!_.has(appData, 'owner')){
 			logger.log({
 				description: 'No owner data provided. Using account.', account: req.user, func: 'add', obj: 'ApplicationsCtrl'});
@@ -239,7 +237,7 @@ exports.add = (req, res, next) => {
 					func: 'add', obj: 'Application'
 				});
 				//application does not already exist
-				var application = new Application(appData);
+				let application = new Application(appData);
 				logger.log({
 					description: 'Calling create with storage.',
 					appData: appData, func: 'add', obj: 'Application'
@@ -247,7 +245,7 @@ exports.add = (req, res, next) => {
 				//Create with template if one is provided
 				if(_.has(req.body,'template')){
 					//Template name was provided
-					var templateType = req.body.templateType ? req.body.templateType : 'firebase';
+					let templateType = req.body.templateType ? req.body.templateType : 'firebase';
 					application.createWithTemplate(req.body.template, templateType).then( (newApp) => {
 						logger.log({
 							description: 'Application created with template.',
@@ -311,7 +309,7 @@ exports.add = (req, res, next) => {
  *     }
  *
  */
-exports.update = (req, res, next) => {
+export function update(req, res, next) {
 	logger.log({
 		description: 'App update request.', params: req.params,
 		func: 'update', obj: 'ApplicationsCtrls'
@@ -377,11 +375,11 @@ exports.update = (req, res, next) => {
  *     }
  *
  */
-exports.delete = (req, res, next) => {
-	var query = Application.findOneAndRemove({'name':req.params.name}); // find and delete using id field
+export function del(req, res, next) {
+	let query = Application.findOneAndRemove({'name':req.params.name}); // find and delete using id field
 	query.then((result) => {
 		if(result){
-			var app = new Application(result);
+			let app = new Application(result);
 			app.removeStorage().then(() => {
 				logger.log({
 					description: 'Application storage deleted successfully.',
@@ -440,11 +438,11 @@ exports.delete = (req, res, next) => {
  *     }
  *
  */
-exports.files = (req, res, next) => {
+export function files(req, res, next) {
 	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile =>
 	if(req.params.name){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
+		let query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		query.then((foundApp) => {
 			if(foundApp){
 				foundApp.getStructure().then((appFiles) => {
@@ -512,8 +510,8 @@ exports.files = (req, res, next) => {
  *     }
  *
  */
- var localDir = "./public";
-exports.publishFile = (req, res, next) => {
+ let localDir = "./public";
+export function publishFile(req, res, next) {
 	logger.info({
 		description: 'File publish request.', func: 'publishFile',
 		params: req.params, obj: 'ApplicationsCtrls'
@@ -521,7 +519,7 @@ exports.publishFile = (req, res, next) => {
 	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile =>
 	if(req.params.name){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name})
+		let query = Application.findOne({name:req.params.name})
 		.populate({path:'owner', select:'username name title email'});
 		isList = false;
 		query.then((foundApp) => {
@@ -594,7 +592,7 @@ exports.publishFile = (req, res, next) => {
  *
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.applyTemplate = (req, res, next) => {
+export function applyTemplate(req, res, next) {
 	logger.log({
 		description: 'apply template request with app name: ', name: req.params.name,
 		func: 'applyTemplate', obj: 'ApplicationsCtrl'
@@ -602,7 +600,7 @@ exports.applyTemplate = (req, res, next) => {
 	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile =>
 	if(req.params.name){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name})
+		let query = Application.findOne({name:req.params.name})
 		.populate({path:'owner', select:'username name title email'});
 		query.then((foundApp) => {
 			if(!foundApp){
@@ -664,12 +662,12 @@ exports.applyTemplate = (req, res, next) => {
  *
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.addStorage = (req, res, next) => {
+export function addStorage(req, res, next) {
 	logger.log('add storage request with app name: ' + req.params.name + ' with body:', req.body);
 	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile =>
 	if(req.params.name){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
+		let query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		query.exec( (err, foundApp) => {
 			if(err) {
 				logger.error('[ApplicationsCtrl.addStorage()] Error getting application:', JSON.stringify(err));
@@ -720,14 +718,14 @@ exports.addStorage = (req, res, next) => {
  *
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.addCollaborators = (req, res, next) => {
+export function addCollaborators(req, res, next) {
 	logger.log({
 		description: 'add storage request with app name: ', name: req.params.name,
 		func: 'addCollaborators', obj: 'ApplicationsCtrl'
 	});
 	//TODO: Check that account is allowed to add collaborators
 	if(req.params.name && req.body.accounts){ //Get data for a specific application
-		var query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
+		let query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		query.then((foundApp) => {
 			if(!foundApp){
 				logger.warn({
@@ -783,7 +781,7 @@ exports.addCollaborators = (req, res, next) => {
  *
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-exports.login = (req, res, next) => {
+export function login(req, res, next) {
 	logger.log({
 		description: 'App Login request.',
 		appName: req.params.name, body: req.body,
@@ -800,7 +798,7 @@ exports.login = (req, res, next) => {
 		});
 		return res.status(400).send('Username/Email and Password are required to login.');
 	}
-	var loginData =  {password: req.body.password};
+	let loginData =  {password: req.body.password};
 	if (_.has(req.body, 'username')) {
 		if(req.body.username.indexOf('@') !== -1){
 			loginData.email = req.body.username;
@@ -863,13 +861,13 @@ exports.login = (req, res, next) => {
  *
  *
  */
-exports.logout = (req, res, next) => {
+export function logout(req, res, next) {
 	logger.log({
 		description: 'App Logout request.',
 		appName: req.params.name, body: req.body,
 		func: 'logout', obj: 'ApplicationCtrl'
 	});
-	var userData;
+	let userData;
 	if(req.user){
 		userData = req.user;
 	}
@@ -937,7 +935,7 @@ exports.logout = (req, res, next) => {
  *
  *
  */
-exports.signup = (req, res, next) => {
+export function signup(req, res, next) {
 	logger.log({
 		description: 'App signup request.',
 		appName: req.params.name, body: req.body,
@@ -973,7 +971,7 @@ exports.signup = (req, res, next) => {
 					res.status(400).send(err);
 				});
 			} else {
-				var signupData = req.body;
+				let signupData = req.body;
 				signupData.application = foundApp._id;
 				foundApp.signup(signupData).then((signupRes) => {
 					logger.log({
@@ -1039,10 +1037,10 @@ exports.signup = (req, res, next) => {
  *     }
  *
  */
-exports.verify = (req, res, next) => {
+export function verify(req, res, next) {
 	//TODO:Actually verify account instead of just returning account data
 	//TODO: Get applicaiton and verify that user exists within applicaiton
-	var findObj = {};
+	let findObj = {};
 	if(req.user){
 		//Find by username in token
 		if(_.has(req.user, "username")){
@@ -1051,7 +1049,7 @@ exports.verify = (req, res, next) => {
 			//Find by email in token
 			findObj.email = req.user.email;
 		}
-		var query = Account.findOne(findObj).select('username email sessionId');
+		let query = Account.findOne(findObj).select('username email sessionId');
 		query.then((result) => {
 			if(!result){
 				//Matching account already exists
@@ -1105,7 +1103,7 @@ exports.verify = (req, res, next) => {
  *
  *
  */
-exports.groups = (req, res, next) => {
+export function groups(req, res, next) {
 	logger.log({
 		description: 'App get group(s) request called.',
 		appName: req.params.name, body: req.body, func: 'groups'
@@ -1120,7 +1118,7 @@ exports.groups = (req, res, next) => {
 				});
 				res.send(foundApp.groups);
 			} else {
-				var group = _.findWhere(foundApp.groups, {name: req.params.groupName});
+				let group = _.findWhere(foundApp.groups, {name: req.params.groupName});
 				if(group){
 					logger.info({
 						description: 'Application group found.',
@@ -1147,7 +1145,7 @@ exports.groups = (req, res, next) => {
 						});
 					} else {
 						//Group has not been added to application
-						var query = Group.findOne({name: req.params.groupName, application: foundApp._id});
+						let query = Group.findOne({name: req.params.groupName, application: foundApp._id});
 						query.then((groupWithoutApp) => {
 							if(!groupWithoutApp){
 								logger.error({
@@ -1217,7 +1215,7 @@ exports.groups = (req, res, next) => {
  *
  *
  */
-exports.addGroup = (req, res, next) => {
+export function addGroup(req, res, next) {
 	logger.log({
 		description: 'App add group request.',
 		name: req.params.name, body: req.body,
@@ -1275,7 +1273,7 @@ exports.addGroup = (req, res, next) => {
  *
  *
  */
-exports.updateGroup = (req, res, next) => {
+export function updateGroup(req, res, next) {
 	logger.log({
 		description: 'Update application group called.',
 		appName: req.params.name, body: req.body,
@@ -1318,7 +1316,7 @@ exports.updateGroup = (req, res, next) => {
 					foundApp: foundApp, updateData: req.body,
 					func: 'updateGroup', obj: 'ApplicationsCtrl'
 				});
-				var updateData = _.extend({}, req.body);
+				let updateData = _.extend({}, req.body);
 				updateData.name = req.params.groupName;
 				if(_.has(updateData, 'accounts')){
 					//TODO: Compare to foundApps current accounts
@@ -1376,7 +1374,7 @@ exports.updateGroup = (req, res, next) => {
  *
  *
  */
-exports.deleteGroup = (req, res, next) => {
+export function deleteGroup(req, res, next) {
 	logger.log({
 		description: 'App add group request with app name.', name: req.params.name,
 		func: 'deleteGroup', obj: 'ApplicationsCtrl'
@@ -1424,7 +1422,7 @@ function findApplication(appName) {
 		});
 		Promise.reject({message: 'Application name required to find application.'});
 	} else {
-		var query = Application.findOne({name:appName})
+		let query = Application.findOne({name:appName})
 		.populate({path:'owner', select:'username name email'})
 		.populate({path:'groups', select:'name accounts'})
 		.populate({path:'directories', select:'name accounts groups'})
