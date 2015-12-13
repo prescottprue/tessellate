@@ -2,8 +2,6 @@
 
 var _default = require('../config/default');
 
-var _default2 = _interopRequireDefault(_default);
-
 var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
@@ -12,14 +10,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // database handler
 
-var dbUrl = _default2.default.config.db.url;
+var dbUrl = _default.config.db.url;
 var tessellate = undefined;
 //Add db name to url
-if (_default2.default.config.db.name) {
-	dbUrl += "/" + _default2.default.config.db.name;
+if (_default.config.db.name) {
+	dbUrl += "/" + _default.config.db.name;
 }
 // console.log('Connecting to mongo url:', dbUrl);
-if (_default2.default.config.envName !== 'test') {
+if (_default.config.envName !== 'test') {
 	tessellate = _mongoose2.default.createConnection(dbUrl);
 	tessellate.on('error', function (err) {
 		console.error('Mongoose error:', err);
@@ -40,7 +38,7 @@ if (_default2.default.config.envName !== 'test') {
 		console.error('Connected to test DB');
 		setTimeout(function () {
 			tessellate.close();
-		}, 1000);
+		}, 10000);
 	});
 	tessellate.on('disconnected', function () {
 		console.error('Disconnected from DB');

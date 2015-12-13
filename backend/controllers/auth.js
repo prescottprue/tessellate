@@ -10,7 +10,8 @@ import { Session } from '../models/session';
 import AuthRocket from 'authrocket';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/default';
-let authRocketEnabled = config.authRocket.enabled;
+console.log('config in auth:', config);
+let authRocketEnabled = config.authRocket ? config.authRocket.enabled : false;
 let authrocket = new AuthRocket();
 
 /**

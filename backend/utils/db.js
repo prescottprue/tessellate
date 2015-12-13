@@ -1,14 +1,14 @@
 // database handler
-import conf from '../config/default';
+import { config } from '../config/default';
 import mongoose from 'mongoose';
-let dbUrl = conf.config.db.url;
+let dbUrl = config.db.url;
 let tessellate;
 //Add db name to url
-if(conf.config.db.name){
-	dbUrl += "/" + conf.config.db.name
+if(config.db.name){
+	dbUrl += "/" + config.db.name
 }
 // console.log('Connecting to mongo url:', dbUrl);
-if(conf.config.envName !== 'test') {
+if(config.envName !== 'test') {
 	tessellate = mongoose.createConnection(dbUrl);
 	tessellate.on('error', (err) => {
 		console.error('Mongoose error:', err);
@@ -30,7 +30,7 @@ if(conf.config.envName !== 'test') {
 		console.error('Connected to test DB');
 		setTimeout(() => {
 			tessellate.close();
-		}, 1000);
+		}, 10000);
 	});
 	tessellate.on('disconnected', () => {
 		console.error('Disconnected from DB');

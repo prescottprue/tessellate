@@ -36,7 +36,7 @@ gulp.task('watch', shell.task(['babel backend --out-dir dist --watch']));
 gulp.task('test', function(){
   gulp.src('test/**/*.spec.js')
    .pipe(mocha({
-       reporter: 'dot',
+       reporter: 'spec',
        clearRequireCache: true,
        ignoreLeaks: true
    }));

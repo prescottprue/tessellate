@@ -40,10 +40,11 @@ var _default = require('../config/default');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var authRocketEnabled = _default.config.authRocket.enabled; /**
-                                                             * @description Authentication controller
-                                                             */
+console.log('config in auth:', _default.config); /**
+                                                  * @description Authentication controller
+                                                  */
 
+var authRocketEnabled = _default.config.authRocket ? _default.config.authRocket.enabled : false;
 var authrocket = new _authrocket2.default();
 
 /**
