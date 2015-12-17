@@ -88,14 +88,14 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createWithTemplate: function (templateName, templateType){
+	createWithTemplate: function (templateData){
 		logger.log({
 			description: 'Create application with template called.',
 			templateData: templateData, application: this,
 			func: 'createWithTemplate', obj: 'Application'
 		});
 		this.save().then((newApplication) => {
-			newApplication.applyTemplate(templateData, storageData).then(() => {
+			newApplication.applyTemplate(templateData).then(() => {
 				logger.info({
 					description: 'Publish file called.',
 					func: 'createWithTemplate', obj: 'Application'
@@ -222,29 +222,30 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-	applyTemplate: function(templateName, templateType) {
-		if(!templateName || _.isUndefined(templateName)){
-			templateName = 'default';
+	applyTemplate: function(templateData) {
+		if(!templateData || _.isUndefined(templateData.name)){
+			templateData.name = 'default';
 		}
-		if(!templateType || _.isUndefined(templateType)){
-			templateName = 'firebase';
+		if(!templateData || _.isUndefined(templateData.type)){
+			templateData.type = 'firebase';
 		}
 		logger.log({
 			description: 'Applying template to project.',
-			templateName: templateName, func: 'applyTemplate', obj: 'Application'
+			templateData: templateData, func: 'applyTemplate', obj: 'Application'
 		});
 		//TODO: Check that the template was actually uploaded
 		//New message format
 		//fromName, fromType, toName, toType
-		let messageArray = [templateName, templateType, this.name, 'firebase'];
+		let messageArray = [templateData.name, templateData.type, this.name, 'firebase'];
 		if(config.aws.sqsQueueUrl){
 			return sqs.add(messageArray.join('**'));
 		} else {
 			//TODO: Download then upload locally instead of pushing to worker queue
 			logger.error({
 				description: 'Queue url is currently required to create new templates This will be changed soon.',
-				templateName: templateName, func: 'applyTemplate', obj: 'Application'
+				templateData: templateData, func: 'applyTemplate', obj: 'Application'
 			});
+			return Promise.reject({message: 'Queue url is required to create an application with a template.'});
 		}
 	},
 	addCollaborators: function(usersArray) {

@@ -152,7 +152,7 @@ app.use((err, req, res, next) => {
  * Get port from environment and store in Express.
  */
 let portNumber = process.env.PORT || 4000;
-if(confFile && confFile.server && confFile.server.port && config.envName !== 'production') {
+if(confFile && confFile.server && confFile.server.port && (config.envName === 'development' || config.envName === 'test')) {
   port = confFile.server.port;
 }
 let port = systemUtils.normalizePort(portNumber);

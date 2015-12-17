@@ -107,7 +107,7 @@ export function get(req, res, next) {
 			return res.status(400).send('Application(s) could not be found.');
 		}
 		logger.log({
-			description: 'Application(s) found.', result: result,
+			description: 'Application(s) found.',
 			func: 'get', obj: 'ApplicationsCtrls'
 		});
 		res.send(result);
@@ -215,7 +215,9 @@ export function add(req, res, next) {
 		let appName = req.body.name;
 		if(!_.has(appData, 'owner')){
 			logger.log({
-				description: 'No owner data provided. Using account.', account: req.user, func: 'add', obj: 'ApplicationsCtrl'});
+				description: 'No owner data provided. Using account.',
+				account: req.user, func: 'add', obj: 'ApplicationsCtrl'
+			});
 			if(_.has(req, 'userId')){
 				appData.owner = req.userId;
 			} else if (_.has(req.user, 'id')) {
@@ -230,52 +232,45 @@ export function add(req, res, next) {
 			res.status(400).send('Application with this name already exists.');
 		}, (err) => {
 			if(err && err.status == 'EXISTS'){
-				res.status(400).send('Application with this name already exists.');
+				return res.status(400).send('Application with this name already exists.');
+			}
+			logger.log({
+				description: 'Application does not already exist.',
+				func: 'add', obj: 'Application'
+			});
+			let application = new Application(appData);
+			if(_.has(req.body,'template')){
+				//Template name was provided
+				let templateData = {name: req.body.template};
+				templateData.type = req.body.templateType ? req.body.templateType : 'firebase';
+				application.createWithTemplate(templateData).then((newApp) => {
+					logger.log({
+						description: 'Application created with template.',
+						newApp: newApp, func: 'add', obj: 'Application'
+					});
+					res.json(newApp);
+				}, (err) => {
+					logger.error({
+						description: 'Error creating application.',
+						error: err, func: 'add', obj: 'Application'
+					});
+					res.status(400).send('Error creating application.');
+				});
 			} else {
-				logger.log({
-					description: 'Application does not already exist.',
-					func: 'add', obj: 'Application'
-				});
-				//application does not already exist
-				let application = new Application(appData);
-				logger.log({
-					description: 'Calling create with storage.',
-					appData: appData, func: 'add', obj: 'Application'
-				});
-				//Create with template if one is provided
-				if(_.has(req.body,'template')){
-					//Template name was provided
-					let templateType = req.body.templateType ? req.body.templateType : 'firebase';
-					application.createWithTemplate(req.body.template, templateType).then( (newApp) => {
-						logger.log({
-							description: 'Application created with template.',
-							newApp: newApp, func: 'add', obj: 'Application'
-						});
-						res.json(newApp);
-					}, (err) => {
-						logger.error({
-							description: 'Error creating application.',
-							error: err, func: 'add', obj: 'Application'
-						});
-						res.status(400).send('Error creating application.');
+				//Template name was not provided
+				application.save().then((newApplication) => {
+					logger.log({
+						description: 'Application created successfully.',
+						application: newApplication, func: 'add', obj: 'Application'
 					});
-				} else {
-					//Template parameter was not provided
-					application.createWithStorage(req.body).then((newApp) => {
-						logger.log({
-							description: 'Application created with storage.',
-							newApp: newApp, func: 'add', obj: 'Application'
-						});
-						res.json(newApp);
-					},  (err) => {
-						//TODO: Handle different errors here
-						logger.error({
-							description: 'Error creating new application with storage.',
-							error: err, func: 'add', obj: 'ApplicationsCtrl'
-						});
-						res.status(400).json('Error creating application.');
+					res.send(newApplication);
+				}, (err) => {
+					logger.error({
+						description: 'Application does not already exist.',
+						error: err, func: 'add', obj: 'Application'
 					});
-				}
+					res.send(500).send('Error saving application.');
+				});
 			}
 		});
 	}
@@ -663,32 +658,46 @@ export function applyTemplate(req, res, next) {
  */
  //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
 export function addStorage(req, res, next) {
-	logger.log('add storage request with app name: ' + req.params.name + ' with body:', req.body);
+	logger.log({
+		description: 'add storage request with app name.',
+		appName: req.params.name, func: 'addStorage', obj: 'ApplicationsCtrl'
+	});
 	//TODO: Check that account is owner or collaborator before uploading
 	//TODO: Lookup application and run uploadFile =>
-	if(req.params.name){ //Get data for a specific application
-		let query = Application.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
-		query.exec( (err, foundApp) => {
-			if(err) {
-				logger.error('[ApplicationsCtrl.addStorage()] Error getting application:', JSON.stringify(err));
-				return res.status(500).send('Error adding storage to application.');
-			}
-			if(!foundApp){
-				logger.error('[ApplicationsCtrl.addStorage()] Error finding application.');
-				return res.status(400).send('Application could not be found');
-			}
-			//TODO: Get url from found app, and get localDir from
-			foundApp.createStorage().then( (webUrl) => {
-				logger.log('Added storage to application successfully:', webUrl);
-				res.send(webUrl);
-			},  (err) => {
-				logger.log('Error adding storage to application:', JSON.stringify(err));
-				res.status(500).send(err);
-			});
-		});
-	} else {
-		res.status(400).send('Application name and storage information are required to add storage');
+	if(!req.params.name){ //Get data for a specific application
+		return res.status(400).send('Application name and storage information are required to add storage');
 	}
+	let query = Application.findOne({name:req.params.name})
+	.populate({path:'owner', select:'username name title email'});
+	query.then((foundApp) => {
+		if(!foundApp){
+			logger.warn({
+				description: 'Application not found.',
+				func: 'addStorage', obj: 'ApplicationsCtrl'
+			});
+			return res.status(400).send('Application could not be found');
+		}
+		//TODO: Get url from found app, and get localDir from
+		foundApp.createStorage().then((webUrl) => {
+			logger.log({
+				description: 'Added storage to application successfully.',
+				storageUrl: 'webUrl', func: 'addStorage', obj: 'ApplicationsCtrl'
+			});
+			res.send(webUrl);
+		},  (err) => {
+			logger.log({
+				description: 'Error adding storage to application:', error: err,
+				func: 'addStorage', obj: 'ApplicationsCtrl'
+			});
+			res.status(500).send(err);
+		});
+	}, (err) => {
+		logger.error({
+			description: 'Error getting application.',
+			error: err, func: 'addStorage', obj: 'ApplicationsCtrl'
+		});
+		res.status(500).send('Error adding storage to application.');
+	});
 };
 
 /**
@@ -817,20 +826,20 @@ export function login(req, res, next) {
 			obj: 'ApplicationCtrl'
 		});
 		//Use authrocket login if application has authRocket data
-			foundApp.login(loginData).then((loginRes) => {
-				logger.log({
-					description: 'Login Successful.', response: loginRes,
-					func: 'login', obj: 'ApplicationsCtrl'
-				});
-				res.send(loginRes);
-			}, (err) => {
-				//TODO: Handle wrong password
-				logger.error({
-					description: 'Error logging in.', error: err,
-					func: 'login', obj: 'ApplicationsCtrl'
-				});
-				res.status(400).send(err || 'Login Error.');
+		foundApp.login(loginData).then((loginRes) => {
+			logger.log({
+				description: 'Login Successful.', response: loginRes,
+				func: 'login', obj: 'ApplicationsCtrl'
 			});
+			res.send(loginRes);
+		}, (err) => {
+			//TODO: Handle wrong password
+			logger.error({
+				description: 'Error logging in.', error: err,
+				func: 'login', obj: 'ApplicationsCtrl'
+			});
+			res.status(400).send(err || 'Login Error.');
+		});
 	}, (err) => {
 		logger.error({
 			description: 'Error finding applicaiton.', error: err,
@@ -864,7 +873,6 @@ export function login(req, res, next) {
 export function logout(req, res, next) {
 	logger.log({
 		description: 'App Logout request.',
-		appName: req.params.name, body: req.body,
 		func: 'logout', obj: 'ApplicationCtrl'
 	});
 	let userData;

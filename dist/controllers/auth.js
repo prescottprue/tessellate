@@ -40,11 +40,10 @@ var _default = require('../config/default');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-console.log('config in auth:', _default.config); /**
-                                                  * @description Authentication controller
-                                                  */
+var authRocketEnabled = _default.config.authRocket ? _default.config.authRocket.enabled : false; /**
+                                                                                                  * @description Authentication controller
+                                                                                                  */
 
-var authRocketEnabled = _default.config.authRocket ? _default.config.authRocket.enabled : false;
 var authrocket = new _authrocket2.default();
 
 /**
@@ -371,30 +370,40 @@ function logout(req, res, next) {
 function verify(req, res, next) {
 	//TODO:Actually verify account instead of just returning account data
 	// logger.log('verify request:', req.user);
-	var query;
-	if (req.user) {
-		//Find by username in token
-		if (_lodash2.default.has(req.user, "username")) {
-			query = _account.Account.findOne({ username: req.user.username }).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
-		}
-		//Find by username in token
-		else {
-				query = _account.Account.findOne({ email: req.user.email }).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
-			}
-		query.then(function (result) {
-			if (!result) {
-				//Matching account already exists
-				// TODO: Respond with a specific error code
-				_logger2.default.error({ description: 'Account not found.', error: err, func: 'verify', obj: 'AuthCtrl' });
-				return res.status(400).send('Account with this information does not exist.');
-			}
-			res.json(result);
-		}, function (err) {
-			_logger2.default.error({ description: 'Error querying for account', error: err, func: 'verify', obj: 'AuthCtrl' });
-			return res.status(500).send('Unable to verify token.');
+	if (!req.user) {
+		_logger2.default.error({
+			description: 'Invalid auth token.',
+			func: 'verify', obj: 'AuthCtrl'
 		});
-	} else {
-		_logger2.default.error({ description: 'Invalid auth token.', func: 'verify', obj: 'AuthCtrl' });
-		res.status(401).json({ status: 401, message: 'Valid Auth token required to verify' });
+		res.status(401).json({
+			status: 401,
+			message: 'Valid Auth token required to verify'
+		});
 	}
+	//Find by username in token
+	var findObj = {};
+	if (_lodash2.default.has(req.user, "username")) {
+		findObj.username = req.user.username;
+	} else {
+		findObj.email = req.user.email;
+	}
+	var query = _account.Account.findOne(findObj).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
+	query.then(function (result) {
+		if (!result) {
+			//Matching account already exists
+			// TODO: Respond with a specific error code
+			_logger2.default.error({
+				description: 'Account not found.',
+				error: err, func: 'verify', obj: 'AuthCtrl'
+			});
+			return res.status(400).send('Account with this information does not exist.');
+		}
+		res.json(result);
+	}, function (err) {
+		_logger2.default.error({
+			description: 'Error querying for account',
+			error: err, func: 'verify', obj: 'AuthCtrl'
+		});
+		return res.status(500).send('Unable to verify token.');
+	});
 };

@@ -121,7 +121,7 @@ AccountSchema.methods = {
 		});
 		try {
 			var tokenData = this.tokenData();
-			var token = _jsonwebtoken2.default.sign(tokenData, conf.jwtSecret);
+			var token = _jsonwebtoken2.default.sign(tokenData, _default.config.jwtSecret);
 			_logger2.default.log({
 				description: 'Token generated.',
 				func: 'generateToken', obj: 'Account'

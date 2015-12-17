@@ -124,14 +124,14 @@ ApplicationSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createWithTemplate: function createWithTemplate(templateName, templateType) {
+	createWithTemplate: function createWithTemplate(templateData) {
 		_logger2.default.log({
 			description: 'Create application with template called.',
 			templateData: templateData, application: this,
 			func: 'createWithTemplate', obj: 'Application'
 		});
 		this.save().then(function (newApplication) {
-			newApplication.applyTemplate(templateData, storageData).then(function () {
+			newApplication.applyTemplate(templateData).then(function () {
 				_logger2.default.info({
 					description: 'Publish file called.',
 					func: 'createWithTemplate', obj: 'Application'
@@ -258,29 +258,30 @@ ApplicationSchema.methods = {
 			});
 		}
 	},
-	applyTemplate: function applyTemplate(templateName, templateType) {
-		if (!templateName || _lodash2.default.isUndefined(templateName)) {
-			templateName = 'default';
+	applyTemplate: function applyTemplate(templateData) {
+		if (!templateData || _lodash2.default.isUndefined(templateData.name)) {
+			templateData.name = 'default';
 		}
-		if (!templateType || _lodash2.default.isUndefined(templateType)) {
-			templateName = 'firebase';
+		if (!templateData || _lodash2.default.isUndefined(templateData.type)) {
+			templateData.type = 'firebase';
 		}
 		_logger2.default.log({
 			description: 'Applying template to project.',
-			templateName: templateName, func: 'applyTemplate', obj: 'Application'
+			templateData: templateData, func: 'applyTemplate', obj: 'Application'
 		});
 		//TODO: Check that the template was actually uploaded
 		//New message format
 		//fromName, fromType, toName, toType
-		var messageArray = [templateName, templateType, this.name, 'firebase'];
+		var messageArray = [templateData.name, templateData.type, this.name, 'firebase'];
 		if (_default.config.aws.sqsQueueUrl) {
 			return _sqs2.default.add(messageArray.join('**'));
 		} else {
 			//TODO: Download then upload locally instead of pushing to worker queue
 			_logger2.default.error({
 				description: 'Queue url is currently required to create new templates This will be changed soon.',
-				templateName: templateName, func: 'applyTemplate', obj: 'Application'
+				templateData: templateData, func: 'applyTemplate', obj: 'Application'
 			});
+			return Promise.reject({ message: 'Queue url is required to create an application with a template.' });
 		}
 	},
 	addCollaborators: function addCollaborators(usersArray) {

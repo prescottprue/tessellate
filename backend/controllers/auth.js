@@ -10,7 +10,6 @@ import { Session } from '../models/session';
 import AuthRocket from 'authrocket';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/default';
-console.log('config in auth:', config);
 let authRocketEnabled = config.authRocket ? config.authRocket.enabled : false;
 let authrocket = new AuthRocket();
 
@@ -341,31 +340,39 @@ export function logout(req, res, next) {
 export function verify(req, res, next) {
 	//TODO:Actually verify account instead of just returning account data
 	// logger.log('verify request:', req.user);
-	var query;
-	if(req.user){
-		//Find by username in token
-		if(_.has(req.user, "username")){
-			query = Account.findOne({username:req.user.username})
-			.select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
-		}
-		//Find by username in token
-		else {
-			query = Account.findOne({email:req.user.email})
-			.select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
-		}
-		query.then((result) => {
-			if(!result){ //Matching account already exists
-				// TODO: Respond with a specific error code
-				logger.error({description: 'Account not found.', error: err, func: 'verify', obj: 'AuthCtrl'});
-				return res.status(400).send('Account with this information does not exist.');
-			}
-			res.json(result);
-		}, (err) => {
-			logger.error({description: 'Error querying for account', error: err, func: 'verify', obj: 'AuthCtrl'});
-			return res.status(500).send('Unable to verify token.');
+	if(!req.user){
+		logger.error({
+			description: 'Invalid auth token.',
+			func: 'verify', obj: 'AuthCtrl'
 		});
-	} else {
-		logger.error({description: 'Invalid auth token.', func: 'verify', obj: 'AuthCtrl'});
-		res.status(401).json({status:401, message:'Valid Auth token required to verify'});
+		res.status(401).json({
+			status:401,
+			message:'Valid Auth token required to verify'
+		});
 	}
+	//Find by username in token
+	let findObj = {};
+	if(_.has(req.user, "username")){
+		findObj.username = req.user.username;
+	} else {
+		findObj.email = req.user.email;
+	}
+	let query = Account.findOne(findObj).select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
+	query.then((result) => {
+		if(!result){ //Matching account already exists
+			// TODO: Respond with a specific error code
+			logger.error({
+				description: 'Account not found.',
+				error: err, func: 'verify', obj: 'AuthCtrl'
+			});
+			return res.status(400).send('Account with this information does not exist.');
+		}
+		res.json(result);
+	}, (err) => {
+		logger.error({
+			description: 'Error querying for account',
+			error: err, func: 'verify', obj: 'AuthCtrl'
+		});
+		return res.status(500).send('Unable to verify token.');
+	});
 };
