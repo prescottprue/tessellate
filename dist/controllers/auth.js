@@ -38,11 +38,13 @@ var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
 
 var _default = require('../config/default');
 
+var _default2 = _interopRequireDefault(_default);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var authRocketEnabled = _default.config.authRocket ? _default.config.authRocket.enabled : false; /**
-                                                                                                  * @description Authentication controller
-                                                                                                  */
+var authRocketEnabled = _default2.default.authRocket ? _default2.default.authRocket.enabled : false; /**
+                                                                                                      * @description Authentication controller
+                                                                                                      */
 
 var authrocket = new _authrocket2.default();
 

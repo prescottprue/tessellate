@@ -2,6 +2,8 @@
 
 var _default = require('../config/default');
 
+var _default2 = _interopRequireDefault(_default);
+
 var _underscore = require('underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
@@ -25,9 +27,9 @@ configureExternalLogger();
 
 exports.log = function (logData) {
 	var msgStr = buildMessageStr(logData);
-	if (_default.config.envName === 'local') {
+	if (_default2.default.envName === 'local') {
 		console.log(msgStr);
-	} else if (_default.config.envName === 'production') {
+	} else if (_default2.default.envName === 'production') {
 		console.log(msgStr);
 		callExternalLogger('log', logData);
 	} else {
@@ -37,9 +39,9 @@ exports.log = function (logData) {
 };
 exports.info = function (logData) {
 	var msgStr = buildMessageStr(logData);
-	if (_default.config.envName == 'local') {
+	if (_default2.default.envName == 'local') {
 		console.log(msgStr);
-	} else if (_default.config.envName === 'production') {
+	} else if (_default2.default.envName === 'production') {
 		console.info(logData) || console.log(logData);
 		callExternalLogger('info', logData);
 	} else {
@@ -49,9 +51,9 @@ exports.info = function (logData) {
 };
 exports.debug = function debug(logData) {
 	var msgStr = buildMessageStr(logData);
-	if (_default.config.envName == 'local') {
+	if (_default2.default.envName == 'local') {
 		console.log(msgStr);
-	} else if (_default.config.envName === 'production') {
+	} else if (_default2.default.envName === 'production') {
 		console.info(logData) || console.log(logData);
 		callExternalLogger('debug', logData);
 	} else {
@@ -61,9 +63,9 @@ exports.debug = function debug(logData) {
 };
 exports.warn = function warn(logData) {
 	var msgStr = buildMessageStr(logData);
-	if (_default.config.envName == 'local') {
+	if (_default2.default.envName == 'local') {
 		console.warn(msgStr);
-	} else if (_default.config.envName === 'production') {
+	} else if (_default2.default.envName === 'production') {
 		console.warn(logData) || console.log(logData);
 		callExternalLogger('warn', logData);
 	} else {
@@ -73,9 +75,9 @@ exports.warn = function warn(logData) {
 };
 exports.error = function error(logData) {
 	var msgStr = buildMessageStr(logData);
-	if (_default.config.envName == 'local') {
+	if (_default2.default.envName == 'local') {
 		console.error(msgStr);
-	} else if (_default.config.envName === 'production') {
+	} else if (_default2.default.envName === 'production') {
 		console.error(logData) || console.log(logData);
 		callExternalLogger('error', logData);
 	} else {
@@ -118,7 +120,7 @@ function buildMessageStr(logData) {
  * Currently using Loggly through winston. Requires LOGGLY_TOKEN environment variable
  */
 function configureExternalLogger() {
-	if (_default.config.logging && _default.config.logging.enabled) {
+	if (_default2.default.logging && _default2.default.logging.enabled) {
 		if (!_underscore2.default.has(process.env, 'LOGGLY_TOKEN')) {
 			console.warn('Loggly Token does not exist, so external logging can not be configured.');
 			externalLoggerExists = false;

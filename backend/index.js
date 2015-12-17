@@ -1,5 +1,5 @@
 import 'newrelic';
-import 'babel-core/register';
+// import 'babel-core/register';
 
 import express from 'express';
 import path from 'path';
@@ -10,10 +10,11 @@ import jwt from 'express-jwt';
 import cors from 'cors';
 
 import confFile from '../config.json';
-import {config} from './config/default';
+import config from './config/default';
 import systemUtils from './lib/systemUtils';
 import logger from './utils/logger';
 import routes from './config/routes';
+
 
 let app = express();
 

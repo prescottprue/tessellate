@@ -2,7 +2,7 @@
   "name": "kyper-tessellate",
   "version": "0.0.1",
   "scripts": {
-    "build": "node -e \"console.log('build called');\" && babel backend --out-dir dist",
+    "build": "babel backend --out-dir dist",
     "watch": "babel backend --out-dir dist --watch",
     "dev": "nodemon dist/index.js",
     "start": "node dist/index.js"
@@ -14,12 +14,6 @@
   "dependencies": {
     "authrocket": "0.0.6",
     "aws-sdk": "^2.2.17",
-    "babel-cli": "^6.1.18",
-    "babel-runtime": "^6.1.18",
-    "babel-core": "^6.3.17",
-    "babel-plugin-syntax-async-functions": "^6.1.18",
-    "babel-preset-es2015": "^6.1.18",
-    "babel-preset-stage-0": "^6.1.18",
     "bcrypt": "^0.8.5",
     "body-parser": "~1.12.4",
     "cookie-parser": "~1.3.5",
@@ -43,7 +37,12 @@
     "winston-loggly": "^1.1.0"
   },
   "devDependencies": {
-
+    "babel-cli": "^6.1.18",
+    "babel-runtime": "^6.1.18",
+    "babel-core": "^6.3.17",
+    "babel-plugin-syntax-async-functions": "^6.1.18",
+    "babel-preset-es2015": "^6.1.18",
+    "babel-preset-stage-0": "^6.1.18",
     "browser-sync": "^2.9.3",
     "chai": "^3.3.0",
     "gulp": "^3.9.0",

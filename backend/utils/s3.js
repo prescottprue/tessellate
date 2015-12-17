@@ -5,7 +5,7 @@ import aws from 'aws-sdk';
 import s3Sdk from 's3';
 import _ from 'lodash';
 import logger from './logger';
-import { config }  from '../config/default';
+import config  from '../config/default';
 
 let sourceS3Conf, s3, s3Client;
 

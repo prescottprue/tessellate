@@ -15,6 +15,8 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var _default = require('../config/default');
 
+var _default2 = _interopRequireDefault(_default);
+
 var _awsSdk = require('aws-sdk');
 
 var _awsSdk2 = _interopRequireDefault(_awsSdk);
@@ -29,7 +31,7 @@ function add(body, attrs) {
 	//action, src, dest, author
 	var params = {
 		MessageBody: body,
-		QueueUrl: _default.config.aws.sqsQueueUrl,
+		QueueUrl: _default2.default.aws.sqsQueueUrl,
 		DelaySeconds: 0,
 		MessageAttributes: {}
 	};
@@ -44,22 +46,22 @@ function add(body, attrs) {
 };
 //Configure SQS
 function configureSQS() {
-	if (!_lodash2.default.has(_default.config.aws, 'sqsQueueUrl')) {
+	if (!_lodash2.default.has(_default2.default.aws, 'sqsQueueUrl')) {
 		_logger2.default.error({ description: 'SQS_QUEUE_URL environment variable not set. SQS will not be available.', func: 'configureSQS', file: 'sqs' });
 		return;
 	}
-	if (!_lodash2.default.has(_default.config.aws, 'key') || !_lodash2.default.has(_default.config.aws, 'secret')) {
+	if (!_lodash2.default.has(_default2.default.aws, 'key') || !_lodash2.default.has(_default2.default.aws, 'secret')) {
 		_logger2.default.error({ description: 'AWS Environment variables not set. SQS will not be available.', func: 'configureSQS', file: 'sqs' });
 		return;
 	}
 	var sourceS3Conf = new _awsSdk2.default.Config({
-		accessKeyId: _default.config.aws.key,
-		secretAccessKey: _default.config.aws.secret,
+		accessKeyId: _default2.default.aws.key,
+		secretAccessKey: _default2.default.aws.secret,
 		region: 'us-east-1'
 	});
 	_awsSdk2.default.config.update({
-		accessKeyId: _default.config.aws.key,
-		secretAccessKey: _default.config.aws.secret,
+		accessKeyId: _default2.default.aws.key,
+		secretAccessKey: _default2.default.aws.secret,
 		region: 'us-east-1'
 	});
 	// Instantiate SQS client

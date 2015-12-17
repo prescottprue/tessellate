@@ -1,7 +1,7 @@
 /**
  * @description Logger utility that handles Internal and external logging based on environment config
  */
-import { config } from '../config/default';
+import config from '../config/default';
 import _ from 'underscore';
 import winston from 'winston';
 import 'winston-loggly';

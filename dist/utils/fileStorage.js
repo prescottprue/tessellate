@@ -18,6 +18,8 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var _default = require('../config/default');
 
+var _default2 = _interopRequireDefault(_default);
+
 var _s = require('./s3');
 
 var s3 = _interopRequireWildcard(_s);

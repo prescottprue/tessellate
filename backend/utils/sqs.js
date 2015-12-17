@@ -1,7 +1,7 @@
 //Interface with Amazon's queue/messaging service
 import logger from './logger';
 import _ from 'lodash';
-import { config } from '../config/default';
+import config from '../config/default';
 import AWS from 'aws-sdk';
 
 let sqs = configureSQS();

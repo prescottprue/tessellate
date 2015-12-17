@@ -9,7 +9,7 @@ import { Account } from '../models/account';
 import { Session } from '../models/session';
 import AuthRocket from 'authrocket';
 import jwt from 'jsonwebtoken';
-import { config } from '../config/default';
+import config from '../config/default';
 let authRocketEnabled = config.authRocket ? config.authRocket.enabled : false;
 let authrocket = new AuthRocket();
 

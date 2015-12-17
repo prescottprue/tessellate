@@ -22,6 +22,8 @@ var _authrocket2 = _interopRequireDefault(_authrocket);
 
 var _default = require('../config/default');
 
+var _default2 = _interopRequireDefault(_default);
+
 var _logger = require('../utils/logger');
 
 var _logger2 = _interopRequireDefault(_logger);
@@ -52,8 +54,8 @@ function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.const
 
 //Set bucket prefix based on config as well as default if config does not exist
 var bucketPrefix = "tessellate-";
-if (_lodash2.default.has(_default.config, 's3') && _lodash2.default.has(_default.config.s3, 'bucketPrefix')) {
-	bucketPrefix = _default.config.s3.bucketPrefix;
+if (_lodash2.default.has(_default2.default, 's3') && _lodash2.default.has(_default2.default.s3, 'bucketPrefix')) {
+	bucketPrefix = _default2.default.s3.bucketPrefix;
 }
 //Application schema object
 var ApplicationSchema = new _mongoose2.default.Schema({
@@ -273,7 +275,7 @@ ApplicationSchema.methods = {
 		//New message format
 		//fromName, fromType, toName, toType
 		var messageArray = [templateData.name, templateData.type, this.name, 'firebase'];
-		if (_default.config.aws.sqsQueueUrl) {
+		if (_default2.default.aws.sqsQueueUrl) {
 			return _sqs2.default.add(messageArray.join('**'));
 		} else {
 			//TODO: Download then upload locally instead of pushing to worker queue

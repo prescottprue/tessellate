@@ -2,8 +2,6 @@
 
 require('newrelic');
 
-require('babel-core/register');
-
 var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
@@ -38,6 +36,8 @@ var _config2 = _interopRequireDefault(_config);
 
 var _default = require('./config/default');
 
+var _default2 = _interopRequireDefault(_default);
+
 var _systemUtils = require('./lib/systemUtils');
 
 var _systemUtils2 = _interopRequireDefault(_systemUtils);
@@ -52,6 +52,8 @@ var _routes2 = _interopRequireDefault(_routes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// import 'babel-core/register';
+
 var app = (0, _express2.default)();
 
 var routeBuilder = require('./utils/routeBuilder')(app);
@@ -65,7 +67,7 @@ app.set('view engine', 'ejs');
 /** Environment and variable setup
  * @description Set node variables based on environment settings
  */
-app.set('config', _default.config);
+app.set('config', _default2.default);
 app.set('env', app.get('config').env);
 /** Parsers
  * @description Body and cookie parsers
@@ -88,17 +90,17 @@ app.options('*', (0, _cors2.default)());
 /** Authentication
  * @description Enable authentication based on config setting
  */
-if (_default.config.authEnabled) {
+if (_default2.default.authEnabled) {
   var allowedPaths = ['/', '/login', '/logout', '/signup', '/docs', '/docs/**', '/authrocket', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
-  var secret = _default.config.jwtSecret;
-  if (_default.config.authRocket && _default.config.authRocket.enabled) {
-    if (!_default.config.authRocket.secret) {
+  var secret = _default2.default.jwtSecret;
+  if (_default2.default.authRocket && _default2.default.authRocket.enabled) {
+    if (!_default2.default.authRocket.secret) {
       _logger2.default.error({
         description: 'AuthRocket secret required to decode token. Check environment variables.',
         func: 'init', obj: 'server'
       });
     } else {
-      secret = _default.config.authRocket.secret;
+      secret = _default2.default.authRocket.secret;
     }
   }
   /** Route Protection
@@ -180,12 +182,12 @@ app.use(function (err, req, res, next) {
  * Get port from environment and store in Express.
  */
 var portNumber = process.env.PORT || 4000;
-if (_config2.default && _config2.default.server && _config2.default.server.port && (_default.config.envName === 'development' || _default.config.envName === 'test')) {
+if (_config2.default && _config2.default.server && _config2.default.server.port && (_default2.default.envName === 'development' || _default2.default.envName === 'test')) {
   port = _config2.default.server.port;
 }
 var port = _systemUtils2.default.normalizePort(portNumber);
 console.log('Server started...');
-console.log('Environment: ' + _default.config.envName || 'ERROR');
+console.log('Environment: ' + _default2.default.envName || 'ERROR');
 console.log('Port: ' + port);
 app.set('port', port);
 /**

@@ -1,25 +1,5 @@
-let env = process.env.NODE_ENV;
-let config;
-switch (env) {
-	case "local":
-		config = require("./env/local");
-		break;
-	case "development":
-		config = require("./env/development");
-		break;
-	case "staging":
-		config = require("./env/staging");
-		break;
-	case "production":
-		config = require("./env/production");
-		break;
-	case "test":
-		config = require("./env/test");
-		break;
-	default:
-	console.log('-----------Setting default config');
-		config = require("./env/production");
-		break;
-}
-
-exports.config = config;
+import * as envs from './env';
+let config = envs[process.env.NODE_ENV || 'production'];
+console.log('config created:', config);
+export default config;
+export { envs };

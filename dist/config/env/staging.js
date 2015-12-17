@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = {
-	envName: 'development',
+	envName: 'staging',
 	db: {
 		url: process.env.TESSELLATE_DEV_MONGO
 	},

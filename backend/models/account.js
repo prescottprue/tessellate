@@ -1,5 +1,5 @@
 //Internal Config/Utils/Classes
-import { config }  from '../config/default';
+import config  from '../config/default';
 import logger from '../utils/logger';
 import db from './../utils/db';
 import { Session } from './session';

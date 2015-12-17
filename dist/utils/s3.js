@@ -31,6 +31,8 @@ var _logger2 = _interopRequireDefault(_logger);
 
 var _default = require('../config/default');
 
+var _default2 = _interopRequireDefault(_default);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var sourceS3Conf = undefined,
@@ -105,7 +107,7 @@ function getSignedUrl(urlData) {
  * @function configureS3
  */
 function configureS3() {
-  if (!_lodash2.default.has(_default.config.aws, 'key') || !_lodash2.default.has(_default.config.aws, 'secret')) {
+  if (!_lodash2.default.has(_default2.default.aws, 'key') || !_lodash2.default.has(_default2.default.aws, 'secret')) {
     _logger2.default.error({
       description: 'AWS Environment variables not set. S3 will not be enabled.',
       func: 'configureS3', file: 's3'
@@ -114,14 +116,14 @@ function configureS3() {
   }
   //Setup S3 Config
   sourceS3Conf = new _awsSdk2.default.Config({
-    accessKeyId: _default.config.aws.key,
-    secretAccessKey: _default.config.aws.secret
+    accessKeyId: _default2.default.aws.key,
+    secretAccessKey: _default2.default.aws.secret
   });
   s3 = new _awsSdk2.default.S3(sourceS3Conf);
   s3Client = _s2.default.createClient({
     s3Options: {
-      accessKeyId: _default.config.aws.key,
-      secretAccessKey: _default.config.aws.secret
+      accessKeyId: _default2.default.aws.key,
+      secretAccessKey: _default2.default.aws.secret
     }
   });
 }

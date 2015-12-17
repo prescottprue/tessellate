@@ -6,7 +6,7 @@ import sqs from '../utils/sqs';
 import AuthRocket from 'authrocket';
 
 //Internal Config/Utils/Classes
-import { config } from '../config/default';
+import config from '../config/default';
 import logger from '../utils/logger';
 import db from '../utils/db';
 import * as fileStorage from '../utils/fileStorage';

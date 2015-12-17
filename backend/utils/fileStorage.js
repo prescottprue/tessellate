@@ -2,7 +2,7 @@
  *	@description standardized interface file storage so the service/platform used for storage can be changed without affecting file storage calls
  */
 import _ from 'lodash';
-import { config } from '../config/default';
+import config from '../config/default';
 
 import * as s3 from './s3';
 import logger from './logger';

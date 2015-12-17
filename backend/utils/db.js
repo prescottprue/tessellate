@@ -1,5 +1,5 @@
 // database handler
-import { config } from '../config/default';
+import config from '../config/default';
 import mongoose from 'mongoose';
 let dbUrl = config.db.url;
 let tessellate;
