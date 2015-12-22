@@ -2,7 +2,7 @@
 import  mongoose from 'mongoose';
 import q from 'q';
 import _ from 'lodash';
-import sqs from '../utils/sqs';
+import * as sqs from '../utils/sqs';
 import AuthRocket from 'authrocket';
 
 //Internal Config/Utils/Classes
@@ -94,20 +94,41 @@ ApplicationSchema.methods = {
 			templateData: templateData, application: this,
 			func: 'createWithTemplate', obj: 'Application'
 		});
-		this.save().then((newApplication) => {
-			newApplication.applyTemplate(templateData).then(() => {
+		return this.save().then((newApplication) => {
+			return newApplication.applyTemplate(templateData).then(() => {
 				logger.info({
-					description: 'Publish file called.',
+					description: 'New project created with template.',
+					templateData: templateData, app: newApplication,
 					func: 'createWithTemplate', obj: 'Application'
 				});
 				return newApplication;
-			}, (err) => {
+			}, err => {
 				logger.error({
 					description: 'Error applying template to application.', error: err,
 					func: 'createWithTemplate', obj: 'Application'
 				});
-				return Promise.reject(err);
+				// Delete application from database if template is not applied successesfully
+				let query = this.model('Application').findOneAndRemove({name: this.name});
+				return query.then(deleteInfo => {
+					logger.info({
+						description: 'New application removed from db due to failure of adding template.',
+						func: 'createWithTemplate', obj: 'Application'
+					});
+					return Promise.reject({message: 'Unable create new application.'});
+				}, err => {
+					logger.error({
+						description: 'Error deleting application after failing to apply template.', error: err,
+						func: 'createWithTemplate', obj: 'Application'
+					});
+					return Promise.reject(err);
+				});
 			});
+		}, err => {
+			logger.error({
+				description: 'Error creating new project in database', error: err,
+				func: 'createWithTemplate', obj: 'Application'
+			});
+			return Promise.reject(err);
 		});
 	},
 	createWithStorage: function() {
@@ -237,6 +258,7 @@ ApplicationSchema.methods = {
 		//New message format
 		//fromName, fromType, toName, toType
 		let messageArray = [templateData.name, templateData.type, this.name, 'firebase'];
+		console.log('messageArray: ', messageArray);
 		if(config.aws.sqsQueueUrl){
 			return sqs.add(messageArray.join('**'));
 		} else {

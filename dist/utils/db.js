@@ -8,11 +8,14 @@ var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
+var _logger = require('./logger');
+
+var _logger2 = _interopRequireDefault(_logger);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// database handler
+var dbUrl = _default2.default.db.url; // database handler
 
-var dbUrl = _default2.default.db.url;
 var tessellate = undefined;
 //Add db name to url
 if (_default2.default.db.name) {
@@ -22,13 +25,19 @@ if (_default2.default.db.name) {
 if (_default2.default.envName !== 'test') {
 	tessellate = _mongoose2.default.createConnection(dbUrl);
 	tessellate.on('error', function (err) {
-		console.error('Mongoose error:', err);
+		_logger2.default.error({
+			description: 'Mongoose error:', error: err,
+			func: 'createConnection', obj: 'db'
+		});
 	});
 	tessellate.on('connected', function () {
-		console.error('Connected to DB');
+		console.log('Connected to DB');
 	});
 	tessellate.on('disconnected', function () {
-		console.error('Disconnected from DB');
+		_logger2.default.log({
+			description: 'Disconnected from DB',
+			func: 'createConnection', obj: 'db'
+		});
 	});
 } else {
 	//TODO: handle mock mongo

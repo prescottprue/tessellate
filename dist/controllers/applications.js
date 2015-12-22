@@ -42,6 +42,26 @@ var _auth2 = _interopRequireDefault(_auth);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; } /**
+                                                                                                                              * @description Application Controller
+                                                                                                                              */
+// ------------------------------------------------------------------------------------------
+// Current Errors.
+// ------------------------------------------------------------------------------------------
+/**
+ * @apiDefine CreateAccountError
+ * @apiVersion 0.0.1
+ *
+ * @apiError NoAccessRight Only authenticated Admins can access the data.
+ * @apiError AccountNameTooShort Minimum of 5 characters required.
+ *
+ * @apiErrorExample  Response (example):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "error": "AccountNameTooShort"
+ *     }
+ */
+
 /**
  * @api {get} /applications Get Application(s)
  * @apiDescription Get a specific application's data or a list of applications.
@@ -84,26 +104,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *     HTTP/1.1 400 Bad Request
  *     {
  *       "message":"Application not found."
- *     }
- */
-
-/**
- * @description Application Controller
- */
-// ------------------------------------------------------------------------------------------
-// Current Errors.
-// ------------------------------------------------------------------------------------------
-/**
- * @apiDefine CreateAccountError
- * @apiVersion 0.0.1
- *
- * @apiError NoAccessRight Only authenticated Admins can access the data.
- * @apiError AccountNameTooShort Minimum of 5 characters required.
- *
- * @apiErrorExample  Response (example):
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "error": "AccountNameTooShort"
  *     }
  */
 
@@ -243,7 +243,7 @@ function add(req, res, next) {
 		});
 		res.status(400).send('Name is required to create a new app');
 	} else {
-		(function () {
+		var _ret = (function () {
 			_logger2.default.log({
 				description: 'Applications add called with name.',
 				name: req.body.name, body: req.body, func: 'add', obj: 'ApplicationsCtrl'
@@ -255,10 +255,18 @@ function add(req, res, next) {
 					description: 'No owner data provided. Using account.',
 					account: req.user, func: 'add', obj: 'ApplicationsCtrl'
 				});
-				if (_lodash2.default.has(req, 'userId')) {
-					appData.owner = req.userId;
-				} else if (_lodash2.default.has(req.user, 'id')) {
-					appData.owner = req.user.id;
+				if (_lodash2.default.has(req, 'userId') || _lodash2.default.has(req, 'accountId')) {
+					appData.owner = req.accountId ? req.accountId : req.userId;
+				} else if (req.user && (_lodash2.default.has(req.user, 'id') || _lodash2.default.has(req.user, 'accountId'))) {
+					appData.owner = req.user.id ? req.user.id : req.user.accountId;
+				} else {
+					_logger2.default.error({
+						description: 'Invalid owner data provided.',
+						func: 'add', obj: 'ApplicationsCtrl'
+					});
+					return {
+						v: res.status(400).send('Owner is required to create application')
+					};
 				}
 			}
 			findApplication(appName).then(function (foundApp) {
@@ -311,6 +319,8 @@ function add(req, res, next) {
 				}
 			});
 		})();
+
+		if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 	}
 };
 

@@ -15,15 +15,19 @@ export function add(body, attrs) {
     MessageAttributes:{
     }
   };
-  return sqs.sendMessage(params, (err, data)  => {
-    if (err) {
-      console.log(err, err.stack);
-			return Promise.reject(err);
-    }
-    else {
-      return Promise.resolve(data);
-    };
-  });
+	console.log('calling sqs send message:', params);
+	return new Promise((resolve, reject) => {
+		sqs.sendMessage(params, (err, data)  => {
+	    if (err) {
+	      console.log(err, err.stack);
+				return reject(err);
+	    }
+	    else {
+				console.log('message sent:', data);
+	      return resolve(data);
+	    };
+	  });
+	});
 };
 //Configure SQS
 function configureSQS() {

@@ -218,10 +218,16 @@ export function add(req, res, next) {
 				description: 'No owner data provided. Using account.',
 				account: req.user, func: 'add', obj: 'ApplicationsCtrl'
 			});
-			if(_.has(req, 'userId')){
-				appData.owner = req.userId;
-			} else if (_.has(req.user, 'id')) {
-				appData.owner = req.user.id;
+			if(_.has(req, 'userId') || _.has(req, 'accountId')){
+				appData.owner = req.accountId ? req.accountId : req.userId;
+			} else if (req.user && (_.has(req.user, 'id') || _.has(req.user, 'accountId'))) {
+				appData.owner = req.user.id ? req.user.id : req.user.accountId;
+			} else {
+				logger.error({
+					description: 'Invalid owner data provided.',
+					func: 'add', obj: 'ApplicationsCtrl'
+				});
+				return res.status(400).send('Owner is required to create application');
 			}
 		}
 		findApplication(appName).then((foundApp) => {

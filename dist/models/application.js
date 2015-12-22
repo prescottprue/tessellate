@@ -14,7 +14,7 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var _sqs = require('../utils/sqs');
 
-var _sqs2 = _interopRequireDefault(_sqs);
+var sqs = _interopRequireWildcard(_sqs);
 
 var _authrocket = require('authrocket');
 
@@ -127,15 +127,18 @@ ApplicationSchema.methods = {
 		});
 	},
 	createWithTemplate: function createWithTemplate(templateData) {
+		var _this = this;
+
 		_logger2.default.log({
 			description: 'Create application with template called.',
 			templateData: templateData, application: this,
 			func: 'createWithTemplate', obj: 'Application'
 		});
-		this.save().then(function (newApplication) {
-			newApplication.applyTemplate(templateData).then(function () {
+		return this.save().then(function (newApplication) {
+			return newApplication.applyTemplate(templateData).then(function () {
 				_logger2.default.info({
-					description: 'Publish file called.',
+					description: 'New project created with template.',
+					templateData: templateData, app: newApplication,
 					func: 'createWithTemplate', obj: 'Application'
 				});
 				return newApplication;
@@ -144,8 +147,28 @@ ApplicationSchema.methods = {
 					description: 'Error applying template to application.', error: err,
 					func: 'createWithTemplate', obj: 'Application'
 				});
-				return Promise.reject(err);
+				// Delete application from database if template is not applied successesfully
+				var query = _this.model('Application').findOneAndRemove({ name: _this.name });
+				return query.then(function (deleteInfo) {
+					_logger2.default.info({
+						description: 'New application removed from db due to failure of adding template.',
+						func: 'createWithTemplate', obj: 'Application'
+					});
+					return Promise.reject({ message: 'Unable create new application.' });
+				}, function (err) {
+					_logger2.default.error({
+						description: 'Error deleting application after failing to apply template.', error: err,
+						func: 'createWithTemplate', obj: 'Application'
+					});
+					return Promise.reject(err);
+				});
 			});
+		}, function (err) {
+			_logger2.default.error({
+				description: 'Error creating new project in database', error: err,
+				func: 'createWithTemplate', obj: 'Application'
+			});
+			return Promise.reject(err);
 		});
 	},
 	createWithStorage: function createWithStorage() {
@@ -275,8 +298,9 @@ ApplicationSchema.methods = {
 		//New message format
 		//fromName, fromType, toName, toType
 		var messageArray = [templateData.name, templateData.type, this.name, 'firebase'];
+		console.log('messageArray: ', messageArray);
 		if (_default2.default.aws.sqsQueueUrl) {
-			return _sqs2.default.add(messageArray.join('**'));
+			return sqs.add(messageArray.join('**'));
 		} else {
 			//TODO: Download then upload locally instead of pushing to worker queue
 			_logger2.default.error({
@@ -551,7 +575,7 @@ ApplicationSchema.methods = {
 	},
 	//Add group to application
 	addGroup: function addGroup(groupData) {
-		var _this = this;
+		var _this2 = this;
 
 		//TODO: make sure that group does not already exist in this application
 		// if(indexOf(this.groups, group._id) == -1){
@@ -574,11 +598,11 @@ ApplicationSchema.methods = {
 			});
 		} else {
 			var _ret = (function () {
-				var self = _this;
+				var self = _this2;
 				//Add application id to group
-				groupData.application = _this._id;
+				groupData.application = _this2._id;
 				//Add applicaiton id to search
-				var findObj = { application: _this._id };
+				var findObj = { application: _this2._id };
 				_logger2.default.log({
 					description: 'Add group to Application called.',
 					func: 'addGroup', obj: 'Application'
@@ -599,7 +623,7 @@ ApplicationSchema.methods = {
 					};
 				}
 				//Do not search for group if a group object was passed
-				if (_lodash2.default.has(groupData, '_id') || groupData instanceof _this.model('Group')) {
+				if (_lodash2.default.has(groupData, '_id') || groupData instanceof _this2.model('Group')) {
 					//Group object was passed
 					_logger2.default.log({
 						description: 'Group instance was passed, adding it to application.',
@@ -747,7 +771,7 @@ ApplicationSchema.methods = {
 	},
 	//Delete group from application
 	deleteGroup: function deleteGroup(groupData) {
-		var _this2 = this;
+		var _this3 = this;
 
 		_logger2.default.log({
 			description: 'Delete group called.', groupData: groupData,
@@ -758,7 +782,7 @@ ApplicationSchema.methods = {
 			return this.appAuthRocket().Orgs({ id: groupData.name }).remove().then(function (removeRes) {
 				_logger2.default.log({
 					description: 'Delete group called.', groupData: groupData,
-					app: _this2, func: 'deleteGroup', obj: 'Application'
+					app: _this3, func: 'deleteGroup', obj: 'Application'
 				});
 				return removeRes;
 			}, function (err) {
@@ -771,19 +795,19 @@ ApplicationSchema.methods = {
 		} else {
 			var _ret2 = (function () {
 				//Standard group management
-				var groupInApp = _lodash2.default.findWhere(_this2.groups, { name: groupData.name });
-				var self = _this2;
+				var groupInApp = _lodash2.default.findWhere(_this3.groups, { name: groupData.name });
+				var self = _this3;
 				//TODO: Check groups before to make sure that group by that name exists
 				if (!groupInApp) {
 					_logger2.default.log({
 						description: 'Group with provided name does not exist within application.',
-						groupData: groupData, app: _this2, func: 'deleteGroup', obj: 'Application'
+						groupData: groupData, app: _this3, func: 'deleteGroup', obj: 'Application'
 					});
 					return {
 						v: Promise.reject({ message: 'Group with that name does not exist within application.', status: 'NOT_FOUND' })
 					};
 				}
-				var query = _this2.model('Group').findOneAndRemove({ name: groupData.name });
+				var query = _this3.model('Group').findOneAndRemove({ name: groupData.name });
 				return {
 					v: query.then(function (group) {
 						if (!group) {
@@ -823,7 +847,7 @@ ApplicationSchema.methods = {
 								}
 							});
 							//Resolve application's groups without group
-							return _this2.groups;
+							return _this3.groups;
 						}
 					}, function (err) {
 						_logger2.default.error({

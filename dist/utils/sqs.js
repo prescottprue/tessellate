@@ -35,13 +35,17 @@ function add(body, attrs) {
 		DelaySeconds: 0,
 		MessageAttributes: {}
 	};
-	return sqs.sendMessage(params, function (err, data) {
-		if (err) {
-			console.log(err, err.stack);
-			return Promise.reject(err);
-		} else {
-			return Promise.resolve(data);
-		};
+	console.log('calling sqs send message:', params);
+	return new Promise(function (resolve, reject) {
+		sqs.sendMessage(params, function (err, data) {
+			if (err) {
+				console.log(err, err.stack);
+				return reject(err);
+			} else {
+				console.log('message sent:', data);
+				return resolve(data);
+			};
+		});
 	});
 };
 //Configure SQS
