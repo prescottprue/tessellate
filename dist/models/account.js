@@ -28,9 +28,9 @@ var _jsonwebtoken = require('jsonwebtoken');
 
 var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
 
-var _bcrypt = require('bcrypt');
+var _bcryptNodejs = require('bcrypt-nodejs');
 
-var _bcrypt2 = _interopRequireDefault(_bcrypt);
+var _bcryptNodejs2 = _interopRequireDefault(_bcryptNodejs);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -238,7 +238,7 @@ AccountSchema.methods = {
 		});
 		var selfPassword = this.password;
 		return new Promise(function (resolve, reject) {
-			_bcrypt2.default.compare(passwordAttempt, selfPassword, function (err, passwordsMatch) {
+			_bcryptNodejs2.default.compare(passwordAttempt, selfPassword, function (err, passwordsMatch) {
 				if (err) {
 					_logger2.default.error({
 						description: 'Error comparing password.',
@@ -348,7 +348,7 @@ AccountSchema.methods = {
 			return Promise.reject('Valid password is required to hash.');
 		}
 		return new Promise(function (resolve, reject) {
-			_bcrypt2.default.genSalt(10, function (err, salt) {
+			_bcryptNodejs2.default.genSalt(10, function (err, salt) {
 				if (err) {
 					_logger2.default.log({
 						description: 'Error generating salt',
@@ -356,7 +356,7 @@ AccountSchema.methods = {
 					});
 					return reject(err);
 				}
-				_bcrypt2.default.hash(password, salt, function (err, hash) {
+				_bcryptNodejs2.default.hash(password, salt, function (err, hash) {
 					//Add hash to accountData
 					if (err) {
 						_logger2.default.log({

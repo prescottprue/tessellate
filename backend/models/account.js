@@ -9,7 +9,7 @@ import { Group } from './group';
 import mongoose from 'mongoose';
 import _ from 'lodash';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt-nodejs';
 
 //Account Schema Object
 let AccountSchema = new mongoose.Schema(
