@@ -2,7 +2,7 @@
  * @description Admin Controller
  */
 import logger from '../utils/logger';
-import fileStorage from '../utils/fileStorage';
+import * as fileStorage from '../utils/fileStorage';
 import { Application } from '../models/application';
 
 /**
@@ -38,10 +38,16 @@ import { Application } from '../models/application';
 export function getBuckets(req, res, next) {
 	//TODO: Limit/paginate number of buckets returned
 	fileStorage.getBuckets().then((buckets) => {
-		logger.log({description: 'Buckets loaded.', buckets: buckets, func: 'getBuckets', obj: 'AdminCtrls'});
+		logger.log({
+			description: 'Buckets loaded.', buckets: buckets,
+			func: 'getBuckets', obj: 'AdminCtrls'
+		});
 		res.send(buckets);
 	}, (err) => {
-		logger.error({description: 'Error getting buckets:', error: err, func: 'getBuckets', obj: 'AdminCtrls'});
+		logger.error({
+			description: 'Error getting buckets:',
+			error: err, func: 'getBuckets', obj: 'AdminCtrls'
+		});
 		res.status(500).send('Error getting buckets.');
 	});
 };
@@ -65,10 +71,16 @@ export function deleteBucket(req, res, next) {
 		res.status(400).send('Bucket name required to delete bucket');
 	} else {
 		fileStorage.deleteBucket(req.body.name).then((bucket) => {
-			logger.log({description: 'Bucket deleted successfully.', bucket: bucket, func: 'deleteBucket', obj: 'AdminCtrls'});
+			logger.log({
+				description: 'Bucket deleted successfully.', bucket: bucket,
+				func: 'deleteBucket', obj: 'AdminCtrls'
+			});
 			res.send(bucket);
 		}, (err) => {
-			logger.error({description: 'Error deleting bucket.', error: err, func: 'deleteBucket', obj: 'AdminCtrls'});
+			logger.error({
+				description: 'Error deleting bucket.', error: err,
+				func: 'deleteBucket', obj: 'AdminCtrls'
+			});
 			res.status(500).send(err);
 		});
 	}

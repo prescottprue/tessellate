@@ -16,6 +16,7 @@ let AccountSchema = new mongoose.Schema(
 	{
 		username:{type:String, index:true, unique:true},
 		name:{type: String},
+		image:{url:{type: String}},
 		email:{type: String, index:true, unique:true},
 		title:{type: String},
 		password:{type: String},
@@ -113,7 +114,6 @@ AccountSchema.methods = {
 				error: err, func: 'generateToken', obj: 'Account'
 			});
 		}
-
 	},
 	/**
 	 * @function login
@@ -126,9 +126,9 @@ AccountSchema.methods = {
 			func: 'login', obj: 'Account'
 		});
 		//Check password
-		var self = this; //this contexts were causing errors even though => should pass context automatically
+		let self = this; //this contexts were causing errors even though => should pass context automatically
 		if(!this.password){
-			logger.warn({
+			logger.error({
 				description: 'Original query did not include password. Consider revising.',
 				func: 'login', obj: 'Account'
 			});
@@ -148,7 +148,7 @@ AccountSchema.methods = {
 				});
 				//Create Token
 				self.sessionId = sessionInfo._id;
-				var token = self.generateToken(sessionInfo);
+				let token = self.generateToken(sessionInfo);
 				return {token: token, account: self.strip()};
 			}, (err) => {
 				logger.error({
@@ -215,7 +215,7 @@ AccountSchema.methods = {
 			description: 'Compare password called.',
 			func: 'comparePassword', obj: 'Account'
 		});
-		var selfPassword = this.password;
+		let selfPassword = this.password;
 		return new Promise((resolve, reject) => {
 			bcrypt.compare(passwordAttempt, selfPassword, (err, passwordsMatch) => {
 				if(err){
@@ -226,7 +226,8 @@ AccountSchema.methods = {
 					reject(err);
 				} else if(!passwordsMatch){
 					logger.warn({
-						description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'
+						description: 'Passwords do not match.',
+						func: 'comparePassword', obj: 'Account'
 					});
 					reject({
 						message:'Invalid authentication credentials'
@@ -281,7 +282,7 @@ AccountSchema.methods = {
 		logger.log({
 			description: 'End session called.', func: 'endSession', obj: 'Account'
 		});
-		var self = this;
+		let self = this;
 		return new Promise((resolve, reject) => {
 			Session.update({_id:self.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, (err, affect, result) => {
 				if(err){
@@ -292,11 +293,13 @@ AccountSchema.methods = {
 				}
 				if (affect.nModified > 0) {
 					logger.info({
-						description: 'Session ended successfully.', session: result, affect: affect, func: 'endSession', obj: 'Account'
+						description: 'Session ended successfully.', session: result,
+						affect: affect, func: 'endSession', obj: 'Account'
 					});
 					if(affect.nModified != 1){
 						logger.error({
-							description: 'More than one session modified.', session: result, affect: affect, func: 'endSession', obj: 'Account'
+							description: 'More than one session modified.', session: result,
+							affect: affect, func: 'endSession', obj: 'Account'
 						});
 					}
 					resolve(result);

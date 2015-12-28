@@ -1,22 +1,7 @@
 /**
  * @description Application Controller
  */
-// ------------------------------------------------------------------------------------------
-// Current Errors.
-// ------------------------------------------------------------------------------------------
-/**
- * @apiDefine CreateAccountError
- * @apiVersion 0.0.1
- *
- * @apiError NoAccessRight Only authenticated Admins can access the data.
- * @apiError AccountNameTooShort Minimum of 5 characters required.
- *
- * @apiErrorExample  Response (example):
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "error": "AccountNameTooShort"
- *     }
- */
+
 
 import _ from 'lodash';
 import logger from '../utils/logger';
@@ -618,7 +603,7 @@ export function applyTemplate(req, res, next) {
 					func: 'applyTemplate', obj: 'ApplicationsCtrl'
 				});
 				res.send(webUrl);
-			},  (err) => {
+			}, (err) => {
 				logger.log({
 					description: 'Error applying template.', error: err,
 					func: 'applyTemplate', obj: 'ApplicationsCtrl'
@@ -1463,3 +1448,19 @@ function findApplication(appName) {
 		});
 	}
 }
+// ------------------------------------------------------------------------------------------
+// Current Errors.
+// ------------------------------------------------------------------------------------------
+/**
+ * @apiDefine CreateAccountError
+ * @apiVersion 0.0.1
+ *
+ * @apiError NoAccessRight Only authenticated Admins can access the data.
+ * @apiError AccountNameTooShort Minimum of 5 characters required.
+ *
+ * @apiErrorExample  Response (example):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "error": "AccountNameTooShort"
+ *     }
+ */
