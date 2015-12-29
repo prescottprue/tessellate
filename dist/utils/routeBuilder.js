@@ -2,8 +2,6 @@
 
 var _lodash = require('lodash');
 
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _logger = require('./logger');
 
 var _logger2 = _interopRequireDefault(_logger);
@@ -27,13 +25,17 @@ module.exports = function (app) {
  * @description Setup each of the specified routes with the router
  */
 function setupRoutes(app, routeConfig) {
-  var routeTypes = _lodash2.default.keys(routeConfig);
+  var routeTypes = (0, _lodash.keys)(routeConfig);
   //Loop over each category of routes
-  _lodash2.default.each(routeTypes, function (routeType) {
+  (0, _lodash.each)(routeTypes, function (routeType) {
     var routesArray = routeConfig[routeType];
-    _lodash2.default.each(routesArray, function (route) {
+    (0, _lodash.each)(routesArray, function (route) {
       if (validateRoute(route)) {
-        app.route(route.endpoint)[route.type.toLowerCase()](route.controller);
+        if (route.middleware && route.type.toLowerCase() === 'post') {
+          app.post(route.endpoint, route.middleware, route.controller);
+        } else {
+          app.route(route.endpoint)[route.type.toLowerCase()](route.controller);
+        }
       }
     });
   });
@@ -43,12 +45,12 @@ function setupRoutes(app, routeConfig) {
    */
   function validateRoute(route) {
     var requiredKeys = ["type", "endpoint", "controller"];
-    var hasRequiredKeys = _lodash2.default.every(requiredKeys, function (keyName) {
-      return _lodash2.default.has(route, keyName);
+    var hasRequiredKeys = (0, _lodash.every)(requiredKeys, function (keyName) {
+      return (0, _lodash.has)(route, keyName);
     });
-    if (hasRequiredKeys && !_lodash2.default.isFunction(route.controller)) {
+    if (hasRequiredKeys && !(0, _lodash.isFunction)(route.controller)) {
       _logger2.default.log("WARNING: Route has invalid controller function: ", JSON.stringify(route));
     }
-    return hasRequiredKeys && _lodash2.default.isFunction(route.controller);
+    return hasRequiredKeys && (0, _lodash.isFunction)(route.controller);
   }
 }

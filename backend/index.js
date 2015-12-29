@@ -15,7 +15,6 @@ import systemUtils from './lib/systemUtils';
 import logger from './utils/logger';
 import routes from './config/routes';
 
-
 let app = express();
 
 let routeBuilder = require('./utils/routeBuilder')(app);

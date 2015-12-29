@@ -298,7 +298,7 @@ ApplicationSchema.methods = {
 		//New message format
 		//fromName, fromType, toName, toType
 		var messageArray = [templateData.name, templateData.type, this.name, 'firebase'];
-		console.log('messageArray: ', messageArray);
+		// console.log('messageArray: ', messageArray);
 		if (_default2.default.aws.sqsQueueUrl) {
 			return sqs.add(messageArray.join('**'));
 		} else {

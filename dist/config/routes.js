@@ -40,10 +40,15 @@ var _authrocket = require('../controllers/authrocket');
 
 var authrocketCtrls = _interopRequireWildcard(_authrocket);
 
+var _multer = require('multer');
+
+var _multer2 = _interopRequireDefault(_multer);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var upload = (0, _multer2.default)({ dest: 'uploads/' });
 exports.default = {
 	index: [{
 		type: 'GET',
@@ -103,6 +108,41 @@ exports.default = {
 		endpoint: '/accounts/search/:searchQuery',
 		controller: accountCtrls.search
 	}],
+	accounts: [{
+		type: 'GET',
+		endpoint: '/account',
+		controller: authCtrls.verify
+	}, {
+		type: 'GET',
+		endpoint: '/accounts',
+		controller: accountCtrls.get
+	}, {
+		type: 'GET',
+		endpoint: '/accounts/:username',
+		controller: accountCtrls.get
+	}, {
+		type: 'POST',
+		endpoint: '/accounts',
+		controller: accountCtrls.add
+	}, {
+		type: 'PUT',
+		endpoint: '/account/:username',
+		controller: accountCtrls.update
+	}, {
+		type: 'POST',
+		middleware: upload.single('image'),
+		endpoint: '/accounts/:username/upload',
+		controller: accountCtrls.uploadImage
+	}, {
+		type: 'DELETE',
+		endpoint: '/accounts/:username',
+		controller: accountCtrls.del
+	}, {
+		type: 'GET',
+		endpoint: '/accounts/search/:searchQuery',
+		controller: accountCtrls.search
+	}],
+	//Alias of account(s)
 	users: [{
 		type: 'GET',
 		endpoint: '/user',
@@ -123,6 +163,10 @@ exports.default = {
 		type: 'PUT',
 		endpoint: '/user/:username',
 		controller: accountCtrls.update
+	}, {
+		type: 'POST',
+		endpoint: '/users/:username/upload',
+		controller: accountCtrls.uploadImage
 	}, {
 		type: 'DELETE',
 		endpoint: '/users/:username',

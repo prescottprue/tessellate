@@ -12,9 +12,11 @@ var _logger2 = _interopRequireDefault(_logger);
 
 var _fileStorage = require('../utils/fileStorage');
 
-var _fileStorage2 = _interopRequireDefault(_fileStorage);
+var fileStorage = _interopRequireWildcard(_fileStorage);
 
 var _application = require('../models/application');
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -50,11 +52,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 function getBuckets(req, res, next) {
   //TODO: Limit/paginate number of buckets returned
-  _fileStorage2.default.getBuckets().then(function (buckets) {
-    _logger2.default.log({ description: 'Buckets loaded.', buckets: buckets, func: 'getBuckets', obj: 'AdminCtrls' });
+  fileStorage.getBuckets().then(function (buckets) {
+    _logger2.default.log({
+      description: 'Buckets loaded.', buckets: buckets,
+      func: 'getBuckets', obj: 'AdminCtrls'
+    });
     res.send(buckets);
   }, function (err) {
-    _logger2.default.error({ description: 'Error getting buckets:', error: err, func: 'getBuckets', obj: 'AdminCtrls' });
+    _logger2.default.error({
+      description: 'Error getting buckets:',
+      error: err, func: 'getBuckets', obj: 'AdminCtrls'
+    });
     res.status(500).send('Error getting buckets.');
   });
 } /**
@@ -80,11 +88,17 @@ function deleteBucket(req, res, next) {
   if (!_.has(req.body, 'name')) {
     res.status(400).send('Bucket name required to delete bucket');
   } else {
-    _fileStorage2.default.deleteBucket(req.body.name).then(function (bucket) {
-      _logger2.default.log({ description: 'Bucket deleted successfully.', bucket: bucket, func: 'deleteBucket', obj: 'AdminCtrls' });
+    fileStorage.deleteBucket(req.body.name).then(function (bucket) {
+      _logger2.default.log({
+        description: 'Bucket deleted successfully.', bucket: bucket,
+        func: 'deleteBucket', obj: 'AdminCtrls'
+      });
       res.send(bucket);
     }, function (err) {
-      _logger2.default.error({ description: 'Error deleting bucket.', error: err, func: 'deleteBucket', obj: 'AdminCtrls' });
+      _logger2.default.error({
+        description: 'Error deleting bucket.', error: err,
+        func: 'deleteBucket', obj: 'AdminCtrls'
+      });
       res.status(500).send(err);
     });
   }

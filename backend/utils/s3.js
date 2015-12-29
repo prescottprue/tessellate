@@ -25,7 +25,7 @@ export function createBucketSite(bucketName) {
   if(!bucketName){
     return Promise.reject({status:400, message:'Bucket name is required to create bucket.'});
   }
-  var runBucketCreation = new Promise.all([createS3Bucket(bucketName), setBucketCors(bucketName), setBucketWebsite(bucketName)]);
+  let runBucketCreation = new Promise.all([createS3Bucket(bucketName), setBucketCors(bucketName), setBucketWebsite(bucketName)]);
   return runBucketCreation.then((data) => {
     logger.log({
 			description: 'Bucket site created successfully.',
@@ -49,7 +49,7 @@ export function createBucketSite(bucketName) {
  * @param {string} urlData.key - Key of object for which to get signed url
  */
 export function getSignedUrl(urlData) {
-	var params = {Bucket: urlData.bucket, Key: urlData.key};
+	const params = {Bucket: urlData.bucket, Key: urlData.key};
   return new Promise((resolve, reject) => {
     s3.getSignedUrl(urlData.action, params, (err, url) => {
   	  if(err){
@@ -343,7 +343,7 @@ function setBucketWebsite(bucketName){
   });
 }
 
-/** Upload file contents to S3 given bucket, file key and file contents
+/** Save file contents to S3 given bucket, file key and file contents
  * @function saveFile
  * @param {string} bucketName - Name of bucket to upload to
  * @param {object} fileData - Object containing file information
@@ -375,7 +375,45 @@ export function saveFile(bucketName, fileData){
     });
   });
 }
-
+/** Save file contents to S3 given bucket, file key and file contents
+ * @function saveFile
+ * @param {string} bucketName - Name of bucket to upload to
+ * @param {object} fileData - Object containing file information
+ * @param {string} fileData.key - Key of file to save
+ * @param {string} fileData.content - File contents in string form
+ */
+export function uploadFile(bucketName, fileData){
+	const { localFile, key } = fileData;
+  const fileParams = {localFile, s3Params: {Bucket:bucketName, Key:key, ACL:'public-read'}};
+	logger.log({
+		description: 'Upload file called.', fileParams,
+		func: 'uploadFile'
+	});
+  return new Promise((resolve, reject) => {
+    let uploader = s3Client.uploadFile(fileParams);
+		uploader.on('error', (err) => {
+			logger.error({
+				description: 'Error uploading file.',
+				error: err, func: 'uploadFile'
+			});
+			reject(err);
+		});
+		// uploader.on('progress', () => {
+		// 	logger.log({
+		// 		description: 'File upload progress.',
+		// 		func: 'uploadFile'
+		// 	});
+		// });
+		uploader.on('end', () => {
+			const uploadedFile = {url: `https://${bucketName}.s3.amazonaws.com/${key}`};
+			logger.log({
+				description: 'File upload progress.', file: uploadedFile,
+				func: 'uploadFile'
+			});
+			resolve(uploadedFile);
+		});
+  });
+}
 /** Upload local directory contents to provided S3 Bucket
  * @function uploadDirToBucket
  * @param {string} bucketPath - Name or Name/location of bucket to upload files to

@@ -1,7 +1,7 @@
 /**
  * @description Utilites that build NodeJS routes from routes config
  */
-import _ from 'lodash';
+import { each, has, every, isFunction, keys } from 'lodash';
 import logger from './logger';
 /**
  * @description Export function that accepts app and sets up the routes based on the routes config
@@ -17,13 +17,17 @@ module.exports = (app) => {
  * @description Setup each of the specified routes with the router
  */
 function setupRoutes(app, routeConfig){
-  var routeTypes = _.keys(routeConfig);
+  let routeTypes = keys(routeConfig);
   //Loop over each category of routes
-  _.each(routeTypes, (routeType) => {
-    var routesArray = routeConfig[routeType];
-    _.each(routesArray, (route) => {
+  each(routeTypes, (routeType) => {
+    let routesArray = routeConfig[routeType];
+    each(routesArray, (route) => {
       if(validateRoute(route)){
-        app.route(route.endpoint)[route.type.toLowerCase()](route.controller);
+        if(route.middleware && route.type.toLowerCase() === 'post') {
+          app.post(route.endpoint, route.middleware, route.controller);
+        } else {
+          app.route(route.endpoint)[route.type.toLowerCase()](route.controller);
+        }
       }
     });
   });
@@ -33,12 +37,12 @@ function setupRoutes(app, routeConfig){
    */
   function validateRoute(route){
     var requiredKeys = ["type", "endpoint", "controller"];
-    var hasRequiredKeys = _.every(requiredKeys, (keyName) => {
-      return _.has(route, keyName);
+    var hasRequiredKeys = every(requiredKeys, (keyName) => {
+      return has(route, keyName);
     });
-    if(hasRequiredKeys && !_.isFunction(route.controller)){
+    if(hasRequiredKeys && !isFunction(route.controller)){
       logger.log("WARNING: Route has invalid controller function: ", JSON.stringify(route));
     }
-    return (hasRequiredKeys && _.isFunction(route.controller));
+    return (hasRequiredKeys && isFunction(route.controller));
   }
 }

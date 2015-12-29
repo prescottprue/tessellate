@@ -2,8 +2,11 @@
  * @description Account controller functions
  */
 import _ from 'lodash';
+import {keys} from 'lodash';
 import logger from '../utils/logger';
 import {Account} from '../models/account';
+import util from 'util';
+import multer from 'multer';
 
 /**
  * @api {get} /accounts Get Account(s)
@@ -97,7 +100,7 @@ export function add(req, res, next) {
 	}
 	query.then(() =>  {
 		var account = new Account(req.body);
-		account.saveNew().then((newAccount) => {
+		account.save().then((newAccount) => {
 			//TODO: Set temporary password
 			res.json(newAccount);
 		}, (err) => {
@@ -245,6 +248,74 @@ export function search(req, res, next) {
 		res.status(500).send({message:'Account cound not be found'});
 	});
 };
+/**
+ * @api {get} /account/:id Search Accounts
+ * @apiDescription Search Accounts.
+ * @apiName SearchAccount
+ * @apiGroup Account
+ *
+ * @apiParam {String} searchQuery String to search through accounts with
+ *
+ * @apiSuccess {Object} accountData Object containing deleted accounts data.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "id":"189B7NV89374N4839"
+ *       "name": "John",
+ *       "title": "Doe",
+ *       "role":"account",
+ *     }
+ *
+ */
+export function uploadImage(req, res, next) {
+	logger.log({
+		description: 'Upload image request.',
+		func: 'uploadImage', obj: 'AccountsCtrls'
+	});
+	if (!req.params || !req.params.username) {
+		logger.error({
+			description: 'Username is required to upload an image.',
+			func: 'uploadImage', obj: 'AccountsCtrls'
+		});
+		return res.status(400).send('Username is required to upload image.');
+	}
+	let findObj = {};
+	if(!req.params.username.indexOf('@')){
+		findObj.email = req.params.username;
+	} else {
+		findObj.username = req.params.username;
+	}
+	let q = Account.findOne(findObj, {email:1, name:1, username:1, image:1});
+	//Search usernames
+	q.then(account => {
+		//TODO:
+		logger.info({
+			description: 'Account found.', account: account,
+			func: 'uploadImage', obj: 'AccountsCtrls'
+		});
+		account.uploadImage(req.file).then(updatedAccount => {
+			logger.info({
+				description: 'Image successfully uploaded to user.', user: updatedAccount,
+				func: 'uploadImage', obj: 'AccountsCtrls'
+			});
+			res.send(updatedAccount);
+		}, err => {
+			logger.error({
+				description: 'Error uploading image to account.', error: err,
+				func: 'uploadImage', obj: 'AccountsCtrls'
+			});
+			res.status(500).send('Error uploading image.');
+		});
+	}, err => {
+		logger.error({
+			description: 'Error uploading account image.', error: err,
+			func: 'uploadImage', obj: 'AccountsCtrls'
+		});
+		res.status(500).send('Account cound not be found');
+	});
+};
+
 /**
  * Create a account query based on provided key and value
  */

@@ -7,7 +7,8 @@ import * as templateCtrls from '../controllers/templates';
 import * as adminCtrl from '../controllers/admin';
 import * as groupsCtrl from '../controllers/groups';
 import * as authrocketCtrls from '../controllers/authrocket';
-
+import multer from 'multer';
+let upload = multer({dest: 'uploads/'});
 export default {
 	index:[
 		{
@@ -82,6 +83,50 @@ export default {
 			controller:accountCtrls.search
 		}
 	],
+	accounts:[
+		{
+			type:'GET',
+			endpoint: '/account',
+			controller:authCtrls.verify
+		},
+		{
+			type:'GET',
+			endpoint: '/accounts',
+			controller:accountCtrls.get
+		},
+		{
+			type:'GET',
+			endpoint: '/accounts/:username',
+			controller:accountCtrls.get
+		},
+		{
+			type:'POST',
+			endpoint: '/accounts',
+			controller:accountCtrls.add
+		},
+		{
+			type:'PUT',
+			endpoint: '/account/:username',
+			controller:accountCtrls.update
+		},
+		{
+			type:'POST',
+			middleware: upload.single('image'),
+			endpoint: '/accounts/:username/upload',
+			controller:accountCtrls.uploadImage
+		},
+		{
+			type:'DELETE',
+			endpoint: '/accounts/:username',
+			controller:accountCtrls.del
+		},
+		{
+			type:'GET',
+			endpoint: '/accounts/search/:searchQuery',
+			controller:accountCtrls.search
+		}
+	],
+	//Alias of account(s)
 	users:[
 		{
 			type:'GET',
@@ -107,6 +152,11 @@ export default {
 			type:'PUT',
 			endpoint: '/user/:username',
 			controller:accountCtrls.update
+		},
+		{
+			type:'POST',
+			endpoint: '/users/:username/upload',
+			controller:accountCtrls.uploadImage
 		},
 		{
 			type:'DELETE',

@@ -4,18 +4,23 @@ import logger from '../utils/logger';
 import db from './../utils/db';
 import { Session } from './session';
 import { Group } from './group';
+import * as fileStorage from '../utils/fileStorage';
 
 //External Libs
 import mongoose from 'mongoose';
 import _ from 'lodash';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt-nodejs';
+import rimraf from 'rimraf';
 
 //Account Schema Object
 let AccountSchema = new mongoose.Schema(
 	{
 		username:{type:String, index:true, unique:true},
 		name:{type: String},
+		image:{
+			url:{type: String}
+		},
 		email:{type: String, index:true, unique:true},
 		title:{type: String},
 		password:{type: String},
@@ -113,7 +118,6 @@ AccountSchema.methods = {
 				error: err, func: 'generateToken', obj: 'Account'
 			});
 		}
-
 	},
 	/**
 	 * @function login
@@ -126,9 +130,9 @@ AccountSchema.methods = {
 			func: 'login', obj: 'Account'
 		});
 		//Check password
-		var self = this; //this contexts were causing errors even though => should pass context automatically
+		let self = this; //this contexts were causing errors even though => should pass context automatically
 		if(!this.password){
-			logger.warn({
+			logger.error({
 				description: 'Original query did not include password. Consider revising.',
 				func: 'login', obj: 'Account'
 			});
@@ -148,7 +152,7 @@ AccountSchema.methods = {
 				});
 				//Create Token
 				self.sessionId = sessionInfo._id;
-				var token = self.generateToken(sessionInfo);
+				let token = self.generateToken(sessionInfo);
 				return {token: token, account: self.strip()};
 			}, (err) => {
 				logger.error({
@@ -215,7 +219,7 @@ AccountSchema.methods = {
 			description: 'Compare password called.',
 			func: 'comparePassword', obj: 'Account'
 		});
-		var selfPassword = this.password;
+		let selfPassword = this.password;
 		return new Promise((resolve, reject) => {
 			bcrypt.compare(passwordAttempt, selfPassword, (err, passwordsMatch) => {
 				if(err){
@@ -226,7 +230,8 @@ AccountSchema.methods = {
 					reject(err);
 				} else if(!passwordsMatch){
 					logger.warn({
-						description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'
+						description: 'Passwords do not match.',
+						func: 'comparePassword', obj: 'Account'
 					});
 					reject({
 						message:'Invalid authentication credentials'
@@ -281,7 +286,7 @@ AccountSchema.methods = {
 		logger.log({
 			description: 'End session called.', func: 'endSession', obj: 'Account'
 		});
-		var self = this;
+		let self = this;
 		return new Promise((resolve, reject) => {
 			Session.update({_id:self.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, (err, affect, result) => {
 				if(err){
@@ -292,11 +297,13 @@ AccountSchema.methods = {
 				}
 				if (affect.nModified > 0) {
 					logger.info({
-						description: 'Session ended successfully.', session: result, affect: affect, func: 'endSession', obj: 'Account'
+						description: 'Session ended successfully.', session: result,
+						affect: affect, func: 'endSession', obj: 'Account'
 					});
 					if(affect.nModified != 1){
 						logger.error({
-							description: 'More than one session modified.', session: result, affect: affect, func: 'endSession', obj: 'Account'
+							description: 'More than one session modified.', session: result,
+							affect: affect, func: 'endSession', obj: 'Account'
 						});
 					}
 					resolve(result);
@@ -376,7 +383,7 @@ AccountSchema.methods = {
 				message: 'Invalid password.'
 			});
 		}
-		var findObj = {username: self.username};
+		let findObj = {username: self.username};
 		if(application) {
 			//TODO: Make sure that this is an id not an application object
 			findObj.application = application;
@@ -386,7 +393,7 @@ AccountSchema.methods = {
 				func: 'createWithPass', obj: 'Account'
 			});
 		}
-		var query = self.model('Account').findOne(findObj);
+		let query = self.model('Account').findOne(findObj);
 		return query.then((foundAccount) => {
 			if(foundAccount){
 				logger.warn({
@@ -440,6 +447,62 @@ AccountSchema.methods = {
 			logger.error({
 				description: 'Error searching for matching account.',
 				error: err, func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject(err);
+		});
+	},
+	uploadImage: function(image) {
+		//Upload image to s3
+		logger.info({
+			description: 'Upload image called.', image,
+			func: 'uploadImage', obj: 'Account'
+		});
+		if(!image || !image.path){
+			return Promise.reject({
+				message: 'Image with path and name required to upload.',
+				error: 'INVALID_IMG'
+			});
+		}
+		const uploadFile = {
+			localFile: image.path,
+			key: `${config.aws.accountImagePrefix}/${this._id}/${image.originalname || image.name}`
+		};
+		return fileStorage.saveAccountFile(uploadFile).then(fileData => {
+			//save image url in account
+			logger.info({
+				description: 'File uploaded', file: fileData,
+				func: 'uploadImage', obj: 'Account'
+			});
+			this.image = {url: fileData.url};
+			return this.save().then(updatedAccount => {
+				logger.info({
+					description: 'Account updated with image successfully.',
+					user: updatedAccount, func: 'uploadImage', obj: 'Account'
+				});
+				return new Promise((resolve, reject) => {
+					rimraf(image.path, {}, (err) => {
+						if(!err){
+							resolve(updatedAccount);
+						} else {
+							logger.error({
+								description: 'Error deleting file from local directory.',
+								error: err, func: 'uploadImage', obj: 'Account'
+							});
+							reject(err);
+						}
+					});
+				});
+			}, err => {
+				logger.error({
+					description: 'Error saving account after file upload.', error: err,
+					func: 'uploadImage', obj: 'Account'
+				});
+				return Promise.reject(err);
+			});
+		}, err => {
+			logger.error({
+				description: 'Error uploading image to account.',
+				error: err, func: 'uploadImage', obj: 'Account'
 			});
 			return Promise.reject(err);
 		});

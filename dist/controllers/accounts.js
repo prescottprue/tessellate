@@ -8,6 +8,7 @@ exports.add = add;
 exports.update = update;
 exports.del = del;
 exports.search = search;
+exports.uploadImage = uploadImage;
 
 var _lodash = require('lodash');
 
@@ -18,6 +19,14 @@ var _logger = require('../utils/logger');
 var _logger2 = _interopRequireDefault(_logger);
 
 var _account = require('../models/account');
+
+var _util = require('util');
+
+var _util2 = _interopRequireDefault(_util);
+
+var _multer = require('multer');
+
+var _multer2 = _interopRequireDefault(_multer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -42,6 +51,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *       "role":"account",
  *     }
  *
+ */
+/**
+ * @description Account controller functions
  */
 function get(req, res, next) {
 	_logger2.default.log({
@@ -75,10 +87,7 @@ function get(req, res, next) {
 		});
 		return res.status(500).send('Error getting account.');
 	});
-} /**
-   * @description Account controller functions
-   */
-;
+};
 /**
  * @api {post} /accounts Add Account
  * @apiDescription Add a new account.
@@ -117,7 +126,7 @@ function add(req, res, next) {
 		}
 	query.then(function () {
 		var account = new _account.Account(req.body);
-		account.saveNew().then(function (newAccount) {
+		account.save().then(function (newAccount) {
 			//TODO: Set temporary password
 			res.json(newAccount);
 		}, function (err) {
@@ -265,6 +274,74 @@ function search(req, res, next) {
 		res.status(500).send({ message: 'Account cound not be found' });
 	});
 };
+/**
+ * @api {get} /account/:id Search Accounts
+ * @apiDescription Search Accounts.
+ * @apiName SearchAccount
+ * @apiGroup Account
+ *
+ * @apiParam {String} searchQuery String to search through accounts with
+ *
+ * @apiSuccess {Object} accountData Object containing deleted accounts data.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "id":"189B7NV89374N4839"
+ *       "name": "John",
+ *       "title": "Doe",
+ *       "role":"account",
+ *     }
+ *
+ */
+function uploadImage(req, res, next) {
+	_logger2.default.log({
+		description: 'Upload image request.',
+		func: 'uploadImage', obj: 'AccountsCtrls'
+	});
+	if (!req.params || !req.params.username) {
+		_logger2.default.error({
+			description: 'Username is required to upload an image.',
+			func: 'uploadImage', obj: 'AccountsCtrls'
+		});
+		return res.status(400).send('Username is required to upload image.');
+	}
+	var findObj = {};
+	if (!req.params.username.indexOf('@')) {
+		findObj.email = req.params.username;
+	} else {
+		findObj.username = req.params.username;
+	}
+	var q = _account.Account.findOne(findObj, { email: 1, name: 1, username: 1, image: 1 });
+	//Search usernames
+	q.then(function (account) {
+		//TODO:
+		_logger2.default.info({
+			description: 'Account found.', account: account,
+			func: 'uploadImage', obj: 'AccountsCtrls'
+		});
+		account.uploadImage(req.file).then(function (updatedAccount) {
+			_logger2.default.info({
+				description: 'Image successfully uploaded to user.', user: updatedAccount,
+				func: 'uploadImage', obj: 'AccountsCtrls'
+			});
+			res.send(updatedAccount);
+		}, function (err) {
+			_logger2.default.error({
+				description: 'Error uploading image to account.', error: err,
+				func: 'uploadImage', obj: 'AccountsCtrls'
+			});
+			res.status(500).send('Error uploading image.');
+		});
+	}, function (err) {
+		_logger2.default.error({
+			description: 'Error uploading account image.', error: err,
+			func: 'uploadImage', obj: 'AccountsCtrls'
+		});
+		res.status(500).send('Account cound not be found');
+	});
+};
+
 /**
  * Create a account query based on provided key and value
  */
