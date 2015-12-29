@@ -4,6 +4,7 @@ import logger from '../utils/logger';
 import db from './../utils/db';
 import { Session } from './session';
 import { Group } from './group';
+import * as fileStorage from '../utils/fileStorage';
 
 //External Libs
 import mongoose from 'mongoose';
@@ -16,7 +17,9 @@ let AccountSchema = new mongoose.Schema(
 	{
 		username:{type:String, index:true, unique:true},
 		name:{type: String},
-		image:{url:{type: String}},
+		image:{
+			url:{type: String}
+		},
 		email:{type: String, index:true, unique:true},
 		title:{type: String},
 		password:{type: String},
@@ -379,7 +382,7 @@ AccountSchema.methods = {
 				message: 'Invalid password.'
 			});
 		}
-		var findObj = {username: self.username};
+		let findObj = {username: self.username};
 		if(application) {
 			//TODO: Make sure that this is an id not an application object
 			findObj.application = application;
@@ -389,7 +392,7 @@ AccountSchema.methods = {
 				func: 'createWithPass', obj: 'Account'
 			});
 		}
-		var query = self.model('Account').findOne(findObj);
+		let query = self.model('Account').findOne(findObj);
 		return query.then((foundAccount) => {
 			if(foundAccount){
 				logger.warn({
@@ -443,6 +446,51 @@ AccountSchema.methods = {
 			logger.error({
 				description: 'Error searching for matching account.',
 				error: err, func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject(err);
+		});
+	},
+	uploadImage: function(image) {
+		//Upload image to s3
+		logger.info({
+			description: 'Upload image called.', image,
+			func: 'uploadImage', obj: 'Account'
+		});
+		if(!image || !image.path){
+			return Promise.reject({
+				message: 'Image with path and name required to upload.',
+				error: 'INVALID_IMG'
+			});
+		}
+		const uploadFile = {
+			localFile: image.path,
+			key: `account/${this._id}/${image.originalname || image.name}`
+		};
+		let self = this;
+		return fileStorage.saveAccountFile(uploadFile).then(fileData => {
+			//save image url in account
+			logger.info({
+				description: 'File uploaded', file: fileData,
+				func: 'uploadImage', obj: 'Account'
+			});
+			self.image = {url: fileData.url};
+			return self.save().then(updatedAccount => {
+				logger.info({
+					description: 'User updated with image successfully.',
+					user: updatedAccount, func: 'uploadImage', obj: 'Account'
+				});
+				return updatedAccount;
+			}, err => {
+				logger.error({
+					description: 'Error saving account after file upload.', error: err,
+					func: 'uploadImage', obj: 'Account'
+				});
+				return Promise.reject(err);
+			});
+		}, err => {
+			logger.error({
+				description: 'Error uploading image to account.',
+				error: err, func: 'uploadImage', obj: 'Account'
 			});
 			return Promise.reject(err);
 		});

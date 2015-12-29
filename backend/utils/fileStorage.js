@@ -6,7 +6,7 @@ import config from '../config/default';
 
 import * as s3 from './s3';
 import logger from './logger';
-
+const accountImageBucket = 'tessellate-images';
 export function createBucket(bucketName) {
 	logger.log({
 		description: 'Create bucket called.',
@@ -29,18 +29,33 @@ export function getBuckets(bucketName, localDir) {
 };
 export function saveFile(bucketName, fileData) {
 	if(!_.has(fileData, 'key')){
-		logger.error({description: 'File key required to save', func: 'saveFile', obj: 'fileStorage'});
+		logger.error({
+			description: 'File key required to save',
+			func: 'saveFile', obj: 'fileStorage'
+		});
 	}
-	if(!_.has(fileData, 'content')){
-		logger.error({description: 'File content required to save', func: 'saveFile', obj: 'fileStorage'});
-	}
-	logger.log({description: 'calling s3.saveFile with BucketName:', name: bucketName, data: fileData, func: 'saveFile', obj: 'fileStorage'});
+	// if(!_.has(fileData, 'content')){
+	// 	logger.error({
+	// 		description: 'File content required to save',
+	// 		func: 'saveFile', obj: 'fileStorage'
+	// 	});
+	// }
+	logger.log({
+		description: 'calling s3.saveFile with BucketName:',
+		name: bucketName, data: fileData, func: 'saveFile', obj: 'fileStorage'
+	});
 	return s3.saveFile(bucketName, fileData);
+};
+export function saveAccountFile(fileData) {
+	logger.log({
+		description: 'Saving file to account.',
+		data: fileData, func: 'saveAccountFile', obj: 'fileStorage'
+	});
+	return s3.uploadFile(accountImageBucket, fileData);
 };
 export function uploadLocalDir(uploadData) {
 	return s3.uploadDir(uploadData.bucket, uploadData.localDir);
 };
 export function signedUrl(urlData) {
-	urlData.bucketurlData.bu ;
 	return s3.getSignedUrl(urlData);
 };

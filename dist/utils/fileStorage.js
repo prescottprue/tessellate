@@ -9,6 +9,7 @@ exports.uploadFiles = uploadFiles;
 exports.getFiles = getFiles;
 exports.getBuckets = getBuckets;
 exports.saveFile = saveFile;
+exports.saveAccountFile = saveAccountFile;
 exports.uploadLocalDir = uploadLocalDir;
 exports.signedUrl = signedUrl;
 
@@ -35,6 +36,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /** FileStorage Util
  *	@description standardized interface file storage so the service/platform used for storage can be changed without affecting file storage calls
  */
+
+var accountImageBucket = 'tessellate-images';
 function createBucket(bucketName) {
 	_logger2.default.log({
 		description: 'Create bucket called.',
@@ -57,18 +60,33 @@ function getBuckets(bucketName, localDir) {
 };
 function saveFile(bucketName, fileData) {
 	if (!_lodash2.default.has(fileData, 'key')) {
-		_logger2.default.error({ description: 'File key required to save', func: 'saveFile', obj: 'fileStorage' });
+		_logger2.default.error({
+			description: 'File key required to save',
+			func: 'saveFile', obj: 'fileStorage'
+		});
 	}
-	if (!_lodash2.default.has(fileData, 'content')) {
-		_logger2.default.error({ description: 'File content required to save', func: 'saveFile', obj: 'fileStorage' });
-	}
-	_logger2.default.log({ description: 'calling s3.saveFile with BucketName:', name: bucketName, data: fileData, func: 'saveFile', obj: 'fileStorage' });
+	// if(!_.has(fileData, 'content')){
+	// 	logger.error({
+	// 		description: 'File content required to save',
+	// 		func: 'saveFile', obj: 'fileStorage'
+	// 	});
+	// }
+	_logger2.default.log({
+		description: 'calling s3.saveFile with BucketName:',
+		name: bucketName, data: fileData, func: 'saveFile', obj: 'fileStorage'
+	});
 	return s3.saveFile(bucketName, fileData);
+};
+function saveAccountFile(fileData) {
+	_logger2.default.log({
+		description: 'Saving file to account.',
+		data: fileData, func: 'saveAccountFile', obj: 'fileStorage'
+	});
+	return s3.uploadFile(accountImageBucket, fileData);
 };
 function uploadLocalDir(uploadData) {
 	return s3.uploadDir(uploadData.bucket, uploadData.localDir);
 };
 function signedUrl(urlData) {
-	urlData.bucketurlData.bu;
 	return s3.getSignedUrl(urlData);
 };

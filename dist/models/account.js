@@ -16,6 +16,10 @@ var _session = require('./session');
 
 var _group = require('./group');
 
+var _fileStorage = require('../utils/fileStorage');
+
+var fileStorage = _interopRequireWildcard(_fileStorage);
+
 var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
@@ -32,14 +36,20 @@ var _bcryptNodejs = require('bcrypt-nodejs');
 
 var _bcryptNodejs2 = _interopRequireDefault(_bcryptNodejs);
 
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //Account Schema Object
 
 //External Libs
+//Internal Config/Utils/Classes
 var AccountSchema = new _mongoose2.default.Schema({
 	username: { type: String, index: true, unique: true },
 	name: { type: String },
+	image: {
+		url: { type: String }
+	},
 	email: { type: String, index: true, unique: true },
 	title: { type: String },
 	password: { type: String },
@@ -55,7 +65,6 @@ var AccountSchema = new _mongoose2.default.Schema({
 /**
  * @description Set collection name to 'account'
  */
-//Internal Config/Utils/Classes
 AccountSchema.set('collection', 'accounts');
 /*
  * Groups virtual to return names
@@ -149,7 +158,7 @@ AccountSchema.methods = {
 		//Check password
 		var self = this; //this contexts were causing errors even though => should pass context automatically
 		if (!this.password) {
-			_logger2.default.warn({
+			_logger2.default.error({
 				description: 'Original query did not include password. Consider revising.',
 				func: 'login', obj: 'Account'
 			});
@@ -247,7 +256,8 @@ AccountSchema.methods = {
 					reject(err);
 				} else if (!passwordsMatch) {
 					_logger2.default.warn({
-						description: 'Passwords do not match.', func: 'comparePassword', obj: 'Account'
+						description: 'Passwords do not match.',
+						func: 'comparePassword', obj: 'Account'
 					});
 					reject({
 						message: 'Invalid authentication credentials'
@@ -313,11 +323,13 @@ AccountSchema.methods = {
 				}
 				if (affect.nModified > 0) {
 					_logger2.default.info({
-						description: 'Session ended successfully.', session: result, affect: affect, func: 'endSession', obj: 'Account'
+						description: 'Session ended successfully.', session: result,
+						affect: affect, func: 'endSession', obj: 'Account'
 					});
 					if (affect.nModified != 1) {
 						_logger2.default.error({
-							description: 'More than one session modified.', session: result, affect: affect, func: 'endSession', obj: 'Account'
+							description: 'More than one session modified.', session: result,
+							affect: affect, func: 'endSession', obj: 'Account'
 						});
 					}
 					resolve(result);
@@ -461,6 +473,51 @@ AccountSchema.methods = {
 			_logger2.default.error({
 				description: 'Error searching for matching account.',
 				error: err, func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject(err);
+		});
+	},
+	uploadImage: function uploadImage(image) {
+		//Upload image to s3
+		_logger2.default.info({
+			description: 'Upload image called.', image: image,
+			func: 'uploadImage', obj: 'Account'
+		});
+		if (!image || !image.path) {
+			return Promise.reject({
+				message: 'Image with path and name required to upload.',
+				error: 'INVALID_IMG'
+			});
+		}
+		var uploadFile = {
+			localFile: image.path,
+			key: 'account/' + this._id + '/' + (image.originalname || image.name)
+		};
+		var self = this;
+		return fileStorage.saveAccountFile(uploadFile).then(function (fileData) {
+			//save image url in account
+			_logger2.default.info({
+				description: 'File uploaded', file: fileData,
+				func: 'uploadImage', obj: 'Account'
+			});
+			self.image = { url: fileData.url };
+			return self.save().then(function (updatedAccount) {
+				_logger2.default.info({
+					description: 'User updated with image successfully.',
+					user: updatedAccount, func: 'uploadImage', obj: 'Account'
+				});
+				return updatedAccount;
+			}, function (err) {
+				_logger2.default.error({
+					description: 'Error saving account after file upload.', error: err,
+					func: 'uploadImage', obj: 'Account'
+				});
+				return Promise.reject(err);
+			});
+		}, function (err) {
+			_logger2.default.error({
+				description: 'Error uploading image to account.',
+				error: err, func: 'uploadImage', obj: 'Account'
 			});
 			return Promise.reject(err);
 		});

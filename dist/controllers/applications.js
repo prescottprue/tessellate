@@ -45,22 +45,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; } /**
                                                                                                                               * @description Application Controller
                                                                                                                               */
-// ------------------------------------------------------------------------------------------
-// Current Errors.
-// ------------------------------------------------------------------------------------------
-/**
- * @apiDefine CreateAccountError
- * @apiVersion 0.0.1
- *
- * @apiError NoAccessRight Only authenticated Admins can access the data.
- * @apiError AccountNameTooShort Minimum of 5 characters required.
- *
- * @apiErrorExample  Response (example):
- *     HTTP/1.1 400 Bad Request
- *     {
- *       "error": "AccountNameTooShort"
- *     }
- */
 
 /**
  * @api {get} /applications Get Application(s)
@@ -1510,3 +1494,19 @@ function findApplication(appName) {
 		});
 	}
 }
+// ------------------------------------------------------------------------------------------
+// Current Errors.
+// ------------------------------------------------------------------------------------------
+/**
+ * @apiDefine CreateAccountError
+ * @apiVersion 0.0.1
+ *
+ * @apiError NoAccessRight Only authenticated Admins can access the data.
+ * @apiError AccountNameTooShort Minimum of 5 characters required.
+ *
+ * @apiErrorExample  Response (example):
+ *     HTTP/1.1 400 Bad Request
+ *     {
+ *       "error": "AccountNameTooShort"
+ *     }
+ */
