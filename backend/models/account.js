@@ -464,19 +464,18 @@ AccountSchema.methods = {
 		}
 		const uploadFile = {
 			localFile: image.path,
-			key: `account/${this._id}/${image.originalname || image.name}`
+			key: `${config.aws.accountImagePrefix}/${this._id}/${image.originalname || image.name}`
 		};
-		let self = this;
 		return fileStorage.saveAccountFile(uploadFile).then(fileData => {
 			//save image url in account
 			logger.info({
 				description: 'File uploaded', file: fileData,
 				func: 'uploadImage', obj: 'Account'
 			});
-			self.image = {url: fileData.url};
-			return self.save().then(updatedAccount => {
+			this.image = {url: fileData.url};
+			return this.save().then(updatedAccount => {
 				logger.info({
-					description: 'User updated with image successfully.',
+					description: 'Account updated with image successfully.',
 					user: updatedAccount, func: 'uploadImage', obj: 'Account'
 				});
 				return updatedAccount;

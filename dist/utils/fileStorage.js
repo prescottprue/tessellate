@@ -36,8 +36,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 /** FileStorage Util
  *	@description standardized interface file storage so the service/platform used for storage can be changed without affecting file storage calls
  */
-
-var accountImageBucket = 'tessellate-images';
 function createBucket(bucketName) {
 	_logger2.default.log({
 		description: 'Create bucket called.',
@@ -82,7 +80,7 @@ function saveAccountFile(fileData) {
 		description: 'Saving file to account.',
 		data: fileData, func: 'saveAccountFile', obj: 'fileStorage'
 	});
-	return s3.uploadFile(accountImageBucket, fileData);
+	return s3.uploadFile(_default2.default.aws.imageBucket, fileData);
 };
 function uploadLocalDir(uploadData) {
 	return s3.uploadDir(uploadData.bucket, uploadData.localDir);

@@ -6,7 +6,6 @@ import config from '../config/default';
 
 import * as s3 from './s3';
 import logger from './logger';
-const accountImageBucket = 'tessellate-images';
 export function createBucket(bucketName) {
 	logger.log({
 		description: 'Create bucket called.',
@@ -51,7 +50,7 @@ export function saveAccountFile(fileData) {
 		description: 'Saving file to account.',
 		data: fileData, func: 'saveAccountFile', obj: 'fileStorage'
 	});
-	return s3.uploadFile(accountImageBucket, fileData);
+	return s3.uploadFile(config.aws.imageBucket, fileData);
 };
 export function uploadLocalDir(uploadData) {
 	return s3.uploadDir(uploadData.bucket, uploadData.localDir);

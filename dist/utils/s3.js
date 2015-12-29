@@ -416,7 +416,6 @@ function saveFile(bucketName, fileData) {
  * @param {string} fileData.content - File contents in string form
  */
 function uploadFile(bucketName, fileData) {
-  // logger.log('[saveFile] saveFile called', arguments);
   var localFile = fileData.localFile;
   var key = fileData.key;
 
@@ -434,15 +433,19 @@ function uploadFile(bucketName, fileData) {
       });
       reject(err);
     });
-    uploader.on('progress', function () {
+    // uploader.on('progress', () => {
+    // 	logger.log({
+    // 		description: 'File upload progress.',
+    // 		func: 'uploadFile'
+    // 	});
+    // });
+    uploader.on('end', function () {
+      var uploadedFile = { url: 'https://' + bucketName + '.s3.amazonaws.com/' + key };
       _logger2.default.log({
-        description: 'File upload progress.',
+        description: 'File upload progress.', file: uploadedFile,
         func: 'uploadFile'
       });
-    });
-    uploader.on('end', function () {
-      console.log("done uploading");
-      resolve({ url: 'https://' + bucketName + '.s3.amazonaws.com/' + key });
+      resolve(uploadedFile);
     });
   });
 }

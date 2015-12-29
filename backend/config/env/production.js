@@ -12,6 +12,8 @@ module.exports = {
 		secret: process.env.TESSELLATE_AWS_SECRET,
 		sqsQueueUrl: process.env.TESSELLATE_SQS_QUEUE,
 		appBucketsPrefix: "tessellate-app-",
+		imageBucket: "tessellate-images",
+		accountImagePrefix: "account",
 		platformBucket: "tessellate-templates",
 		projectBucketPrefix: "projects",
 		componentBucketPrefix: "components"

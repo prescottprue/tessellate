@@ -25,7 +25,7 @@ export function createBucketSite(bucketName) {
   if(!bucketName){
     return Promise.reject({status:400, message:'Bucket name is required to create bucket.'});
   }
-  var runBucketCreation = new Promise.all([createS3Bucket(bucketName), setBucketCors(bucketName), setBucketWebsite(bucketName)]);
+  let runBucketCreation = new Promise.all([createS3Bucket(bucketName), setBucketCors(bucketName), setBucketWebsite(bucketName)]);
   return runBucketCreation.then((data) => {
     logger.log({
 			description: 'Bucket site created successfully.',
@@ -49,7 +49,7 @@ export function createBucketSite(bucketName) {
  * @param {string} urlData.key - Key of object for which to get signed url
  */
 export function getSignedUrl(urlData) {
-	var params = {Bucket: urlData.bucket, Key: urlData.key};
+	const params = {Bucket: urlData.bucket, Key: urlData.key};
   return new Promise((resolve, reject) => {
     s3.getSignedUrl(urlData.action, params, (err, url) => {
   	  if(err){
@@ -383,7 +383,6 @@ export function saveFile(bucketName, fileData){
  * @param {string} fileData.content - File contents in string form
  */
 export function uploadFile(bucketName, fileData){
-	// logger.log('[saveFile] saveFile called', arguments);
 	const { localFile, key } = fileData;
   const fileParams = {localFile, s3Params: {Bucket:bucketName, Key:key, ACL:'public-read'}};
 	logger.log({
@@ -399,15 +398,19 @@ export function uploadFile(bucketName, fileData){
 			});
 			reject(err);
 		});
-		uploader.on('progress', () => {
+		// uploader.on('progress', () => {
+		// 	logger.log({
+		// 		description: 'File upload progress.',
+		// 		func: 'uploadFile'
+		// 	});
+		// });
+		uploader.on('end', () => {
+			const uploadedFile = {url: `https://${bucketName}.s3.amazonaws.com/${key}`};
 			logger.log({
-				description: 'File upload progress.',
+				description: 'File upload progress.', file: uploadedFile,
 				func: 'uploadFile'
 			});
-		});
-		uploader.on('end', () => {
-		  console.log("done uploading");
-			resolve({url: `https://${bucketName}.s3.amazonaws.com/${key}`});
+			resolve(uploadedFile);
 		});
   });
 }

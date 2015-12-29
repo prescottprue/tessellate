@@ -478,6 +478,8 @@ AccountSchema.methods = {
 		});
 	},
 	uploadImage: function uploadImage(image) {
+		var _this = this;
+
 		//Upload image to s3
 		_logger2.default.info({
 			description: 'Upload image called.', image: image,
@@ -491,19 +493,18 @@ AccountSchema.methods = {
 		}
 		var uploadFile = {
 			localFile: image.path,
-			key: 'account/' + this._id + '/' + (image.originalname || image.name)
+			key: _default2.default.aws.accountImagePrefix + '/' + this._id + '/' + (image.originalname || image.name)
 		};
-		var self = this;
 		return fileStorage.saveAccountFile(uploadFile).then(function (fileData) {
 			//save image url in account
 			_logger2.default.info({
 				description: 'File uploaded', file: fileData,
 				func: 'uploadImage', obj: 'Account'
 			});
-			self.image = { url: fileData.url };
-			return self.save().then(function (updatedAccount) {
+			_this.image = { url: fileData.url };
+			return _this.save().then(function (updatedAccount) {
 				_logger2.default.info({
-					description: 'User updated with image successfully.',
+					description: 'Account updated with image successfully.',
 					user: updatedAccount, func: 'uploadImage', obj: 'Account'
 				});
 				return updatedAccount;
