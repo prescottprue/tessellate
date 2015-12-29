@@ -4,6 +4,7 @@
   "scripts": {
     "build": "babel backend --out-dir dist",
     "watch": "babel backend --out-dir dist --watch",
+    "clean": "rimraf uploads",
     "dev": "nodemon dist/index.js",
     "start": "node dist/index.js"
   },

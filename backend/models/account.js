@@ -11,6 +11,7 @@ import mongoose from 'mongoose';
 import _ from 'lodash';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt-nodejs';
+import rimraf from 'rimraf';
 
 //Account Schema Object
 let AccountSchema = new mongoose.Schema(
@@ -478,7 +479,19 @@ AccountSchema.methods = {
 					description: 'Account updated with image successfully.',
 					user: updatedAccount, func: 'uploadImage', obj: 'Account'
 				});
-				return updatedAccount;
+				return new Promise((resolve, reject) => {
+					rimraf(image.path, {}, (err) => {
+						if(!err){
+							resolve(updatedAccount);
+						} else {
+							logger.error({
+								description: 'Error deleting file from local directory.',
+								error: err, func: 'uploadImage', obj: 'Account'
+							});
+							reject(err);
+						}
+					});
+				});
 			}, err => {
 				logger.error({
 					description: 'Error saving account after file upload.', error: err,

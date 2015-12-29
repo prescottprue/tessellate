@@ -36,14 +36,15 @@ var _bcryptNodejs = require('bcrypt-nodejs');
 
 var _bcryptNodejs2 = _interopRequireDefault(_bcryptNodejs);
 
+var _rimraf = require('rimraf');
+
+var _rimraf2 = _interopRequireDefault(_rimraf);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //Account Schema Object
-
-//External Libs
-//Internal Config/Utils/Classes
 var AccountSchema = new _mongoose2.default.Schema({
 	username: { type: String, index: true, unique: true },
 	name: { type: String },
@@ -65,6 +66,9 @@ var AccountSchema = new _mongoose2.default.Schema({
 /**
  * @description Set collection name to 'account'
  */
+
+//External Libs
+//Internal Config/Utils/Classes
 AccountSchema.set('collection', 'accounts');
 /*
  * Groups virtual to return names
@@ -507,7 +511,19 @@ AccountSchema.methods = {
 					description: 'Account updated with image successfully.',
 					user: updatedAccount, func: 'uploadImage', obj: 'Account'
 				});
-				return updatedAccount;
+				return new Promise(function (resolve, reject) {
+					(0, _rimraf2.default)(image.path, {}, function (err) {
+						if (!err) {
+							resolve(updatedAccount);
+						} else {
+							_logger2.default.error({
+								description: 'Error deleting file from local directory.',
+								error: err, func: 'uploadImage', obj: 'Account'
+							});
+							reject(err);
+						}
+					});
+				});
 			}, function (err) {
 				_logger2.default.error({
 					description: 'Error saving account after file upload.', error: err,
