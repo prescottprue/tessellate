@@ -1,6 +1,5 @@
 import 'newrelic';
 // import 'babel-core/register';
-
 import express from 'express';
 import path from 'path';
 import favicon from 'serve-favicon';
@@ -8,6 +7,8 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 import cors from 'cors';
+import fs from 'fs';
+import serveStatic from 'serve-static';
 
 import confFile from '../config.json';
 import config from './config/default';
@@ -15,10 +16,30 @@ import systemUtils from './lib/systemUtils';
 import logger from './utils/logger';
 import routes from './config/routes';
 
+import frontendConfig from '../frontend/webpack-production.config';
+import renderIndex from '../frontend/lib/render-index';
+import renderApp from '../frontend/build/bundle-server';
+
 let app = express();
 
 let routeBuilder = require('./utils/routeBuilder')(app);
 
+try {
+  let stats = JSON.parse(fs.readFileSync(path.resolve('./dist/build-stats.json')));
+} catch(err) {
+  console.log('Error loading stats file', JSON.stringify(err));
+}
+
+function handleRender(req, res) {
+  console.log('handle render called:', req.url);
+  renderApp(function (result) {
+    res.send(renderIndex({
+      hash: stats.hash,
+      appData: result.appData,
+      appMarkup: result.appMarkup
+    }));
+  });
+}
 /** View Engine Setup
  * @description Apply ejs rending engine and views folder
  */
@@ -80,11 +101,11 @@ if(config.authEnabled){
   /** Unauthorized Error Handler
    * @description Respond with 401 when authorization token is invalid
    */
-  app.use((err, req, res, next) => {
-    if (err.name === 'UnauthorizedError') {
+  app.use((error, req, res, next) => {
+    if (error.name === 'UnauthorizedError') {
       logger.error({
         description: 'Error confirming token.',
-        error: err, obj: 'server'
+        error, url: req.url, obj: 'server'
       });
       //TODO: look for application name
       //TODO: Try decoding with application's authrocket secret
@@ -102,6 +123,7 @@ if(config.authEnabled){
  * @description Setup routes based on config file
  */
 routeBuilder(routes);
+app.get('/', handleRender);
 
 /** Error Logger
  * @description Log Errors before they are handled
@@ -142,6 +164,7 @@ if (app.get('env') === 'local') {
  */
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
+  console.log('error:', err.message, req.url);
   res.render('error', {
     message: err.message,
     error: {}

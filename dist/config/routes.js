@@ -50,17 +50,18 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var upload = (0, _multer2.default)({ dest: 'uploads/' });
 exports.default = {
-	index: [{
-		type: 'GET',
-		endpoint: '/',
-		controller: indexCtrls.main
-	}],
-
-	// {
-	// 	type:'GET',
-	// 	endpoint:'/test',
-	// 	controller: indexCtrls.test
-	// }
+	index: [
+		// {
+		// 	type:'GET',
+		// 	endpoint:'/',
+		// 	controller: indexCtrls.main
+		// },
+		// {
+		// 	type:'GET',
+		// 	endpoint:'/test',
+		// 	controller: indexCtrls.test
+		// }
+	],
 	authRocket: [{
 		type: 'POST',
 		endpoint: '/authrocket',

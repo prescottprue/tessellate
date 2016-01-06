@@ -11,11 +11,11 @@ import multer from 'multer';
 let upload = multer({dest: 'uploads/'});
 export default {
 	index:[
-		{
-			type:'GET',
-			endpoint:'/',
-			controller: indexCtrls.main
-		},
+		// {
+		// 	type:'GET',
+		// 	endpoint:'/',
+		// 	controller: indexCtrls.main
+		// },
 		// {
 		// 	type:'GET',
 		// 	endpoint:'/test',

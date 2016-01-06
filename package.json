@@ -4,10 +4,12 @@
   "scripts": {
     "build-backend": "babel backend --out-dir dist",
     "watch-backend": "babel backend --out-dir dist --watch",
-    "build-frontend": "npm run clean && npm run bundle-frontend",
+    "build-frontend": "npm run clean && npm run build-frontend-server && npm run bundle-frontend",
     "bundle-frontend": "webpack --stats --progress --config frontend/webpack-production.config",
     "build-frontend-server": "webpack --stats --progress --config frontend/webpack-server-production.config",
-    "clean": "rimraf uploads frontend/builds",
+    "copy-stats": "node ./frontend/lib/copy-stats",
+    "clean": "rimraf uploads frontend/build",
+    "build": "npm run build-frontend && npm run build-backend",
     "dev-backend": "nodemon dist/index.js",
     "dev-frontend": "node frontend/bin/dev-server",
     "start": "node dist/index.js"

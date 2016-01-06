@@ -30,6 +30,14 @@ var _cors = require('cors');
 
 var _cors2 = _interopRequireDefault(_cors);
 
+var _fs = require('fs');
+
+var _fs2 = _interopRequireDefault(_fs);
+
+var _serveStatic = require('serve-static');
+
+var _serveStatic2 = _interopRequireDefault(_serveStatic);
+
 var _config = require('../config.json');
 
 var _config2 = _interopRequireDefault(_config);
@@ -50,14 +58,41 @@ var _routes = require('./config/routes');
 
 var _routes2 = _interopRequireDefault(_routes);
 
+var _webpackProduction = require('../frontend/webpack-production.config');
+
+var _webpackProduction2 = _interopRequireDefault(_webpackProduction);
+
+var _renderIndex = require('../frontend/lib/render-index');
+
+var _renderIndex2 = _interopRequireDefault(_renderIndex);
+
+var _bundleServer = require('../frontend/build/bundle-server');
+
+var _bundleServer2 = _interopRequireDefault(_bundleServer);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import 'babel-core/register';
-
 var app = (0, _express2.default)();
+// import 'babel-core/register';
 
 var routeBuilder = require('./utils/routeBuilder')(app);
 
+try {
+  var _stats = JSON.parse(_fs2.default.readFileSync(_path2.default.resolve('./dist/build-stats.json')));
+} catch (err) {
+  console.log('Error loading stats file', JSON.stringify(err));
+}
+
+function handleRender(req, res) {
+  console.log('handle render called:', req.url);
+  (0, _bundleServer2.default)(function (result) {
+    res.send((0, _renderIndex2.default)({
+      hash: stats.hash,
+      appData: result.appData,
+      appMarkup: result.appMarkup
+    }));
+  });
+}
 /** View Engine Setup
  * @description Apply ejs rending engine and views folder
  */
@@ -110,11 +145,11 @@ if (_default2.default.authEnabled) {
   /** Unauthorized Error Handler
    * @description Respond with 401 when authorization token is invalid
    */
-  app.use(function (err, req, res, next) {
-    if (err.name === 'UnauthorizedError') {
+  app.use(function (error, req, res, next) {
+    if (error.name === 'UnauthorizedError') {
       _logger2.default.error({
         description: 'Error confirming token.',
-        error: err, obj: 'server'
+        error: error, url: req.url, obj: 'server'
       });
       //TODO: look for application name
       //TODO: Try decoding with application's authrocket secret
@@ -132,6 +167,7 @@ if (_default2.default.authEnabled) {
  * @description Setup routes based on config file
  */
 routeBuilder(_routes2.default);
+app.get('/', handleRender);
 
 /** Error Logger
  * @description Log Errors before they are handled
@@ -172,6 +208,7 @@ if (app.get('env') === 'local') {
  */
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);
+  console.log('error:', err.message, req.url);
   res.render('error', {
     message: err.message,
     error: {}
