@@ -7,9 +7,6 @@
 		"port":3001,
 		"folder": "public"
 	},
-	"linkedModules":{
-		"bower": ["kyper-matter", "kyper-grout"]
-	},
 	"stagingEnvName":"tessellate-stage",
 	"productionEnvName": "tessellate-prod"
 }

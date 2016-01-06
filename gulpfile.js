@@ -1,37 +1,18 @@
-var gulp = require('gulp');
+require('babel-core/register');
+var gulp = require('gulp'),
 nodemon = require('gulp-nodemon'),
 apidoc = require('gulp-apidoc'),
 notify = require('gulp-notify'),
 template = require('gulp-template'),
 rename = require('gulp-rename'),
-browserSync = require('browser-sync').create(),
 shell = require('gulp-shell'),
 _ = require('lodash'),
-reload = browserSync.reload,
-mocha = require('gulp-mocha');
-require('babel-core/register');
-var runSequence = require('run-sequence');
+mocha = require('gulp-mocha'),
+runSequence = require('run-sequence');
 
 var config = require('./config.json');
-var assets = require('./assets');
-var refBuilder = require('./backend/lib/refBuilder');
 
-var locatedStyleAssets = locateAssets('styles');
-var locatedAppAssets = locateAssets('app');
-var locatedVendorAssets = locateAssets('vendor');
-
-//Start livereload client/frontend server
-gulp.task('client', ['assetTags:dev'], function() {
-  browserSync.init({
-    port: config.client.port,
-    server: {
-      baseDir: "./"+config.client.folder+"/"
-    }
-  });
-});
-gulp.task('build', shell.task(['babel backend --out-dir dist']));
-
-gulp.task('watch', shell.task(['babel backend --out-dir dist --watch']));
+gulp.task('build', shell.task(['npm run build']));
 
 gulp.task('test', function(){
   gulp.src('test/**/*.spec.js')
@@ -61,17 +42,6 @@ gulp.task('docs', function(){
   });
 });
 
-/** Build script and style tags to place into HTML in dev folder
- */
-gulp.task('assetTags:dev', function () {
-  return gulp.src(config.client.folder + '/index-template.html')
-    .pipe(template({scripts:refBuilder.buildScriptTags('local'), styles:refBuilder.buildStyleTags('local')}))
-    // Writes script reference to index.html dist/ folder
-    .pipe(rename('index.html'))
-    .pipe(gulp.dest(config.client.folder))
-    .pipe(notify({message: 'Asset Tags Built'}));
-});
-
 //Deploy to staging environment of Elastic Beanstalk
 gulp.task('deploy:staging', shell.task(['eb use ' + config.stagingEnvName, 'eb deploy']));
 
@@ -84,8 +54,8 @@ gulp.task('link', shell.task(buildLinkCommands('link')));
 //Unlink list of modules
 gulp.task('unlink', shell.task(buildLinkCommands('unlink')));
 
-//Default task: Build asset tags, start backend server
-gulp.task('default', [ 'assetTags:dev', 'serve', 'client']);
+//Default task: start server
+gulp.task('default', [ 'serve']);
 
 //----------------------- Utility Functions -------------------------------\\
 //Build an array of commands to link/unlink modules
@@ -116,15 +86,4 @@ function buildLinkCommands(linkAction){
     });
   });
   return commands;
-}
-
-//Add folder name to asset list
-function locateAssets(assetType){
-	if(assets[assetType]){
-		return assets[assetType].map(function(asset){
-	    return './' + config.clientFolder + '/' + asset;
-	  });
-	} else {
-		console.error('Asset type does not exist.', assetType);
-	}
 }
