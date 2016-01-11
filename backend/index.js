@@ -52,8 +52,8 @@ app.options('*', cors());
  * @description Enable authentication based on config setting
  */
 if(config.authEnabled){
-  let allowedPaths = [
-    '/', '/login',
+  const allowedPaths = [
+    '/', '/login', '/recover',
     '/logout', '/signup',
     '/docs', '/docs/**',
     '/authrocket',
@@ -83,12 +83,12 @@ if(config.authEnabled){
   app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
       logger.error({
-        description: 'Error confirming token.',
-        error: err, obj: 'server'
+        description: 'Authentication error.',
+        err, obj: 'server'
       });
       //TODO: look for application name
       //TODO: Try decoding with application's authrocket secret
-      return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
+      return res.status(401).send('Unauthorized');
     }
   });
 } else {

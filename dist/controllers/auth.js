@@ -7,6 +7,7 @@ exports.signup = signup;
 exports.login = login;
 exports.logout = logout;
 exports.verify = verify;
+exports.recover = recover;
 
 var _mongoose = require('mongoose');
 
@@ -164,12 +165,11 @@ function signup(req, res, next) {
  *
  */
 function login(req, res, next) {
-	var query;
+	var query = undefined;
 	if (!_lodash2.default.has(req.body, "username") && !_lodash2.default.has(req.body, "email") || !_lodash2.default.has(req.body, "password")) {
 		return res.status(400).send("Username/Email and password required to login");
 	}
 	var loginData = { password: req.body.password };
-	console.log('login request', req.body);
 	if (_lodash2.default.has(req.body, 'username')) {
 		if (req.body.username.indexOf('@') !== -1) {
 			loginData.email = req.body.username;
@@ -198,9 +198,9 @@ function login(req, res, next) {
 			//TODO: Record login within internal auth system
 			//TODO: Return account along with token data
 			if (loginRes.token) {
-				var token = _jsonwebtoken2.default.decode(loginRes.token);
+				var _token = _jsonwebtoken2.default.decode(loginRes.token);
 				_logger2.default.log({
-					description: 'token', token: token,
+					description: 'token', token: _token,
 					func: 'login', obj: 'AuthCtrls'
 				});
 				if (!process.env.AUTHROCKET_JWT_SECRET) {
@@ -209,9 +209,9 @@ function login(req, res, next) {
 						func: 'login', obj: 'AuthCtrls'
 					});
 				} else {
-					var verify = _jsonwebtoken2.default.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
+					var _verify = _jsonwebtoken2.default.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
 					_logger2.default.log({
-						description: 'verify', verify: verify,
+						description: 'verify', verify: _verify,
 						func: 'login', obj: 'AuthCtrls'
 					});
 				}
@@ -247,7 +247,6 @@ function login(req, res, next) {
 				});
 				return res.status(409).send('Account not found.');
 			}
-			console.log('account found', currentAccount);
 			currentAccount.login(req.body.password).then(function (loginRes) {
 				_logger2.default.log({
 					description: 'Login Successful.',
@@ -338,7 +337,7 @@ function logout(req, res, next) {
 				description: 'Successfully ended session',
 				func: 'logout', obj: 'AuthCtrl'
 			});
-			res.send({ message: 'Logout successful.' });
+			res.send('Logout successful.');
 		}, function (err) {
 			_logger2.default.error({
 				description: 'Error ending session.', error: err,
@@ -377,10 +376,7 @@ function verify(req, res, next) {
 			description: 'Invalid auth token.',
 			func: 'verify', obj: 'AuthCtrl'
 		});
-		res.status(401).json({
-			status: 401,
-			message: 'Valid Auth token required to verify'
-		});
+		res.status(401).send('Valid Auth token required to verify');
 	}
 	//Find by username in token
 	var findObj = {};
@@ -405,6 +401,73 @@ function verify(req, res, next) {
 		_logger2.default.error({
 			description: 'Error querying for account',
 			error: err, func: 'verify', obj: 'AuthCtrl'
+		});
+		return res.status(500).send('Unable to verify token.');
+	});
+};
+/**
+ * @api {post} /recover Recover
+ * @apiDescription Recover an account though email
+ * @apiName Verify
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Object} accountData Object containing accounts data.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       name: "John Doe",
+ *       username:"hackerguy1",
+ *       title: "Front End Developer",
+ *       role:"admin",
+ *       createdAt:1438737438578
+ *       updatedAt:1438737438578
+ *     }
+ *
+ */
+function recover(req, res, next) {
+	_logger2.default.warn({
+		description: 'Recover request recieved.',
+		func: 'recover', obj: 'AuthCtrl'
+	});
+	if (!req.body || !req.body.username && !req.body.email) {
+		_logger2.default.error({
+			description: 'Username or email required to recover account.',
+			func: 'recover', obj: 'AuthCtrl'
+		});
+		res.send('Username or email required to recover account.');
+	}
+	var findObj = {};
+	if (_lodash2.default.has(req.body, "username")) {
+		findObj.username = req.body.username;
+	} else {
+		findObj.email = req.body.email;
+	}
+	_logger2.default.log({
+		description: 'Find object built.', findObj: findObj,
+		func: 'recover', obj: 'AuthCtrl'
+	});
+	var query = _account.Account.findOne(findObj).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
+	query.then(function (result) {
+		if (!result) {
+			// TODO: Respond with a specific error code
+			_logger2.default.error({
+				description: 'Account not found.',
+				func: 'verify', obj: 'AuthCtrl'
+			});
+			return res.status(400).send('Account with this information does not exist.');
+		}
+		//TODO: Email user
+		_logger2.default.info({
+			description: 'Account found. Sending email',
+			func: 'verify', obj: 'AuthCtrl'
+		});
+		res.send('Email sent');
+		// res.json(result);
+	}, function (err) {
+		_logger2.default.error({
+			description: 'Error querying for account',
+			err: err, func: 'verify', obj: 'AuthCtrl'
 		});
 		return res.status(500).send('Unable to verify token.');
 	});
