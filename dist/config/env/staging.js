@@ -20,6 +20,13 @@ module.exports = {
 		projectBucketPrefix: "projects",
 		componentBucketPrefix: "components"
 	},
+	google: {
+		client: {
+			id: process.env.GOOGLE_CLIENT_ID,
+			secret: process.env.GOOGLE_CLIENT_SECRET,
+			redirectUrl: process.env.GOOGLE_REDIRECT_URL
+		}
+	},
 	authEnabled: true,
 	authRocket: {
 		enabled: false,

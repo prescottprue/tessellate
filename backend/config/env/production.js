@@ -18,10 +18,12 @@ module.exports = {
 		projectBucketPrefix: "projects",
 		componentBucketPrefix: "components"
 	},
-	s3:{
-		key:process.env.TESSELLATE_AWS_KEY,
-		secret:process.env.TESSELLATE_AWS_SECRET,
-		bucketPrefix: "tessellate"
+	google: {
+		client: {
+			id: process.env.GOOGLE_CLIENT_ID,
+			secret: process.env.GOOGLE_CLIENT_SECRET,
+			redirectUrl: process.env.GOOGLE_REDIRECT_URL
+		}
 	},
 	authEnabled: true,
 	authRocket:{

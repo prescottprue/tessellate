@@ -3,16 +3,16 @@
  */
 import mongoose from 'mongoose';
 import url from 'url';
-import _ from 'lodash';
+import { has } from 'lodash';
 import logger from '../utils/logger';
 import { Account } from '../models/account';
 import { Session } from '../models/session';
 import AuthRocket from 'authrocket';
 import jwt from 'jsonwebtoken';
 import config from '../config/default';
+import google from 'googleapis';
 let authRocketEnabled = config.authRocket ? config.authRocket.enabled : false;
 let authrocket = new AuthRocket();
-
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new account and start a session as that new account
@@ -43,7 +43,7 @@ export function signup(req, res, next) {
 		func: 'signup', obj: 'AuthCtrls'
 	});
 	//Check for username or email
-	if(!_.has(req.body, "username") && !_.has(req.body, "email")){
+	if(!has(req.body, "username") && !has(req.body, "email")){
 		return res.status(400).json({
 			code:400,
 			message:"Username or Email required to signup"
@@ -66,7 +66,7 @@ export function signup(req, res, next) {
 		});
 	} else {
 		//Basic Internal Signup
-		if(_.has(req.body, "username")){
+		if(has(req.body, "username")){
 			query = Account.findOne({"username":req.body.username}); // find using username field
 		} else {
 			query = Account.findOne({"email":req.body.email}); // find using email field
@@ -129,11 +129,11 @@ export function signup(req, res, next) {
  */
 export function login(req, res, next) {
 	let query;
-	if((!_.has(req.body, "username") && !_.has(req.body, "email")) || !_.has(req.body, "password")){
+	if((!has(req.body, "username") && !has(req.body, "email")) || !has(req.body, "password")){
 		return res.status(400).send("Username/Email and password required to login");
 	}
 	let loginData =  {password: req.body.password};
-	if (_.has(req.body, 'username')) {
+	if (has(req.body, 'username')) {
 		if(req.body.username.indexOf('@') !== -1){
 			loginData.email = req.body.username;
 		} else {
@@ -143,10 +143,10 @@ export function login(req, res, next) {
 	if(authRocketEnabled){
 		//Authrocket login
 		//Remove email to avoid Auth Rocket error
-		if (_.has(loginData, 'email')) {
+		if (has(loginData, 'email')) {
 			delete loginData.email;
 		}
-		if(!_.has(req.body, 'username')) {
+		if(!has(req.body, 'username')) {
 			return res.status(400).send('Username is required to login.');
 		}
 		logger.log({
@@ -197,7 +197,7 @@ export function login(req, res, next) {
 		});
 	} else {
 		//Basic Internal login
-		if(_.has(loginData, 'username')){
+		if(has(loginData, 'username')){
 			query = Account.findOne({'username':loginData.username})
 				.populate({path:'groups', select:'name'})
 				.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using username field
@@ -347,7 +347,7 @@ export function verify(req, res, next) {
 	}
 	//Find by username in token
 	let findObj = {};
-	if(_.has(req.user, "username")){
+	if(has(req.user, "username")){
 		findObj.username = req.user.username;
 	} else {
 		findObj.email = req.user.email;
@@ -392,7 +392,7 @@ export function verify(req, res, next) {
  *
  */
 export function recover(req, res, next) {
-	logger.warn({
+	logger.debug({
 		description: 'Recover request recieved.',
 		func: 'recover', obj: 'AuthCtrl'
 	});
@@ -404,7 +404,7 @@ export function recover(req, res, next) {
 		res.send('Username or email required to recover account.');
 	}
 	let findObj = {};
-	if(_.has(req.body, "username")){
+	if(has(req.body, "username")){
 		findObj.username = req.body.username;
 	} else {
 		findObj.email = req.body.email;
@@ -438,3 +438,71 @@ export function recover(req, res, next) {
 		return res.status(500).send('Unable to verify token.');
 	});
 };
+/**
+ * @api {post} /recover Recover
+ * @apiDescription Recover an account though email
+ * @apiName Verify
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Object} accountData Object containing accounts data.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       name: "John Doe",
+ *       username:"hackerguy1",
+ *       title: "Front End Developer",
+ *       role:"admin",
+ *       createdAt:1438737438578
+ *       updatedAt:1438737438578
+ *     }
+ *
+ */
+export function authUrl(req, res, next) {
+	logger.debug({
+		description: 'authUrl request.', query: req.query, body: req.body,
+		func: 'googleAuthUrl', obj: 'AuthCtrl'
+	});
+	const enabledProviders = ['google'];
+	if(!req.query || !req.query.provider || enabledProviders.indexOf(req.query.provider) === -1){
+		return res.status(400).send('Invalid Authentication Provider');
+	}
+	let authUrl;
+	switch(req.query.provider){
+		case 'google':
+			authUrl = googleAuthUrl(req.query.redirect);
+			break;
+		default:
+			authUrl = googleAuthUrl(req.query.redirect);
+	}
+	if(!authUrl){
+		return res.status(400).send('Error generating external auth url');
+	}
+	logger.debug({
+		description: 'Responding with authUrl.', authUrl,
+		func: 'authUrl', obj: 'AuthCtrl'
+	});
+	res.json(authUrl);
+};
+function googleAuthUrl(redirect) {
+	const { id, secret, redirectUrl } = config.google.client;
+	try {
+		const oauth2Client = new google.auth.OAuth2(id, secret, redirect || redirectUrl);
+		// generate a url that asks permissions for Google+ and Google Calendar scopes
+		const scope = [
+		  'https://www.googleapis.com/auth/plus.me'
+		];
+		const url = oauth2Client.generateAuthUrl({ scope });
+		logger.debug({
+			description: 'Google url generated.', url,
+			func: 'googleAuthUrl', obj: 'AuthCtrl'
+		});
+		return url;
+	} catch(err) {
+		logger.error({
+			description: 'Error generating auth url.', url,
+			func: 'googleAuthUrl', obj: 'AuthCtrl'
+		});
+		return null;
+	}
+}

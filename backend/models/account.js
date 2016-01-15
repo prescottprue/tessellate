@@ -451,6 +451,69 @@ AccountSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
+	createWithProvider: function(application) {
+		logger.debug({
+			description: 'Create with provider called.', this, application,
+			func: 'createWithProvider', obj: 'Account'
+		});
+		if(!this.username){
+			logger.warn({
+				description: 'Username is required to create a new account.',
+				func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject({
+				message: 'Username required to create a new account.'
+			});
+		}
+		let findObj = { username: this.username };
+		if(application){
+			//TODO: Make sure that this is an id not an application object
+			findObj.application = application;
+		}
+		let query = this.model('Account').findOne(findObj);
+		return query.then(foundAccount => {
+			if(foundAccount){
+				logger.warn({
+					description: 'A user with provided username already exists',
+					foundAccount, func: 'createWithProvider', obj: 'Account'
+				});
+				return Promise.reject({message: 'A user with that username already exists.'});
+			}
+			logger.log({
+				description: 'User does not already exist.',
+				func: 'createWithProvider', obj: 'Account'
+			});
+			return self.save().then(newAccount => {
+				logger.log({
+					description: 'New account created successfully.',
+					newAccount, func: 'createWithProvider', obj: 'Account'
+				});
+				return newAccount;
+			}, error => {
+				logger.error({
+					description: 'Error creating new account.',
+					error, func: 'createWithProvider', obj: 'Account'
+				});
+				if(error && error.code && error.code === 11000){
+					logger.error({
+						description: 'Email is already taken.',
+						error, func: 'createWithProvider', obj: 'Account'
+					});
+					return Promise.reject({
+						message: 'Email is associated with an existing account.',
+						status: 'EXISTS'
+					});
+				}
+				return Promise.reject(error);
+			});
+		}, error => {
+			logger.error({
+				description: 'Error searching for matching account.',
+				error, func: 'createWithProvider', obj: 'Account'
+			});
+			return Promise.reject(error);
+		});
+	},
 	uploadImage: function(image) {
 		//Upload image to s3
 		logger.info({
@@ -469,42 +532,43 @@ AccountSchema.methods = {
 		};
 		return fileStorage.saveAccountFile(uploadFile).then(fileData => {
 			//save image url in account
+			const { url } = fileData;
 			logger.info({
-				description: 'File uploaded', file: fileData,
+				description: 'File uploaded', fileData,
 				func: 'uploadImage', obj: 'Account'
 			});
-			this.image = {url: fileData.url};
+			this.image = { url };
 			return this.save().then(updatedAccount => {
 				logger.info({
 					description: 'Account updated with image successfully.',
-					user: updatedAccount, func: 'uploadImage', obj: 'Account'
+					updatedAccount, func: 'uploadImage', obj: 'Account'
 				});
 				return new Promise((resolve, reject) => {
-					rimraf(image.path, {}, (err) => {
-						if(!err){
+					rimraf(image.path, {}, error => {
+						if(!error){
 							resolve(updatedAccount);
 						} else {
 							logger.error({
 								description: 'Error deleting file from local directory.',
-								error: err, func: 'uploadImage', obj: 'Account'
+								error, func: 'uploadImage', obj: 'Account'
 							});
-							reject(err);
+							reject(error);
 						}
 					});
 				});
-			}, err => {
+			}, error => {
 				logger.error({
-					description: 'Error saving account after file upload.', error: err,
+					description: 'Error saving account after file upload.', error,
 					func: 'uploadImage', obj: 'Account'
 				});
-				return Promise.reject(err);
+				return Promise.reject(error);
 			});
-		}, err => {
+		}, error => {
 			logger.error({
 				description: 'Error uploading image to account.',
-				error: err, func: 'uploadImage', obj: 'Account'
+				error, func: 'uploadImage', obj: 'Account'
 			});
-			return Promise.reject(err);
+			return Promise.reject(error);
 		});
 	}
 };
@@ -515,6 +579,6 @@ db.tessellate.model('Account', AccountSchema);
 /**
  * @description Make model accessible from controllers
  */
-var Account = db.tessellate.model('Account');
+let Account = db.tessellate.model('Account');
 Account.collectionName = AccountSchema.get('collection');
 exports.Account = db.tessellate.model('Account');

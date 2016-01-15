@@ -91,7 +91,7 @@ app.options('*', (0, _cors2.default)());
  * @description Enable authentication based on config setting
  */
 if (_default2.default.authEnabled) {
-  var allowedPaths = ['/', '/login', '/recover', '/logout', '/signup', '/docs', '/docs/**', '/authrocket', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/];
+  var allowedPaths = ['/', '/login', '/recover', '/logout', '/signup', '/docs', '/docs/**', '/authrocket', '/authUrl', '/oauth2', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/, /(\/apps\/.*\/googleAuthUrl)/, /(\/apps\/.*\/oauth2callback)/];
   var secret = _default2.default.jwtSecret;
   if (_default2.default.authRocket && _default2.default.authRocket.enabled) {
     if (!_default2.default.authRocket.secret) {

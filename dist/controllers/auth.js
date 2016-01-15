@@ -8,18 +8,17 @@ exports.login = login;
 exports.logout = logout;
 exports.verify = verify;
 exports.recover = recover;
+exports.authUrl = authUrl;
 
 var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
-var _url = require('url');
+var _url2 = require('url');
 
-var _url2 = _interopRequireDefault(_url);
+var _url3 = _interopRequireDefault(_url2);
 
 var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
 
 var _logger = require('../utils/logger');
 
@@ -41,14 +40,18 @@ var _default = require('../config/default');
 
 var _default2 = _interopRequireDefault(_default);
 
+var _googleapis = require('googleapis');
+
+var _googleapis2 = _interopRequireDefault(_googleapis);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var authRocketEnabled = _default2.default.authRocket ? _default2.default.authRocket.enabled : false; /**
-                                                                                                      * @description Authentication controller
-                                                                                                      */
+/**
+ * @description Authentication controller
+ */
 
+var authRocketEnabled = _default2.default.authRocket ? _default2.default.authRocket.enabled : false;
 var authrocket = new _authrocket2.default();
-
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new account and start a session as that new account
@@ -79,7 +82,7 @@ function signup(req, res, next) {
 		func: 'signup', obj: 'AuthCtrls'
 	});
 	//Check for username or email
-	if (!_lodash2.default.has(req.body, "username") && !_lodash2.default.has(req.body, "email")) {
+	if (!(0, _lodash.has)(req.body, "username") && !(0, _lodash.has)(req.body, "email")) {
 		return res.status(400).json({
 			code: 400,
 			message: "Username or Email required to signup"
@@ -102,7 +105,7 @@ function signup(req, res, next) {
 		});
 	} else {
 		//Basic Internal Signup
-		if (_lodash2.default.has(req.body, "username")) {
+		if ((0, _lodash.has)(req.body, "username")) {
 			query = _account.Account.findOne({ "username": req.body.username }); // find using username field
 		} else {
 				query = _account.Account.findOne({ "email": req.body.email }); // find using email field
@@ -166,11 +169,11 @@ function signup(req, res, next) {
  */
 function login(req, res, next) {
 	var query = undefined;
-	if (!_lodash2.default.has(req.body, "username") && !_lodash2.default.has(req.body, "email") || !_lodash2.default.has(req.body, "password")) {
+	if (!(0, _lodash.has)(req.body, "username") && !(0, _lodash.has)(req.body, "email") || !(0, _lodash.has)(req.body, "password")) {
 		return res.status(400).send("Username/Email and password required to login");
 	}
 	var loginData = { password: req.body.password };
-	if (_lodash2.default.has(req.body, 'username')) {
+	if ((0, _lodash.has)(req.body, 'username')) {
 		if (req.body.username.indexOf('@') !== -1) {
 			loginData.email = req.body.username;
 		} else {
@@ -180,10 +183,10 @@ function login(req, res, next) {
 	if (authRocketEnabled) {
 		//Authrocket login
 		//Remove email to avoid Auth Rocket error
-		if (_lodash2.default.has(loginData, 'email')) {
+		if ((0, _lodash.has)(loginData, 'email')) {
 			delete loginData.email;
 		}
-		if (!_lodash2.default.has(req.body, 'username')) {
+		if (!(0, _lodash.has)(req.body, 'username')) {
 			return res.status(400).send('Username is required to login.');
 		}
 		_logger2.default.log({
@@ -234,7 +237,7 @@ function login(req, res, next) {
 		});
 	} else {
 		//Basic Internal login
-		if (_lodash2.default.has(loginData, 'username')) {
+		if ((0, _lodash.has)(loginData, 'username')) {
 			query = _account.Account.findOne({ 'username': loginData.username }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using username field
 		} else {
 				query = _account.Account.findOne({ 'email': loginData.email }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using email field
@@ -380,7 +383,7 @@ function verify(req, res, next) {
 	}
 	//Find by username in token
 	var findObj = {};
-	if (_lodash2.default.has(req.user, "username")) {
+	if ((0, _lodash.has)(req.user, "username")) {
 		findObj.username = req.user.username;
 	} else {
 		findObj.email = req.user.email;
@@ -426,7 +429,7 @@ function verify(req, res, next) {
  *
  */
 function recover(req, res, next) {
-	_logger2.default.warn({
+	_logger2.default.debug({
 		description: 'Recover request recieved.',
 		func: 'recover', obj: 'AuthCtrl'
 	});
@@ -438,7 +441,7 @@ function recover(req, res, next) {
 		res.send('Username or email required to recover account.');
 	}
 	var findObj = {};
-	if (_lodash2.default.has(req.body, "username")) {
+	if ((0, _lodash.has)(req.body, "username")) {
 		findObj.username = req.body.username;
 	} else {
 		findObj.email = req.body.email;
@@ -472,3 +475,73 @@ function recover(req, res, next) {
 		return res.status(500).send('Unable to verify token.');
 	});
 };
+/**
+ * @api {post} /recover Recover
+ * @apiDescription Recover an account though email
+ * @apiName Verify
+ * @apiGroup Auth
+ *
+ * @apiSuccess {Object} accountData Object containing accounts data.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       name: "John Doe",
+ *       username:"hackerguy1",
+ *       title: "Front End Developer",
+ *       role:"admin",
+ *       createdAt:1438737438578
+ *       updatedAt:1438737438578
+ *     }
+ *
+ */
+function authUrl(req, res, next) {
+	_logger2.default.debug({
+		description: 'authUrl request.', query: req.query, body: req.body,
+		func: 'googleAuthUrl', obj: 'AuthCtrl'
+	});
+	var enabledProviders = ['google'];
+	if (!req.query || !req.query.provider || enabledProviders.indexOf(req.query.provider) === -1) {
+		return res.status(400).send('Invalid Authentication Provider');
+	}
+	var authUrl = undefined;
+	switch (req.query.provider) {
+		case 'google':
+			authUrl = googleAuthUrl(req.query.redirect);
+			break;
+		default:
+			authUrl = googleAuthUrl(req.query.redirect);
+	}
+	if (!authUrl) {
+		return res.status(400).send('Error generating external auth url');
+	}
+	_logger2.default.debug({
+		description: 'Responding with authUrl.', authUrl: authUrl,
+		func: 'authUrl', obj: 'AuthCtrl'
+	});
+	res.json(authUrl);
+};
+function googleAuthUrl(redirect) {
+	var _config$google$client = _default2.default.google.client;
+	var id = _config$google$client.id;
+	var secret = _config$google$client.secret;
+	var redirectUrl = _config$google$client.redirectUrl;
+
+	try {
+		var oauth2Client = new _googleapis2.default.auth.OAuth2(id, secret, redirect || redirectUrl);
+		// generate a url that asks permissions for Google+ and Google Calendar scopes
+		var scope = ['https://www.googleapis.com/auth/plus.me'];
+		var _url = oauth2Client.generateAuthUrl({ scope: scope });
+		_logger2.default.debug({
+			description: 'Google url generated.', url: _url,
+			func: 'googleAuthUrl', obj: 'AuthCtrl'
+		});
+		return _url;
+	} catch (err) {
+		_logger2.default.error({
+			description: 'Error generating auth url.', url: _url3.default,
+			func: 'googleAuthUrl', obj: 'AuthCtrl'
+		});
+		return null;
+	}
+}

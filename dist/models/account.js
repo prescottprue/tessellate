@@ -481,6 +481,69 @@ AccountSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
+	createWithProvider: function createWithProvider(application) {
+		_logger2.default.debug({
+			description: 'Create with provider called.', this: this, application: application,
+			func: 'createWithProvider', obj: 'Account'
+		});
+		if (!this.username) {
+			_logger2.default.warn({
+				description: 'Username is required to create a new account.',
+				func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject({
+				message: 'Username required to create a new account.'
+			});
+		}
+		var findObj = { username: this.username };
+		if (application) {
+			//TODO: Make sure that this is an id not an application object
+			findObj.application = application;
+		}
+		var query = this.model('Account').findOne(findObj);
+		return query.then(function (foundAccount) {
+			if (foundAccount) {
+				_logger2.default.warn({
+					description: 'A user with provided username already exists',
+					foundAccount: foundAccount, func: 'createWithProvider', obj: 'Account'
+				});
+				return Promise.reject({ message: 'A user with that username already exists.' });
+			}
+			_logger2.default.log({
+				description: 'User does not already exist.',
+				func: 'createWithProvider', obj: 'Account'
+			});
+			return self.save().then(function (newAccount) {
+				_logger2.default.log({
+					description: 'New account created successfully.',
+					newAccount: newAccount, func: 'createWithProvider', obj: 'Account'
+				});
+				return newAccount;
+			}, function (error) {
+				_logger2.default.error({
+					description: 'Error creating new account.',
+					error: error, func: 'createWithProvider', obj: 'Account'
+				});
+				if (error && error.code && error.code === 11000) {
+					_logger2.default.error({
+						description: 'Email is already taken.',
+						error: error, func: 'createWithProvider', obj: 'Account'
+					});
+					return Promise.reject({
+						message: 'Email is associated with an existing account.',
+						status: 'EXISTS'
+					});
+				}
+				return Promise.reject(error);
+			});
+		}, function (error) {
+			_logger2.default.error({
+				description: 'Error searching for matching account.',
+				error: error, func: 'createWithProvider', obj: 'Account'
+			});
+			return Promise.reject(error);
+		});
+	},
 	uploadImage: function uploadImage(image) {
 		var _this = this;
 
@@ -501,42 +564,44 @@ AccountSchema.methods = {
 		};
 		return fileStorage.saveAccountFile(uploadFile).then(function (fileData) {
 			//save image url in account
+			var url = fileData.url;
+
 			_logger2.default.info({
-				description: 'File uploaded', file: fileData,
+				description: 'File uploaded', fileData: fileData,
 				func: 'uploadImage', obj: 'Account'
 			});
-			_this.image = { url: fileData.url };
+			_this.image = { url: url };
 			return _this.save().then(function (updatedAccount) {
 				_logger2.default.info({
 					description: 'Account updated with image successfully.',
-					user: updatedAccount, func: 'uploadImage', obj: 'Account'
+					updatedAccount: updatedAccount, func: 'uploadImage', obj: 'Account'
 				});
 				return new Promise(function (resolve, reject) {
-					(0, _rimraf2.default)(image.path, {}, function (err) {
-						if (!err) {
+					(0, _rimraf2.default)(image.path, {}, function (error) {
+						if (!error) {
 							resolve(updatedAccount);
 						} else {
 							_logger2.default.error({
 								description: 'Error deleting file from local directory.',
-								error: err, func: 'uploadImage', obj: 'Account'
+								error: error, func: 'uploadImage', obj: 'Account'
 							});
-							reject(err);
+							reject(error);
 						}
 					});
 				});
-			}, function (err) {
+			}, function (error) {
 				_logger2.default.error({
-					description: 'Error saving account after file upload.', error: err,
+					description: 'Error saving account after file upload.', error: error,
 					func: 'uploadImage', obj: 'Account'
 				});
-				return Promise.reject(err);
+				return Promise.reject(error);
 			});
-		}, function (err) {
+		}, function (error) {
 			_logger2.default.error({
 				description: 'Error uploading image to account.',
-				error: err, func: 'uploadImage', obj: 'Account'
+				error: error, func: 'uploadImage', obj: 'Account'
 			});
-			return Promise.reject(err);
+			return Promise.reject(error);
 		});
 	}
 };

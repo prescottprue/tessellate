@@ -56,11 +56,13 @@ if(config.authEnabled){
     '/', '/login', '/recover',
     '/logout', '/signup',
     '/docs', '/docs/**',
-    '/authrocket',
+    '/authrocket', '/authUrl', '/oauth2',
     /(\/apps\/.*\/login)/,
     /(\/apps\/.*\/logout)/,
     /(\/apps\/.*\/signup)/,
-    /(\/apps\/.*\/providers)/
+    /(\/apps\/.*\/providers)/,
+    /(\/apps\/.*\/googleAuthUrl)/,
+    /(\/apps\/.*\/oauth2callback)/
   ];
   let secret = config.jwtSecret;
   if (config.authRocket && config.authRocket.enabled) {
