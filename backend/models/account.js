@@ -12,6 +12,10 @@ import _ from 'lodash';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt-nodejs';
 import rimraf from 'rimraf';
+import AuthRocket from 'authrocket';
+
+let authRocketEnabled = config.authRocket ? config.authRocket.enabled : false;
+let authrocket = new AuthRocket();
 
 //Account Schema Object
 let AccountSchema = new mongoose.Schema(
@@ -199,16 +203,40 @@ AccountSchema.methods = {
 	 * @description Signup a new account
 	 */
 	signup: function (signupData) {
-		logger.log({
+		logger.debug({
 			description: 'Signup called.',
-			signupData: signupData,
-			func: 'Signup', obj: 'Account'
+			signupData, func: 'Signup', obj: 'Account'
 		});
-		logger.error({
-			description: 'Sigup to account is disabled.',
-			func: 'Signup', obj: 'Account'
+		const { email, username, provider, name, password } = signupData;
+		if(!provider && !password){
+			return Promise.reject({message: 'Password required to signup.'});
+		}
+		if(authRocketEnabled){
+			return authrocket.signup({username, password, email});
+		}
+		let findObj = username ? { username } : { email };
+		if(provider){
+			findObj.provider = provider;
+		}
+		return Account.findOne(findObj).then(matchingAccount => {
+			if(matchingAccount){ //Matching account already exists
+				// TODO: Respond with a specific error code
+				return Promise.reject('Account with this information already exists.');
+			}
+			var account = new Account(signupData);
+			//Provider signup
+			if(provider){
+				return account.createWithProvider();
+			}
+			//Password signup
+			return account.createWithPass(password);
+		}, error => {
+			logger.error({
+				description: 'Error querying for account.',
+				error, func: 'signup', obj: 'Account'
+			});
+			return Promise.reject({message: 'Error finding matching account.'});
 		});
-		return Promise.reject({});
 	},
 	/**
 	 * @function comparePassword
@@ -244,6 +272,165 @@ AccountSchema.methods = {
 					resolve(true);
 				}
 			});
+		});
+	},
+
+	/**
+	 * @function createWithPass
+	 * @description Create new account
+	 * @param {string} password - Password with which to create account
+	 * @param {string} application - Application with which to create account
+	 */
+	createWithPass: function(password, application) {
+		let self = this;
+		if(!this.username){
+			logger.warn({
+				description: 'Username is required to create a new account.',
+				func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject({
+				message: 'Username required to create a new account.'
+			});
+		}
+		if(!password || !_.isString(password)){
+			logger.error({
+				description: 'Invalid password.',
+				password, func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject({
+				message: 'Invalid password.'
+			});
+		}
+		let findObj = { username: this.username };
+		if(application) {
+			//TODO: Make sure that this is an id not an application object
+			findObj.application = application;
+		} else {
+			logger.warn({
+				description: 'Creating a user without an application.',
+				func: 'createWithPass', obj: 'Account'
+			});
+		}
+		let query = self.model('Account').findOne(findObj);
+		return query.then(foundAccount => {
+			if(foundAccount){
+				logger.warn({
+					description: 'A user with provided username already exists',
+					user: foundAccount, func: 'createWithPass', obj: 'Account'
+				});
+				return Promise.reject({message: 'A user with that username already exists.'});
+			}
+			logger.log({
+				description: 'User does not already exist.',
+				func: 'createWithPass', obj: 'Account'
+			});
+			return self.hashPassword(password).then((hashedPass) => {
+				self.password = hashedPass;
+				logger.log({
+					description: 'Before save.',
+					func: 'createWithPass', obj: 'Account'
+				});
+				return self.save().then((newAccount) => {
+					logger.log({
+						description: 'New account created successfully.',
+						newAccount, func: 'createWithPass', obj: 'Account'
+					});
+					return newAccount;
+				}, err => {
+					logger.error({
+						description: 'Error creating new account.',
+						err, func: 'createWithPass', obj: 'Account'
+					});
+					if(err && err.code && err.code === 11000){
+						logger.error({
+							description: 'Email is already taken.',
+							err, func: 'createWithPass', obj: 'Account'
+						});
+						return Promise.reject({
+							message: 'Email is associated with an existing account.',
+							status: 'EXISTS'
+						});
+					}
+					return Promise.reject(err);
+				});
+			}, error => {
+				logger.error({
+					description: 'Error hashing password.',
+					error, func: 'createWithPass', obj: 'Account'
+				});
+				return Promise.reject(error);
+			});
+		}, error => {
+			logger.error({
+				description: 'Error searching for matching account.',
+				error, func: 'createWithPass', obj: 'Account'
+			});
+			return Promise.reject(error);
+		});
+	},
+	createWithProvider: function(provider, application) {
+		logger.debug({
+			description: 'Create with provider called.', this, application,
+			func: 'createWithProvider', obj: 'Account'
+		});
+		if(!this.username){
+			logger.warn({
+				description: 'Username is required to create a new account.',
+				func: 'createWithProvider', obj: 'Account'
+			});
+			return Promise.reject({
+				message: 'Username required to create a new account.'
+			});
+		}
+		let findObj = { username: this.username };
+		if(application){
+			//TODO: Make sure that this is an id not an application object
+			findObj.application = application;
+		}
+		if(provider){
+			findObj.provider = provider;
+		}
+		return this.model('Account').findOne(findObj).then(foundAccount => {
+			if(foundAccount){
+				logger.warn({
+					description: 'A user with provided username already exists',
+					foundAccount, func: 'createWithProvider', obj: 'Account'
+				});
+				return Promise.reject({message: 'A user with that username already exists.'});
+			}
+			logger.log({
+				description: 'User does not already exist.',
+				func: 'createWithProvider', obj: 'Account'
+			});
+			return this.save().then(newAccount => {
+				logger.log({
+					description: 'New account created successfully.',
+					newAccount, func: 'createWithProvider', obj: 'Account'
+				});
+				return newAccount;
+			}, error => {
+				logger.error({
+					description: 'Error creating new account.',
+					error, func: 'createWithProvider', obj: 'Account'
+				});
+				if(error && error.code && error.code === 11000){
+					logger.error({
+						description: 'Email is already taken.',
+						error, func: 'createWithProvider', obj: 'Account'
+					});
+					return Promise.reject({
+						message: 'Email is associated with an existing account.',
+						status: 'EXISTS'
+					});
+				}
+				return Promise.reject(error);
+			});
+		}, error => {
+			logger.error({
+				description: 'Error searching for matching account.',
+				error, func: 'createWithProvider', obj: 'Account'
+			});
+			return Promise.reject(error);
 		});
 	},
 	/**
@@ -355,164 +542,6 @@ AccountSchema.methods = {
 				});
 			});
 		})
-	},
-	/**
-	 * @function createWithPass
-	 * @description Create new account
-	 * @param {string} password - Password with which to create account
-	 * @param {string} application - Application with which to create account
-	 */
-	createWithPass: function(password, application) {
-		var self = this;
-		if(!self.username){
-			logger.warn({
-				description: 'Username is required to create a new account.',
-				func: 'createWithPass', obj: 'Account'
-			});
-			return Promise.reject({
-				message: 'Username required to create a new account.'
-			});
-		}
-		if(!password || !_.isString(password)){
-			logger.error({
-				description: 'Invalid password.',
-				password: password,
-				func: 'createWithPass', obj: 'Account'
-			});
-			return Promise.reject({
-				message: 'Invalid password.'
-			});
-		}
-		let findObj = {username: self.username};
-		if(application) {
-			//TODO: Make sure that this is an id not an application object
-			findObj.application = application;
-		} else {
-			logger.warn({
-				description: 'Creating a user without an application.',
-				func: 'createWithPass', obj: 'Account'
-			});
-		}
-		let query = self.model('Account').findOne(findObj);
-		return query.then((foundAccount) => {
-			if(foundAccount){
-				logger.warn({
-					description: 'A user with provided username already exists',
-					user: foundAccount, func: 'createWithPass', obj: 'Account'
-				});
-				return Promise.reject({message: 'A user with that username already exists.'});
-			}
-			logger.log({
-				description: 'User does not already exist.',
-				func: 'createWithPass', obj: 'Account'
-			});
-			return self.hashPassword(password).then((hashedPass) => {
-				self.password = hashedPass;
-				logger.log({
-					description: 'Before save.',
-					func: 'createWithPass', obj: 'Account'
-				});
-				return self.save().then((newAccount) => {
-					logger.log({
-						description: 'New account created successfully.',
-						newAccount: newAccount,
-						func: 'createWithPass', obj: 'Account'
-					});
-					return newAccount;
-				}, (err) => {
-					logger.error({
-						description: 'Error creating new account.',
-						error: err, func: 'createWithPass', obj: 'Account'
-					});
-					if(err && err.code && err.code === 11000){
-						logger.error({
-							description: 'Email is already taken.',
-							error: err, func: 'createWithPass', obj: 'Account'
-						});
-						return Promise.reject({
-							message: 'Email is associated with an existing account.',
-							status: 'EXISTS'
-						});
-					}
-					return Promise.reject(err);
-				});
-			}, (err) => {
-				logger.error({
-					description: 'Error hashing password.',
-					error: err, func: 'createWithPass', obj: 'Account'
-				});
-				return Promise.reject(err);
-			});
-		}, (err) => {
-			logger.error({
-				description: 'Error searching for matching account.',
-				error: err, func: 'createWithPass', obj: 'Account'
-			});
-			return Promise.reject(err);
-		});
-	},
-	createWithProvider: function(application) {
-		logger.debug({
-			description: 'Create with provider called.', this, application,
-			func: 'createWithProvider', obj: 'Account'
-		});
-		if(!this.username){
-			logger.warn({
-				description: 'Username is required to create a new account.',
-				func: 'createWithPass', obj: 'Account'
-			});
-			return Promise.reject({
-				message: 'Username required to create a new account.'
-			});
-		}
-		let findObj = { username: this.username };
-		if(application){
-			//TODO: Make sure that this is an id not an application object
-			findObj.application = application;
-		}
-		let query = this.model('Account').findOne(findObj);
-		return query.then(foundAccount => {
-			if(foundAccount){
-				logger.warn({
-					description: 'A user with provided username already exists',
-					foundAccount, func: 'createWithProvider', obj: 'Account'
-				});
-				return Promise.reject({message: 'A user with that username already exists.'});
-			}
-			logger.log({
-				description: 'User does not already exist.',
-				func: 'createWithProvider', obj: 'Account'
-			});
-			return self.save().then(newAccount => {
-				logger.log({
-					description: 'New account created successfully.',
-					newAccount, func: 'createWithProvider', obj: 'Account'
-				});
-				return newAccount;
-			}, error => {
-				logger.error({
-					description: 'Error creating new account.',
-					error, func: 'createWithProvider', obj: 'Account'
-				});
-				if(error && error.code && error.code === 11000){
-					logger.error({
-						description: 'Email is already taken.',
-						error, func: 'createWithProvider', obj: 'Account'
-					});
-					return Promise.reject({
-						message: 'Email is associated with an existing account.',
-						status: 'EXISTS'
-					});
-				}
-				return Promise.reject(error);
-			});
-		}, error => {
-			logger.error({
-				description: 'Error searching for matching account.',
-				error, func: 'createWithProvider', obj: 'Account'
-			});
-			return Promise.reject(error);
-		});
 	},
 	uploadImage: function(image) {
 		//Upload image to s3
