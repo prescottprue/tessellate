@@ -78,35 +78,10 @@ exports.default = {
 		type: 'PUT',
 		endpoint: '/logout',
 		controller: authCtrls.logout
-	}],
-	accounts: [{
-		type: 'GET',
-		endpoint: '/account',
-		controller: authCtrls.verify
-	}, {
-		type: 'GET',
-		endpoint: '/accounts',
-		controller: accountCtrls.get
-	}, {
-		type: 'GET',
-		endpoint: '/accounts/:username',
-		controller: accountCtrls.get
 	}, {
 		type: 'POST',
-		endpoint: '/accounts',
-		controller: accountCtrls.add
-	}, {
-		type: 'PUT',
-		endpoint: '/account/:username',
-		controller: accountCtrls.update
-	}, {
-		type: 'DELETE',
-		endpoint: '/accounts/:username',
-		controller: accountCtrls.del
-	}, {
-		type: 'GET',
-		endpoint: '/accounts/search/:searchQuery',
-		controller: accountCtrls.search
+		endpoint: '/recover',
+		controller: authCtrls.recover
 	}],
 	accounts: [{
 		type: 'GET',

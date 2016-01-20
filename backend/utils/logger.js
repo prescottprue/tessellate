@@ -105,7 +105,7 @@ function buildMessageStr(logData){
  * Currently using Loggly through winston. Requires LOGGLY_TOKEN environment variable
  */
 function configureExternalLogger(){
-  if(config.logging && config.logging.enabled){
+  if(config.logging && config.logging.external){
 		if(!_.has(process.env, 'LOGGLY_TOKEN')){
 			console.warn('Loggly Token does not exist, so external logging can not be configured.');
 			externalLoggerExists = false;
@@ -129,11 +129,13 @@ function configureExternalLogger(){
  * @param {object|string} msgData - Object or String data of message to log.
  */
 function callExternalLogger(type, msgData) {
-	try {
-		console[type](msgData);
-		externalLoggerExists ? winston.log(type, msgData) : console.log('External logging does not exist.');
-	} catch(err){
-		console.log('ERROR: External logging failed.');
-		console.log(JSON.stringify(err));
+	if(externalLoggerExists){
+		try {
+			// console[type](msgData);
+			winston.log(type, msgData)
+		} catch(err){
+			console.log('ERROR: External logging failed.');
+			console.log(JSON.stringify(err));
+		}
 	}
 }

@@ -20,7 +20,14 @@ module.exports = {
 		projectBucketPrefix: "projects",
 		componentBucketPrefix: "components"
 	},
-	authEnabled: false,
+	google: {
+		client: {
+			id: process.env.TESSELLATE_GOOGLE_CLIENT_ID,
+			secret: process.env.TESSELLATE_GOOGLE_CLIENT_SECRET,
+			redirectUrl: process.env.TESSELLATE_GOOGLE_REDIRECT_URL || 'http://localhost:3000/oauth2callback'
+		}
+	},
+	authEnabled: true,
 	authRocket: {
 		enabled: false,
 		secret: process.env.AUTHROCKET_JWT_SECRET

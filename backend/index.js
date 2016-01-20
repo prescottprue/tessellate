@@ -52,15 +52,17 @@ app.options('*', cors());
  * @description Enable authentication based on config setting
  */
 if(config.authEnabled){
-  let allowedPaths = [
-    '/', '/login',
+  const allowedPaths = [
+    '/', '/login', '/recover',
     '/logout', '/signup',
     '/docs', '/docs/**',
-    '/authrocket',
+    '/authrocket', '/authUrl', '/oauth2',
     /(\/apps\/.*\/login)/,
     /(\/apps\/.*\/logout)/,
     /(\/apps\/.*\/signup)/,
-    /(\/apps\/.*\/providers)/
+    /(\/apps\/.*\/providers)/,
+    /(\/apps\/.*\/googleAuthUrl)/,
+    /(\/apps\/.*\/oauth2callback)/
   ];
   let secret = config.jwtSecret;
   if (config.authRocket && config.authRocket.enabled) {
@@ -83,12 +85,12 @@ if(config.authEnabled){
   app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
       logger.error({
-        description: 'Error confirming token.',
-        error: err, obj: 'server'
+        description: 'Authentication error.',
+        err, obj: 'server'
       });
       //TODO: look for application name
       //TODO: Try decoding with application's authrocket secret
-      return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
+      return res.status(401).send('Unauthorized');
     }
   });
 } else {
