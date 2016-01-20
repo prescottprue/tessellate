@@ -10,7 +10,6 @@ import { Session } from '../models/session';
 import AuthRocket from 'authrocket';
 import jwt from 'jsonwebtoken';
 import config from '../config/default';
-import google from 'googleapis';
 let authRocketEnabled = config.authRocket ? config.authRocket.enabled : false;
 let authrocket = new AuthRocket();
 /**
@@ -363,7 +362,7 @@ export function verify(req, res, next) {
 			return res.status(400).send('Account with this information does not exist.');
 		}
 		res.json(result);
-	}, (err) => {
+	}, err => {
 		logger.error({
 			description: 'Error querying for account',
 			error: err, func: 'verify', obj: 'AuthCtrl'
@@ -374,7 +373,7 @@ export function verify(req, res, next) {
 /**
  * @api {post} /recover Recover
  * @apiDescription Recover an account though email
- * @apiName Verify
+ * @apiName Recover
  * @apiGroup Auth
  *
  * @apiSuccess {Object} accountData Object containing accounts data.
@@ -414,8 +413,8 @@ export function recover(req, res, next) {
 		func: 'recover', obj: 'AuthCtrl'
 	});
 	let query = Account.findOne(findObj).select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
-	query.then(result => {
-		if(!result){
+	query.then(account => {
+		if(!account){
 			// TODO: Respond with a specific error code
 			logger.error({
 				description: 'Account not found.',
@@ -428,8 +427,11 @@ export function recover(req, res, next) {
 			description: 'Account found. Sending email',
 			func: 'verify', obj: 'AuthCtrl'
 		});
-		res.send('Email sent');
-		// res.json(result);
+		account.sendRecoveryEmail().then(() => {
+			res.json({message: 'Email sent', status: 'SUCCESS'});
+		}, error => {
+			res.status(500).send('Error sending recovery email');
+		});
 	}, err => {
 		logger.error({
 			description: 'Error querying for account',
@@ -438,71 +440,3 @@ export function recover(req, res, next) {
 		return res.status(500).send('Unable to verify token.');
 	});
 };
-/**
- * @api {post} /recover Recover
- * @apiDescription Recover an account though email
- * @apiName Verify
- * @apiGroup Auth
- *
- * @apiSuccess {Object} accountData Object containing accounts data.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       name: "John Doe",
- *       username:"hackerguy1",
- *       title: "Front End Developer",
- *       role:"admin",
- *       createdAt:1438737438578
- *       updatedAt:1438737438578
- *     }
- *
- */
-export function authUrl(req, res, next) {
-	logger.debug({
-		description: 'authUrl request.', query: req.query, body: req.body,
-		func: 'googleAuthUrl', obj: 'AuthCtrl'
-	});
-	const enabledProviders = ['google'];
-	if(!req.query || !req.query.provider || enabledProviders.indexOf(req.query.provider) === -1){
-		return res.status(400).send('Invalid Authentication Provider');
-	}
-	let authUrl;
-	switch(req.query.provider){
-		case 'google':
-			authUrl = googleAuthUrl(req.query.redirect);
-			break;
-		default:
-			authUrl = googleAuthUrl(req.query.redirect);
-	}
-	if(!authUrl){
-		return res.status(400).send('Error generating external auth url');
-	}
-	logger.debug({
-		description: 'Responding with authUrl.', authUrl,
-		func: 'authUrl', obj: 'AuthCtrl'
-	});
-	res.json(authUrl);
-};
-function googleAuthUrl(redirect) {
-	const { id, secret, redirectUrl } = config.google.client;
-	try {
-		const oauth2Client = new google.auth.OAuth2(id, secret, redirect || redirectUrl);
-		// generate a url that asks permissions for Google+ and Google Calendar scopes
-		const scope = [
-		  'https://www.googleapis.com/auth/plus.me'
-		];
-		const url = oauth2Client.generateAuthUrl({ scope });
-		logger.debug({
-			description: 'Google url generated.', url,
-			func: 'googleAuthUrl', obj: 'AuthCtrl'
-		});
-		return url;
-	} catch(err) {
-		logger.error({
-			description: 'Error generating auth url.', url,
-			func: 'googleAuthUrl', obj: 'AuthCtrl'
-		});
-		return null;
-	}
-}

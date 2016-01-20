@@ -24,7 +24,6 @@
     "express": "~4.13.3",
     "express-jwt": "^3.0.1",
     "formidable": "^1.0.17",
-    "googleapis": "^2.1.7",
     "jsonwebtoken": "^5.0.1",
     "lodash": "^3.10.1",
     "mkdirp": "^0.5.1",

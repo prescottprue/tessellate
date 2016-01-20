@@ -570,6 +570,10 @@ AccountSchema.methods = {
 			});
 			return Promise.reject(error);
 		});
+	},
+	sendRecoveryEmail : function() {
+		//TODO: Send recovery email through nodemailer
+		return Promise.resolve();
 	}
 };
 /**
