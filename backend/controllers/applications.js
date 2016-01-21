@@ -59,31 +59,33 @@ export function get(req, res, next) {
 	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
 	let isList = true;
 	let findObj = {};
-	let query;
-	if(req.params.name){ //Get data for a specific application
+	const { name } = req.params;
+	const { username } = req.body;
+	if(!req.user && !username){
+		return res.status(400).json('Username and Token are required');
+	}
+	if(name){ //Get data for a specific application
 		logger.log({
-			description: 'Application get request.', name: req.params.name,
+			description: 'Application get request.', name,
 			func: 'get', obj: 'ApplicationsCtrls'
 		});
-		findObj.name = req.params.name;
+		findObj.name = name;
 		isList = false;
-		query = Application.findOne(findObj).populate({path:'owner', select:'username name email'})
-		.populate({path:'collaborators', select:'username name email'})
-		.populate({path:'groups', select:'name accounts'});
 	} else {
 		//Find applications that current user as owner or as a collaborator
 		if(req.user){
 			findObj.$or = [{'owner': req.user.accountId}, {'collaborators': {$in:[req.user.accountId]}}]
 		}
-		query = Application.find(findObj).populate({path:'owner', select:'username name email'})
-		.populate({path:'collaborators', select:'username name email'})
-		.populate({path:'groups', select:'name accounts'});
 	}
 	logger.log({
 		description: 'Get find object created.', findObj: findObj,
 		func: 'get', obj: 'ApplicationsCtrls'
 	});
-	query.then((result) => {
+	Application.findOne(findObj)
+	.populate({path:'owner', select:'username name email'})
+	.populate({path:'collaborators', select:'username name email'})
+	.populate({path:'groups', select:'name accounts'})
+	.then(result => {
 		if(!result){
 			logger.error({
 				description: 'Error finding Application(s).',
@@ -96,7 +98,7 @@ export function get(req, res, next) {
 			func: 'get', obj: 'ApplicationsCtrls'
 		});
 		res.send(result);
-	}, (err) => {
+	}, err => {
 		logger.error({
 			description: 'Error getting application(s):',
 			error: err, func: 'get', obj: 'ApplicationsCtrls'
@@ -1447,6 +1449,41 @@ function findApplication(appName) {
 			return Promise.reject({message: 'Error finding application.'});
 		});
 	}
+}
+// Utility functions
+//Wrap finding application in a promise that handles errors
+//TODO: Allow choosing populate settings
+export function findProjectsByUserId(userId) {
+	if(!userId){
+		logger.error({
+			description: 'User id is required to find projects.',
+			func: 'findProjectsByUserId'
+		});
+		return Promise.reject({message: 'User id is required to find projects.'});
+	}
+	const findObj = {owner: userId, $or: [{'owner': userId}, {'collaborators': {$in:[userId]}}]};
+	let query = Application.find(findObj)
+	.populate({path:'owner', select:'username name email'})
+	return query.then(foundApp => {
+		if(!foundApp){
+			logger.error({
+				description: 'Application not found',
+				func: 'findApplication'
+			});
+			return Promise.reject({message: 'Application not found'});
+		}
+		logger.log({
+			description: 'Application found.',
+			foundApp, func: 'findApplication'
+		});
+		return foundApp;
+	}, error => {
+		logger.error({
+			description: 'Error finding application.',
+			error, func: 'findApplication'
+		});
+		return Promise.reject({message: 'Error finding application.'});
+	});
 }
 // ------------------------------------------------------------------------------------------
 // Current Errors.

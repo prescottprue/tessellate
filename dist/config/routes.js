@@ -18,7 +18,11 @@ var authCtrls = _interopRequireWildcard(_auth);
 
 var _accounts = require('../controllers/accounts');
 
-var accountCtrls = _interopRequireWildcard(_accounts);
+var accountsCtrls = _interopRequireWildcard(_accounts);
+
+var _account = require('../controllers/account');
+
+var accountCtrls = _interopRequireWildcard(_account);
 
 var _applications = require('../controllers/applications');
 
@@ -90,32 +94,36 @@ exports.default = {
 	}, {
 		type: 'GET',
 		endpoint: '/accounts',
-		controller: accountCtrls.get
+		controller: accountsCtrls.get
 	}, {
 		type: 'GET',
 		endpoint: '/accounts/:username',
-		controller: accountCtrls.get
+		controller: accountsCtrls.get
+	}, {
+		type: 'GET',
+		endpoint: '/accounts/:username/projects',
+		controller: accountCtrls.getProjects
 	}, {
 		type: 'POST',
 		endpoint: '/accounts',
-		controller: accountCtrls.add
+		controller: accountsCtrls.add
 	}, {
 		type: 'PUT',
 		endpoint: '/account/:username',
-		controller: accountCtrls.update
+		controller: accountsCtrls.update
 	}, {
 		type: 'POST',
 		middleware: upload.single('image'),
 		endpoint: '/accounts/:username/upload',
-		controller: accountCtrls.uploadImage
+		controller: accountsCtrls.uploadImage
 	}, {
 		type: 'DELETE',
 		endpoint: '/accounts/:username',
-		controller: accountCtrls.del
+		controller: accountsCtrls.del
 	}, {
 		type: 'GET',
 		endpoint: '/accounts/search/:searchQuery',
-		controller: accountCtrls.search
+		controller: accountsCtrls.search
 	}],
 	//Alias of account(s)
 	users: [{
@@ -125,31 +133,31 @@ exports.default = {
 	}, {
 		type: 'GET',
 		endpoint: '/users',
-		controller: accountCtrls.get
+		controller: accountsCtrls.get
 	}, {
 		type: 'GET',
 		endpoint: '/users/:username',
-		controller: accountCtrls.get
+		controller: accountsCtrls.get
 	}, {
 		type: 'POST',
 		endpoint: '/users',
-		controller: accountCtrls.add
+		controller: accountsCtrls.add
 	}, {
 		type: 'PUT',
 		endpoint: '/user/:username',
-		controller: accountCtrls.update
+		controller: accountsCtrls.update
 	}, {
 		type: 'POST',
 		endpoint: '/users/:username/upload',
-		controller: accountCtrls.uploadImage
+		controller: accountsCtrls.uploadImage
 	}, {
 		type: 'DELETE',
 		endpoint: '/users/:username',
-		controller: accountCtrls.del
+		controller: accountsCtrls.del
 	}, {
 		type: 'GET',
 		endpoint: '/users/search/:searchQuery',
-		controller: accountCtrls.search
+		controller: accountsCtrls.search
 	}],
 	applications: [{
 		type: 'GET',
@@ -206,7 +214,7 @@ exports.default = {
 	}, {
 		type: 'PUT',
 		endpoint: '/apps/:name/account/:username',
-		controller: accountCtrls.update
+		controller: accountsCtrls.update
 	}, {
 		type: 'PUT',
 		endpoint: '/apps/:name/logout',

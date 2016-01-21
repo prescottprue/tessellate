@@ -603,6 +603,10 @@ AccountSchema.methods = {
 			});
 			return Promise.reject(error);
 		});
+	},
+	sendRecoveryEmail: function sendRecoveryEmail() {
+		//TODO: Send recovery email through nodemailer
+		return Promise.resolve();
 	}
 };
 /**
