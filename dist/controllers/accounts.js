@@ -9,6 +9,7 @@ exports.update = update;
 exports.del = del;
 exports.search = search;
 exports.uploadImage = uploadImage;
+exports.createAccountQuery = createAccountQuery;
 
 var _lodash = require('lodash');
 

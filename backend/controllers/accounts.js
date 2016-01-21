@@ -2,9 +2,9 @@
  * @description Account controller functions
  */
 import _ from 'lodash';
-import {keys} from 'lodash';
+import { keys } from 'lodash';
 import logger from '../utils/logger';
-import {Account} from '../models/account';
+import { Account } from '../models/account';
 import util from 'util';
 import multer from 'multer';
 
@@ -319,8 +319,8 @@ export function uploadImage(req, res, next) {
 /**
  * Create a account query based on provided key and value
  */
-function createAccountQuery(key, val){
-	var queryArr = _.map(val.split(' '), function (qr) {
+export function createAccountQuery(key, val){
+	var queryArr = _.map(val.split(' '), (qr) => {
     var queryObj = {};
     queryObj[key] = new RegExp(_.escapeRegExp(qr), 'i');
     return queryObj;

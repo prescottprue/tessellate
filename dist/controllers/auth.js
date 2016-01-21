@@ -8,15 +8,14 @@ exports.login = login;
 exports.logout = logout;
 exports.verify = verify;
 exports.recover = recover;
-exports.authUrl = authUrl;
 
 var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
-var _url2 = require('url');
+var _url = require('url');
 
-var _url3 = _interopRequireDefault(_url2);
+var _url2 = _interopRequireDefault(_url);
 
 var _lodash = require('lodash');
 
@@ -40,17 +39,12 @@ var _default = require('../config/default');
 
 var _default2 = _interopRequireDefault(_default);
 
-var _googleapis = require('googleapis');
-
-var _googleapis2 = _interopRequireDefault(_googleapis);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * @description Authentication controller
- */
+var authRocketEnabled = _default2.default.authRocket ? _default2.default.authRocket.enabled : false; /**
+                                                                                                      * @description Authentication controller
+                                                                                                      */
 
-var authRocketEnabled = _default2.default.authRocket ? _default2.default.authRocket.enabled : false;
 var authrocket = new _authrocket2.default();
 /**
  * @api {post} /signup Sign Up
@@ -411,7 +405,7 @@ function verify(req, res, next) {
 /**
  * @api {post} /recover Recover
  * @apiDescription Recover an account though email
- * @apiName Verify
+ * @apiName Recover
  * @apiGroup Auth
  *
  * @apiSuccess {Object} accountData Object containing accounts data.
@@ -451,8 +445,8 @@ function recover(req, res, next) {
 		func: 'recover', obj: 'AuthCtrl'
 	});
 	var query = _account.Account.findOne(findObj).select({ password: 0, __v: 0, createdAt: 0, updatedAt: 0 });
-	query.then(function (result) {
-		if (!result) {
+	query.then(function (account) {
+		if (!account) {
 			// TODO: Respond with a specific error code
 			_logger2.default.error({
 				description: 'Account not found.',
@@ -465,8 +459,11 @@ function recover(req, res, next) {
 			description: 'Account found. Sending email',
 			func: 'verify', obj: 'AuthCtrl'
 		});
-		res.send('Email sent');
-		// res.json(result);
+		account.sendRecoveryEmail().then(function () {
+			res.json({ message: 'Email sent', status: 'SUCCESS' });
+		}, function (error) {
+			res.status(500).send('Error sending recovery email');
+		});
 	}, function (err) {
 		_logger2.default.error({
 			description: 'Error querying for account',
@@ -475,73 +472,3 @@ function recover(req, res, next) {
 		return res.status(500).send('Unable to verify token.');
 	});
 };
-/**
- * @api {post} /recover Recover
- * @apiDescription Recover an account though email
- * @apiName Verify
- * @apiGroup Auth
- *
- * @apiSuccess {Object} accountData Object containing accounts data.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       name: "John Doe",
- *       username:"hackerguy1",
- *       title: "Front End Developer",
- *       role:"admin",
- *       createdAt:1438737438578
- *       updatedAt:1438737438578
- *     }
- *
- */
-function authUrl(req, res, next) {
-	_logger2.default.debug({
-		description: 'authUrl request.', query: req.query, body: req.body,
-		func: 'googleAuthUrl', obj: 'AuthCtrl'
-	});
-	var enabledProviders = ['google'];
-	if (!req.query || !req.query.provider || enabledProviders.indexOf(req.query.provider) === -1) {
-		return res.status(400).send('Invalid Authentication Provider');
-	}
-	var authUrl = undefined;
-	switch (req.query.provider) {
-		case 'google':
-			authUrl = googleAuthUrl(req.query.redirect);
-			break;
-		default:
-			authUrl = googleAuthUrl(req.query.redirect);
-	}
-	if (!authUrl) {
-		return res.status(400).send('Error generating external auth url');
-	}
-	_logger2.default.debug({
-		description: 'Responding with authUrl.', authUrl: authUrl,
-		func: 'authUrl', obj: 'AuthCtrl'
-	});
-	res.json(authUrl);
-};
-function googleAuthUrl(redirect) {
-	var _config$google$client = _default2.default.google.client;
-	var id = _config$google$client.id;
-	var secret = _config$google$client.secret;
-	var redirectUrl = _config$google$client.redirectUrl;
-
-	try {
-		var oauth2Client = new _googleapis2.default.auth.OAuth2(id, secret, redirect || redirectUrl);
-		// generate a url that asks permissions for Google+ and Google Calendar scopes
-		var scope = ['https://www.googleapis.com/auth/plus.me'];
-		var _url = oauth2Client.generateAuthUrl({ scope: scope });
-		_logger2.default.debug({
-			description: 'Google url generated.', url: _url,
-			func: 'googleAuthUrl', obj: 'AuthCtrl'
-		});
-		return _url;
-	} catch (err) {
-		_logger2.default.error({
-			description: 'Error generating auth url.', url: _url3.default,
-			func: 'googleAuthUrl', obj: 'AuthCtrl'
-		});
-		return null;
-	}
-}

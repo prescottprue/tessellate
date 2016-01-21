@@ -1,7 +1,8 @@
 import express from 'express';
 import * as indexCtrls from '../controllers/index';
 import * as authCtrls from '../controllers/auth';
-import * as accountCtrls from '../controllers/accounts';
+import * as accountsCtrls from '../controllers/accounts';
+import * as accountCtrls from '../controllers/account';
 import * as appCtrls from '../controllers/applications';
 import * as templateCtrls from '../controllers/templates';
 import * as adminCtrl from '../controllers/admin';
@@ -55,43 +56,48 @@ export default {
 		{
 			type:'GET',
 			endpoint: '/account',
-			controller:authCtrls.verify
+			controller: authCtrls.verify
 		},
 		{
 			type:'GET',
 			endpoint: '/accounts',
-			controller:accountCtrls.get
+			controller: accountsCtrls.get
 		},
 		{
 			type:'GET',
 			endpoint: '/accounts/:username',
-			controller:accountCtrls.get
+			controller: accountsCtrls.get
+		},
+		{
+			type:'GET',
+			endpoint: '/accounts/:username/projects',
+			controller: accountCtrls.getProjects
 		},
 		{
 			type:'POST',
 			endpoint: '/accounts',
-			controller:accountCtrls.add
+			controller: accountsCtrls.add
 		},
 		{
 			type:'PUT',
 			endpoint: '/account/:username',
-			controller:accountCtrls.update
+			controller: accountsCtrls.update
 		},
 		{
 			type:'POST',
 			middleware: upload.single('image'),
 			endpoint: '/accounts/:username/upload',
-			controller:accountCtrls.uploadImage
+			controller: accountsCtrls.uploadImage
 		},
 		{
 			type:'DELETE',
 			endpoint: '/accounts/:username',
-			controller:accountCtrls.del
+			controller: accountsCtrls.del
 		},
 		{
 			type:'GET',
 			endpoint: '/accounts/search/:searchQuery',
-			controller:accountCtrls.search
+			controller: accountsCtrls.search
 		}
 
 	],
@@ -100,42 +106,42 @@ export default {
 		{
 			type:'GET',
 			endpoint: '/user',
-			controller:authCtrls.verify
+			controller: authCtrls.verify
 		},
 		{
 			type:'GET',
 			endpoint: '/users',
-			controller:accountCtrls.get
+			controller: accountsCtrls.get
 		},
 		{
 			type:'GET',
 			endpoint: '/users/:username',
-			controller:accountCtrls.get
+			controller:accountsCtrls.get
 		},
 		{
 			type:'POST',
 			endpoint: '/users',
-			controller:accountCtrls.add
+			controller:accountsCtrls.add
 		},
 		{
 			type:'PUT',
 			endpoint: '/user/:username',
-			controller:accountCtrls.update
+			controller:accountsCtrls.update
 		},
 		{
 			type:'POST',
 			endpoint: '/users/:username/upload',
-			controller:accountCtrls.uploadImage
+			controller:accountsCtrls.uploadImage
 		},
 		{
 			type:'DELETE',
 			endpoint: '/users/:username',
-			controller:accountCtrls.del
+			controller:accountsCtrls.del
 		},
 		{
 			type:'GET',
 			endpoint: '/users/search/:searchQuery',
-			controller:accountCtrls.search
+			controller:accountsCtrls.search
 		}
 	],
 	applications:[
@@ -208,7 +214,7 @@ export default {
 		{
 			type:'PUT',
 			endpoint: '/apps/:name/account/:username',
-			controller:accountCtrls.update
+			controller: accountsCtrls.update
 		},
 		{
 			type:'PUT',
