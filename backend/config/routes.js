@@ -1,9 +1,9 @@
 import express from 'express';
 import * as indexCtrls from '../controllers/index';
 import * as authCtrls from '../controllers/auth';
-import * as accountsCtrls from '../controllers/accounts';
-import * as accountCtrls from '../controllers/account';
-import * as appCtrls from '../controllers/applications';
+import * as usersCtrls from '../controllers/users';
+import * as userCtrls from '../controllers/user';
+import * as projectCtrls from '../controllers/projects';
 import * as templateCtrls from '../controllers/templates';
 import * as adminCtrl from '../controllers/admin';
 import * as groupsCtrl from '../controllers/groups';
@@ -16,34 +16,22 @@ export default {
 			type:'GET',
 			endpoint:'/',
 			controller: indexCtrls.main
-		},
-		// {
-		// 	type:'GET',
-		// 	endpoint:'/test',
-		// 	controller: indexCtrls.test
-		// }
-	],
-	authRocket:[
-		{
-			type: 'POST',
-			endpoint: '/authrocket',
-			controller: authrocketCtrls.events
 		}
 	],
 	auth:[
 		{
 			type:'POST',
-			endpoint:'/signup',
+			endpoint: '/signup',
 			controller: authCtrls.signup
 		},
 		{
 			type:'PUT',
-			endpoint:'/login',
+			endpoint: '/login',
 			controller: authCtrls.login
 		},
 		{
 			type:'PUT',
-			endpoint:'/logout',
+			endpoint: '/logout',
 			controller: authCtrls.logout
 		},
 		{
@@ -55,250 +43,205 @@ export default {
 	accounts:[
 		{
 			type:'GET',
-			endpoint: '/account',
-			controller: authCtrls.verify
-		},
-		{
-			type:'GET',
-			endpoint: '/accounts',
-			controller: accountsCtrls.get
-		},
-		{
-			type:'GET',
-			endpoint: '/accounts/:username',
-			controller: accountsCtrls.get
-		},
-		{
-			type:'GET',
-			endpoint: '/accounts/:username/projects',
-			controller: accountCtrls.getProjects
-		},
-		{
-			type:'POST',
-			endpoint: '/accounts',
-			controller: accountsCtrls.add
-		},
-		{
-			type:'PUT',
-			endpoint: '/account/:username',
-			controller: accountsCtrls.update
-		},
-		{
-			type:'POST',
-			middleware: upload.single('image'),
-			endpoint: '/accounts/:username/upload',
-			controller: accountsCtrls.uploadImage
-		},
-		{
-			type:'DELETE',
-			endpoint: '/accounts/:username',
-			controller: accountsCtrls.del
-		},
-		{
-			type:'GET',
-			endpoint: '/accounts/search/:searchQuery',
-			controller: accountsCtrls.search
-		}
-
-	],
-	//Alias of account(s)
-	users:[
-		{
-			type:'GET',
 			endpoint: '/user',
 			controller: authCtrls.verify
 		},
 		{
 			type:'GET',
 			endpoint: '/users',
-			controller: accountsCtrls.get
+			controller: usersCtrls.get
 		},
 		{
 			type:'GET',
 			endpoint: '/users/:username',
-			controller:accountsCtrls.get
+			controller: usersCtrls.get
+		},
+		{
+			type:'GET',
+			endpoint: '/users/:username/projects',
+			controller: userCtrls.getProjects
 		},
 		{
 			type:'POST',
 			endpoint: '/users',
-			controller:accountsCtrls.add
+			controller: usersCtrls.add
 		},
 		{
 			type:'PUT',
-			endpoint: '/user/:username',
-			controller:accountsCtrls.update
+			endpoint: '/users/:username',
+			controller: usersCtrls.update
 		},
 		{
 			type:'POST',
+			middleware: upload.single('image'),
 			endpoint: '/users/:username/upload',
-			controller:accountsCtrls.uploadImage
+			controller: usersCtrls.uploadImage
 		},
 		{
 			type:'DELETE',
 			endpoint: '/users/:username',
-			controller:accountsCtrls.del
+			controller: usersCtrls.del
 		},
 		{
 			type:'GET',
 			endpoint: '/users/search/:searchQuery',
-			controller:accountsCtrls.search
+			controller: usersCtrls.search
 		}
 	],
-	applications:[
+	projects:[
 		{
 			type:'GET',
-			endpoint: '/apps',
-			controller:appCtrls.get
+			endpoint: '/projects/:owner',
+			controller: projectCtrls.get
 		},
 		{
 			type:'GET',
-			endpoint: '/apps/:name',
-			controller:appCtrls.get
+			endpoint: '/projects/:owner/:name',
+			controller: projectCtrls.get
 		},
-
 		{
 			type:'GET',
-			endpoint: '/apps/:name/providers',
-			controller:appCtrls.getProviders
+			endpoint: '/projects/:owner/:name/providers',
+			controller: projectCtrls.getProviders
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name/files',
-			controller:appCtrls.files
+			endpoint: '/projects/:owner/:name/files',
+			controller: projectCtrls.files
 		},
 		{
 			type:'POST',
-			endpoint: '/apps/:name/publish',
-			controller:appCtrls.publishFile
+			endpoint: '/projects/:owner/:project/publish',
+			controller: projectCtrls.publishFile
 		},
 		{
 			type:'POST',
-			endpoint: '/apps',
-			controller:appCtrls.add
+			endpoint: '/projects/:owner',
+			controller: projectCtrls.add
 		},
 		{
 			type:'POST',
-			endpoint: '/apps/:name/template',
-			controller:appCtrls.applyTemplate
+			endpoint: '/projects/:owner/:project/template',
+			controller: projectCtrls.applyTemplate
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name',
-			controller:appCtrls.update
+			endpoint: '/projects/:owner/:project',
+			controller: projectCtrls.update
 		},
 		{
 			type:'DELETE',
-			endpoint: '/apps/:name',
-			controller:appCtrls.del
+			endpoint: '/projects/:owner/:project',
+			controller: projectCtrls.del
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name/storage',
-			controller:appCtrls.addStorage
+			endpoint: '/projects/:owner/:project/storage',
+			controller: projectCtrls.addStorage
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name/login',
-			controller:appCtrls.login
+			endpoint: '/projects/:owner/:project/login',
+			controller: projectCtrls.login
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name/signup',
-			controller:appCtrls.signup
+			endpoint: '/projects/:owner/:project/signup',
+			controller: projectCtrls.signup
 		},
 		{
 			type:'GET',
-			endpoint: '/apps/:name/account',
-			controller:appCtrls.verify
+			endpoint: '/projects/:owner/:project/account',
+			controller: projectCtrls.verify
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name/account/:username',
-			controller: accountsCtrls.update
+			endpoint: '/projects/:owner/:project/account/:username',
+			controller: usersCtrls.update
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name/logout',
-			controller:appCtrls.logout
+			endpoint: '/projects/:owner/:project/logout',
+			controller: projectCtrls.logout
 		},
 		{
 			type:'POST',
-			endpoint:'/apps/:name/signup',
-			controller: appCtrls.signup
+			endpoint:'/projects/:owner/:project/signup',
+			controller: projectCtrls.signup
 		},
 		{
 			type:'GET',
-			endpoint: '/apps/:name/groups',
-			controller:appCtrls.groups
+			endpoint: '/projects/:owner/:project/groups',
+			controller: projectCtrls.groups
 		},
 		{
 			type:'GET',
-			endpoint: '/apps/:name/groups/:groupName',
-			controller:appCtrls.groups
+			endpoint: '/projects/:owner/:project/groups/:groupName',
+			controller: projectCtrls.groups
 		},
 		{
 			type:'POST',
-			endpoint: '/apps/:name/groups',
-			controller:appCtrls.addGroup
+			endpoint: '/projects/:owner/:project/groups',
+			controller: projectCtrls.addGroup
 		},
 		{
 			type:'PUT',
-			endpoint: '/apps/:name/groups/:groupName',
-			controller:appCtrls.updateGroup
+			endpoint: '/projects/:project/groups/:groupName',
+			controller: projectCtrls.updateGroup
 		},
 		{
 			type:'DELETE',
-			endpoint: '/apps/:name/groups/:groupName',
-			controller:appCtrls.deleteGroup
+			endpoint: '/projects/:project/groups/:groupName',
+			controller: projectCtrls.deleteGroup
 		}
 	],
 	templates:[
 		{
 			type:'GET',
 			endpoint: '/templates',
-			controller:templateCtrls.get
+			controller: templateCtrls.get
 		},
 		{
 			type:'GET',
 			endpoint: '/templates/:name',
-			controller:templateCtrls.get
+			controller: templateCtrls.get
 		},
 		{
 			type:'GET',
 			endpoint: '/templates/search/:searchQuery',
-			controller:templateCtrls.search
+			controller: templateCtrls.search
 		},
 		{
 			type:'POST',
 			endpoint: '/templates',
-			controller:templateCtrls.add
+			controller: templateCtrls.add
 		},
 		{
 			type:'PUT',
 			endpoint: '/templates/:name',
-			controller:templateCtrls.update
+			controller: templateCtrls.update
 		},
 		{
 			type:'PUT',
 			endpoint: '/templates/:name/upload',
-			controller:templateCtrls.upload
+			controller: templateCtrls.upload
 		},
 		{
 			type:'DELETE',
 			endpoint: '/templates/:name',
-			controller:templateCtrls.del
+			controller: templateCtrls.del
 		}
 	],
 	groups:[
 		{
 			type:'GET',
 			endpoint: '/groups',
-			controller:groupsCtrl.get
+			controller: groupsCtrl.get
 		},
 		{
 			type:'GET',
 			endpoint: '/groups/:name',
-			controller:groupsCtrl.get
+			controller: groupsCtrl.get
 		},
 		{
 			type:'POST',
@@ -316,16 +259,4 @@ export default {
 			controller:groupsCtrl.del
 		}
 	],
-	admin:[
-		{
-			type:'GET',
-			endpoint: '/admin/buckets',
-			controller:adminCtrl.getBuckets
-		},
-		{
-			type:'DELETE',
-			endpoint: '/admin/buckets',
-			controller:adminCtrl.deleteBucket
-		}
-	]
 };

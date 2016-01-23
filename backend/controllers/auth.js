@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import url from 'url';
 import { has } from 'lodash';
 import logger from '../utils/logger';
-import { Account } from '../models/account';
+import { User } from '../models/user';
 import { Session } from '../models/session';
 import AuthRocket from 'authrocket';
 import jwt from 'jsonwebtoken';
@@ -14,17 +14,17 @@ let authRocketEnabled = config.authRocket ? config.authRocket.enabled : false;
 let authrocket = new AuthRocket();
 /**
  * @api {post} /signup Sign Up
- * @apiDescription Sign up a new account and start a session as that new account
+ * @apiDescription Sign up a new user and start a session as that new user
  * @apiName Signup
  * @apiGroup Auth
  *
- * @apiParam {Number} id Accounts unique ID.
- * @apiParam {String} username Accountname of account to signup as.
- * @apiParam {String} [title] Title of account to signup as.
- * @apiParam {String} email Email of account to signup as.
- * @apiParam {String} password Password of account to signup as.
+ * @apiParam {Number} id Users unique ID.
+ * @apiParam {String} username Username of user to signup as.
+ * @apiParam {String} [title] Title of user to signup as.
+ * @apiParam {String} email Email of user to signup as.
+ * @apiParam {String} password Password of user to signup as.
  *
- * @apiSuccess {Object} accountData Object containing accounts data.
+ * @apiSuccess {Object} userData Object containing users data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -36,7 +36,6 @@ let authrocket = new AuthRocket();
  *
  */
 export function signup(req, res, next) {
-	var query;
 	logger.log({
 		description: 'Signup request.', body: req.body,
 		func: 'signup', obj: 'AuthCtrls'
@@ -48,6 +47,7 @@ export function signup(req, res, next) {
 			message:"Username or Email required to signup"
 		});
 	}
+	let query;
 	if(authRocketEnabled){
 		authrocket.signup(req.body).then((signupRes) => {
 			logger.log({
@@ -66,34 +66,34 @@ export function signup(req, res, next) {
 	} else {
 		//Basic Internal Signup
 		if(has(req.body, "username")){
-			query = Account.findOne({"username":req.body.username}); // find using username field
+			query = User.findOne({"username":req.body.username}); // find using username field
 		} else {
-			query = Account.findOne({"email":req.body.email}); // find using email field
+			query = User.findOne({"email":req.body.email}); // find using email field
 		}
-		query.then((result) => {
-			if(result){ //Matching account already exists
+		query.then(result => {
+			if(result){ //Matching user already exists
 				// TODO: Respond with a specific error code
-				return res.status(400).send('Account with this information already exists.');
+				return res.status(400).send('User with this information already exists.');
 			}
-			//account does not already exist
-			//Build account data from request
-			var account = new Account(req.body);
-			// TODO: Start a session with new account
-			account.createWithPass(req.body.password).then((newAccount) => {
-				res.send(newAccount);
-			}, (err) => {
+			//user does not already exist
+			//Build user data from request
+			var user = new User(req.body);
+			// TODO: Start a session with new user
+			user.createWithPass(req.body.password).then(newUser => {
+				res.send(newUser);
+			}, err => {
 				res.status(500).json({
 					code:500,
 					message:'Error hashing password',
 					error:err
 				});
 			});
-		}, (err) => {
+		}, err => {
 			logger.error({
-				description: 'Error querying for account.',
+				description: 'Error querying for user.',
 				error: err, func: 'signup', obj: 'AuthCtrl'
 			});
-			res.status(500).send('Error querying for account.');
+			res.status(500).send('Error querying for user.');
 		});
 	}
 };
@@ -114,7 +114,7 @@ export function signup(req, res, next) {
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       account:{
+ *       user:{
  *         name: "John Doe",
  *         username:"hackerguy1",
  *         title: "Front End Developer",
@@ -158,7 +158,7 @@ export function login(req, res, next) {
 				func: 'login', obj: 'AuthCtrls'
 			});
 			//TODO: Record login within internal auth system
-			//TODO: Return account along with token data
+			//TODO: Return user along with token data
 			if(loginRes.token){
 				let token = jwt.decode(loginRes.token);
 				logger.log({
@@ -178,14 +178,14 @@ export function login(req, res, next) {
 					});
 				}
 			}
-			let account = {username: token.un, name: token.n, groups: token.m || []};
+			let user = {username: token.un, name: token.n, groups: token.m || []};
 			//Convert groups list to object from token if org/group data exists
-			if(account.groups.length >= 1 && account.groups[0].o){
-				account.groups = account.groups.map(function(group){
+			if(user.groups.length >= 1 && user.groups[0].o){
+				user.groups = user.groups.map(function(group){
 					return {name: group.o, id: group.oid};
 				});
 			}
-			let response = {account: account, token: loginRes.token};
+			let response = {user: user, token: loginRes.token};
 			res.send(response);
 		}, (err) => {
 			logger.error({
@@ -197,23 +197,23 @@ export function login(req, res, next) {
 	} else {
 		//Basic Internal login
 		if(has(loginData, 'username')){
-			query = Account.findOne({'username':loginData.username})
+			query = User.findOne({'username':loginData.username})
 				.populate({path:'groups', select:'name'})
 				.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using username field
 		} else {
-			query = Account.findOne({'email':loginData.email})
+			query = User.findOne({'email':loginData.email})
 			.populate({path:'groups', select:'name'})
 			.select({__v: 0, createdAt: 0, updatedAt: 0}); // find using email field
 		}
-		query.then(currentAccount => {
-			if(!currentAccount){
+		query.then(currentUser => {
+			if(!currentUser){
 				logger.error({
-					description: 'Account not found.',
+					description: 'User not found.',
 					func: 'login', obj: 'AuthCtrl'
 				});
-				return res.status(409).send('Account not found.');
+				return res.status(409).send('User not found.');
 			}
-			currentAccount.login(req.body.password).then(loginRes => {
+			currentUser.login(req.body.password).then(loginRes => {
 				logger.log({
 					description: 'Login Successful.',
 					func: 'login', obj: 'AuthCtrl'
@@ -239,11 +239,11 @@ export function login(req, res, next) {
 
 /**
  * @api {post} /logout Logout
- * @apiDescription Logout the currently logged in account and invalidate their token.
+ * @apiDescription Logout the currently logged in user and invalidate their token.
  * @apiName Logout
  * @apiGroup Auth
  *
- * @apiSuccess {Object} accountData Object containing accounts data.
+ * @apiSuccess {Object} userData Object containing users data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -297,8 +297,8 @@ export function logout(req, res, next) {
 		});
 	} else {
 		//TODO: Handle user not being in req.user
-		var account = new Account(req.user);
-		account.endSession().then(() => {
+		var user = new User(req.user);
+		user.endSession().then(() => {
 			logger.log({
 				description: 'Successfully ended session',
 				func: 'logout', obj: 'AuthCtrl'
@@ -315,12 +315,12 @@ export function logout(req, res, next) {
 };
 
 /**
- * @api {put} /account Verify
- * @apiDescription Verify token and get matching account's data.
+ * @api {put} /user Verify
+ * @apiDescription Verify token and get matching user's data.
  * @apiName Verify
  * @apiGroup Auth
  *
- * @apiSuccess {Object} accountData Object containing accounts data.
+ * @apiSuccess {Object} userData Object containing users data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -335,7 +335,7 @@ export function logout(req, res, next) {
  *
  */
 export function verify(req, res, next) {
-	//TODO:Actually verify account instead of just returning account data
+	//TODO:Actually verify user instead of just returning user data
 	// logger.log('verify request:', req.user);
 	if(!req.user){
 		logger.error({
@@ -351,20 +351,20 @@ export function verify(req, res, next) {
 	} else {
 		findObj.email = req.user.email;
 	}
-	let query = Account.findOne(findObj).select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
+	let query = User.findOne(findObj).select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
 	query.then((result) => {
-		if(!result){ //Matching account already exists
+		if(!result){ //Matching user already exists
 			// TODO: Respond with a specific error code
 			logger.error({
-				description: 'Account not found.',
+				description: 'User not found.',
 				error: err, func: 'verify', obj: 'AuthCtrl'
 			});
-			return res.status(400).send('Account with this information does not exist.');
+			return res.status(400).send('User with this information does not exist.');
 		}
 		res.json(result);
 	}, err => {
 		logger.error({
-			description: 'Error querying for account',
+			description: 'Error querying for user',
 			error: err, func: 'verify', obj: 'AuthCtrl'
 		});
 		return res.status(500).send('Unable to verify token.');
@@ -372,11 +372,11 @@ export function verify(req, res, next) {
 };
 /**
  * @api {post} /recover Recover
- * @apiDescription Recover an account though email
+ * @apiDescription Recover an user though email
  * @apiName Recover
  * @apiGroup Auth
  *
- * @apiSuccess {Object} accountData Object containing accounts data.
+ * @apiSuccess {Object} userData Object containing users data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -397,10 +397,10 @@ export function recover(req, res, next) {
 	});
 	if(!req.body || (!req.body.username && !req.body.email)){
 		logger.error({
-			description: 'Username or email required to recover account.',
+			description: 'Username or email required to recover user.',
 			func: 'recover', obj: 'AuthCtrl'
 		});
-		res.send('Username or email required to recover account.');
+		res.send('Username or email required to recover user.');
 	}
 	let findObj = {};
 	if(has(req.body, "username")){
@@ -412,29 +412,29 @@ export function recover(req, res, next) {
 		description: 'Find object built.', findObj,
 		func: 'recover', obj: 'AuthCtrl'
 	});
-	let query = Account.findOne(findObj).select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
-	query.then(account => {
-		if(!account){
+	let query = User.findOne(findObj).select({password: 0, __v: 0, createdAt: 0, updatedAt: 0});
+	query.then(user => {
+		if(!user){
 			// TODO: Respond with a specific error code
 			logger.error({
-				description: 'Account not found.',
+				description: 'User not found.',
 				func: 'verify', obj: 'AuthCtrl'
 			});
-			return res.status(400).send('Account with this information does not exist.');
+			return res.status(400).send('User with this information does not exist.');
 		}
 		//TODO: Email user
 		logger.info({
-			description: 'Account found. Sending email',
+			description: 'User found. Sending email',
 			func: 'verify', obj: 'AuthCtrl'
 		});
-		account.sendRecoveryEmail().then(() => {
+		user.sendRecoveryEmail().then(() => {
 			res.json({message: 'Email sent', status: 'SUCCESS'});
 		}, error => {
 			res.status(500).send('Error sending recovery email');
 		});
 	}, err => {
 		logger.error({
-			description: 'Error querying for account',
+			description: 'Error querying for user',
 			err, func: 'verify', obj: 'AuthCtrl'
 		});
 		return res.status(500).send('Unable to verify token.');

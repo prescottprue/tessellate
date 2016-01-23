@@ -13,8 +13,8 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt-nodejs';
 import rimraf from 'rimraf';
 
-//Account Schema Object
-let AccountSchema = new mongoose.Schema(
+//User Schema Object
+let UserSchema = new mongoose.Schema(
 	{
 		username:{type:String, index:true, unique:true},
 		name:{type: String},
@@ -25,9 +25,8 @@ let AccountSchema = new mongoose.Schema(
 		title:{type: String},
 		password:{type: String},
 		sessionId:{type:mongoose.Schema.Types.ObjectId, ref:'Session'},
-		application:{type:mongoose.Schema.Types.ObjectId, ref:'Application'},
+		application:{type:mongoose.Schema.Types.ObjectId, ref:'Project'},
 		groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
-		authrocketId:{type:String},
 		createdAt: { type: Date, default: Date.now},
 		updatedAt: { type: Date, default: Date.now}
 	},
@@ -36,17 +35,17 @@ let AccountSchema = new mongoose.Schema(
 	}
 );
 /**
- * @description Set collection name to 'account'
+ * @description Set collection name to 'user'
  */
-AccountSchema.set('collection', 'accounts');
+UserSchema.set('collection', 'users');
 /*
  * Groups virtual to return names
  */
-// AccountSchema.virtual('groupNames')
+// UserSchema.virtual('groupNames')
 // .get(function (){
 // 	// return "test";
-// 	var self = this;
-// 	var namesArray = _.map(self.groups, function(group){
+// 	let self = this;
+// 	let namesArray = _.map(self.groups, function(group){
 // 		if(_.isString(group)){
 // 			logger.log('was a string');
 // 			group = JSON.parse(group);
@@ -62,23 +61,23 @@ AccountSchema.set('collection', 'accounts');
 // 	logger.log('names array:', namesArray);
 // 	return namesArray;
 // });
-AccountSchema.virtual('id')
+UserSchema.virtual('id')
 .get(function() {
 	return this._id;
 })
 // .set( (id) => {
 // 	return this._id = id;
 // });
-AccountSchema.methods = {
+UserSchema.methods = {
 	/**
 	 * @function strip
 	 * @description Remove values that should not be sent
 	 */
 	strip: function() {
-		var strippedAccount = _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
+		let strippedUser = _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
 		logger.log({
-			description: 'Strip called.', strippedAccount: strippedAccount,
-			func: 'strip', obj: 'Account'
+			description: 'Strip called.', strippedUser: strippedUser,
+			func: 'strip', obj: 'User'
 		});
 		return _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
 	},
@@ -87,137 +86,137 @@ AccountSchema.methods = {
 	 * @description Get data used within token
 	 */
 	tokenData: function() {
-		var data = _.pick(this.toJSON(), ["username", "groups", "sessionId", "groupNames"]);
+		let data = _.pick(this.toJSON(), ["username", "groups", "sessionId", "groupNames"]);
 		logger.log({
 			description: 'Token data selected.',
-			func: 'tokenData', obj: 'Account'
+			func: 'tokenData', obj: 'User'
 		});
-		data.accountId = this._id;
+		data.userId = this._id;
 		return data;
 	},
 	/**
 	 * @function generateToken
-	 * @description Encode a JWT with account info
+	 * @description Encode a JWT with user info
 	 */
 	generateToken: function (session) {
 		logger.log({
 			description: 'Generate token called.',
-			func: 'generateToken', obj: 'Account'
+			func: 'generateToken', obj: 'User'
 		});
 		try {
-			var tokenData = this.tokenData();
-			var token = jwt.sign(tokenData, config.jwtSecret);
+			let tokenData = this.tokenData();
+			let token = jwt.sign(tokenData, config.jwtSecret);
 			logger.log({
 				description: 'Token generated.',
-				func: 'generateToken', obj: 'Account'
+				func: 'generateToken', obj: 'User'
 			});
 			return token;
 		} catch (err) {
 			logger.error({
 				description: 'Error generating token.',
-				error: err, func: 'generateToken', obj: 'Account'
+				error: err, func: 'generateToken', obj: 'User'
 			});
 		}
 	},
 	/**
 	 * @function login
-	 * @description Log account in based on password attempt
-	 * @param {string} password - Attempt at password with which to login to account.
+	 * @description Log user in based on password attempt
+	 * @param {string} password - Attempt at password with which to login to user.
 	 */
 	login: function(passwordAttempt) {
 		logger.log({
 			description: 'Login called.',
-			func: 'login', obj: 'Account'
+			func: 'login', obj: 'User'
 		});
 		//Check password
 		let self = this; //this contexts were causing errors even though => should pass context automatically
 		if(!this.password){
 			logger.error({
 				description: 'Original query did not include password. Consider revising.',
-				func: 'login', obj: 'Account'
+				func: 'login', obj: 'User'
 			});
-			return this.model('Account').find({_id:this._id}).then(self.login(passwordAttempt));
+			return this.model('User').find({_id:this._id}).then(self.login(passwordAttempt));
 		}
 		return this.comparePassword(passwordAttempt).then(() => {
 			logger.log({
 				description: 'Provided password matches.',
-				func: 'login', obj: 'Account'
+				func: 'login', obj: 'User'
 			});
 			//Start new session
 			return self.startSession().then((sessionInfo) => {
 				logger.log({
 					description: 'Session started successfully.',
 					sessiontInfo: sessionInfo,
-					func: 'login', obj: 'Account'
+					func: 'login', obj: 'User'
 				});
 				//Create Token
 				self.sessionId = sessionInfo._id;
 				let token = self.generateToken(sessionInfo);
-				return {token: token, account: self.strip()};
+				return {token: token, user: self.strip()};
 			}, (err) => {
 				logger.error({
 					description: 'Error starting session.',
-					error: err, func: 'login', obj: 'Account'
+					error: err, func: 'login', obj: 'User'
 				});
 				return Promise.reject(err);
 			});
-		}, (err) => {
+		}, err => {
 			logger.error({
 				description: 'Error comparing password.',
 				attempt: passwordAttempt, error: err,
-				func: 'login', obj: 'Account'
+				func: 'login', obj: 'User'
 			});
 			return Promise.reject(err);
 		});
 	},
 	/**
 	 * @function login
-	 * @description Log account out (end session and invalidate token)
+	 * @description Log user out (end session and invalidate token)
 	 */
 	logout:function() {
 		//TODO: Invalidate token?
 		logger.log({
 			description: 'Logout called.',
-			func: 'logout', obj: 'Account'
+			func: 'logout', obj: 'User'
 		});
 		return this.endSession().then(() => {
 			logger.log({
 				description: 'Logout successful.',
-				func: 'logout', obj: 'Account'
+				func: 'logout', obj: 'User'
 			});
 			return {message: 'Logout successful.'};
-		}, (err) => {
+		}, err => {
 			logger.error({
 				description: 'Error ending session.',
-				error: err, func: 'logout', obj: 'Account'
+				error: err, func: 'logout', obj: 'User'
 			});
 			return {message: 'Logout successful.'};
 		});
 	},
 	/**
 	 * @function signup
-	 * @description Signup a new account
+	 * @description Signup a new user
 	 */
 	signup: function (signupData) {
 		logger.log({
 			description: 'Signup called.',
 			signupData: signupData,
-			func: 'Signup', obj: 'Account'
+			func: 'Signup', obj: 'User'
 		});
 		logger.error({
-			description: 'Sigup to account is disabled.',
-			func: 'Signup', obj: 'Account'
+			description: 'Sigup to user is disabled.',
+			func: 'Signup', obj: 'User'
 		});
 		return Promise.reject({});
 	},
 	/**
 	 * @function comparePassword
-	 * @description Compare a password attempt with account password
+	 * @description Compare a password attempt with user password
 	 */
 	comparePassword: function (passwordAttempt) {
 		logger.log({
 			description: 'Compare password called.',
-			func: 'comparePassword', obj: 'Account'
+			func: 'comparePassword', obj: 'User'
 		});
 		let selfPassword = this.password;
 		return new Promise((resolve, reject) => {
@@ -225,13 +224,13 @@ AccountSchema.methods = {
 				if(err){
 					logger.error({
 						description: 'Error comparing password.',
-						error: err, func: 'comparePassword', obj: 'Account'
+						error: err, func: 'comparePassword', obj: 'User'
 					});
 					reject(err);
 				} else if(!passwordsMatch){
 					logger.warn({
 						description: 'Passwords do not match.',
-						func: 'comparePassword', obj: 'Account'
+						func: 'comparePassword', obj: 'User'
 					});
 					reject({
 						message:'Invalid authentication credentials'
@@ -239,7 +238,7 @@ AccountSchema.methods = {
 				} else {
 					logger.log({
 						description: 'Passwords match.',
-						func: 'comparePassword', obj: 'Account'
+						func: 'comparePassword', obj: 'User'
 					});
 					resolve(true);
 				}
@@ -253,64 +252,64 @@ AccountSchema.methods = {
 	startSession: function() {
 		logger.log({
 			description: 'Start session called.',
-			func: 'startSession', obj: 'Account'
+			func: 'startSession', obj: 'User'
 		});
-		var session = new Session({accountId:this._id});
-		return session.save().then((newSession) => {
+		let session = new Session({userId:this._id});
+		return session.save().then(newSession => {
 			if (!newSession) {
 				logger.error({
 					description: 'New session was not created.',
-					func: 'startSession', obj: 'Account'
+					func: 'startSession', obj: 'User'
 				});
 				return Promise.reject({message: 'Session could not be started.'});
 			} else {
 				logger.log({
 					description: 'Session started successfully.',
-					newSession: newSession, func: 'startSession', obj: 'Account'
+					newSession: newSession, func: 'startSession', obj: 'User'
 				});
 				return newSession;
 			}
-		}, (err) => {
+		}, err => {
 			logger.error({
 				description: 'Error saving new session.', error: err,
-				func: 'startSession', obj: 'Account'
+				func: 'startSession', obj: 'User'
 			});
 			return Promise.reject(err);
 		});
 	},
 	/**
 	 * @function endSession
-	 * @description End a current account's session. Session is kept, but "active" parameter is set to false
+	 * @description End a current user's session. Session is kept, but "active" parameter is set to false
 	 */
 	endSession: function() {
 		logger.log({
-			description: 'End session called.', func: 'endSession', obj: 'Account'
+			description: 'End session called.', func: 'endSession', obj: 'User'
 		});
 		let self = this;
 		return new Promise((resolve, reject) => {
 			Session.update({_id:self.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, (err, affect, result) => {
 				if(err){
 					logger.info({
-						description: 'Error ending session.', error: err, func: 'endSession', obj: 'Account'
+						description: 'Error ending session.', error: err, func: 'endSession', obj: 'User'
 					});
 					return reject({message: 'Error ending session.'});
 				}
 				if (affect.nModified > 0) {
 					logger.info({
 						description: 'Session ended successfully.', session: result,
-						affect: affect, func: 'endSession', obj: 'Account'
+						affect: affect, func: 'endSession', obj: 'User'
 					});
 					if(affect.nModified != 1){
 						logger.error({
 							description: 'More than one session modified.', session: result,
-							affect: affect, func: 'endSession', obj: 'Account'
+							affect: affect, func: 'endSession', obj: 'User'
 						});
 					}
 					resolve(result);
 				} else {
 					logger.warn({
 						description: 'Affect number incorrect?', func: 'endSession',
-						affect: affect, sesson: result, error: err, obj: 'Account'
+						affect: affect, sesson: result, error: err, obj: 'User'
 					});
 					resolve({id: self.sessionId});
 				}
@@ -321,15 +320,15 @@ AccountSchema.methods = {
 	 * @function hashPassword
 	 * @description Hash provided password with salt
 	 */
-	hashPassword:(password) => {
+	hashPassword: function(password) {
 		logger.log({
 			description: 'Hashing password.',
-			func: 'hashPassword', obj: 'Account'
+			func: 'hashPassword', obj: 'User'
 		});
 		if(!password || !_.isString(password) || password.length < 0){
 			logger.log({
 				description: 'Valid password is required to hash.',
-				password: password, func: 'hashPassword', obj: 'Account'
+				password, func: 'hashPassword', obj: 'User'
 			});
 			return Promise.reject('Valid password is required to hash.');
 		}
@@ -338,16 +337,16 @@ AccountSchema.methods = {
 				if(err){
 					logger.log({
 						description: 'Error generating salt',
-						error: err, func: 'hashPassword', obj: 'Account'
+						error: err, func: 'hashPassword', obj: 'User'
 					});
 					return reject(err);
 				}
-			  bcrypt.hash(password, salt, (err, hash) => {
-					//Add hash to accountData
+			  bcrypt.hash(password, salt, null, (err, hash) => {
+					//Add hash to userData
 					if(err){
 						logger.log({
 							description: 'Error Hashing password.',
-							error: err, func: 'hashPassword', obj: 'Account'
+							error: err, func: 'hashPassword', obj: 'User'
 						});
 						return reject(err);
 					}
@@ -358,26 +357,26 @@ AccountSchema.methods = {
 	},
 	/**
 	 * @function createWithPass
-	 * @description Create new account
-	 * @param {string} password - Password with which to create account
-	 * @param {string} application - Application with which to create account
+	 * @description Create new user
+	 * @param {string} password - Password with which to create user
+	 * @param {string} application - Application with which to create user
 	 */
 	createWithPass: function(password, application) {
-		var self = this;
+		let self = this;
 		if(!self.username){
 			logger.warn({
-				description: 'Username is required to create a new account.',
-				func: 'createWithPass', obj: 'Account'
+				description: 'Username is required to create a new user.',
+				func: 'createWithPass', obj: 'User'
 			});
 			return Promise.reject({
-				message: 'Username required to create a new account.'
+				message: 'Username required to create a new user.'
 			});
 		}
 		if(!password || !_.isString(password)){
 			logger.error({
 				description: 'Invalid password.',
 				password: password,
-				func: 'createWithPass', obj: 'Account'
+				func: 'createWithPass', obj: 'User'
 			});
 			return Promise.reject({
 				message: 'Invalid password.'
@@ -390,47 +389,47 @@ AccountSchema.methods = {
 		} else {
 			logger.warn({
 				description: 'Creating a user without an application.',
-				func: 'createWithPass', obj: 'Account'
+				func: 'createWithPass', obj: 'User'
 			});
 		}
-		let query = self.model('Account').findOne(findObj);
-		return query.then((foundAccount) => {
-			if(foundAccount){
+		let query = self.model('User').findOne(findObj);
+		return query.then((foundUser) => {
+			if(foundUser){
 				logger.warn({
 					description: 'A user with provided username already exists',
-					user: foundAccount, func: 'createWithPass', obj: 'Account'
+					foundUser, func: 'createWithPass', obj: 'User'
 				});
 				return Promise.reject({message: 'A user with that username already exists.'});
 			}
 			logger.log({
 				description: 'User does not already exist.',
-				func: 'createWithPass', obj: 'Account'
+				func: 'createWithPass', obj: 'User'
 			});
-			return self.hashPassword(password).then((hashedPass) => {
+			return self.hashPassword(password).then(hashedPass => {
 				self.password = hashedPass;
 				logger.log({
 					description: 'Before save.',
-					func: 'createWithPass', obj: 'Account'
+					func: 'createWithPass', obj: 'User'
 				});
-				return self.save().then((newAccount) => {
+				return self.save().then(newUser => {
 					logger.log({
-						description: 'New account created successfully.',
-						newAccount: newAccount,
-						func: 'createWithPass', obj: 'Account'
+						description: 'New user created successfully.',
+						newUser: newUser,
+						func: 'createWithPass', obj: 'User'
 					});
-					return newAccount;
+					return newUser;
 				}, (err) => {
 					logger.error({
-						description: 'Error creating new account.',
-						error: err, func: 'createWithPass', obj: 'Account'
+						description: 'Error creating new user.',
+						error: err, func: 'createWithPass', obj: 'User'
 					});
 					if(err && err.code && err.code === 11000){
 						logger.error({
 							description: 'Email is already taken.',
-							error: err, func: 'createWithPass', obj: 'Account'
+							error: err, func: 'createWithPass', obj: 'User'
 						});
 						return Promise.reject({
-							message: 'Email is associated with an existing account.',
+							message: 'Email is associated with an existing user.',
 							status: 'EXISTS'
 						});
 					}
@@ -439,14 +438,14 @@ AccountSchema.methods = {
 			}, (err) => {
 				logger.error({
 					description: 'Error hashing password.',
-					error: err, func: 'createWithPass', obj: 'Account'
+					error: err, func: 'createWithPass', obj: 'User'
 				});
 				return Promise.reject(err);
 			});
 		}, (err) => {
 			logger.error({
-				description: 'Error searching for matching account.',
-				error: err, func: 'createWithPass', obj: 'Account'
+				description: 'Error searching for matching user.',
+				error: err, func: 'createWithPass', obj: 'User'
 			});
 			return Promise.reject(err);
 		});
@@ -454,15 +453,15 @@ AccountSchema.methods = {
 	createWithProvider: function(application) {
 		logger.debug({
 			description: 'Create with provider called.', this, application,
-			func: 'createWithProvider', obj: 'Account'
+			func: 'createWithProvider', obj: 'User'
 		});
 		if(!this.username){
 			logger.warn({
-				description: 'Username is required to create a new account.',
-				func: 'createWithPass', obj: 'Account'
+				description: 'Username is required to create a new user.',
+				func: 'createWithPass', obj: 'User'
 			});
 			return Promise.reject({
-				message: 'Username required to create a new account.'
+				message: 'Username required to create a new user.'
 			});
 		}
 		let findObj = { username: this.username };
@@ -470,37 +469,37 @@ AccountSchema.methods = {
 			//TODO: Make sure that this is an id not an application object
 			findObj.application = application;
 		}
-		let query = this.model('Account').findOne(findObj);
-		return query.then(foundAccount => {
-			if(foundAccount){
+		let query = this.model('User').findOne(findObj);
+		return query.then(foundUser => {
+			if(foundUser){
 				logger.warn({
 					description: 'A user with provided username already exists',
-					foundAccount, func: 'createWithProvider', obj: 'Account'
+					foundUser, func: 'createWithProvider', obj: 'User'
 				});
 				return Promise.reject({message: 'A user with that username already exists.'});
 			}
 			logger.log({
 				description: 'User does not already exist.',
-				func: 'createWithProvider', obj: 'Account'
+				func: 'createWithProvider', obj: 'User'
 			});
-			return self.save().then(newAccount => {
+			return self.save().then(newUser => {
 				logger.log({
-					description: 'New account created successfully.',
-					newAccount, func: 'createWithProvider', obj: 'Account'
+					description: 'New user created successfully.',
+					newUser, func: 'createWithProvider', obj: 'User'
 				});
-				return newAccount;
+				return newUser;
 			}, error => {
 				logger.error({
-					description: 'Error creating new account.',
-					error, func: 'createWithProvider', obj: 'Account'
+					description: 'Error creating new user.',
+					error, func: 'createWithProvider', obj: 'User'
 				});
 				if(error && error.code && error.code === 11000){
 					logger.error({
 						description: 'Email is already taken.',
-						error, func: 'createWithProvider', obj: 'Account'
+						error, func: 'createWithProvider', obj: 'User'
 					});
 					return Promise.reject({
-						message: 'Email is associated with an existing account.',
+						message: 'Email is associated with an existing user.',
 						status: 'EXISTS'
 					});
 				}
@@ -508,8 +507,8 @@ AccountSchema.methods = {
 			});
 		}, error => {
 			logger.error({
-				description: 'Error searching for matching account.',
-				error, func: 'createWithProvider', obj: 'Account'
+				description: 'Error searching for matching user.',
+				error, func: 'createWithProvider', obj: 'User'
 			});
 			return Promise.reject(error);
 		});
@@ -518,7 +517,7 @@ AccountSchema.methods = {
 		//Upload image to s3
 		logger.info({
 			description: 'Upload image called.', image,
-			func: 'uploadImage', obj: 'Account'
+			func: 'uploadImage', obj: 'User'
 		});
 		if(!image || !image.path){
 			return Promise.reject({
@@ -528,29 +527,29 @@ AccountSchema.methods = {
 		}
 		const uploadFile = {
 			localFile: image.path,
-			key: `${config.aws.accountImagePrefix}/${this._id}/${image.originalname || image.name}`
+			key: `${config.aws.userImagePrefix}/${this._id}/${image.originalname || image.name}`
 		};
-		return fileStorage.saveAccountFile(uploadFile).then(fileData => {
-			//save image url in account
+		return fileStorage.saveUserFile(uploadFile).then(fileData => {
+			//save image url in user
 			const { url } = fileData;
 			logger.info({
 				description: 'File uploaded', fileData,
-				func: 'uploadImage', obj: 'Account'
+				func: 'uploadImage', obj: 'User'
 			});
 			this.image = { url };
-			return this.save().then(updatedAccount => {
+			return this.save().then(updatedUser => {
 				logger.info({
-					description: 'Account updated with image successfully.',
-					updatedAccount, func: 'uploadImage', obj: 'Account'
+					description: 'User updated with image successfully.',
+					updatedUser, func: 'uploadImage', obj: 'User'
 				});
 				return new Promise((resolve, reject) => {
 					rimraf(image.path, {}, error => {
 						if(!error){
-							resolve(updatedAccount);
+							resolve(updatedUser);
 						} else {
 							logger.error({
 								description: 'Error deleting file from local directory.',
-								error, func: 'uploadImage', obj: 'Account'
+								error, func: 'uploadImage', obj: 'User'
 							});
 							reject(error);
 						}
@@ -558,15 +557,15 @@ AccountSchema.methods = {
 				});
 			}, error => {
 				logger.error({
-					description: 'Error saving account after file upload.', error,
-					func: 'uploadImage', obj: 'Account'
+					description: 'Error saving user after file upload.', error,
+					func: 'uploadImage', obj: 'User'
 				});
 				return Promise.reject(error);
 			});
 		}, error => {
 			logger.error({
-				description: 'Error uploading image to account.',
-				error, func: 'uploadImage', obj: 'Account'
+				description: 'Error uploading image to user.',
+				error, func: 'uploadImage', obj: 'User'
 			});
 			return Promise.reject(error);
 		});
@@ -577,12 +576,12 @@ AccountSchema.methods = {
 	}
 };
 /**
- * @description Construct Account model from AccountSchema
+ * @description Construct User model from UserSchema
  */
-db.tessellate.model('Account', AccountSchema);
+db.tessellate.model('User', UserSchema);
 /**
  * @description Make model accessible from controllers
  */
-let Account = db.tessellate.model('Account');
-Account.collectionName = AccountSchema.get('collection');
-exports.Account = db.tessellate.model('Account');
+let User = db.tessellate.model('User');
+User.collectionName = UserSchema.get('collection');
+exports.User = db.tessellate.model('User');

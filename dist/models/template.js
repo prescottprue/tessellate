@@ -52,7 +52,7 @@ var templateBucket = "tessellate-templates";
 
 var TemplateSchema = new _mongoose2.default.Schema({
 	name: { type: String, default: '', unique: true, index: true },
-	author: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Account' },
+	author: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'User' },
 	location: {
 		storageType: { type: String },
 		path: { type: String }

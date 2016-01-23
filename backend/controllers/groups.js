@@ -15,11 +15,11 @@ import { Group } from '../models/group';
 export function get(req, res, next) {
 	var isList = true;
 	logger.log({description:  'Group(s) get request.', params: req.params, func: 'get', obj: 'GroupsCtrls'});
-	var query = Group.find({}).populate({path:'accounts', select: 'name username email'});
+	var query = Group.find({}).populate({path:'users', select: 'name username email'});
 	if(req.params.name){ //Get data for a specific Group
 		query = Group.findOne({name:req.params.name})
-		.populate({path:'directories', select:'name accounts groups'})
-		.populate({path:'accounts', select:'name username email'});
+		.populate({path:'directories', select:'name users groups'})
+		.populate({path:'users', select:'name username email'});
 		isList = false;
 	}
 	query.then((groupData) => {
@@ -47,7 +47,7 @@ export function add(req, res, next) {
 	//Group does not already exist
 	logger.log({description: 'Group request.', body: req.body, func: 'add', obj: 'GroupsCtrls'});
 	if(req.body && _.has(req.body, "name")){
-		//TODO: Handle array of accounts
+		//TODO: Handle array of users
 		var query = Group.findOne({"name":req.body.name}); // find using email field
 		query.then(() => {
 			var group = new Group(req.body);

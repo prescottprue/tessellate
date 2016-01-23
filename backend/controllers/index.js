@@ -36,8 +36,8 @@ export function test(req, res, next){
 // 		logger.log('application request with id:', req.params.name);
 // 		query = Application.findOne({name:'coach'})
 // 		.populate({path:'owner', select:'username name title email'})
-// 		.populate({path:'groups', select:'name accounts'})
-// 		.populate({path:'directories', select:'name accounts groups'});
+// 		.populate({path:'groups', select:'name users'})
+// 		.populate({path:'directories', select:'name users groups'});
 // 		isList = false;
 // 	}
 // 	query.then((application) => {

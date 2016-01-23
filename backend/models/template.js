@@ -15,7 +15,7 @@ let templateBucket = "tessellate-templates";
 let TemplateSchema = new mongoose.Schema(
 	{
 		name:{type:String, default:'', unique:true, index:true},
-		author:{type: mongoose.Schema.Types.ObjectId, ref:'Account'},
+		author:{type: mongoose.Schema.Types.ObjectId, ref:'User'},
 		location:{
 			storageType: {type: String},
 			path: {type: String}
