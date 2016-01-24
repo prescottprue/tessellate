@@ -65,14 +65,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 function signup(req, res, next) {
 	_logger2.default.debug({
-		description: 'Signup request.', body: req.body,
-		func: 'signup', obj: 'AuthCtrls'
+		description: 'Signup request.', func: 'signup', obj: 'AuthCtrls'
 	});
+	var _req$body = req.body;
+	var username = _req$body.username;
+	var email = _req$body.email;
 	//Check for username or email
-	if (!(0, _lodash.has)(req.body, "username") && !(0, _lodash.has)(req.body, "email")) {
+
+	if (!username || !email) {
 		return res.status(400).json({
 			code: 400,
-			message: "Username or Email required to signup"
+			message: 'Username and Email are required to signup'
 		});
 	}
 	var account = new Account(req.body);
@@ -96,10 +99,9 @@ function signup(req, res, next) {
  * @apiName Login
  * @apiGroup Auth
  *
- * @apiParam {Number} id Users unique ID.
- * @apiParam {String} username Username of user to login as. Email must be provided if username is not.
- * @apiParam {String} [email] Email of user to login as. Can be used instead of username.
- * @apiParam {String} password Password of user to login as.
+ * @apiParam {String} username - Username of user to login as. Email must be provided if username is not.
+ * @apiParam {String} email - Email of user to login as. Can be used instead of username.
+ * @apiParam {String} password - Users password
  *
  * @apiSuccess {Object} userData Object containing users data.
  *
@@ -119,119 +121,66 @@ function signup(req, res, next) {
  *
  */
 function login(req, res, next) {
-	if (!(0, _lodash.has)(req.body, "username") && !(0, _lodash.has)(req.body, "email") || !(0, _lodash.has)(req.body, "password")) {
-		return res.status(400).send("Username/Email and password required to login");
-	}
-	var loginData = { password: req.body.password };
-	if ((0, _lodash.has)(req.body, 'username')) {
-		if (req.body.username.indexOf('@') !== -1) {
-			loginData.email = req.body.username;
-		} else {
-			loginData.username = req.body.username;
-		}
-	}
-	if (authRocketEnabled) {
-		//Authrocket login
-		//Remove email to avoid Auth Rocket error
-		if ((0, _lodash.has)(loginData, 'email')) {
-			delete loginData.email;
-		}
-		if (!(0, _lodash.has)(req.body, 'username')) {
-			return res.status(400).send('Username is required to login.');
-		}
-		_logger2.default.log({
-			description: 'calling auth rocket with:',
-			data: loginData, func: 'login', obj: 'AuthCtrls'
+	var _req$body2 = req.body;
+	var username = _req$body2.username;
+	var email = _req$body2.email;
+	var password = _req$body2.password;
+	var provider = _req$body2.provider;
+
+	if (!username && !email || !password && !provider) {
+		return res.status(400).json({
+			message: 'Username/Email and password or provider info required to login'
 		});
-		authrocket.login(loginData).then(function (loginRes) {
-			_logger2.default.log({
-				description: 'Successfully logged in through authrocket.',
-				func: 'login', obj: 'AuthCtrls'
-			});
-			//TODO: Record login within internal auth system
-			//TODO: Return user along with token data
-			if (loginRes.token) {
-				var _token = _jsonwebtoken2.default.decode(loginRes.token);
-				_logger2.default.log({
-					description: 'token', token: _token,
-					func: 'login', obj: 'AuthCtrls'
-				});
-				if (!process.env.AUTHROCKET_JWT_SECRET) {
-					_logger2.default.error({
-						description: 'Authrocket secret not available to verify token',
-						func: 'login', obj: 'AuthCtrls'
-					});
-				} else {
-					var _verify = _jsonwebtoken2.default.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
-					_logger2.default.log({
-						description: 'verify', verify: _verify,
-						func: 'login', obj: 'AuthCtrls'
-					});
-				}
-			}
-			var user = { username: token.un, name: token.n, groups: token.m || [] };
-			//Convert groups list to object from token if org/group data exists
-			if (user.groups.length >= 1 && user.groups[0].o) {
-				user.groups = user.groups.map(function (group) {
-					return { name: group.o, id: group.oid };
-				});
-			}
-			var response = { user: user, token: loginRes.token };
-			res.send(response);
-		}, function (error) {
+	}
+	var findObj = {};
+	if (username && (0, _lodash.isString)(username)) {
+		findObj = username.indexOf('@') !== -1 ? { email: username } : { username: username };
+	}
+	if (email && (0, _lodash.isString)(email)) {
+		findObj.email = email;
+	}
+	_logger2.default.debug({
+		description: 'Searching for user to login as.', findObj: findObj,
+		func: 'login', obj: 'AuthCtrl'
+	});
+	_user.User.findOne(findObj).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }).then(function (currentUser) {
+		if (!currentUser) {
 			_logger2.default.error({
-				description: 'Error logging in through auth rocket.',
-				error: error, func: 'login', obj: 'AuthCtrls'
-			});
-			res.status(400).send('Invalid Credentials');
-		});
-	} else {
-		var query = undefined;
-		//Basic Internal login
-		if ((0, _lodash.has)(loginData, 'username')) {
-			query = _user.User.findOne({ 'username': loginData.username }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using username field
-		} else {
-				query = _user.User.findOne({ 'email': loginData.email }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using email field
-			}
-		query.then(function (currentUser) {
-			if (!currentUser) {
-				_logger2.default.error({
-					description: 'User not found.',
-					func: 'login', obj: 'AuthCtrl'
-				});
-				return res.status(409).send('User not found.');
-			}
-			currentUser.login(req.body.password).then(function (loginRes) {
-				_logger2.default.log({
-					description: 'Login Successful.',
-					func: 'login', obj: 'AuthCtrl'
-				});
-				res.send(loginRes);
-			}, function (err) {
-				//TODO: Handle wrong password
-				_logger2.default.error({
-					description: 'Login Error.', error: err,
-					func: 'login', obj: 'AuthCtrl'
-				});
-				res.status(400).send('Error logging in.');
-			});
-		}, function (err) {
-			_logger2.default.error({
-				description: 'Login error', error: err,
+				description: 'User not found.',
 				func: 'login', obj: 'AuthCtrl'
 			});
-			res.status(500).send('Error logging in.');
+			return res.status(409).json({ message: 'User not found.' });
+		}
+		currentUser.login(password).then(function (loginRes) {
+			_logger2.default.log({
+				description: 'Login Successful.',
+				func: 'login', obj: 'AuthCtrl'
+			});
+			res.json(loginRes);
+		}, function (error) {
+			//TODO: Handle wrong password
+			_logger2.default.error({
+				description: 'Login Error.', error: error,
+				func: 'login', obj: 'AuthCtrl'
+			});
+			res.status(400).json({ message: 'Error logging in.' });
 		});
-	}
+	}, function (error) {
+		_logger2.default.error({
+			description: 'Login error', error: error,
+			func: 'login', obj: 'AuthCtrl'
+		});
+		res.status(500).json({ message: 'Error logging in.' });
+	});
 };
 
 /**
  * @api {post} /logout Logout
- * @apiDescription Logout the currently logged in user and invalidate their token.
+ * @apiDescription Logout the currently logged in user and invalidate  token.
  * @apiName Logout
  * @apiGroup Auth
  *
- * @apiSuccess {Object} userData Object containing users data.
+ * @apiSuccess {Object} userData Object containing success message
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -241,65 +190,26 @@ function login(req, res, next) {
  *
  */
 function logout(req, res, next) {
-	//TODO:Invalidate token
-	_logger2.default.log({
+	//TODO: Invalidate token
+	_logger2.default.debug({
 		description: 'Logout called.',
-		authRocketEnabled: authRocketEnabled,
-		body: req.body,
 		func: 'logout', obj: 'AuthCtrl'
 	});
-	if (authRocketEnabled) {
-		var token;
-		if (req.body && req.body.token) {
-			token = req.body.token;
-		} else if (req.headers && (req.headers.authorization || req.header('Authorization'))) {
-			_logger2.default.log({
-				description: 'Getting token from headers.',
-				headers: req.headers, func: 'logout', obj: 'AuthCtrl'
-			});
-			var header = req.headers.authorization || req.header('Authorization');
-			token = header.replace("Bearer ", "");
-		} else {
-			_logger2.default.warn({
-				description: 'Token required to logout.',
-				func: 'logout', obj: 'AuthCtrl'
-			});
-			return res.status(401).send('Token required to logout.');
-		}
-		_logger2.default.log({
-			description: 'Attempting log out through authrocket.',
-			token: token, func: 'logout', obj: 'AuthCtrl'
+	//TODO: Handle user not being in req.user
+	var user = new _user.User(req.user);
+	user.endSession().then(function () {
+		_logger2.default.info({
+			description: 'Successfully ended session',
+			func: 'logout', obj: 'AuthCtrl'
 		});
-		authrocket.logout(token).then(function (logoutRes) {
-			_logger2.default.log({
-				description: 'Successfully logged out through authrocket.',
-				response: logoutRes, func: 'logout', obj: 'AuthCtrl'
-			});
-			res.send({ message: 'Logout successful.' });
-		}, function (err) {
-			_logger2.default.error({
-				description: 'Error ending session.', error: err,
-				func: 'logout', obj: 'AuthCtrl'
-			});
-			res.status(500).send(err);
+		res.json({ message: 'Logout successful.' });
+	}, function (error) {
+		_logger2.default.error({
+			description: 'Error ending session.', error: error,
+			func: 'logout', obj: 'AuthCtrl'
 		});
-	} else {
-		//TODO: Handle user not being in req.user
-		var user = new _user.User(req.user);
-		user.endSession().then(function () {
-			_logger2.default.log({
-				description: 'Successfully ended session',
-				func: 'logout', obj: 'AuthCtrl'
-			});
-			res.send('Logout successful.');
-		}, function (err) {
-			_logger2.default.error({
-				description: 'Error ending session.', error: err,
-				func: 'logout', obj: 'AuthCtrl'
-			});
-			res.status(500).send({ message: 'Error ending session.' });
-		});
-	}
+		res.status(500).json({ message: 'Error ending session.' });
+	});
 };
 
 /**

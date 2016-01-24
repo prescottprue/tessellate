@@ -25,7 +25,7 @@ module.exports = {
 			redirectUrl: process.env.GOOGLE_REDIRECT_URL
 		}
 	},
-	authEnabled: false,
+	authEnabled: typeof process.env.AUTH_ENABLED !== 'undefined' ? typeof process.env.AUTH_ENABLED : true,
 	authRocket:{
 		enabled: false,
 		secret: process.env.AUTHROCKET_JWT_SECRET

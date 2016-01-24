@@ -215,3 +215,98 @@ function userDeleted(requestData){
   });
 
 }
+
+
+export function login(loginData){
+  //Authrocket login
+  //Remove email to avoid Auth Rocket error
+  if (has(loginData, 'email')) {
+    delete loginData.email;
+  }
+  if(!has(loginData, 'username')) {
+    return Promise.reject('Username is required to login.');
+  }
+  logger.log({
+    description: 'calling auth rocket with:',
+    loginData, func: 'login', obj: 'AuthCtrls'
+  });
+  authrocket.login(loginData).then(loginRes => {
+    logger.log({
+      description: 'Successfully logged in through authrocket.',
+      func: 'login', obj: 'AuthCtrls'
+    });
+    //TODO: Record login within internal auth system
+    //TODO: Return user along with token data
+    if(loginRes.token){
+      let token = jwt.decode(loginRes.token);
+      logger.log({
+        description: 'token', token: token,
+        func: 'login', obj: 'AuthCtrls'
+      });
+      if(!process.env.AUTHROCKET_JWT_SECRET){
+        logger.error({
+          description: 'Authrocket secret not available to verify token',
+          func: 'login', obj: 'AuthCtrls'
+        });
+      } else{
+        let verify = jwt.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
+        logger.log({
+          description: 'verify', verify,
+          func: 'login', obj: 'AuthCtrls'
+        });
+      }
+    }
+    let user = {username: token.un, name: token.n, groups: token.m || []};
+    //Convert groups list to object from token if org/group data exists
+    if(user.groups.length >= 1 && user.groups[0].o){
+      user.groups = user.groups.map((group) => {
+        return {name: group.o, id: group.oid};
+      });
+    }
+    let response = {user, token: loginRes.token};
+    res.send(response);
+  }, error => {
+    logger.error({
+      description: 'Error logging in through auth rocket.',
+      error, func: 'login', obj: 'AuthCtrls'
+    });
+    res.status(400).send('Invalid Credentials');
+  });
+}
+
+export function logout() {
+  var token;
+  if(req.body && req.body.token){
+    token = req.body.token;
+  } else if(req.headers && (req.headers.authorization || req.header('Authorization'))){
+    logger.log({
+      description: 'Getting token from headers.',
+      headers: req.headers, func: 'logout', obj: 'AuthCtrl'
+    });
+    var header = req.headers.authorization || req.header('Authorization');
+    token = header.replace("Bearer ", "");
+  } else {
+    logger.warn({
+      description: 'Token required to logout.',
+      func: 'logout', obj: 'AuthCtrl'
+    });
+    return res.status(401).send('Token required to logout.');
+  }
+  logger.log({
+    description: 'Attempting log out through authrocket.',
+    token: token, func: 'logout', obj: 'AuthCtrl'
+  });
+  authrocket.logout(token).then((logoutRes) => {
+    logger.log({
+      description: 'Successfully logged out through authrocket.',
+      response: logoutRes, func: 'logout', obj: 'AuthCtrl'
+    });
+    res.send({message:'Logout successful.'});
+  }, (err) => {
+    logger.error({
+      description: 'Error ending session.', error: err,
+      func: 'logout', obj: 'AuthCtrl'
+    });
+    res.status(500).send(err);
+  });
+}

@@ -87,21 +87,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *     }
  */
 
-/**
- * @description Project Controller
- */
-
 function get(req, res, next) {
-	// let user = authUtil.getUserFromRequest(req);
-	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ProjectsCtrls'});
-	var isList = true;
-	var findObj = {};
-	var name = req.params.name;
 	var username = req.body.username;
 
 	if (!req.user && !username) {
 		return res.status(400).json('Username and Token are required');
 	}
+	var isList = true;
+	var findObj = {};
+	var name = req.params.name;
+
 	if (name) {
 		//Get data for a specific project
 		_logger2.default.log({
@@ -126,21 +121,25 @@ function get(req, res, next) {
 				description: 'Error finding Project(s).',
 				func: 'get', obj: 'ProjectsCtrls'
 			});
-			return res.status(400).send('Project(s) could not be found.');
+			return res.status(400).json({ message: 'Project(s) could not be found.' });
 		}
 		_logger2.default.log({
 			description: 'Project(s) found.',
 			func: 'get', obj: 'ProjectsCtrls'
 		});
-		res.send(result);
+		res.json(result);
 	}, function (error) {
 		_logger2.default.error({
 			description: 'Error getting project(s):',
 			error: error, func: 'get', obj: 'ProjectsCtrls'
 		});
-		res.status(500).send('Error getting Project(s).');
+		res.status(500).json({ message: 'Error getting Project(s).' });
 	});
-};
+} /**
+   * @description Project Controller
+   */
+
+;
 /**
  * @api {get} /projects Get Project's provider data
  * @apiDescription Get a specific project's data or a list of projects.
@@ -162,12 +161,13 @@ function getProviders(req, res, next) {
 		});
 		return res.status(400).send('Project name required to get providers.');
 	}
+	var name = req.params.name.name;
+
 	_logger2.default.log({
-		description: 'Get Providers request.', params: req.params,
+		description: 'Get Providers request.', name: name,
 		func: 'getProviders', obj: 'ProjectsCtrls'
 	});
-	var query = _project.Project.findOne({ name: req.params.name });
-	query.then(function (result) {
+	_project.Project.findOne({ name: name }).then(function (result) {
 		if (!result) {
 			_logger2.default.warn({
 				description: 'Project not found.',
@@ -176,7 +176,7 @@ function getProviders(req, res, next) {
 			return res.status(400).send('Project could not be found.');
 		}
 		var providerData = {};
-		_lodash2.default.each(result.providers, function (provider) {
+		(0, _lodash.each)(result.providers, function (provider) {
 			providerData[provider.name] = provider.clientId;
 		});
 		_logger2.default.log({
@@ -227,13 +227,17 @@ function add(req, res, next) {
 	if (!req.body || !req.body.name) {
 		return res.status(400).send('Name is required to create project');
 	}
-	_logger2.default.log({
-		description: 'Projects add called with name.',
-		body: req.body, user: req.user, func: 'add', obj: 'ProjectsCtrl'
+	_logger2.default.debug({
+		description: 'Projects add called.',
+		func: 'add', obj: 'ProjectsCtrl'
 	});
-	var name = req.body.name;
+	var _req$body = req.body;
+	var name = _req$body.name;
+	var template = _req$body.template;
+	var templateType = _req$body.templateType;
+
 	var username = req.params.username;
-	var userId = req.user.userId;
+	var userId = req.user ? req.user.userId : null;
 	findProject(name, userId).then(function (foundApp) {
 		_logger2.default.error({
 			description: 'Project with this name already exists.',
@@ -241,7 +245,6 @@ function add(req, res, next) {
 		});
 		res.status(400).send('Project with this name already exists.');
 	}, function (error) {
-		console.log('error finding project');
 		if (typeof error !== 'undefined' && error.status == 'EXISTS') {
 			return res.status(400).send('Project with this name already exists.');
 		}
@@ -250,7 +253,7 @@ function add(req, res, next) {
 			func: 'add', obj: 'Project'
 		});
 		var project = new _project.Project({ name: name, owner: userId });
-		if (!req.body.template) {
+		if (!template) {
 			//Template name was not provided
 			return project.save().then(function (newProject) {
 				_logger2.default.log({
@@ -267,8 +270,7 @@ function add(req, res, next) {
 			});
 		}
 		//Template name was provided
-		var templateData = { name: req.body.template };
-		templateData.type = req.body.templateType ? req.body.templateType : 'firebase';
+		var templateData = templateType ? { name: template, type: templateType } : { name: template };
 		return project.createWithTemplate(templateData).then(function (newProject) {
 			_logger2.default.log({
 				description: 'Project created with template.',
@@ -280,7 +282,7 @@ function add(req, res, next) {
 				description: 'Error creating project.',
 				error: error, func: 'add', obj: 'Project'
 			});
-			res.status(400).send('Error creating project.');
+			res.status(400).send({ message: 'Error creating project.' });
 		});
 	});
 };
@@ -318,38 +320,36 @@ function update(req, res, next) {
 		description: 'App update request.', params: req.params,
 		func: 'update', obj: 'ProjectsCtrls'
 	});
-	if (req.params.name) {
-		_project.Project.update({ name: req.params.name }, req.body, { upsert: false }, function (error, affected, result) {
-			if (error) {
-				_logger2.default.error({
-					description: 'Error updating project.',
-					error: error, func: 'update', obj: 'ProjectsCtrls'
-				});
-				return res.status(500).send('Error updating Project.');
-			}
-			//TODO: respond with updated data instead of passing through req.body
-			_logger2.default.log({
-				description: 'Project update successful.',
-				affected: affected, func: 'update', obj: 'ProjectsCtrls'
-			});
-			if (affected.nModified == 0 || affected.n == 0) {
-				//TODO: Handle Project not found
-				_logger2.default.error({
-					description: 'Project not found.', affected: affected,
-					func: 'update', obj: 'ProjectsCtrls'
-				});
-				res.status(400).send({ message: 'Project not found' });
-			} else {
-				_logger2.default.error({
-					description: 'Project updated successfully.',
-					affected: affected, func: 'update', obj: 'ProjectsCtrls'
-				});
-				res.json(req.body);
-			}
-		});
-	} else {
-		res.status(400).send({ message: 'Project id required' });
+	if (!req.params.name) {
+		return res.status(400).send({ message: 'Project name required to update' });
 	}
+	_project.Project.update({ name: req.params.name }, req.body, { upsert: false }, function (error, affected, result) {
+		if (error) {
+			_logger2.default.error({
+				description: 'Error updating project.',
+				error: error, func: 'update', obj: 'ProjectsCtrls'
+			});
+			return res.status(500).send('Error updating Project.');
+		}
+		//TODO: respond with updated data instead of passing through req.body
+		_logger2.default.log({
+			description: 'Project update successful.',
+			affected: affected, func: 'update', obj: 'ProjectsCtrls'
+		});
+		if (affected.nModified == 0 || affected.n == 0) {
+			//TODO: Handle Project not found
+			_logger2.default.error({
+				description: 'Project not found.', affected: affected,
+				func: 'update', obj: 'ProjectsCtrls'
+			});
+			return res.status(400).send({ message: 'Project not found' });
+		}
+		_logger2.default.error({
+			description: 'Project updated successfully.',
+			affected: affected, func: 'update', obj: 'ProjectsCtrls'
+		});
+		res.json(req.body);
+	});
 };
 
 /**
@@ -382,34 +382,33 @@ function update(req, res, next) {
 function del(req, res, next) {
 	var query = _project.Project.findOneAndRemove({ 'name': req.params.name }); // find and delete using id field
 	query.then(function (result) {
-		if (result) {
-			var project = new _project.Project(result);
-			project.removeStorage().then(function () {
-				_logger2.default.log({
-					description: 'Project storage deleted successfully.',
-					func: 'delete', obj: 'ProjectsCtrl'
-				});
-				res.json(result);
-			}, function (error) {
-				_logger2.default.error({
-					description: 'Error removing storage from project.',
-					error: error, func: 'delete', obj: 'ProjectsCtrl'
-				});
-				res.status(400).send('Error removing storage from project.');
-			});
-		} else {
+		if (!result) {
 			_logger2.default.error({
-				description: 'Project not found.', error: error,
+				description: 'Project not found.',
 				func: 'delete', obj: 'ProjectsCtrl'
 			});
-			res.status(400).send('Project could not be found.');
+			return res.status(400).json({ message: 'Project could not be found.' });
 		}
+		var project = new _project.Project(result);
+		project.removeStorage().then(function () {
+			_logger2.default.log({
+				description: 'Project storage deleted successfully.',
+				func: 'delete', obj: 'ProjectsCtrl'
+			});
+			res.json(result);
+		}, function (error) {
+			_logger2.default.error({
+				description: 'Error removing storage from project.',
+				error: error, func: 'delete', obj: 'ProjectsCtrl'
+			});
+			res.status(400).json({ message: 'Error removing storage from project.' });
+		});
 	}, function (error) {
 		_logger2.default.error({
 			description: 'Error getting project.', error: error,
 			func: 'delete', obj: 'ProjectsCtrl'
 		});
-		res.status(500).send('Error deleting Project.');
+		res.status(500).json({ message: 'Error deleting Project.' });
 	});
 };
 
@@ -445,44 +444,40 @@ function files(req, res, next) {
 	//TODO: Check that user is owner or collaborator before uploading
 	//TODO: Lookup project and run uploadFile =>
 	if (req.params.name) {
-		//Get data for a specific project
-		var query = _project.Project.findOne({ name: req.params.name }).populate({ path: 'owner', select: 'username name title email' });
-		query.then(function (foundApp) {
-			if (foundApp) {
-				foundApp.getStructure().then(function (projectFiles) {
-					_logger2.default.log({
-						description: 'Get structure returned.',
-						structure: projectFiles, func: 'files', obj: 'ProjectsCtrls'
-					});
-					res.send(projectFiles);
-				}, function (error) {
-					_logger2.default.error({
-						description: 'Error getting project file structure.',
-						error: error, func: 'files', obj: 'ProjectsCtrls'
-					});
-					res.status(400).send('Error getting Project files.');
-				});
-			} else {
-				_logger2.default.error({
-					description: 'Project could not be found.',
-					func: 'files', obj: 'ProjectsCtrls'
-				});
-				res.status(400).send('Project could not be found.');
-			}
-		}, function (error) {
-			_logger2.default.error({
-				description: 'Error getting project:', error: error,
-				func: 'files', obj: 'ProjectsCtrls'
-			});
-			return res.status(500).send('Error getting Project files.');
-		});
-	} else {
 		_logger2.default.info({
 			description: 'Project name is required to get files list.',
 			func: 'files', obj: 'ProjectsCtrls'
 		});
-		res.status(400).send('Project name is required to get files list.');
+		return res.status(400).send('Project name is required to get files list.');
 	}
+	_project.Project.findOne({ name: req.params.name }).populate({ path: 'owner', select: 'username name title email' }).then(function (foundApp) {
+		if (!foundApp) {
+			_logger2.default.error({
+				description: 'Project could not be found.',
+				func: 'files', obj: 'ProjectsCtrls'
+			});
+			return res.status(400).send('Project could not be found.');
+		}
+		foundApp.getStructure().then(function (projectFiles) {
+			_logger2.default.info({
+				description: 'Get structure returned.',
+				projectFiles: projectFiles, func: 'files', obj: 'ProjectsCtrls'
+			});
+			res.send(projectFiles);
+		}, function (error) {
+			_logger2.default.error({
+				description: 'Error getting project file structure.',
+				error: error, func: 'files', obj: 'ProjectsCtrls'
+			});
+			res.status(400).send('Error getting Project files.');
+		});
+	}, function (error) {
+		_logger2.default.error({
+			description: 'Error getting project:', error: error,
+			func: 'files', obj: 'ProjectsCtrls'
+		});
+		res.status(500).send('Error getting Project files.');
+	});
 };
 
 /**
@@ -809,54 +804,47 @@ function login(req, res, next) {
 	if (!req.params.name || !req.body) {
 		return res.status(400).send('Project name and users array are required to add collaborators.');
 	}
-	if (!_lodash2.default.has(req.body, 'username') && !_lodash2.default.has(req.body, 'email') || !_lodash2.default.has(req.body, 'password')) {
+	var name = req.params.name;
+	var _req$body2 = req.body;
+	var username = _req$body2.username;
+	var email = _req$body2.email;
+	var password = _req$body2.password;
+
+	if (!username && !email || !password) {
 		//Get data for a specific project
 		_logger2.default.log({
 			description: 'Username/Email and password are required to login.',
-			projectName: req.params.name, body: req.body,
-			func: 'login', obj: 'ProjectCtrl'
+			name: name, func: 'login', obj: 'ProjectCtrl'
 		});
 		return res.status(400).send('Username/Email and Password are required to login.');
 	}
-	var loginData = { password: req.body.password };
-	if (_lodash2.default.has(req.body, 'username')) {
-		if (req.body.username.indexOf('@') !== -1) {
-			loginData.email = req.body.username;
-		} else {
-			loginData.username = req.body.username;
-		}
-	}
-	if (_lodash2.default.has(req.body, 'email')) {
-		loginData.email = req.body.email;
-	}
 	// logger.log({description: 'LoginData built', loginData: loginData, func: 'login', obj: 'ProjectCtrl'})
-	findProject(req.params.name).then(function (foundApp) {
+	findProject(name).then(function (foundApp) {
 		_logger2.default.log({
 			description: 'Project found successfully.',
-			foundApp: foundApp, func: 'login',
-			obj: 'ProjectCtrl'
+			foundApp: foundApp, func: 'login', obj: 'ProjectCtrl'
 		});
 		//Use authrocket login if project has authRocket data
-		foundApp.login(loginData).then(function (loginRes) {
-			_logger2.default.log({
-				description: 'Login Successful.', response: loginRes,
+		foundApp.login({ username: username, email: email, password: password }).then(function (loginRes) {
+			_logger2.default.info({
+				description: 'Login Successful.', loginRes: loginRes,
 				func: 'login', obj: 'ProjectsCtrl'
 			});
-			res.send(loginRes);
+			res.json(loginRes);
 		}, function (error) {
 			//TODO: Handle wrong password
 			_logger2.default.error({
 				description: 'Error logging in.', error: error,
 				func: 'login', obj: 'ProjectsCtrl'
 			});
-			res.status(400).send('Login Error.');
+			res.status(400).json({ message: 'Login Error.' });
 		});
 	}, function (error) {
 		_logger2.default.error({
 			description: 'Error finding projectlicaiton.', error: error,
 			func: 'login', obj: 'ProjectsCtrl'
 		});
-		res.status(400).send('Project not found.');
+		res.status(400).json({ message: 'Project not found.' });
 	});
 };
 
@@ -1064,7 +1052,7 @@ function verify(req, res, next) {
 	var findObj = {};
 	if (req.user) {
 		//Find by username in token
-		if (_lodash2.default.has(req.user, "username")) {
+		if ((0, _lodash.has)(req.user, "username")) {
 			findObj.username = req.user.username;
 		} else {
 			//Find by email in token
@@ -1089,7 +1077,7 @@ function verify(req, res, next) {
 			});
 			res.status(500).send('Unable to verify token.');
 		});
-	} else if (_lodash2.default.has(req, 'body') && _lodash2.default.has(req.body, 'token')) {
+	} else if ((0, _lodash.has)(req, 'body') && (0, _lodash.has)(req.body, 'token')) {
 		//TODO: Handle invalidating token within body.
 		_logger2.default.error({
 			description: 'Logout token within body instead of header.',
@@ -1140,7 +1128,7 @@ function groups(req, res, next) {
 				});
 				res.send(foundApp.groups);
 			} else {
-				var group = _lodash2.default.findWhere(foundApp.groups, { name: req.params.groupName });
+				var group = (0, _lodash.find)(foundApp.groups, { name: req.params.groupName });
 				if (group) {
 					_logger2.default.info({
 						description: 'Project group found.',
@@ -1302,79 +1290,76 @@ function updateGroup(req, res, next) {
 		projectName: req.params.name, body: req.body,
 		func: 'updateGroup', obj: 'ProjectsCtrl'
 	});
-	if (req.params.name) {
-		//Get data for a specific project
-		findProject(req.params.name).then(function (foundApp) {
-			//Update is called with null or empty value
-			_logger2.default.log({
-				description: 'Project found.', foundApp: foundApp,
-				func: 'updateGroup', obj: 'ProjectsCtrl'
-			});
-			if (!_lodash2.default.keys(req.body) || _lodash2.default.keys(req.body).length < 1 || req.body == {} || req.body == null || !req.body) {
-				_logger2.default.log({
-					description: 'Update group with null, will be handled as delete.',
-					func: 'updateGroup', obj: 'ProjectsCtrl'
-				});
-				//Delete group
-				foundApp.deleteGroup({ name: req.params.groupName }).then(function (updatedGroup) {
-					_logger2.default.info({
-						description: 'Project group deleted successfully.',
-						updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ProjectsCtrl'
-					});
-					res.send(updatedGroup);
-				}, function (error) {
-					_logger2.default.error({
-						description: 'Error deleting project group.',
-						error: error, func: 'updateGroup', obj: 'ProjectsCtrl'
-					});
-					if (error && error.status && error.status == 'NOT_FOUND') {
-						res.status(400).send(error.message || 'Error deleting group.');
-					} else {
-						res.status(500).send('Error deleting group.');
-					}
-				});
-			} else {
-				_logger2.default.log({
-					description: 'Provided data is valid. Updating project group.',
-					foundApp: foundApp, updateData: req.body,
-					func: 'updateGroup', obj: 'ProjectsCtrl'
-				});
-				var updateData = _lodash2.default.extend({}, req.body);
-				updateData.name = req.params.groupName;
-				if (_lodash2.default.has(updateData, 'users')) {}
-				//TODO: Compare to foundApps current users
-				//TODO: Handle user usernames array
-
-				//Update group
-				foundApp.updateGroup(updateData).then(function (updatedGroup) {
-					_logger2.default.info({
-						description: 'Project group updated successfully.',
-						updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ProjectsCtrl'
-					});
-					res.send(updatedGroup);
-				}, function (error) {
-					//TODO: Handle wrong password
-					_logger2.default.error({
-						description: 'Error updating project group.',
-						error: error, func: 'updateGroup', obj: 'ProjectsCtrl'
-					});
-					res.status(400).send("Error updating project's group.");
-				});
-			}
-		}, function (error) {
-			_logger2.default.error({
-				description: 'Error finding project.',
-				error: error, func: 'updateGroup', obj: 'ProjectsCtrl'
-			});
-			res.status(400).send('Error finding project.');
-		});
-	} else {
+	if (!req.params.name) {
 		_logger2.default.log({
 			description: 'Project name is required to update group.',
 			func: 'updateGroup', obj: 'ProjectsCtrl'
 		});
-		res.status(400).send('Project name is required to update project group.');
-	}
+		return res.status(400).send('Project name is required to update project group.');
+	} //Get data for a specific project
+	findProject(req.params.name).then(function (foundApp) {
+		//Update is called with null or empty value
+		_logger2.default.log({
+			description: 'Project found.', foundApp: foundApp,
+			func: 'updateGroup', obj: 'ProjectsCtrl'
+		});
+		if (!(0, _lodash.keys)(req.body) || (0, _lodash.keys)(req.body).length < 1 || req.body == {} || req.body == null || !req.body) {
+			_logger2.default.log({
+				description: 'Update group with null, will be handled as delete.',
+				func: 'updateGroup', obj: 'ProjectsCtrl'
+			});
+			//Delete group
+			foundApp.deleteGroup({ name: req.params.groupName }).then(function (updatedGroup) {
+				_logger2.default.info({
+					description: 'Project group deleted successfully.',
+					updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ProjectsCtrl'
+				});
+				res.json(updatedGroup);
+			}, function (error) {
+				_logger2.default.error({
+					description: 'Error deleting project group.',
+					error: error, func: 'updateGroup', obj: 'ProjectsCtrl'
+				});
+				if (error && error.status && error.status == 'NOT_FOUND') {
+					return res.status(400).send(error.message || 'Error deleting group.');
+				}
+				res.status(500).send('Error deleting group.');
+			});
+		} else {
+			_logger2.default.log({
+				description: 'Provided data is valid. Updating project group.',
+				foundApp: foundApp, updateData: req.body,
+				func: 'updateGroup', obj: 'ProjectsCtrl'
+			});
+			var updateData = req.body;
+			updateData.name = req.params.groupName;
+			if ((0, _lodash.has)(updateData, 'users')) {}
+			//TODO: Compare to foundApps current users
+			//TODO: Handle user usernames array
+
+			//Update group
+			foundApp.updateGroup(updateData).then(function (updatedGroup) {
+				_logger2.default.info({
+					description: 'Project group updated successfully.',
+					updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ProjectsCtrl'
+				});
+				res.json(updatedGroup);
+			}, function (error) {
+				//TODO: Handle wrong password
+				_logger2.default.error({
+					description: 'Error updating project group.',
+					error: error, func: 'updateGroup', obj: 'ProjectsCtrl'
+				});
+				res.status(400).send("Error updating project's group.");
+			});
+		}
+	}, function (error) {
+		_logger2.default.error({
+			description: 'Error finding project.',
+			error: error, func: 'updateGroup', obj: 'ProjectsCtrl'
+		});
+		res.status(400).send('Error finding project.');
+	});
 };
 /**
  * @api {put} /projects/:name/groups  deleteGroup

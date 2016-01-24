@@ -4,13 +4,7 @@ var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
-var _q = require('q');
-
-var _q2 = _interopRequireDefault(_q);
-
 var _lodash = require('lodash');
-
-var _lodash2 = _interopRequireDefault(_lodash);
 
 var _formidable = require('formidable');
 
@@ -68,8 +62,8 @@ TemplateSchema.set('collection', 'templates');
 
 TemplateSchema.methods = {
 	uploadFiles: function uploadFiles(req) {
-		var bucketName, localDirectory;
-		var d = _q2.default.defer();
+		var bucketName = undefined,
+		    localDirectory = undefined;
 		var self = this;
 		//Create a new directory for template files
 		var uploadDir = "fs/templates/" + this.name;
@@ -79,81 +73,109 @@ TemplateSchema.methods = {
 		    fields = [];
 		form.uploadDir = uploadDir;
 		form.keepExtensions = true;
-		(0, _mkdirp2.default)(form.uploadDir, function (err) {
-			// path was created unless there was error
-			//Parse form
-			form.parse(req, function (err) {
-				if (err) {
-					_logger2.default.log('error parsing form:', err);
-					d.reject(err);
+		return new Promise(function (resolve, reject) {
+			(0, _mkdirp2.default)(form.uploadDir, function (error) {
+				// path was created unless there was error
+				if (error) {
+					_logger2.default.error({
+						description: 'Error creating directory', error: error,
+						func: 'uploadFiles', obj: 'Template'
+					});
+					return Promise.reject(error);
 				}
-				_logger2.default.log('Form parsed');
-			});
-		});
-		//TODO: Handle on error?
-		form.on('fileBegin', function (name, file) {
-			var pathArray = file.path.split("/");
-			var path = _lodash2.default.first(pathArray);
-			path = path.join("/") + "/" + file.name;
-			file.path = path;
-		}).on('field', function (field, value) {
-			// logger.log(field, value);
-			//Handle form fields other than files
-			fields.push([field, value]);
-		}).on('file', function (field, file) {
-			// logger.log(field, file);
-			//Handle form files
-			files.push([field, file]);
-		}).on('end', function () {
-			_logger2.default.log('-> upload done');
-			_logger2.default.log('received files:\n\n ' + _util2.default.inspect(files));
-			// res.writeHead(200, {'content-type': 'text/plain'});
-			// res.write('received fields:\n\n '+util.inspect(fields));
-			// res.write('\n\n');
-			// res.end('received files:\n\n '+util.inspect(files));
-			//TODO: Upload files from disk to S3
-			_logger2.default.log('upload localdir called with:', self.location);
-			_fileStorage2.default.uploadLocalDir({ bucket: self.location, localDir: uploadDir }).then(function () {
-				//TODO: Remove files from disk
-				_logger2.default.log('files upload successful:');
-				(0, _rimraf2.default)(uploadDir, function (err) {
-					if (!err) {
-						d.resolve();
-					} else {
-						_logger2.default.log('Error deleting folder after upload to template');
-						d.reject(err);
+				//Parse form
+				form.parse(req, function (error) {
+					if (error) {
+						_logger2.default.log({
+							description: 'error parsing form:', error: error,
+							func: 'uploadFiles', obj: 'Template'
+						});
+						Promise.reject(error);
 					}
+					_logger2.default.log({
+						description: 'Form parsed',
+						func: 'uploadFiles', obj: 'Template'
+					});
 				});
-			}, function (err) {
-				d.reject(err);
+			});
+			//TODO: Handle on error?
+			form.on('fileBegin', function (name, file) {
+				var pathArray = file.path.split("/");
+				var path = (0, _lodash.first)(pathArray);
+				path = path.join("/") + "/" + file.name;
+				file.path = path;
+			}).on('field', function (field, value) {
+				// logger.log(field, value);
+				//Handle form fields other than files
+				fields.push([field, value]);
+			}).on('file', function (field, file) {
+				// logger.log(field, file);
+				//Handle form files
+				files.push([field, file]);
+			}).on('end', function () {
+				_logger2.default.log({
+					description: 'Received files ', files: _util2.default.inspect(files),
+					func: 'uploadFiles', obj: 'Template'
+				});
+				//TODO: Upload files from disk to S3
+				_logger2.default.log({
+					description: 'Upload localdir called.', location: self.location,
+					func: 'uploadFiles', obj: 'Template'
+				});
+				_fileStorage2.default.uploadLocalDir({ bucket: self.location, localDir: uploadDir }).then(function () {
+					//TODO: Remove files from disk
+					_logger2.default.log({
+						description: 'files upload successful.',
+						func: 'uploadFiles', obj: 'Template'
+					});
+					(0, _rimraf2.default)(uploadDir, function (error) {
+						if (error) {
+							_logger2.default.error({
+								description: 'Error deleting folder after upload to template',
+								func: 'uploadFiles', obj: 'Template'
+							});
+							reject(error);
+						}
+						resolve();
+					});
+				}, function (error) {
+					_logger2.default.error({
+						description: 'Error uploading local directory.',
+						error: error, func: 'uploadFiles', obj: 'Template'
+					});
+					return Promise.reject(error);
+				});
 			});
 		});
-
-		return d.promise;
 	},
 	createNew: function createNew(req) {
 		var _this = this;
 
-		var d = _q2.default.defer();
-		var self = this;
 		//TODO: Verify that name is allowed to be used for bucket
 		return this.save().then(function () {
-			if (req.files) {
-				_this.uploadFiles(req).then(function () {
-					_logger2.default.log('New template created and uploaded successfully');
-					return;
-				}, function (err) {
-					_logger2.default.log('Error uploading files to new template:', err);
-					return Promise.reject(err);
-				});
-			} else {
+			if (!req.files) {
 				return _this;
 			}
-		}, function (err) {
-			_logger2.default.log('Error creating new template:', err);
-			return Promise.reject(err);
+			return _this.uploadFiles(req).then(function () {
+				_logger2.default.log({
+					description: 'New template created and uploaded successfully',
+					func: 'createNew', 'obj': 'Template'
+				});
+				return;
+			}, function (error) {
+				_logger2.default.log({
+					description: 'Error uploading files to new template:', error: error,
+					func: 'createNew', 'obj': 'Template'
+				});
+				return Promise.reject(error);
+			});
+		}, function (error) {
+			_logger2.default.log({
+				description: 'Error creating new template:', error: error,
+				func: 'createNew', 'obj': 'Template'
+			});
+			return Promise.reject(error);
 		});
-		return d.promise;
 	}
 };
 

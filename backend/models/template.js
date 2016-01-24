@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
-import q from 'q';
-import _ from 'lodash';
+import { first } from 'lodash';
 import formidable from 'formidable';
 import util from 'util';
 import mkdirp from 'mkdirp';
@@ -31,34 +30,46 @@ let TemplateSchema = new mongoose.Schema(
 TemplateSchema.set('collection', 'templates');
 
 TemplateSchema.methods = {
-	uploadFiles:function(req){
-		var bucketName,localDirectory;
-		var d = q.defer();
-		var self = this;
+	uploadFiles: function(req){
+		let bucketName, localDirectory;
+		let self = this;
 		//Create a new directory for template files
-		var uploadDir = "fs/templates/" + this.name;
+		let uploadDir = "fs/templates/" + this.name;
 		//Accept files from form upload and save to disk
-		var form = new formidable.IncomingForm(),
+		let form = new formidable.IncomingForm(),
     files = [],
     fields = [];
     form.uploadDir = uploadDir
     form.keepExtensions = true;
-		mkdirp(form.uploadDir, (err) => {
-	    // path was created unless there was error
-	    //Parse form
-	    form.parse(req, (err) => {
-	    	if(err){
-	    		logger.log('error parsing form:', err);
-	    		d.reject(err);
-	    	}
-	    	logger.log('Form parsed');
-	    });
-		});
-    //TODO: Handle on error?
-    form
-	    .on('fileBegin', (name, file) => {
-	    	var pathArray = file.path.split("/");
-	    	var path = _.first(pathArray);
+		return new Promise((resolve, reject) => {
+			mkdirp(form.uploadDir, error => {
+		    // path was created unless there was error
+				if(error){
+					logger.error({
+						description: 'Error creating directory', error,
+						func: 'uploadFiles', obj: 'Template'
+					});
+					return Promise.reject(error);
+				}
+		    //Parse form
+		    form.parse(req, error => {
+		    	if(error){
+		    		logger.log({
+							description: 'error parsing form:', error,
+							func: 'uploadFiles', obj: 'Template'
+						});
+		    		Promise.reject(error);
+		    	}
+		    	logger.log({
+						description: 'Form parsed',
+						func: 'uploadFiles', obj: 'Template'
+					});
+		    });
+			});
+	    //TODO: Handle on error?
+	    form.on('fileBegin', (name, file) => {
+	    	let pathArray = file.path.split("/");
+	    	let path = first(pathArray);
 	    	path = path.join("/") + "/" + file.name;
 	    	file.path = path;
 			})
@@ -73,53 +84,67 @@ TemplateSchema.methods = {
         files.push([field, file]);
       })
       .on('end', () => {
-        logger.log('-> upload done');
-        logger.log('received files:\n\n '+util.inspect(files));
-        // res.writeHead(200, {'content-type': 'text/plain'});
-        // res.write('received fields:\n\n '+util.inspect(fields));
-        // res.write('\n\n');
-        // res.end('received files:\n\n '+util.inspect(files));
+        logger.log({
+					description: 'Received files ', files: util.inspect(files),
+					func: 'uploadFiles', obj: 'Template'
+				});
     		//TODO: Upload files from disk to S3
-    		logger.log('upload localdir called with:', self.location);
-				fileStorage.uploadLocalDir({bucket:self.location, localDir:uploadDir}).then(() => {
+    		logger.log({
+					description: 'Upload localdir called.', location: self.location,
+					func: 'uploadFiles', obj: 'Template'
+				});
+				fileStorage.uploadLocalDir({bucket: self.location, localDir: uploadDir}).then(() => {
 					//TODO: Remove files from disk
-					logger.log('files upload successful:');
-					rimraf(uploadDir, (err) => {
-						if(!err){
-							d.resolve();
-						} else {
-							logger.log('Error deleting folder after upload to template');
-							d.reject(err);
-						}
+					logger.log({
+						description: 'files upload successful.',
+						func: 'uploadFiles', obj: 'Template'
 					});
-				}, (err) => {
-					d.reject(err);
+					rimraf(uploadDir, error => {
+						if(error){
+							logger.error({
+								description: 'Error deleting folder after upload to template',
+								func: 'uploadFiles', obj: 'Template'
+							});
+							reject(error);
+						}
+						resolve();
+					});
+				}, error => {
+					logger.error({
+						description: 'Error uploading local directory.',
+						error, func: 'uploadFiles', obj: 'Template'
+					});
+					return Promise.reject(error);
 				});
       });
-
-    return d.promise;
+		});
 	},
-	createNew: function (req){
-		var d = q.defer();
-		var self = this;
+	createNew: function (req) {
 		//TODO: Verify that name is allowed to be used for bucket
 		return this.save().then(() => {
-			if(req.files){
-				this.uploadFiles(req).then(() => {
-					logger.log('New template created and uploaded successfully');
-					return;
-				}, (err) => {
-					logger.log('Error uploading files to new template:', err);
-					return Promise.reject(err);
-				});
-			} else {
+			if(!req.files){
 				return this;
 			}
-		}, (err) => {
-			logger.log('Error creating new template:', err);
-			return Promise.reject(err);
+			return this.uploadFiles(req).then(() => {
+				logger.log({
+					description: 'New template created and uploaded successfully',
+					func: 'createNew', 'obj': 'Template'
+				});
+				return;
+			}, error => {
+				logger.log({
+					description: 'Error uploading files to new template:', error,
+					func: 'createNew', 'obj': 'Template'
+				});
+				return Promise.reject(error);
+			});
+		}, error => {
+			logger.log({
+				description: 'Error creating new template:', error,
+				func: 'createNew', 'obj': 'Template'
+			});
+			return Promise.reject(error);
 		});
-		return d.promise;
 	}
 };
 

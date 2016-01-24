@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.events = events;
+exports.login = login;
+exports.logout = logout;
 
 var _logger = require('../utils/logger');
 
@@ -212,5 +214,99 @@ function userDeleted(requestData) {
         reject('User cound not be deleted');
       });
     }
+  });
+}
+
+function login(loginData) {
+  //Authrocket login
+  //Remove email to avoid Auth Rocket error
+  if (has(loginData, 'email')) {
+    delete loginData.email;
+  }
+  if (!has(loginData, 'username')) {
+    return Promise.reject('Username is required to login.');
+  }
+  _logger2.default.log({
+    description: 'calling auth rocket with:',
+    loginData: loginData, func: 'login', obj: 'AuthCtrls'
+  });
+  authrocket.login(loginData).then(function (loginRes) {
+    _logger2.default.log({
+      description: 'Successfully logged in through authrocket.',
+      func: 'login', obj: 'AuthCtrls'
+    });
+    //TODO: Record login within internal auth system
+    //TODO: Return user along with token data
+    if (loginRes.token) {
+      var _token = jwt.decode(loginRes.token);
+      _logger2.default.log({
+        description: 'token', token: _token,
+        func: 'login', obj: 'AuthCtrls'
+      });
+      if (!process.env.AUTHROCKET_JWT_SECRET) {
+        _logger2.default.error({
+          description: 'Authrocket secret not available to verify token',
+          func: 'login', obj: 'AuthCtrls'
+        });
+      } else {
+        var verify = jwt.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
+        _logger2.default.log({
+          description: 'verify', verify: verify,
+          func: 'login', obj: 'AuthCtrls'
+        });
+      }
+    }
+    var user = { username: token.un, name: token.n, groups: token.m || [] };
+    //Convert groups list to object from token if org/group data exists
+    if (user.groups.length >= 1 && user.groups[0].o) {
+      user.groups = user.groups.map(function (group) {
+        return { name: group.o, id: group.oid };
+      });
+    }
+    var response = { user: user, token: loginRes.token };
+    res.send(response);
+  }, function (error) {
+    _logger2.default.error({
+      description: 'Error logging in through auth rocket.',
+      error: error, func: 'login', obj: 'AuthCtrls'
+    });
+    res.status(400).send('Invalid Credentials');
+  });
+}
+
+function logout() {
+  var token;
+  if (req.body && req.body.token) {
+    token = req.body.token;
+  } else if (req.headers && (req.headers.authorization || req.header('Authorization'))) {
+    _logger2.default.log({
+      description: 'Getting token from headers.',
+      headers: req.headers, func: 'logout', obj: 'AuthCtrl'
+    });
+    var header = req.headers.authorization || req.header('Authorization');
+    token = header.replace("Bearer ", "");
+  } else {
+    _logger2.default.warn({
+      description: 'Token required to logout.',
+      func: 'logout', obj: 'AuthCtrl'
+    });
+    return res.status(401).send('Token required to logout.');
+  }
+  _logger2.default.log({
+    description: 'Attempting log out through authrocket.',
+    token: token, func: 'logout', obj: 'AuthCtrl'
+  });
+  authrocket.logout(token).then(function (logoutRes) {
+    _logger2.default.log({
+      description: 'Successfully logged out through authrocket.',
+      response: logoutRes, func: 'logout', obj: 'AuthCtrl'
+    });
+    res.send({ message: 'Logout successful.' });
+  }, function (err) {
+    _logger2.default.error({
+      description: 'Error ending session.', error: err,
+      func: 'logout', obj: 'AuthCtrl'
+    });
+    res.status(500).send(err);
   });
 }

@@ -8,7 +8,7 @@ import * as fileStorage from '../utils/fileStorage';
 
 //External Libs
 import mongoose from 'mongoose';
-import _ from 'lodash';
+import { isString, omit, pick } from 'lodash';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt-nodejs';
 import rimraf from 'rimraf';
@@ -42,34 +42,11 @@ let UserSchema = new mongoose.Schema(
  * @description Set collection name to 'user'
  */
 UserSchema.set('collection', 'users');
-/*
- * Groups virtual to return names
- */
-// UserSchema.virtual('groupNames')
-// .get(function (){
-// 	// return "test";
-// 	let self = this;
-// 	let namesArray = _.map(self.groups, function(group){
-// 		if(_.isString(group)){
-// 			logger.log('was a string');
-// 			group = JSON.parse(group);
-// 		}
-// 		logger.log('group:', group);
-// 		if(_.has(group, 'name')){
-// 			return group.name;
-// 		} else {
-// 			logger.log('but it does not exist');
-// 			return group;
-// 		}
-// 	});
-// 	logger.log('names array:', namesArray);
-// 	return namesArray;
-// });
 UserSchema.virtual('id')
 .get(function() {
 	return this._id;
 })
-// .set( (id) => {
+// .set((id) => {
 // 	return this._id = id;
 // });
 UserSchema.methods = {
@@ -78,19 +55,19 @@ UserSchema.methods = {
 	 * @description Remove values that should not be sent
 	 */
 	strip: function() {
-		let strippedUser = _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
+		let strippedUser = omit(this.toJSON(), ["password", "__v", '$$hashKey']);
 		logger.log({
 			description: 'Strip called.', strippedUser: strippedUser,
 			func: 'strip', obj: 'User'
 		});
-		return _.omit(this.toJSON(), ["password", "__v", '$$hashKey']);
+		return omit(this.toJSON(), ["password", "__v", '$$hashKey']);
 	},
 	/**
 	 * @function tokenData
 	 * @description Get data used within token
 	 */
 	tokenData: function() {
-		let data = _.pick(this.toJSON(), ["username", "groups", "sessionId", "groupNames"]);
+		let data = pick(this.toJSON(), ["username", "groups", "sessionId", "groupNames"]);
 		logger.log({
 			description: 'Token data selected.',
 			func: 'tokenData', obj: 'User'
@@ -108,17 +85,17 @@ UserSchema.methods = {
 			func: 'generateToken', obj: 'User'
 		});
 		try {
-			let tokenData = this.tokenData();
-			let token = jwt.sign(tokenData, config.jwtSecret);
-			logger.log({
+			const tokenData = this.tokenData();
+			const token = jwt.sign(tokenData, config.jwtSecret);
+			logger.debug({
 				description: 'Token generated.',
 				func: 'generateToken', obj: 'User'
 			});
 			return token;
-		} catch (err) {
+		} catch (error) {
 			logger.error({
 				description: 'Error generating token.',
-				error: err, func: 'generateToken', obj: 'User'
+				error, func: 'generateToken', obj: 'User'
 			});
 		}
 	},
@@ -133,13 +110,14 @@ UserSchema.methods = {
 			func: 'login', obj: 'User'
 		});
 		//Check password
-		let self = this; //this contexts were causing errors even though => should pass context automatically
 		if(!this.password){
 			logger.error({
-				description: 'Original query did not include password. Consider revising.',
+				description: 'Account does not include password. Do you need to get the account first?',
 				func: 'login', obj: 'User'
 			});
-			return this.model('User').find({_id:this._id}).then(self.login(passwordAttempt));
+			return Promise.reject({
+				message: 'Error logging in. Password does not exist.'
+			});
 		}
 		return this.comparePassword(passwordAttempt).then(() => {
 			logger.log({
@@ -147,30 +125,29 @@ UserSchema.methods = {
 				func: 'login', obj: 'User'
 			});
 			//Start new session
-			return self.startSession().then((sessionInfo) => {
+			return this.startSession().then(sessionInfo => {
 				logger.log({
 					description: 'Session started successfully.',
 					sessiontInfo: sessionInfo,
 					func: 'login', obj: 'User'
 				});
 				//Create Token
-				self.sessionId = sessionInfo._id;
-				let token = self.generateToken(sessionInfo);
-				return {token: token, user: self.strip()};
-			}, (err) => {
+				this.sessionId = sessionInfo._id;
+				const token = this.generateToken(sessionInfo);
+				return {token, user: this.strip()};
+			}, error => {
 				logger.error({
 					description: 'Error starting session.',
-					error: err, func: 'login', obj: 'User'
+					error, func: 'login', obj: 'User'
 				});
-				return Promise.reject(err);
+				return Promise.reject(error);
 			});
-		}, err => {
+		}, error => {
 			logger.error({
 				description: 'Error comparing password.',
-				attempt: passwordAttempt, error: err,
-				func: 'login', obj: 'User'
+				error, func: 'login', obj: 'User'
 			});
-			return Promise.reject(err);
+			return Promise.reject(error);
 		});
 	},
 	/**
@@ -189,10 +166,10 @@ UserSchema.methods = {
 				func: 'logout', obj: 'User'
 			});
 			return {message: 'Logout successful.'};
-		}, err => {
+		}, error => {
 			logger.error({
 				description: 'Error ending session.',
-				error: err, func: 'logout', obj: 'User'
+				error, func: 'logout', obj: 'User'
 			});
 			return {message: 'Logout successful.'};
 		});
@@ -210,9 +187,10 @@ UserSchema.methods = {
 		if(!provider && !password){
 			return Promise.reject({message: 'Password required to signup.'});
 		}
-		if(authRocketEnabled){
-			return authrocket.signup({username, password, email});
-		}
+		// TODO: Allow enabling of authrocket
+		// if(authRocketEnabled){
+		// 	return authrocket.signup({username, password, email});
+		// }
 		let findObj = username ? { username } : { email };
 		if(provider){
 			findObj.provider = provider;
@@ -241,35 +219,35 @@ UserSchema.methods = {
 	 * @function comparePassword
 	 * @description Compare a password attempt with user password
 	 */
-	comparePassword: function (passwordAttempt) {
+	comparePassword: function(passwordAttempt) {
 		logger.log({
 			description: 'Compare password called.',
 			func: 'comparePassword', obj: 'User'
 		});
-		let selfPassword = this.password;
+		const { password } = this;
 		return new Promise((resolve, reject) => {
-			bcrypt.compare(passwordAttempt, selfPassword, (err, passwordsMatch) => {
+			bcrypt.compare(passwordAttempt, password, (err, passwordsMatch) => {
 				if(err){
 					logger.error({
 						description: 'Error comparing password.',
 						error: err, func: 'comparePassword', obj: 'User'
 					});
-					reject(err);
-				} else if(!passwordsMatch){
+					return reject(err);
+				}
+				if(!passwordsMatch){
 					logger.warn({
 						description: 'Passwords do not match.',
 						func: 'comparePassword', obj: 'User'
 					});
-					reject({
+					return reject({
 						message:'Invalid authentication credentials'
 					});
-				} else {
-					logger.log({
-						description: 'Passwords match.',
-						func: 'comparePassword', obj: 'User'
-					});
-					resolve(true);
 				}
+				logger.log({
+					description: 'Passwords match.',
+					func: 'comparePassword', obj: 'User'
+				});
+				resolve(true);
 			});
 		});
 	},
@@ -282,7 +260,7 @@ UserSchema.methods = {
 			description: 'Start session called.',
 			func: 'startSession', obj: 'User'
 		});
-		let session = new Session({userId:this._id});
+		const session = new Session({userId: this._id});
 		return session.save().then(newSession => {
 			if (!newSession) {
 				logger.error({
@@ -290,19 +268,18 @@ UserSchema.methods = {
 					func: 'startSession', obj: 'User'
 				});
 				return Promise.reject({message: 'Session could not be started.'});
-			} else {
-				logger.log({
-					description: 'Session started successfully.',
-					newSession: newSession, func: 'startSession', obj: 'User'
-				});
-				return newSession;
 			}
-		}, err => {
+			logger.log({
+				description: 'Session started successfully.',
+				newSession: newSession, func: 'startSession', obj: 'User'
+			});
+			return newSession;
+		}, error => {
 			logger.error({
-				description: 'Error saving new session.', error: err,
+				description: 'Error saving new session.', error,
 				func: 'startSession', obj: 'User'
 			});
-			return Promise.reject(err);
+			return Promise.reject(error);
 		});
 	},
 	/**
@@ -313,34 +290,34 @@ UserSchema.methods = {
 		logger.log({
 			description: 'End session called.', func: 'endSession', obj: 'User'
 		});
-		let self = this;
+		let { sessionId } = this;
 		return new Promise((resolve, reject) => {
-			Session.update({_id:self.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, (err, affect, result) => {
-				if(err){
+			Session.update({_id: sessionId, active: true}, {active: false, endedAt: Date.now()}, {upsert:false}, (error, affect, result) => {
+				if(error){
 					logger.info({
-						description: 'Error ending session.', error: err, func: 'endSession', obj: 'User'
+						description: 'Error ending session.', error,
+						func: 'endSession', obj: 'User'
 					});
 					return reject({message: 'Error ending session.'});
 				}
 				if (affect.nModified > 0) {
 					logger.info({
-						description: 'Session ended successfully.', session: result,
-						affect: affect, func: 'endSession', obj: 'User'
+						description: 'Session ended successfully.', result,
+						affect, func: 'endSession', obj: 'User'
 					});
 					if(affect.nModified != 1){
 						logger.error({
 							description: 'More than one session modified.', session: result,
-							affect: affect, func: 'endSession', obj: 'User'
+							affect, func: 'endSession', obj: 'User'
 						});
 					}
-					resolve(result);
-				} else {
-					logger.warn({
-						description: 'Affect number incorrect?', func: 'endSession',
-						affect: affect, sesson: result, error: err, obj: 'User'
-					});
-					resolve({id: self.sessionId});
+					return resolve(result);
 				}
+				// logger.warn({
+				// 	description: 'Affect number incorrect?', func: 'endSession',
+				// 	affect, result, obj: 'User'
+				// });
+				resolve({id: sessionId});
 			});
 		});
 	},
@@ -353,7 +330,7 @@ UserSchema.methods = {
 			description: 'Hashing password.',
 			func: 'hashPassword', obj: 'User'
 		});
-		if(!password || !_.isString(password) || password.length < 0){
+		if(!password || !isString(password) || password.length < 0){
 			logger.log({
 				description: 'Valid password is required to hash.',
 				password, func: 'hashPassword', obj: 'User'
@@ -361,22 +338,22 @@ UserSchema.methods = {
 			return Promise.reject('Valid password is required to hash.');
 		}
 		return new Promise((resolve, reject) => {
-			bcrypt.genSalt(10, (err, salt) => {
-				if(err){
+			bcrypt.genSalt(10, (error, salt) => {
+				if(error){
 					logger.log({
 						description: 'Error generating salt',
-						error: err, func: 'hashPassword', obj: 'User'
+						error, func: 'hashPassword', obj: 'User'
 					});
-					return reject(err);
+					return reject(error);
 				}
-			  bcrypt.hash(password, salt, null, (err, hash) => {
+			  bcrypt.hash(password, salt, null, (error, hash) => {
 					//Add hash to userData
-					if(err){
+					if(error){
 						logger.log({
 							description: 'Error Hashing password.',
-							error: err, func: 'hashPassword', obj: 'User'
+							error, func: 'hashPassword', obj: 'User'
 						});
-						return reject(err);
+						return reject(error);
 					}
 					resolve(hash);
 				});
@@ -399,8 +376,7 @@ UserSchema.methods = {
 				message: 'Username required to create a new user.'
 			});
 		}
-		let self = this;
-		if(!password || !_.isString(password)){
+		if(!password || !isString(password)){
 			logger.error({
 				description: 'Invalid password.',
 				password, func: 'createWithPass', obj: 'Account'
@@ -409,7 +385,7 @@ UserSchema.methods = {
 				message: 'Invalid password.'
 			});
 		}
-		let findObj = {username: self.username};
+		let findObj = {username: this.username};
 		if(project) {
 			//TODO: Make sure that this is an id not an project object
 			findObj.project = project;
@@ -419,8 +395,9 @@ UserSchema.methods = {
 				func: 'createWithPass', obj: 'User'
 			});
 		}
-		let query = self.model('User').findOne(findObj);
-		return query.then((foundUser) => {
+		let self = this;
+		let query = this.model('User').findOne(findObj);
+		return query.then(foundUser => {
 			if(foundUser){
 				logger.warn({
 					description: 'A user with provided username already exists',
@@ -445,22 +422,22 @@ UserSchema.methods = {
 						func: 'createWithPass', obj: 'User'
 					});
 					return newUser;
-				}, (err) => {
+				}, error => {
 					logger.error({
 						description: 'Error creating new user.',
-						error: err, func: 'createWithPass', obj: 'User'
+						error, func: 'createWithPass', obj: 'User'
 					});
-					if(err && err.code && err.code === 11000){
+					if(error && error.code && error.code === 11000){
 						logger.error({
 							description: 'Email is already taken.',
-							err, func: 'createWithPass', obj: 'Account'
+							error, func: 'createWithPass', obj: 'Account'
 						});
 						return Promise.reject({
 							message: 'Email is associated with an existing user.',
 							status: 'EXISTS'
 						});
 					}
-					return Promise.reject(err);
+					return Promise.reject(error);
 				});
 			}, error => {
 				logger.error({
@@ -549,27 +526,26 @@ UserSchema.methods = {
 			description: 'Start session called.',
 			func: 'startSession', obj: 'Account'
 		});
-		var session = new Session({accountId:this._id});
-		return session.save().then((newSession) => {
+		var session = new Session({accountId: this._id});
+		return session.save().then(newSession => {
 			if (!newSession) {
 				logger.error({
 					description: 'New session was not created.',
 					func: 'startSession', obj: 'Account'
 				});
 				return Promise.reject({message: 'Session could not be started.'});
-			} else {
-				logger.log({
-					description: 'Session started successfully.',
-					newSession: newSession, func: 'startSession', obj: 'Account'
-				});
-				return newSession;
 			}
-		}, (err) => {
+			logger.log({
+				description: 'Session started successfully.',
+				newSession, func: 'startSession', obj: 'Account'
+			});
+			return newSession;
+		}, error => {
 			logger.error({
-				description: 'Error saving new session.', error: err,
+				description: 'Error saving new session.', error,
 				func: 'startSession', obj: 'Account'
 			});
-			return Promise.reject(err);
+			return Promise.reject(error);
 		});
 	},
 	/**
@@ -580,34 +556,35 @@ UserSchema.methods = {
 		logger.log({
 			description: 'End session called.', func: 'endSession', obj: 'Account'
 		});
-		let self = this;
+		const { sessionId } = this;
+		const endedSession = {active: false, endedAt: Date.now()};
 		return new Promise((resolve, reject) => {
-			Session.update({_id:self.sessionId, active:true}, {active:false, endedAt:Date.now()}, {upsert:false}, (err, affect, result) => {
-				if(err){
-					logger.info({
-						description: 'Error ending session.', error: err, func: 'endSession', obj: 'Account'
+			Session.update({_id: sessionId}, endedSession, { upsert: false }, (error, affect, session) => {
+				if(error){
+					logger.error({
+						description: 'Error ending session.', error,
+						func: 'endSession', obj: 'Account'
 					});
 					return reject({message: 'Error ending session.'});
 				}
 				if (affect.nModified > 0) {
 					logger.info({
-						description: 'Session ended successfully.', session: result,
-						affect: affect, func: 'endSession', obj: 'Account'
+						description: 'Session ended successfully.', session,
+						affect, func: 'endSession', obj: 'Account'
 					});
 					if(affect.nModified != 1){
 						logger.error({
-							description: 'More than one session modified.', session: result,
-							affect: affect, func: 'endSession', obj: 'Account'
+							description: 'More than one session modified.', session,
+							affect, func: 'endSession', obj: 'Account'
 						});
 					}
-					resolve(result);
-				} else {
-					logger.warn({
-						description: 'Affect number incorrect?', func: 'endSession',
-						affect: affect, sesson: result, error: err, obj: 'Account'
-					});
-					resolve({id: self.sessionId});
+					return resolve(session);
 				}
+				logger.warn({
+					description: 'Affect number in session.', func: 'endSession',
+					affect, session, obj: 'Account'
+				});
+				resolve({id: sessionId});
 			});
 		});
 	},
@@ -615,36 +592,40 @@ UserSchema.methods = {
 	 * @function hashPassword
 	 * @description Hash provided password with salt
 	 */
-	hashPassword:(password) => {
+	hashPassword: (password) => {
 		logger.log({
 			description: 'Hashing password.',
 			func: 'hashPassword', obj: 'Account'
 		});
-		if(!password || !_.isString(password) || password.length < 0){
+		if(!password || !isString(password) || password.length < 0){
 			logger.log({
 				description: 'Valid password is required to hash.',
-				password: password, func: 'hashPassword', obj: 'Account'
+				password, func: 'hashPassword', obj: 'Account'
 			});
 			return Promise.reject('Valid password is required to hash.');
 		}
 		return new Promise((resolve, reject) => {
-			bcrypt.genSalt(10, (err, salt) => {
-				if(err){
+			bcrypt.genSalt(10, (error, salt) => {
+				if(error){
 					logger.log({
 						description: 'Error generating salt',
-						error: err, func: 'hashPassword', obj: 'Account'
+						error, func: 'hashPassword', obj: 'Account'
 					});
-					return reject(err);
+					return reject(error);
 				}
-			  bcrypt.hash(password, salt, (err, hash) => {
+			  bcrypt.hash(password, salt, null, (error, hash) => {
 					//Add hash to accountData
-					if(err){
+					if(error){
 						logger.log({
 							description: 'Error Hashing password.',
-							error: err, func: 'hashPassword', obj: 'Account'
+							error, func: 'hashPassword', obj: 'Account'
 						});
-						return reject(err);
+						return reject(error);
 					}
+					logger.debug({
+						description: 'Password hash successful.',
+						func: 'hashPassword', obj: 'Account'
+					});
 					resolve(hash);
 				});
 			});
@@ -681,15 +662,14 @@ UserSchema.methods = {
 				});
 				return new Promise((resolve, reject) => {
 					rimraf(image.path, {}, error => {
-						if(!error){
-							resolve(updatedUser);
-						} else {
+						if(error){
 							logger.error({
 								description: 'Error deleting file from local directory.',
 								error, func: 'uploadImage', obj: 'User'
 							});
-							reject(error);
+							return reject(error);
 						}
+						resolve(updatedUser);
 					});
 				});
 			}, error => {
