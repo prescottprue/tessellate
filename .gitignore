@@ -1,11 +1,5 @@
-node_modules
-**/.DS_Store
-fs
-wiki
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
-newrelic_agent.log
-**/newrelic_agent.log
-npm-debug.log
+node_modules/
+.monitor
+config/env/env.json
+Makefile
+.DS_Store

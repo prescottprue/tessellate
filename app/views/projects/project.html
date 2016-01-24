@@ -1,0 +1,28 @@
+<div class="project">
+  <h3>
+    <a href="{{ '/projects/' + project._id }}" title="{{ project.title }}">
+      {{ project.title }}
+    </a>
+  </h3>
+  <p>{{ project.body }}</p>
+
+  <span class="muted">{{ project.createdAt.toISOString()|date('M d, Y  h:i a') }}</span>
+
+  {% if (project.user) %}
+    &nbsp; - &nbsp;
+    <span>Author: </span>
+    <a href="{{ '/users/' + project.user._id }}">
+      {{ project.user.name || project.user.username }}
+    </a>
+  {% endif %}
+
+  {% if (project.tags) %}
+    &nbsp; - &nbsp;
+    <span>Tags: </span>
+    {% for tag in project.tags.split(',') %}
+      <i class="muted fa fa-tag"></i>&nbsp;
+      <a href="{{ '/tags/' + tag }}" class="tag">{{ tag }}</a>
+      &nbsp;&nbsp;
+    {% endfor %}
+  {% endif %}
+</div>
