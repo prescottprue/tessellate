@@ -55,7 +55,7 @@ var UserSchema = new _mongoose2.default.Schema({
 	title: { type: String },
 	password: { type: String },
 	sessionId: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Session' },
-	application: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Project' },
+	project: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Project' },
 	groups: [{ type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Group' }],
 	createdAt: { type: Date, default: Date.now },
 	updatedAt: { type: Date, default: Date.now }
@@ -389,9 +389,9 @@ UserSchema.methods = {
   * @function createWithPass
   * @description Create new user
   * @param {string} password - Password with which to create user
-  * @param {string} application - Application with which to create user
+  * @param {string} project - Application with which to create user
   */
-	createWithPass: function createWithPass(password, application) {
+	createWithPass: function createWithPass(password, project) {
 		var self = this;
 		if (!self.username) {
 			_logger2.default.warn({
@@ -413,12 +413,12 @@ UserSchema.methods = {
 			});
 		}
 		var findObj = { username: self.username };
-		if (application) {
-			//TODO: Make sure that this is an id not an application object
-			findObj.application = application;
+		if (project) {
+			//TODO: Make sure that this is an id not an project object
+			findObj.project = project;
 		} else {
 			_logger2.default.warn({
-				description: 'Creating a user without an application.',
+				description: 'Creating a user without an project.',
 				func: 'createWithPass', obj: 'User'
 			});
 		}
@@ -480,9 +480,9 @@ UserSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createWithProvider: function createWithProvider(application) {
+	createWithProvider: function createWithProvider(project) {
 		_logger2.default.debug({
-			description: 'Create with provider called.', this: this, application: application,
+			description: 'Create with provider called.', this: this, project: project,
 			func: 'createWithProvider', obj: 'User'
 		});
 		if (!this.username) {
@@ -495,9 +495,9 @@ UserSchema.methods = {
 			});
 		}
 		var findObj = { username: this.username };
-		if (application) {
-			//TODO: Make sure that this is an id not an application object
-			findObj.application = application;
+		if (project) {
+			//TODO: Make sure that this is an id not an project object
+			findObj.project = project;
 		}
 		var query = this.model('User').findOne(findObj);
 		return query.then(function (foundUser) {

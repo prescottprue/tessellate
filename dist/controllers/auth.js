@@ -83,7 +83,7 @@ function signup(req, res, next) {
 	}
 	var query = undefined;
 	if (authRocketEnabled) {
-		authrocket.signup(req.body).then(function (signupRes) {
+		return authrocket.signup(req.body).then(function (signupRes) {
 			_logger2.default.log({
 				description: 'Successfully signed up through authrocket.',
 				response: signupRes, func: 'signup', obj: 'AuthCtrls'
@@ -97,40 +97,39 @@ function signup(req, res, next) {
 			});
 			res.send(err);
 		});
-	} else {
-		//Basic Internal Signup
-		if ((0, _lodash.has)(req.body, "username")) {
-			query = _user.User.findOne({ "username": req.body.username }); // find using username field
-		} else {
-				query = _user.User.findOne({ "email": req.body.email }); // find using email field
-			}
-		query.then(function (result) {
-			if (result) {
-				//Matching user already exists
-				// TODO: Respond with a specific error code
-				return res.status(400).send('User with this information already exists.');
-			}
-			//user does not already exist
-			//Build user data from request
-			var user = new _user.User(req.body);
-			// TODO: Start a session with new user
-			user.createWithPass(req.body.password).then(function (newUser) {
-				res.send(newUser);
-			}, function (err) {
-				res.status(500).json({
-					code: 500,
-					message: 'Error hashing password',
-					error: err
-				});
-			});
-		}, function (err) {
-			_logger2.default.error({
-				description: 'Error querying for user.',
-				error: err, func: 'signup', obj: 'AuthCtrl'
-			});
-			res.status(500).send('Error querying for user.');
-		});
 	}
+	//Basic Internal Signup
+	if ((0, _lodash.has)(req.body, "username")) {
+		query = _user.User.findOne({ "username": req.body.username }); // find using username field
+	} else {
+			query = _user.User.findOne({ "email": req.body.email }); // find using email field
+		}
+	query.then(function (result) {
+		if (result) {
+			//Matching user already exists
+			// TODO: Respond with a specific error code
+			return res.status(400).send('User with this information already exists.');
+		}
+		//user does not already exist
+		//Build user data from request
+		var user = new _user.User(req.body);
+		// TODO: Start a session with new user
+		user.createWithPass(req.body.password).then(function (newUser) {
+			res.send(newUser);
+		}, function (err) {
+			res.status(500).json({
+				code: 500,
+				message: 'Error hashing password',
+				error: err
+			});
+		});
+	}, function (error) {
+		_logger2.default.error({
+			description: 'Error querying for user.',
+			error: error, func: 'signup', obj: 'AuthCtrl'
+		});
+		res.status(500).send('Error querying for user.');
+	});
 };
 
 /**
@@ -162,7 +161,6 @@ function signup(req, res, next) {
  *
  */
 function login(req, res, next) {
-	var query = undefined;
 	if (!(0, _lodash.has)(req.body, "username") && !(0, _lodash.has)(req.body, "email") || !(0, _lodash.has)(req.body, "password")) {
 		return res.status(400).send("Username/Email and password required to login");
 	}
@@ -222,14 +220,15 @@ function login(req, res, next) {
 			}
 			var response = { user: user, token: loginRes.token };
 			res.send(response);
-		}, function (err) {
+		}, function (error) {
 			_logger2.default.error({
 				description: 'Error logging in through auth rocket.',
-				error: err, func: 'login', obj: 'AuthCtrls'
+				error: error, func: 'login', obj: 'AuthCtrls'
 			});
 			res.status(400).send('Invalid Credentials');
 		});
 	} else {
+		var query = undefined;
 		//Basic Internal login
 		if ((0, _lodash.has)(loginData, 'username')) {
 			query = _user.User.findOne({ 'username': loginData.username }).populate({ path: 'groups', select: 'name' }).select({ __v: 0, createdAt: 0, updatedAt: 0 }); // find using username field

@@ -25,7 +25,7 @@ let UserSchema = new mongoose.Schema(
 		title:{type: String},
 		password:{type: String},
 		sessionId:{type:mongoose.Schema.Types.ObjectId, ref:'Session'},
-		application:{type:mongoose.Schema.Types.ObjectId, ref:'Project'},
+		project:{type:mongoose.Schema.Types.ObjectId, ref:'Project'},
 		groups:[{type:mongoose.Schema.Types.ObjectId, ref:'Group'}],
 		createdAt: { type: Date, default: Date.now},
 		updatedAt: { type: Date, default: Date.now}
@@ -359,9 +359,9 @@ UserSchema.methods = {
 	 * @function createWithPass
 	 * @description Create new user
 	 * @param {string} password - Password with which to create user
-	 * @param {string} application - Application with which to create user
+	 * @param {string} project - Application with which to create user
 	 */
-	createWithPass: function(password, application) {
+	createWithPass: function(password, project) {
 		let self = this;
 		if(!self.username){
 			logger.warn({
@@ -383,12 +383,12 @@ UserSchema.methods = {
 			});
 		}
 		let findObj = {username: self.username};
-		if(application) {
-			//TODO: Make sure that this is an id not an application object
-			findObj.application = application;
+		if(project) {
+			//TODO: Make sure that this is an id not an project object
+			findObj.project = project;
 		} else {
 			logger.warn({
-				description: 'Creating a user without an application.',
+				description: 'Creating a user without an project.',
 				func: 'createWithPass', obj: 'User'
 			});
 		}
@@ -450,9 +450,9 @@ UserSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	createWithProvider: function(application) {
+	createWithProvider: function(project) {
 		logger.debug({
-			description: 'Create with provider called.', this, application,
+			description: 'Create with provider called.', this, project,
 			func: 'createWithProvider', obj: 'User'
 		});
 		if(!this.username){
@@ -465,9 +465,9 @@ UserSchema.methods = {
 			});
 		}
 		let findObj = { username: this.username };
-		if(application){
-			//TODO: Make sure that this is an id not an application object
-			findObj.application = application;
+		if(project){
+			//TODO: Make sure that this is an id not an project object
+			findObj.project = project;
 		}
 		let query = this.model('User').findOne(findObj);
 		return query.then(foundUser => {

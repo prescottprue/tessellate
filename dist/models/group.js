@@ -16,7 +16,7 @@ var _underscore = require('underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
-var _application = require('./application');
+var _project = require('./project');
 
 var _user = require('./user');
 
@@ -27,7 +27,7 @@ var _logger2 = _interopRequireDefault(_logger);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GroupSchema = new _mongoose2.default.Schema({
-	application: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Project' },
+	project: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Project' },
 	name: { type: String, default: '' },
 	users: [{ type: _mongoose2.default.Schema.Types.ObjectId, ref: 'User' }],
 	createdAt: { type: Date, default: Date.now },

@@ -94,6 +94,10 @@ exports.default = {
 		controller: userCtrls.getProjects
 	}, {
 		type: 'POST',
+		endpoint: '/users/:username/projects',
+		controller: projectCtrls.add
+	}, {
+		type: 'POST',
 		endpoint: '/users',
 		controller: usersCtrls.add
 	}, {

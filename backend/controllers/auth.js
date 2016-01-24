@@ -49,7 +49,7 @@ export function signup(req, res, next) {
 	}
 	let query;
 	if(authRocketEnabled){
-		authrocket.signup(req.body).then((signupRes) => {
+		return authrocket.signup(req.body).then((signupRes) => {
 			logger.log({
 				description: 'Successfully signed up through authrocket.',
 				response: signupRes, func: 'signup', obj: 'AuthCtrls'
@@ -63,39 +63,38 @@ export function signup(req, res, next) {
 			});
 			res.send(err);
 		});
-	} else {
-		//Basic Internal Signup
-		if(has(req.body, "username")){
-			query = User.findOne({"username":req.body.username}); // find using username field
-		} else {
-			query = User.findOne({"email":req.body.email}); // find using email field
-		}
-		query.then(result => {
-			if(result){ //Matching user already exists
-				// TODO: Respond with a specific error code
-				return res.status(400).send('User with this information already exists.');
-			}
-			//user does not already exist
-			//Build user data from request
-			var user = new User(req.body);
-			// TODO: Start a session with new user
-			user.createWithPass(req.body.password).then(newUser => {
-				res.send(newUser);
-			}, err => {
-				res.status(500).json({
-					code:500,
-					message:'Error hashing password',
-					error:err
-				});
-			});
-		}, err => {
-			logger.error({
-				description: 'Error querying for user.',
-				error: err, func: 'signup', obj: 'AuthCtrl'
-			});
-			res.status(500).send('Error querying for user.');
-		});
 	}
+	//Basic Internal Signup
+	if(has(req.body, "username")){
+		query = User.findOne({"username":req.body.username}); // find using username field
+	} else {
+		query = User.findOne({"email":req.body.email}); // find using email field
+	}
+	query.then(result => {
+		if(result){ //Matching user already exists
+			// TODO: Respond with a specific error code
+			return res.status(400).send('User with this information already exists.');
+		}
+		//user does not already exist
+		//Build user data from request
+		var user = new User(req.body);
+		// TODO: Start a session with new user
+		user.createWithPass(req.body.password).then(newUser => {
+			res.send(newUser);
+		}, err => {
+			res.status(500).json({
+				code:500,
+				message:'Error hashing password',
+				error:err
+			});
+		});
+	}, error => {
+		logger.error({
+			description: 'Error querying for user.',
+			error, func: 'signup', obj: 'AuthCtrl'
+		});
+		res.status(500).send('Error querying for user.');
+	});
 };
 
 /**
@@ -127,7 +126,6 @@ export function signup(req, res, next) {
  *
  */
 export function login(req, res, next) {
-	let query;
 	if((!has(req.body, "username") && !has(req.body, "email")) || !has(req.body, "password")){
 		return res.status(400).send("Username/Email and password required to login");
 	}
@@ -152,7 +150,7 @@ export function login(req, res, next) {
 			description: 'calling auth rocket with:',
 			data: loginData, func: 'login', obj: 'AuthCtrls'
 		});
-		authrocket.login(loginData).then((loginRes) => {
+		authrocket.login(loginData).then(loginRes => {
 			logger.log({
 				description: 'Successfully logged in through authrocket.',
 				func: 'login', obj: 'AuthCtrls'
@@ -173,7 +171,7 @@ export function login(req, res, next) {
 				} else{
 					let verify = jwt.verify(loginRes.token, process.env.AUTHROCKET_JWT_SECRET);
 					logger.log({
-						description: 'verify', verify: verify,
+						description: 'verify', verify,
 						func: 'login', obj: 'AuthCtrls'
 					});
 				}
@@ -181,20 +179,21 @@ export function login(req, res, next) {
 			let user = {username: token.un, name: token.n, groups: token.m || []};
 			//Convert groups list to object from token if org/group data exists
 			if(user.groups.length >= 1 && user.groups[0].o){
-				user.groups = user.groups.map(function(group){
+				user.groups = user.groups.map((group) => {
 					return {name: group.o, id: group.oid};
 				});
 			}
-			let response = {user: user, token: loginRes.token};
+			let response = {user, token: loginRes.token};
 			res.send(response);
-		}, (err) => {
+		}, error => {
 			logger.error({
 				description: 'Error logging in through auth rocket.',
-				error: err, func: 'login', obj: 'AuthCtrls'
+				error, func: 'login', obj: 'AuthCtrls'
 			});
 			res.status(400).send('Invalid Credentials');
 		});
 	} else {
+		let query;
 		//Basic Internal login
 		if(has(loginData, 'username')){
 			query = User.findOne({'username':loginData.username})

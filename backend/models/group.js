@@ -2,13 +2,13 @@ import db from './../utils/db';
 import mongoose from 'mongoose';
 import q from 'q';
 import _ from 'underscore';
-import { Application } from './application';
+import { Application } from './project';
 import { User } from './user';
 import logger from '../utils/logger';
 
 let GroupSchema = new mongoose.Schema(
 	{
-		application:{type: mongoose.Schema.Types.ObjectId, ref:'Project'},
+		project:{type: mongoose.Schema.Types.ObjectId, ref:'Project'},
 		name:{type:String, default:''},
 		users:[{type: mongoose.Schema.Types.ObjectId, ref:'User'}],
 		createdAt: { type: Date, default: Date.now},

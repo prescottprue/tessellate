@@ -11,13 +11,13 @@ import { Group } from '../models/group';
 import authUtil from '../utils/auth';
 /**
  * @api {get} /projects Get Project(s)
- * @apiDescription Get a specific application's data or a list of projects.
+ * @apiDescription Get a specific project's data or a list of projects.
  * @apiName GetProject
  * @apiGroup Project
  *
  * @apiParam {String} [name] Name of Project.
  *
- * @apiSuccess {object} applicationData Object containing projects data if <code>name</code> param is provided
+ * @apiSuccess {object} projectData Object containing projects data if <code>name</code> param is provided
  * @apiSuccess {array} projects Array of projects if <code>name</code> is not provided.
  *
  * @apiSuccessExample Success-Response (No Name Provided):
@@ -63,7 +63,7 @@ export function get(req, res, next) {
 	if(!req.user && !username){
 		return res.status(400).json('Username and Token are required');
 	}
-	if(name){ //Get data for a specific application
+	if(name){ //Get data for a specific project
 		logger.log({
 			description: 'Project get request.', name,
 			func: 'get', obj: 'ProjectsCtrls'
@@ -97,28 +97,28 @@ export function get(req, res, next) {
 			func: 'get', obj: 'ProjectsCtrls'
 		});
 		res.send(result);
-	}, err => {
+	}, error => {
 		logger.error({
-			description: 'Error getting application(s):',
-			error: err, func: 'get', obj: 'ProjectsCtrls'
+			description: 'Error getting project(s):',
+			error, func: 'get', obj: 'ProjectsCtrls'
 		});
 		res.status(500).send('Error getting Project(s).');
 	});
 };
 /**
  * @api {get} /projects Get Project's provider data
- * @apiDescription Get a specific application's data or a list of projects.
+ * @apiDescription Get a specific project's data or a list of projects.
  * @apiName GetProject
  * @apiGroup Project
  *
  * @apiParam {String} [name] Name of Project.
  *
- * @apiSuccess {object} applicationData Object containing projects data if <code>name</code> param is provided
+ * @apiSuccess {object} projectData Object containing projects data if <code>name</code> param is provided
  * @apiSuccess {array} projects Array of projects if <code>name</code> is not provided.
  *
  */
 export function getProviders(req, res, next) {
-	if(!req.params.name){ //Get data for a specific application
+	if(!req.params.name){ //Get data for a specific project
 		logger.warn({
 			description: 'Project name required to get providers.',
 			func: 'getProviders', obj: 'ProjectsCtrls'
@@ -147,10 +147,10 @@ export function getProviders(req, res, next) {
 			func: 'getProviders', obj: 'ProjectsCtrls'
 		});
 		res.send(providerData);
-	}, (err) => {
+	}, error => {
 		logger.error({
-			description: 'Error getting application(s).',
-			error: err, func: 'getProviders', obj: 'ProjectsCtrls'
+			description: 'Error getting project(s).',
+			error, func: 'getProviders', obj: 'ProjectsCtrls'
 		});
 		res.status(500).send('Error getting Project(s).');
 	});
@@ -158,14 +158,14 @@ export function getProviders(req, res, next) {
 
 /**
  * @api {post} /projects Add Project
- * @apiDescription Add a new application.
+ * @apiDescription Add a new project.
  * @apiName AddProject
  * @apiGroup Project
  *
- * @apiParam {String} name Name of application
- * @apiParam {String} [template] Template to use when creating the application. Default template is used if no template provided
+ * @apiParam {String} name Name of project
+ * @apiParam {String} [template] Template to use when creating the project. Default template is used if no template provided
  *
- * @apiSuccess {Object} applicationData Object containing newly created projects data.
+ * @apiSuccess {Object} projectData Object containing newly created projects data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -184,101 +184,81 @@ export function getProviders(req, res, next) {
  *     }
  *
  */
+ // TODO: Create project based on username, not on token userId
 export function add(req, res, next) {
-	//Query for existing application with same _id
-	if(!_.has(req.body, "name")){
-		logger.error({
-			description:'Project name required to create a new app.',
-			body: req.body, func: 'add', obj: 'ProjectsCtrl'
-		});
-		res.status(400).send('Name is required to create a new app');
-	} else {
-		logger.log({
-			description:'Projects add called with name.',
-			name: req.body.name, body: req.body, func: 'add', obj: 'ProjectsCtrl'
-		});
-		let appData = _.extend({}, req.body);
-		let appName = req.body.name;
-		if(!_.has(appData, 'owner')){
-			logger.log({
-				description: 'No owner data provided. Using user.',
-				user: req.user, func: 'add', obj: 'ProjectsCtrl'
-			});
-			if(_.has(req, 'userId') || _.has(req, 'userId')){
-				appData.owner = req.userId ? req.userId : req.userId;
-			} else if (req.user && (_.has(req.user, 'id') || _.has(req.user, 'userId'))) {
-				appData.owner = req.user.id ? req.user.id : req.user.userId;
-			} else {
-				logger.error({
-					description: 'Invalid owner data provided.',
-					func: 'add', obj: 'ProjectsCtrl'
-				});
-				return res.status(400).send('Owner is required to create application');
-			}
-		}
-		findProject(appName).then((foundApp) => {
-			logger.error({
-				description: 'Project with this name already exists.',
-				foundApp: foundApp, func: 'add', obj: 'ProjectsCtrl'
-			});
-			res.status(400).send('Project with this name already exists.');
-		}, (err) => {
-			if(err && err.status == 'EXISTS'){
-				return res.status(400).send('Project with this name already exists.');
-			}
-			logger.log({
-				description: 'Project does not already exist.',
-				func: 'add', obj: 'Project'
-			});
-			let application = new Project(appData);
-			if(_.has(req.body,'template')){
-				//Template name was provided
-				let templateData = {name: req.body.template};
-				templateData.type = req.body.templateType ? req.body.templateType : 'firebase';
-				application.createWithTemplate(templateData).then((newApp) => {
-					logger.log({
-						description: 'Project created with template.',
-						newApp: newApp, func: 'add', obj: 'Project'
-					});
-					res.json(newApp);
-				}, (err) => {
-					logger.error({
-						description: 'Error creating application.',
-						error: err, func: 'add', obj: 'Project'
-					});
-					res.status(400).send('Error creating application.');
-				});
-			} else {
-				//Template name was not provided
-				application.save().then((newProject) => {
-					logger.log({
-						description: 'Project created successfully.',
-						application: newProject, func: 'add', obj: 'Project'
-					});
-					res.send(newProject);
-				}, (err) => {
-					logger.error({
-						description: 'Project does not already exist.',
-						error: err, func: 'add', obj: 'Project'
-					});
-					res.send(500).send('Error saving application.');
-				});
-			}
-		});
+	//Query for existing project with same _id
+	if(!req.body || !req.body.name){
+		return res.status(400).send('Name is required to create project');
 	}
+	logger.log({
+		description:'Projects add called with name.',
+		body: req.body, user: req.user, func: 'add', obj: 'ProjectsCtrl'
+	});
+	const name = req.body.name;
+	const username = req.params.username;
+	const userId = req.user.userId;
+	findProject(name, userId).then(foundApp => {
+		logger.error({
+			description: 'Project with this name already exists.',
+			foundApp, func: 'add', obj: 'ProjectsCtrl'
+		});
+		res.status(400).send('Project with this name already exists.');
+	}, error => {
+		console.log('error finding project');
+		if(typeof error !== 'undefined' && error.status == 'EXISTS'){
+			return res.status(400).send('Project with this name already exists.');
+		}
+		logger.log({
+			description: 'Project does not already exist.',
+			func: 'add', obj: 'Project'
+		});
+		let project = new Project({name, owner: userId});
+		if(!req.body.template){
+			//Template name was not provided
+			return project.save().then(newProject => {
+				logger.log({
+					description: 'Project created successfully.',
+					newProject, func: 'add', obj: 'Project'
+				});
+				res.json(newProject);
+			}, error => {
+				logger.error({
+					description: 'Error creating project.', error,
+					func: 'add', obj: 'Project'
+				});
+				res.status(500).send('Error saving project.');
+			});
+		}
+		//Template name was provided
+		let templateData = {name: req.body.template};
+		templateData.type = req.body.templateType ? req.body.templateType : 'firebase';
+		return project.createWithTemplate(templateData).then(newProject => {
+			logger.log({
+				description: 'Project created with template.',
+				newProject, func: 'add', obj: 'Project'
+			});
+			res.json(newProject);
+		}, error => {
+			logger.error({
+				description: 'Error creating project.',
+				error, func: 'add', obj: 'Project'
+			});
+			res.status(400).send('Error creating project.');
+		});
+	});
 };
 
 /**
  * @api {put} /projects Update Project
- * @apiDescription Update an application.
+ * @apiDescription Update an project.
  * @apiName UpdateProject
  * @apiGroup Project
  *
- * @apiParam {String} name Name of application
- * @apiParam {Object} owner Owner of application
+ * @apiParam {String} name Name of project
+ * @apiParam {Object} owner Owner of project
  * @apiParam {String} owner.username Project owner's username
  *
- * @apiSuccess {Object} applicationData Object containing updated projects data.
+ * @apiSuccess {Object} projectData Object containing updated projects data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -302,18 +282,18 @@ export function update(req, res, next) {
 		func: 'update', obj: 'ProjectsCtrls'
 	});
 	if(req.params.name){
-		Project.update({name:req.params.name}, req.body, {upsert:false},  (err, affected, result)  => {
-			if(err){
+		Project.update({name:req.params.name}, req.body, {upsert:false},  (error, affected, result)  => {
+			if (error) {
 				logger.error({
-					description: 'Error updating application.',
-					error: err, func: 'update', obj: 'ProjectsCtrls'
+					description: 'Error updating project.',
+					error, func: 'update', obj: 'ProjectsCtrls'
 				});
 				return res.status(500).send('Error updating Project.');
 			}
 			//TODO: respond with updated data instead of passing through req.body
 			logger.log({
 				description: 'Project update successful.',
-				affected: affected, func: 'update', obj: 'ProjectsCtrls'
+				affected, func: 'update', obj: 'ProjectsCtrls'
 			});
 			if(affected.nModified == 0 || affected.n == 0){
 				//TODO: Handle Project not found
@@ -325,7 +305,7 @@ export function update(req, res, next) {
 			} else {
 				logger.error({
 					description: 'Project updated successfully.',
-					affected: affected, func: 'update', obj: 'ProjectsCtrls'
+					affected, func: 'update', obj: 'ProjectsCtrls'
 				});
 				res.json(req.body);
 			}
@@ -336,14 +316,14 @@ export function update(req, res, next) {
 };
 
 /**
- * @api {delete} /application/:id Delete Project
- * @apiDescription Delete an application.
+ * @api {delete} /project/:id Delete Project
+ * @apiDescription Delete an project.
  * @apiName DeleteProject
  * @apiGroup Project
  *
- * @apiParam {String} name Name of application
+ * @apiParam {String} name Name of project
  *
- * @apiSuccess {Object} applicationData Object containing deleted projects data.
+ * @apiSuccess {Object} projectData Object containing deleted projects data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -366,30 +346,30 @@ export function del(req, res, next) {
 	let query = Project.findOneAndRemove({'name':req.params.name}); // find and delete using id field
 	query.then((result) => {
 		if(result){
-			let app = new Project(result);
-			app.removeStorage().then(() => {
+			let project = new Project(result);
+			project.removeStorage().then(() => {
 				logger.log({
 					description: 'Project storage deleted successfully.',
 					func: 'delete', obj: 'ProjectsCtrl'
 				});
 				res.json(result);
-			}, (err) => {
+			}, error => {
 				logger.error({
-					description: 'Error removing storage from application.',
-					error: err, func: 'delete', obj: 'ProjectsCtrl'
+					description: 'Error removing storage from project.',
+					error, func: 'delete', obj: 'ProjectsCtrl'
 				});
-				res.status(400).send(err);
+				res.status(400).send('Error removing storage from project.');
 			});
 		} else {
 			logger.error({
-				description: 'Project not found.', error: err,
+				description: 'Project not found.', error,
 				func: 'delete', obj: 'ProjectsCtrl'
 			});
 			res.status(400).send('Project could not be found.');
 		}
-	}, (err) => {
+	}, error => {
 		logger.error({
-			description: 'Error getting application.', error: err,
+			description: 'Error getting project.', error,
 			func: 'delete', obj: 'ProjectsCtrl'
 		});
 		res.status(500).send('Error deleting Project.');
@@ -399,14 +379,14 @@ export function del(req, res, next) {
 
 /**
  * @api {put} /projects/:name/files  Get Files
- * @apiDescription Get the list of files for a specific application.
+ * @apiDescription Get the list of files for a specific project.
  * @apiName Files
  * @apiGroup Project
  *
  * @apiParam {File} file1 File to upload. Key (<code>file1</code>) does not hold significance as all files are uploaded.
  * @apiParam {File} file2 Second File to upload. Again, Key (<code>file2</code>) does not hold significance as all files are uploaded.
  *
- * @apiSuccess {Object} applicationData Object containing updated projects data.
+ * @apiSuccess {Object} projectData Object containing updated projects data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -427,21 +407,21 @@ export function del(req, res, next) {
  */
 export function files(req, res, next) {
 	//TODO: Check that user is owner or collaborator before uploading
-	//TODO: Lookup application and run uploadFile =>
-	if(req.params.name){ //Get data for a specific application
+	//TODO: Lookup project and run uploadFile =>
+	if(req.params.name){ //Get data for a specific project
 		let query = Project.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		query.then((foundApp) => {
 			if(foundApp){
-				foundApp.getStructure().then((appFiles) => {
+				foundApp.getStructure().then((projectFiles) => {
 					logger.log({
 						description: 'Get structure returned.',
-						structure: appFiles, func: 'files', obj: 'ProjectsCtrls'
+						structure: projectFiles, func: 'files', obj: 'ProjectsCtrls'
 					});
-					res.send(appFiles);
-				}, (err) => {
+					res.send(projectFiles);
+				}, error => {
 					logger.error({
-						description: 'Error getting application file structure.',
-						error: err, func: 'files', obj: 'ProjectsCtrls'
+						description: 'Error getting project file structure.',
+						error, func: 'files', obj: 'ProjectsCtrls'
 					});
 					res.status(400).send('Error getting Project files.');
 				});
@@ -452,9 +432,9 @@ export function files(req, res, next) {
 				});
 				res.status(400).send('Project could not be found.');
 			}
-		}, (err) => {
+		}, error => {
 			logger.error({
-				description: 'Error getting application:', error: err,
+				description: 'Error getting project:', error,
 				func: 'files', obj: 'ProjectsCtrls'
 			});
 			return res.status(500).send('Error getting Project files.');
@@ -470,7 +450,7 @@ export function files(req, res, next) {
 
 /**
  * @api {put} /projects/:name/publish  Publish File
- * @apiDescription Publish/Upload a specified file to the storage/hosting for application matching the name provided.
+ * @apiDescription Publish/Upload a specified file to the storage/hosting for project matching the name provided.
  * @apiName UploadFile
  * @apiGroup Project
  *
@@ -478,7 +458,7 @@ export function files(req, res, next) {
  * @apiParam {String} content Text string content of file
  * @apiParam {String} filetype Type of file the be uploaded
  *
- * @apiSuccess {Object} applicationData Object containing updated projects data.
+ * @apiSuccess {Object} projectData Object containing updated projects data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -504,39 +484,39 @@ export function publishFile(req, res, next) {
 		params: req.params, obj: 'ProjectsCtrls'
 	});
 	//TODO: Check that user is owner or collaborator before uploading
-	//TODO: Lookup application and run uploadFile =>
-	if(req.params.name){ //Get data for a specific application
+	//TODO: Lookup project and run uploadFile =>
+	if(req.params.name){ //Get data for a specific project
 		let query = Project.findOne({name:req.params.name})
 		.populate({path:'owner', select:'username name title email'});
 		isList = false;
-		query.then((foundApp) => {
+		query.then(foundApp => {
 			if(foundApp){
 				foundApp.publishFile({content:req.body.content, key:req.body.key, contentType:req.body.contentType}).then((result) => {
 					logger.info({
 						description: 'File published successfully.',
-						func: 'publishFile', result: result,
+						func: 'publishFile', result,
 						obj: 'ProjectsCtrls'
 					});
 					res.send(result);
-				}, (err) => {
+				}, error => {
 					logger.log({
 						description: 'Error publishing file.',
-						error: err, func: 'publishFile',
+						error, func: 'publishFile',
 						obj: 'ProjectsCtrls'
 					});
-					res.status(400).send(err);
+					res.status(400).send('Error');
 				});
 			} else {
 				logger.error({
-					description: 'Error finding application.', func: 'publishFile',
+					description: 'Error finding project.', func: 'publishFile',
 					params: req.params, obj: 'ProjectsCtrls'
 				});
 				res.status(400).send('Project could not be found.');
 			}
-		}, (err) => {
+		}, error => {
 			logger.error({
-				description: 'Error finding application.',
-				params: req.params, error: err,
+				description: 'Error finding project.',
+				params: req.params, error,
 				func: 'publishFile', obj: 'ProjectsCtrls'
 			});
 			res.status(500).send('Error publishing file to Project.');
@@ -553,13 +533,13 @@ export function publishFile(req, res, next) {
 
 /**
  * @api {put} /projects/:name/template  Apply Template
- * @apiDescription Apply a template to the application matching the name provided.
- * @apiName applyTemplate
+ * @apiDescription Apply a template to the project matching the name provided.
+ * @apiName projectTemplate
  * @apiGroup Project
  *
  * @apiParam {String} name Name of template
  *
- * @apiSuccess {Object} applicationData Object containing application's data.
+ * @apiSuccess {Object} projectData Object containing project's data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -578,45 +558,45 @@ export function publishFile(req, res, next) {
  *     }
  *
  */
- //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
-export function applyTemplate(req, res, next) {
+ //TODO: Allow for deleteing/not deleteing all of the bucket files before projecting template
+export function projectTemplate(req, res, next) {
 	logger.log({
-		description: 'apply template request with app name: ', name: req.params.name,
-		func: 'applyTemplate', obj: 'ProjectsCtrl'
+		description: 'project template request with project name: ', name: req.params.name,
+		func: 'projectTemplate', obj: 'ProjectsCtrl'
 	});
 	//TODO: Check that user is owner or collaborator before uploading
-	//TODO: Lookup application and run uploadFile =>
-	if(req.params.name){ //Get data for a specific application
+	//TODO: Lookup project and run uploadFile =>
+	if(req.params.name){ //Get data for a specific project
 		let query = Project.findOne({name:req.params.name})
 		.populate({path:'owner', select:'username name title email'});
 		query.then((foundApp) => {
 			if(!foundApp){
 				logger.error({
-					description: 'Error finding application.',
-					func: 'applyTemplate', obj: 'ProjectsCtrl'
+					description: 'Error finding project.',
+					func: 'projectTemplate', obj: 'ProjectsCtrl'
 				});
 				return res.status(400).send('Project could not be found.');
 			}
-			//TODO: Get url from found app, and get localDir from
+			//TODO: Get url from found project, and get localDir from
 			foundApp.applyTemplate(req.body.name).then( (webUrl) => {
 				logger.log({
-					description: 'Template applied to bucket successfully',
-					func: 'applyTemplate', obj: 'ProjectsCtrl'
+					description: 'Template projectlied to bucket successfully',
+					func: 'projectTemplate', obj: 'ProjectsCtrl'
 				});
 				res.send(webUrl);
-			}, (err) => {
+			}, error => {
 				logger.log({
-					description: 'Error applying template.', error: err,
-					func: 'applyTemplate', obj: 'ProjectsCtrl'
+					description: 'Error projecting template.', error,
+					func: 'projectTemplate', obj: 'ProjectsCtrl'
 				});
-				res.status(400).send(err);
+				res.status(400).send('Error');
 			});
-		}, (err) => {
+		}, error => {
 			logger.error({
-				description: 'Error getting application:', error: err,
-				func: 'applyTemplate', obj: 'ProjectsCtrl'
+				description: 'Error getting project:', error,
+				func: 'projectTemplate', obj: 'ProjectsCtrl'
 			});
-			res.status(500).send('Error applying template to Project.');
+			res.status(500).send('Error projecting template to Project.');
 		});
 	} else {
 		res.status(400).send('Project name and template name are required to upload file');
@@ -625,11 +605,11 @@ export function applyTemplate(req, res, next) {
 
 /**
  * @api {put} /projects/:name/storage  Add File Storage
- * @apiDescription Add File Storage + Hosting to the application matching the name provided. Currently handled with Amazon's S3.
+ * @apiDescription Add File Storage + Hosting to the project matching the name provided. Currently handled with Amazon's S3.
  * @apiName addStorage
  * @apiGroup Project
  *
- * @apiSuccess {Object} applicationData Object containing updated projects data.
+ * @apiSuccess {Object} projectData Object containing updated projects data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -648,15 +628,15 @@ export function applyTemplate(req, res, next) {
  *
  *
  */
- //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
+ //TODO: Allow for deleteing/not deleteing all of the bucket files before projecting template
 export function addStorage(req, res, next) {
 	logger.log({
-		description: 'add storage request with app name.',
-		appName: req.params.name, func: 'addStorage', obj: 'ProjectsCtrl'
+		description: 'add storage request with project name.',
+		projectName: req.params.name, func: 'addStorage', obj: 'ProjectsCtrl'
 	});
 	//TODO: Check that user is owner or collaborator before uploading
-	//TODO: Lookup application and run uploadFile =>
-	if(!req.params.name){ //Get data for a specific application
+	//TODO: Lookup project and run uploadFile =>
+	if(!req.params.name){ //Get data for a specific project
 		return res.status(400).send('Project name and storage information are required to add storage');
 	}
 	let query = Project.findOne({name:req.params.name})
@@ -669,26 +649,26 @@ export function addStorage(req, res, next) {
 			});
 			return res.status(400).send('Project could not be found');
 		}
-		//TODO: Get url from found app, and get localDir from
+		//TODO: Get url from found project, and get localDir from
 		foundApp.createStorage().then((webUrl) => {
 			logger.log({
-				description: 'Added storage to application successfully.',
+				description: 'Added storage to project successfully.',
 				storageUrl: 'webUrl', func: 'addStorage', obj: 'ProjectsCtrl'
 			});
 			res.send(webUrl);
-		},  (err) => {
+		},  error => {
 			logger.log({
-				description: 'Error adding storage to application:', error: err,
+				description: 'Error adding storage to project:', error,
 				func: 'addStorage', obj: 'ProjectsCtrl'
 			});
-			res.status(500).send(err);
+			res.status(500).send('Error');
 		});
-	}, (err) => {
+	}, error => {
 		logger.error({
-			description: 'Error getting application.',
-			error: err, func: 'addStorage', obj: 'ProjectsCtrl'
+			description: 'Error getting project.',
+			error, func: 'addStorage', obj: 'ProjectsCtrl'
 		});
-		res.status(500).send('Error adding storage to application.');
+		res.status(500).send('Error adding storage to project.');
 	});
 };
 
@@ -718,14 +698,14 @@ export function addStorage(req, res, next) {
  *
  *
  */
- //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
+ //TODO: Allow for deleteing/not deleteing all of the bucket files before projecting template
 export function addCollaborators(req, res, next) {
 	logger.log({
-		description: 'add storage request with app name: ', name: req.params.name,
+		description: 'add storage request with project name: ', name: req.params.name,
 		func: 'addCollaborators', obj: 'ProjectsCtrl'
 	});
 	//TODO: Check that user is allowed to add collaborators
-	if(req.params.name && req.body.users){ //Get data for a specific application
+	if(req.params.name && req.body.users){ //Get data for a specific project
 		let query = Project.findOne({name:req.params.name}).populate({path:'owner', select:'username name title email'});
 		query.then((foundApp) => {
 			if(!foundApp){
@@ -735,25 +715,25 @@ export function addCollaborators(req, res, next) {
 				});
 				return res.status(400).send('Project could not be found');
 			}
-			foundApp.addCollaborators(req.body.users).then((appWithCollabs) => {
+			foundApp.addCollaborators(req.body.users).then((projectWithCollabs) => {
 				logger.log({
-					description: 'Added storage to application successfully:', app: appWithCollabs,
+					description: 'Added storage to project successfully:', project: projectWithCollabs,
 					func: 'addCollaborators', obj: 'ProjectsCtrl'
 				});
-				res.send(appWithCollabs);
-			}, (err) => {
+				res.send(projectWithCollabs);
+			}, error => {
 				logger.log({
-					description: 'Error adding collaborators to application:', error: err,
+					description: 'Error adding collaborators to project:', error,
 					func: 'addCollaborators', obj: 'ProjectsCtrl'
 				});
-				res.status(500).send(err);
+				res.status(500).send('Error');
 			});
-		}, (err) => {
+		}, error => {
 			logger.error({
-				description: 'Error getting application.',
-				error: err, func: 'addCollaborators', obj: 'ProjectsCtrl'
+				description: 'Error getting project.',
+				error, func: 'addCollaborators', obj: 'ProjectsCtrl'
 			});
-			return res.status(500).send('Error adding collaborators to application.');
+			return res.status(500).send('Error adding collaborators to project.');
 		});
 	} else {
 		res.status(400).send('Project name and users array are required to add collaborators.');
@@ -762,7 +742,7 @@ export function addCollaborators(req, res, next) {
 
 /**
  * @api {put} /projects/:name/login  Add File Storage
- * @apiDescription Log into an application
+ * @apiDescription Log into an project
  * @apiName login
  * @apiGroup Project
  *
@@ -781,20 +761,20 @@ export function addCollaborators(req, res, next) {
  *
  *
  */
- //TODO: Allow for deleteing/not deleteing all of the bucket files before applying template
+ //TODO: Allow for deleteing/not deleteing all of the bucket files before projecting template
 export function login(req, res, next) {
 	logger.log({
 		description: 'App Login request.',
-		appName: req.params.name, body: req.body,
+		projectName: req.params.name, body: req.body,
 		func: 'login', obj: 'ProjectCtrl'
 	});
 	if(!req.params.name || !req.body) {
 		return res.status(400).send('Project name and users array are required to add collaborators.');
 	}
-	if ((!_.has(req.body, 'username') && !_.has(req.body, 'email')) || !_.has(req.body, 'password')){ //Get data for a specific application
+	if ((!_.has(req.body, 'username') && !_.has(req.body, 'email')) || !_.has(req.body, 'password')){ //Get data for a specific project
 		logger.log({
 			description: 'Username/Email and password are required to login.',
-			appName: req.params.name, body: req.body,
+			projectName: req.params.name, body: req.body,
 			func: 'login', obj: 'ProjectCtrl'
 		});
 		return res.status(400).send('Username/Email and Password are required to login.');
@@ -817,24 +797,24 @@ export function login(req, res, next) {
 			foundApp: foundApp, func: 'login',
 			obj: 'ProjectCtrl'
 		});
-		//Use authrocket login if application has authRocket data
+		//Use authrocket login if project has authRocket data
 		foundApp.login(loginData).then((loginRes) => {
 			logger.log({
 				description: 'Login Successful.', response: loginRes,
 				func: 'login', obj: 'ProjectsCtrl'
 			});
 			res.send(loginRes);
-		}, (err) => {
+		}, error => {
 			//TODO: Handle wrong password
 			logger.error({
-				description: 'Error logging in.', error: err,
+				description: 'Error logging in.', error,
 				func: 'login', obj: 'ProjectsCtrl'
 			});
-			res.status(400).send(err || 'Login Error.');
+			res.status(400).send('Login Error.');
 		});
-	}, (err) => {
+	}, error => {
 		logger.error({
-			description: 'Error finding applicaiton.', error: err,
+			description: 'Error finding projectlicaiton.', error,
 			func: 'login', obj: 'ProjectsCtrl'
 		});
 		res.status(400).send('Project not found.');
@@ -843,7 +823,7 @@ export function login(req, res, next) {
 
 /**
  * @api {put} /projects/:name/logout  Add File Storage
- * @apiDescription Log a user out of an application
+ * @apiDescription Log a user out of an project
  * @apiName logout
  * @apiGroup Project
  *
@@ -874,14 +854,14 @@ export function logout(req, res, next) {
 	if(!req.user && req.body){
 		userData = req.body;
 	}
-	if(req.params.name && req.body){ //Get data for a specific application
+	if(req.params.name && req.body){ //Get data for a specific project
 		findProject(req.params.name).then((foundApp) => {
 			logger.log({
 				description: 'Project found successfully.',
 				foundApp: foundApp, func: 'logout', obj: 'ProjectCtrl'
 			});
 			logger.log({
-				description: 'Logging out of application.',
+				description: 'Logging out of project.',
 				foundApp: foundApp, userData: userData,
 				func: 'logout', obj: 'ProjectCtrl'
 			});
@@ -891,17 +871,17 @@ export function logout(req, res, next) {
 					func: 'logout', obj: 'ProjectCtrl'
 				});
 				res.send('Logout successful.');
-			}, (err) => {
+			}, error => {
 				logger.error({
-					description: 'Error logging out of application',
-					error: err, func: 'logout', obj: 'ProjectCtrl'
+					description: 'Error logging out of project',
+					error, func: 'logout', obj: 'ProjectCtrl'
 				});
 				res.status(400).send('Error logging out.');
 			});
-		}, (err) => {
+		}, error => {
 			logger.error({
-				description: 'Error finding application.',
-				error: err, func: 'logout', obj: 'ProjectCtrl'
+				description: 'Error finding project.',
+				error, func: 'logout', obj: 'ProjectCtrl'
 			});
 			res.status(400).send('Project not found.');
 		});
@@ -916,7 +896,7 @@ export function logout(req, res, next) {
 
 /**
  * @api {put} /projects/:name/signup  Signup
- * @apiDescription Signup a user to an application
+ * @apiDescription Signup a user to an project
  * @apiName signup
  * @apiGroup Project
  *
@@ -938,10 +918,10 @@ export function logout(req, res, next) {
 export function signup(req, res, next) {
 	logger.log({
 		description: 'App signup request.',
-		appName: req.params.name, body: req.body,
+		projectName: req.params.name, body: req.body,
 		func: 'signup', obj: 'ProjectsCtrl'
 	});
-	if(req.params.name && req.body){ //Get data for a specific application
+	if(req.params.name && req.body){ //Get data for a specific project
 		findProject(req.params.name).then((foundApp) => {
 			logger.log({
 				description: 'App found.', foundApp: foundApp,
@@ -950,64 +930,64 @@ export function signup(req, res, next) {
 			if(foundApp.authRocket && foundApp.authRocket.jsUrl){
 				logger.log({
 					description: 'App signup request.',
-					appName: req.params.name, body: req.body,
+					projectName: req.params.name, body: req.body,
 					func: 'signup', obj: 'ProjectsCtrl'
 				});
 				foundApp.authRocketSignup(req.body).then( (signupRes) => {
 					logger.log({
-						description: 'Signup to application successful.',
-						res: signupRes, appName: req.params.name,
+						description: 'Signup to project successful.',
+						res: signupRes, projectName: req.params.name,
 						body: req.body, func: 'signup',
 						obj: 'ProjectsCtrl'
 					});
 					res.send(signupRes);
-				}, (err) => {
+				}, error => {
 					logger.error({
-						description: 'Error signing up to application.',
-						error: err, appName: req.params.name,
+						description: 'Error signing up to project.',
+						error, projectName: req.params.name,
 						body: req.body, func: 'signup',
 						obj: 'ProjectsCtrl'
 					});
-					res.status(400).send(err);
+					res.status(400).send('Error');
 				});
 			} else {
 				let signupData = req.body;
-				signupData.application = foundApp._id;
+				signupData.project = foundApp._id;
 				foundApp.signup(signupData).then((signupRes) => {
 					logger.log({
-						description: 'Signup to application successful.',
-						res: signupRes, appName: req.params.name,
+						description: 'Signup to project successful.',
+						res: signupRes, projectName: req.params.name,
 						body: req.body, func: 'signup', obj: 'ProjectsCtrl'
 					});
 					res.send(signupRes);
-				},  (err) => {
-					if(err && err.status == 'EXISTS'){
+				}, error => {
+					if(error && error.status == 'EXISTS'){
 						logger.error({
 							description: 'User with matching credentials already exists.',
-							error: err, appName: req.params.name,
+							error, projectName: req.params.name,
 							func: 'signup', obj: 'ProjectsCtrl'
 						});
-						res.status(400).send(err.message || 'User with matching credentials already exists.');
+						res.status(400).send(error.message || 'User with matching credentials already exists.');
 					} else {
 						//TODO: Handle wrong password
 						logger.error({
-							description: 'Error signing up to application.',
-							error: err, appName: req.params.name,
+							description: 'Error signing up to project.',
+							error, projectName: req.params.name,
 							body: req.body, func: 'signup',
 							obj: 'ProjectsCtrl'
 						});
-						res.status(400).send(err.message || 'Error signing up.');
+						res.status(400).send(error.message || 'Error signing up.');
 					}
 				});
 			}
-		},  (err) => {
+		},  error => {
 			logger.error({
-				description: 'Error finding application.',
-				error: err, appName: req.params.name,
+				description: 'Error finding project.',
+				error, projectName: req.params.name,
 				body: req.body, func: 'signup',
 				obj: 'ProjectsCtrl'
 			});
-			res.status(400).send('Error finding application.');
+			res.status(400).send('Error finding project.');
 		});
 	} else {
 		logger.error({
@@ -1039,7 +1019,7 @@ export function signup(req, res, next) {
  */
 export function verify(req, res, next) {
 	//TODO:Actually verify user instead of just returning user data
-	//TODO: Get applicaiton and verify that user exists within applicaiton
+	//TODO: Get projectlicaiton and verify that user exists within projectlicaiton
 	let findObj = {};
 	if(req.user){
 		//Find by username in token
@@ -1055,15 +1035,15 @@ export function verify(req, res, next) {
 				//Matching user already exists
 				// TODO: Respond with a specific error code
 				logger.error({
-					description:'Error querying for user', error: err,
+					description:'Error querying for user', error,
 					func: 'verify', obj: 'ProjectsCtrl'
 				});
 				return res.status(400).send('User with this information does not exist.');
 			}
 			res.json(result);
-		}, (err) => {
+		}, error => {
 			logger.error({
-				description:'Error querying for user', error: err,
+				description:'Error querying for user', error,
 				func: 'verify', obj: 'ProjectsCtrl'
 			});
 			res.status(500).send('Unable to verify token.');
@@ -1084,7 +1064,7 @@ export function verify(req, res, next) {
 	}
 };
 /**
- * @api {get} /projects/:appName/groups/:groupName Group(s)
+ * @api {get} /projects/:projectName/groups/:groupName Group(s)
  * @apiDescription Get an projects group(s)
  * @apiName groups
  * @apiGroup Project
@@ -1106,11 +1086,11 @@ export function verify(req, res, next) {
 export function groups(req, res, next) {
 	logger.log({
 		description: 'App get group(s) request called.',
-		appName: req.params.name, body: req.body, func: 'groups'
+		projectName: req.params.name, body: req.body, func: 'groups'
 	});
-	if(req.params.name && req.body){ //Get data for a specific application
+	if(req.params.name && req.body){ //Get data for a specific project
 		findProject(req.params.name).then((foundApp) => {
-			//Check application's groups
+			//Check project's groups
 			if(!req.params.groupName){
 				logger.info({
 					description: 'Project groups found.',
@@ -1127,7 +1107,7 @@ export function groups(req, res, next) {
 					});
 					res.send(group);
 				} else {
-					//Check for application's auth rocket data
+					//Check for project's auth rocket data
 					if (foundApp.authRocket) {
 						authRocket.Orgs().get().then((groupsRes) => {
 							logger.log({
@@ -1136,16 +1116,16 @@ export function groups(req, res, next) {
 								obj: 'ProjectsCtrl'
 							});
 							res.send(groupsRes);
-						},  (err) => {
+						},  error => {
 							logger.error({
 								description: 'Error gettings orgs from AuthRocket.',
-								error: err, func: 'groups', obj: 'ProjectsCtrl'
+								error, func: 'groups', obj: 'ProjectsCtrl'
 							});
-							res.status(400).send(err);
+							res.status(400).send('Error');
 						});
 					} else {
-						//Group has not been added to application
-						let query = Group.findOne({name: req.params.groupName, application: foundApp._id});
+						//Group has not been added to project
+						let query = Group.findOne({name: req.params.groupName, project: foundApp._id});
 						query.then((groupWithoutApp) => {
 							if(!groupWithoutApp){
 								logger.error({
@@ -1155,24 +1135,24 @@ export function groups(req, res, next) {
 								res.status(400).send('Group not found.');
 							} else {
 								logger.log({
-									description: 'Group found, but not within application. Adding to application.',
+									description: 'Group found, but not within project. Adding to project.',
 									group: groupWithoutApp, foundApp: foundApp,
 									func: 'groups', obj: 'ProjectsCtrl'
 								});
 								foundApp.addGroup(groupWithoutApp).then( (newGroup) => {
 									logger.info({
-										description: 'Existing group added to applicaiton.',
+										description: 'Existing group added to projectlicaiton.',
 										group: groupWithoutApp, foundApp: foundApp,
 										func: 'groups', obj: 'ProjectsCtrl'
 									});
 									res.send(groupWithoutApp);
-								}, (err) => {
-									res.status(500).send('Error adding existing group to application.');
+								}, error => {
+									res.status(500).send('Error adding existing group to project.');
 								});
 							}
-						}, (err) => {
+						}, error => {
 							logger.error({
-								description: 'Error finding group.', error: err,
+								description: 'Error finding group.', error,
 								foundApp: foundApp, func: 'groups', obj: 'ProjectsCtrl'
 							});
 							res.status(500).send('Error finding group.');
@@ -1180,17 +1160,17 @@ export function groups(req, res, next) {
 					}
 				}
 			}
-		},  (err) => {
+		},  error => {
 			logger.error({
-				description: 'Error finding application.',
-				error: err, func: 'groups', obj: 'ProjectsCtrl'
+				description: 'Error finding project.',
+				error, func: 'groups', obj: 'ProjectsCtrl'
 			});
-			res.status(400).send('Error finding application.');
+			res.status(400).send('Error finding project.');
 		});
 	} else {
 		logger.log({
-			description: 'Project name is required to get application.',
-			error: err, func: 'groups', obj: 'ProjectsCtrl'
+			description: 'Project name is required to get project.',
+			error, func: 'groups', obj: 'ProjectsCtrl'
 		});
 		res.status(400).send('Project name is required.');
 	}
@@ -1221,33 +1201,33 @@ export function addGroup(req, res, next) {
 		name: req.params.name, body: req.body,
 		func: 'addGroup', obj: 'ProjectsCtrls'
 	});
-	if(req.params.name && req.body){ //Get data for a specific application
+	if(req.params.name && req.body){ //Get data for a specific project
 		findProject(req.params.name).then( (foundApp) => {
 			logger.log({
 				description: 'Project found. Adding group.',
-				app: foundApp, func: 'addGroup', obj: 'ProjectsCtrls'
+				project: foundApp, func: 'addGroup', obj: 'ProjectsCtrls'
 			});
 			foundApp.addGroup(req.body).then( (newGroup) => {
 				logger.info({
-					description: 'Group added to applicaiton successfully.',
+					description: 'Group added to projectlicaiton successfully.',
 					newGroup: newGroup, func: 'addGroup', obj: 'ProjectsCtrls'
 				});
 				res.send(newGroup);
-			},  (err) => {
+			},  error => {
 				//TODO: Handle wrong password
 				logger.error({
-					description: 'Error adding group to application.',
-					error: err, func: 'addGroup', obj: 'ProjectsCtrls'
+					description: 'Error adding group to project.',
+					error, func: 'addGroup', obj: 'ProjectsCtrls'
 				});
 				res.status(400).send('Error adding group.');
 			});
-		},  (err) => {
+		},  error => {
 			logger.error({
-				description: 'Error find application.',
-				error: err, func: 'addGroup', obj: 'ProjectsCtrls'
+				description: 'Error find project.',
+				error, func: 'addGroup', obj: 'ProjectsCtrls'
 			});
 			//TODO: Handle other errors
-			res.status(400).send('Error finding application.');
+			res.status(400).send('Error finding project.');
 		});
 	} else {
 		res.status(400).send('Project name is required.');
@@ -1275,11 +1255,11 @@ export function addGroup(req, res, next) {
  */
 export function updateGroup(req, res, next) {
 	logger.log({
-		description: 'Update application group called.',
-		appName: req.params.name, body: req.body,
+		description: 'Update project group called.',
+		projectName: req.params.name, body: req.body,
 		func: 'updateGroup', obj: 'ProjectsCtrl'
 	});
-	if(req.params.name){ //Get data for a specific application
+	if(req.params.name){ //Get data for a specific project
 		findProject(req.params.name).then( (foundApp) => {
 			//Update is called with null or empty value
 			logger.log({
@@ -1298,21 +1278,20 @@ export function updateGroup(req, res, next) {
 						updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ProjectsCtrl'
 					});
 					res.send(updatedGroup);
-				}, (err) => {
-					//TODO: Handle wrong password
+				}, error => {
 					logger.error({
-						description: 'Error deleting application group.',
-						error: err, func: 'updateGroup', obj: 'ProjectsCtrl'
+						description: 'Error deleting project group.',
+						error, func: 'updateGroup', obj: 'ProjectsCtrl'
 					});
-					if(err && err.status && err.status == 'NOT_FOUND'){
-						res.status(400).send(err.message || 'Error deleting group.');
+					if(error && error.status && error.status == 'NOT_FOUND'){
+						res.status(400).send(error.message || 'Error deleting group.');
 					} else {
 						res.status(500).send('Error deleting group.');
 					}
 				});
 			} else {
 				logger.log({
-					description: 'Provided data is valid. Updating application group.',
+					description: 'Provided data is valid. Updating project group.',
 					foundApp: foundApp, updateData: req.body,
 					func: 'updateGroup', obj: 'ProjectsCtrl'
 				});
@@ -1329,28 +1308,28 @@ export function updateGroup(req, res, next) {
 						updatedGroup: updatedGroup, func: 'updateGroup', obj: 'ProjectsCtrl'
 					});
 					res.send(updatedGroup);
-				}, (err) => {
+				}, error => {
 					//TODO: Handle wrong password
 					logger.error({
-						description: 'Error updating application group.',
-						error: err, func: 'updateGroup', obj: 'ProjectsCtrl'
+						description: 'Error updating project group.',
+						error, func: 'updateGroup', obj: 'ProjectsCtrl'
 					});
-					res.status(400).send("Error updating application's group.");
+					res.status(400).send("Error updating project's group.");
 				});
 			}
-		}, (err) => {
+		}, error => {
 			logger.error({
-				description: 'Error finding application.',
-				error: err, func: 'updateGroup', obj: 'ProjectsCtrl'
+				description: 'Error finding project.',
+				error, func: 'updateGroup', obj: 'ProjectsCtrl'
 			});
-			res.status(400).send('Error finding application.');
+			res.status(400).send('Error finding project.');
 		});
 	} else {
 		logger.log({
 			description: 'Project name is required to update group.',
 			func: 'updateGroup', obj: 'ProjectsCtrl'
 		});
-		res.status(400).send('Project name is required to update application group.');
+		res.status(400).send('Project name is required to update project group.');
 	}
 };
 /**
@@ -1376,10 +1355,10 @@ export function updateGroup(req, res, next) {
  */
 export function deleteGroup(req, res, next) {
 	logger.log({
-		description: 'App add group request with app name.', name: req.params.name,
+		description: 'App add group request with project name.', name: req.params.name,
 		func: 'deleteGroup', obj: 'ProjectsCtrl'
 	});
-	if(req.params.name && req.body){ //Get data for a specific application
+	if(req.params.name && req.body){ //Get data for a specific project
 		findProject(req.params.name).then((foundApp) => {
 			foundApp.deleteGroup(req.body).then(() => {
 				logger.info({
@@ -1388,69 +1367,69 @@ export function deleteGroup(req, res, next) {
 				});
 				//TODO: Return something other than this message
 				res.send('Group deleted successfully.');
-			},  (err) => {
+			},  error => {
 				//TODO: Handle wrong password
 				logger.error({
-					description: 'Error deleting group.', error: err,
+					description: 'Error deleting group.', error,
 					func: 'deleteGroup', obj: 'ProjectsCtrl'
 				});
 				res.status(400).send('Error deleting group.');
 			});
-		},  (err) => {
+		},  error => {
 			logger.error({
-				description: 'Error finding application.', error: err,
+				description: 'Error finding project.', error,
 				func: 'deleteGroup', obj: 'ProjectsCtrl'
 			});
-			res.status(400).send('Error finding application.');
+			res.status(400).send('Error finding project.');
 		});
 	} else {
 		logger.log({
-			description: 'Project name is required to delete application group.',
-			error: err, func: 'deleteGroup', obj: 'ProjectsCtrl'
+			description: 'Project name is required to delete project group.',
+			error, func: 'deleteGroup', obj: 'ProjectsCtrl'
 		});
-		res.status(400).send('Project name is required to delete application group.');
+		res.status(400).send('Project name is required to delete project group.');
 	}
 };
 // Utility functions
-//Wrap finding application in a promise that handles errors
+//Wrap finding project in a promise that handles errors
 //TODO: Allow choosing populate settings
-function findProject(appName) {
-	if(!appName){
+function findProject(name, owner) {
+	if(!name){
 		logger.error({
-			description: 'Project name is required to find application.',
-			error: err, func: 'findProject'
+			description: 'Project name and owner are required to find project.',
+			func: 'findProject'
 		});
-		Promise.reject({message: 'Project name required to find application.'});
-	} else {
-		let query = Project.findOne({name:appName})
-		.populate({path:'owner', select:'username name email'})
-		.populate({path:'groups', select:'name users'})
-		.populate({path:'directories', select:'name users groups'})
-		return query.then((foundApp) => {
-			if(!foundApp){
-				logger.error({
-					description: 'Project not found',
-					func: 'findProject'
-				});
-				return Promise.reject({message: 'Project not found'});
-			} else {
-				logger.log({
-					description: 'Project found.',
-					foundApp: foundApp, func: 'findProject'
-				});
-				return foundApp;
-			}
-		}, (err) => {
-			logger.error({
-				description: 'Error finding application.',
-				error: err, func: 'findProject'
-			});
-			return Promise.reject({message: 'Error finding application.'});
-		});
+		return Promise.reject({message: 'Project name and owner are required to find project.'});
 	}
+	let findObj = { name };
+	if(owner){
+		findObj.owner = owner;
+	}
+	let query = Project.findOne(findObj)
+	.populate({path:'owner', select:'username name email'})
+	return query.then(foundApp => {
+		if(!foundApp){
+			logger.error({
+				description: 'Project not found',
+				func: 'findProject'
+			});
+			return Promise.reject({message: 'Project not found'});
+		}
+		logger.log({
+			description: 'Project found.',
+			foundApp, func: 'findProject'
+		});
+		return foundApp;
+	}, error => {
+		logger.error({
+			description: 'Error finding project.',
+			error, func: 'findProject'
+		});
+		return Promise.reject({message: 'Error finding project.'});
+	});
 }
 // Utility functions
-//Wrap finding application in a promise that handles errors
+//Wrap finding project in a promise that handles errors
 //TODO: Allow choosing populate settings
 export function findProjectsByUserId(userId) {
 	if(!userId){
@@ -1478,10 +1457,10 @@ export function findProjectsByUserId(userId) {
 		return foundApp;
 	}, error => {
 		logger.error({
-			description: 'Error finding application.',
+			description: 'Error finding project.',
 			error, func: 'findProject'
 		});
-		return Promise.reject({message: 'Error finding application.'});
+		return Promise.reject({message: 'Error finding project.'});
 	});
 }
 // ------------------------------------------------------------------------------------------

@@ -85,8 +85,8 @@ ProjectSchema.methods = {
 	},
 	createWithTemplate: function (templateData){
 		logger.log({
-			description: 'Create application with template called.',
-			templateData: templateData, application: this,
+			description: 'Create project with template called.',
+			templateData: templateData, project: this,
 			func: 'createWithTemplate', obj: 'Project'
 		});
 		return this.save().then((newProject) => {
@@ -99,20 +99,20 @@ ProjectSchema.methods = {
 				return newProject;
 			}, err => {
 				logger.error({
-					description: 'Error applying template to application.', error: err,
+					description: 'Error applying template to project.', error: err,
 					func: 'createWithTemplate', obj: 'Project'
 				});
-				// Delete application from database if template is not applied successesfully
+				// Delete project from database if template is not applied successesfully
 				let query = this.model('Project').findOneAndRemove({name: this.name});
 				return query.then(deleteInfo => {
 					logger.info({
-						description: 'New application removed from db due to failure of adding template.',
+						description: 'New project removed from db due to failure of adding template.',
 						func: 'createWithTemplate', obj: 'Project'
 					});
-					return Promise.reject({message: 'Unable create new application.'});
+					return Promise.reject({message: 'Unable create new project.'});
 				}, err => {
 					logger.error({
-						description: 'Error deleting application after failing to apply template.', error: err,
+						description: 'Error deleting project after failing to apply template.', error: err,
 						func: 'createWithTemplate', obj: 'Project'
 					});
 					return Promise.reject(err);
@@ -128,7 +128,7 @@ ProjectSchema.methods = {
 	},
 	createWithStorage: function() {
 		logger.log({
-			description: 'Create with storage called.', application: this,
+			description: 'Create with storage called.', project: this,
 			func: 'createWithStorage', obj: 'Project'
 		});
 		// TODO: Add a new group by default
@@ -136,25 +136,25 @@ ProjectSchema.methods = {
 		let self = this;
 		return self.save().then((newProject) => {
 			logger.log({
-				description: 'New application added to db.', application: newProject,
+				description: 'New project added to db.', project: newProject,
 				func: 'createWithStorage', obj: 'Project'
 			});
 			return self.createFileStorage().then(() => {
 				logger.info({
-					description: 'Create storage was successful.', application: self,
+					description: 'Create storage was successful.', project: self,
 					func: 'createWithStorage', obj: 'Project'
 				});
 				return newProject;
 			}, (err) => {
 				logger.error({
-					description: 'Error create application with storage.', error: err,
+					description: 'Error create project with storage.', error: err,
 					func: 'createWithStorage', obj: 'Project'
 				});
 				return Promise.reject(err);
 			});
 		}, (err) => {
 			logger.error({
-				description: 'Error saving new application.', error: err,
+				description: 'Error saving new project.', error: err,
 				func: 'createWithStorage', obj: 'Project'
 			});
 			return Promise.reject(err);
@@ -163,7 +163,7 @@ ProjectSchema.methods = {
 	createStorage: function() {
 		//TODO: Handle storageData including provider and name prefix
 		logger.log({
-			description: 'Create storage for application called.',
+			description: 'Create storage for project called.',
 			func: 'createFileStorage', obj: 'Project'
 		});
 		let bucketName = bucketPrefix + this.name;
@@ -171,7 +171,7 @@ ProjectSchema.methods = {
 		bucketName = bucketName.toLowerCase();
 		return fileStorage.createBucket(bucketName).then((bucket) => {
 			logger.log({
-				description: 'New bucket storage created for application.',
+				description: 'New bucket storage created for project.',
 				bucket: bucket, func: 'createFileStorage', obj: 'Project'
 			});
 			// TODO: Handle different bucket regions and site urls
@@ -189,14 +189,14 @@ ProjectSchema.methods = {
 				return appWithStorage;
 			}, (err) => {
 				logger.error({
-					description: 'Error saving new application.', error: err,
+					description: 'Error saving new project.', error: err,
 					func: 'createFileStorage', obj: 'Project'
 				});
 				return Promise.reject(err);
 			});
 		}, (err) => {
 			logger.error({
-				description: 'Error creating application bucket.', error: err,
+				description: 'Error creating project bucket.', error: err,
 				func: 'createFileStorage', obj: 'Project'
 			});
 			return Promise.reject(err);
@@ -204,7 +204,7 @@ ProjectSchema.methods = {
 	},
 	removeStorage: function() {
 		logger.log({
-			description: 'Remove application storage called.',
+			description: 'Remove project storage called.',
 			func: 'removeStorage', obj: 'Project'
 		});
 		if(!_.has(this, 'frontend') || !_.has(this.frontend, 'bucketName')){
@@ -230,7 +230,7 @@ ProjectSchema.methods = {
 					return {message: 'No storage to remove.'};
 				} else {
 					logger.error({
-						description: 'Error deleting application storage bucket.',
+						description: 'Error deleting project storage bucket.',
 						func: 'removeStorage', obj: 'Project'
 					});
 					return Promise.reject(err);
@@ -262,12 +262,12 @@ ProjectSchema.methods = {
 				description: 'Queue url is currently required to create new templates This will be changed soon.',
 				templateData: templateData, func: 'applyTemplate', obj: 'Project'
 			});
-			return Promise.reject({message: 'Queue url is required to create an application with a template.'});
+			return Promise.reject({message: 'Queue url is required to create an project with a template.'});
 		}
 	},
 	addCollaborators: function(usersArray) {
 		logger.log({
-			description: 'Add collaborators to application called.',
+			description: 'Add collaborators to project called.',
 			usersArray: usersArray, func: 'addCollaborators', obj: 'Project'
 		});
 		let userPromises = [];
@@ -292,12 +292,12 @@ ProjectSchema.methods = {
 						description: 'Found user, adding to collaborators.',
 						foundUser: foundUser, func: 'addCollaborators', obj: 'Project'
 					});
-					//Add User's ObjectID to application's collaborators
+					//Add User's ObjectID to project's collaborators
 					self.collaborators.push(foundUser._id);
 					d.resolve(foundUser);
 				}, (err) => {
 					logger.error({
-						description: 'Error user in application.',
+						description: 'Error user in project.',
 						error: err, func: 'addCollaborators', obj: 'Project'
 					});
 					d.reject(err);
@@ -320,9 +320,9 @@ ProjectSchema.methods = {
 		});
 	},
 	login: function(loginData) {
-		//Search for user in application's directories
+		//Search for user in project's directories
 		logger.log({
-			description: 'Login to application called.',
+			description: 'Login to project called.',
 			func: 'login', obj: 'Project'
 		});
 		//Login to authrocket if data is available
@@ -367,7 +367,7 @@ ProjectSchema.methods = {
 				});
 				return foundUser.login(loginData.password).then((loggedInData) => {
 					logger.info({
-						description: 'Login to application successful.',
+						description: 'Login to project successful.',
 						loggedInData: loggedInData, func: 'login', obj: 'Project'
 					});
 					return loggedInData;
@@ -389,15 +389,15 @@ ProjectSchema.methods = {
 	},
 	signup: function(signupData) {
 		logger.log({
-			description: 'Signup to application called.',
-			signupData: signupData, application: this,
+			description: 'Signup to project called.',
+			signupData: signupData, project: this,
 			func: 'signup', obj: 'Project'
 		});
 		let self = this;
 		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
 			logger.log({
-				description: 'Authrocket settings exist for application.',
-				signupData: signupData, application: this,
+				description: 'Authrocket settings exist for project.',
+				signupData: signupData, project: this,
 				func: 'signup', obj: 'Project'
 			});
 			return this.appAuthRocket().signup(signupData).then((newUser) => {
@@ -417,14 +417,14 @@ ProjectSchema.methods = {
 			//Default user management
 			logger.log({
 				description: 'Using default user management.',
-				application: this, type: typeof this.model('User'),
+				project: this, type: typeof this.model('User'),
 				func: 'signup', obj: 'Project'
 			});
 			let UserModel = this.model('User');
 			let user = new UserModel(signupData);
 			logger.log({
 				description: 'Using default user management.',
-				application: user,
+				project: user,
 				func: 'signup', obj: 'Project'
 			});
 			return user.createWithPass(signupData.password, this._id).then((newUser) => {
@@ -464,10 +464,10 @@ ProjectSchema.methods = {
 			});
 		}
 	},
-	//Log user out of application
+	//Log user out of project
 	logout: function(logoutData) {
 		logger.log({
-			description: 'Logout of application called.',
+			description: 'Logout of project called.',
 			data: logoutData, func: 'logout', obj: 'Project'
 		});
 		if(!logoutData){
@@ -500,7 +500,7 @@ ProjectSchema.methods = {
 			});
 			return this.findUser(logoutData).then((foundUser) => {
 				logger.log({
-					description: 'User found in application. Attempting to logout.',
+					description: 'User found in project. Attempting to logout.',
 					user: foundUser, func: 'logout', obj: 'Project'
 				});
 				return foundUser.logout().then(() => {
@@ -528,11 +528,11 @@ ProjectSchema.methods = {
 			});
 		}
 	},
-	//Add group to application
+	//Add group to project
 	addGroup: function(groupData) {
-		//TODO: make sure that group does not already exist in this application
+		//TODO: make sure that group does not already exist in this project
 		// if(indexOf(this.groups, group._id) == -1){
-		// 	console.error('This group already exists application');
+		// 	console.error('This group already exists project');
 		// 	return;
 		// }
 		if(this.authRocket && this.authRocket.jsUrl && this.authRocket.jsUrl.length > 0){
@@ -551,10 +551,10 @@ ProjectSchema.methods = {
 			});
 		} else {
 			let self = this;
-			//Add application id to group
-			groupData.application = this._id;
+			//Add project id to group
+			groupData.project = this._id;
 			//Add applicaiton id to search
-			let findObj = {application: this._id};
+			let findObj = {project: this._id};
 			logger.log({
 				description:'Add group to Project called.',
 				func:'addGroup', obj: 'Project'
@@ -576,19 +576,19 @@ ProjectSchema.methods = {
 			if(_.has(groupData, '_id') || groupData instanceof this.model('Group')){
 				//Group object was passed
 				logger.log({
-					description:'Group instance was passed, adding it to application.',
+					description:'Group instance was passed, adding it to project.',
 					groupData: groupData, func:'addGroup', obj: 'Project'
 				});
 				self.groups.push(groupData._id);
 				return self.saveNew().then((savedApp) => {
 					logger.info({
-						description:'Group successfully added to application.',
+						description:'Group successfully added to project.',
 						func:'addGroup', obj: 'Project'
 					});
 					return groupData;
 				}, (err) => {
 					logger.error({
-						description:'Error saving new group to application.', error: err,
+						description:'Error saving new group to project.', error: err,
 						func:'addGroup', obj: 'Project'
 					});
 					return Promise.reject(err);
@@ -611,20 +611,20 @@ ProjectSchema.methods = {
 						let group = new Group(groupData);
 						return group.saveNew().then((newGroup) => {
 							logger.info({
-								description:'Group created successfully. Adding to application.',
+								description:'Group created successfully. Adding to project.',
 								func:'addGroup', obj: 'Project'
 							});
-							//Add group to application
+							//Add group to project
 							self.groups.push(newGroup._id);
 							return self.saveNew().then((savedApp) => {
 								logger.info({
-									description:'Group successfully added to application.',
+									description:'Group successfully added to project.',
 									func:'addGroup', obj: 'Project'
 								});
 								return newGroup;
 							}, (err) => {
 								logger.error({
-									description:'Error saving new group to application.', error: err,
+									description:'Error saving new group to project.', error: err,
 									func:'addGroup', obj: 'Project'
 								});
 								return Promise.reject({message: 'Error saving new group.'});
@@ -640,19 +640,19 @@ ProjectSchema.methods = {
 						//TODO: Decide if this should happen?
 						//Group already exists, add it to applicaiton
 						logger.log({
-							description:'Group already exists. Adding to application.',
+							description:'Group already exists. Adding to project.',
 							group: group, func:'addGroup', obj: 'Project'
 						});
 						self.groups.push(group._id);
 						return self.saveNew().then((savedApp) => {
 							logger.info({
-								description:'Group successfully added to application.', group: group,
+								description:'Group successfully added to project.', group: group,
 								savedApp: savedApp, func:'addGroup', obj: 'Project'
 							});
 							return group;
 						}, (err) => {
 							logger.error({
-								description:'Error saving Group to application.', error: err,
+								description:'Error saving Group to project.', error: err,
 								group: group, func:'addGroup', obj: 'Project'
 							});
 							return Promise.reject(err);
@@ -669,7 +669,7 @@ ProjectSchema.methods = {
 		}
 
 	},
-	//Update group within application
+	//Update group within project
 	updateGroup: function(groupData) {
 		logger.log({
 			description:'Update group called.', groupData: groupData,
@@ -690,7 +690,7 @@ ProjectSchema.methods = {
 				return Promise.reject(err);
 			});
 		} else {
-			let query = this.model('Group').update({application: this._id, name: groupData.name});
+			let query = this.model('Group').update({project: this._id, name: groupData.name});
 			return query.then((err, group) => {
 				if(!group){
 					logger.error({
@@ -706,14 +706,14 @@ ProjectSchema.methods = {
 				return group;
 			}, (err) => {
 				logger.error({
-					description:'Error updating application Group.', func:'updateGroup',
+					description:'Error updating project Group.', func:'updateGroup',
 					updatedGroup: group, obj: 'Project'
 				});
 				return Promise.reject(err);
 			});
 		}
 	},
-	//Delete group from application
+	//Delete group from project
 	deleteGroup: function(groupData) {
 		logger.log({
 			description:'Delete group called.', groupData: groupData,
@@ -741,10 +741,10 @@ ProjectSchema.methods = {
 			//TODO: Check groups before to make sure that group by that name exists
 			if(!groupInApp){
 				logger.log({
-					description:'Group with provided name does not exist within application.',
+					description:'Group with provided name does not exist within project.',
 					groupData: groupData, app: this, func:'deleteGroup', obj: 'Project'
 				});
-				return Promise.reject({message: 'Group with that name does not exist within application.', status: 'NOT_FOUND'});
+				return Promise.reject({message: 'Group with that name does not exist within project.', status: 'NOT_FOUND'});
 			}
 			let query = this.model('Group').findOneAndRemove({name: groupData.name});
 			return query.then((group) => {
@@ -756,10 +756,10 @@ ProjectSchema.methods = {
 					return Promise.reject({message: 'Unable delete group.', status: 'NOT_FOUND'});
 				} else {
 					logger.info({
-						description:'Group deleted successfully. Removing from application.',
+						description:'Group deleted successfully. Removing from project.',
 						returnedData: group, func:'deleteGroup', obj: 'Project'
 					});
-					//Remove group from application's groups
+					//Remove group from project's groups
 					_.remove(self.groups, (currentGroup) => {
 						//Handle currentGroups being list of IDs
 						if(_.isObject(currentGroup) && _.has(currentGroup, '_id') && currentGroup._id == group._id){
@@ -777,14 +777,14 @@ ProjectSchema.methods = {
 							return true;
 						} else {
 							logger.error({
-								description:'Could not find group within application.',
+								description:'Could not find group within project.',
 								returnedData: group,
 								func:'deleteGroup', obj: 'Project'
 							});
 							return false;
 						}
 					});
-					//Resolve application's groups without group
+					//Resolve project's groups without group
 					return this.groups;
 				}
 			}, (err) => {
@@ -835,7 +835,7 @@ ProjectSchema.methods = {
 		}
 		let self = this;
 		logger.log({
-			description: 'Authrocket data of application.', data: self.authRocket,
+			description: 'Authrocket data of project.', data: self.authRocket,
 			func: 'authRocket', obj: 'Project'
 		});
 		let authrocket = new AuthRocket(self.authRocket);
@@ -890,10 +890,10 @@ ProjectSchema.methods = {
 			return Promise.reject(err);
 		});
 	},
-	//Find user and make sure it is within application users, groups, and directories
+	//Find user and make sure it is within project users, groups, and directories
 	findUser: function(userData) {
 		logger.log({
-			description: 'Find user called.', application: this,
+			description: 'Find user called.', project: this,
 			userData: userData, func: 'findUser', obj: 'Project'
 		});
 		let self = this;
@@ -920,7 +920,7 @@ ProjectSchema.methods = {
 			});
 		} else {
 			if(self._id){
-				findObj.application = self._id;
+				findObj.project = self._id;
 			}
 			logger.info({
 				description:'Looking for user.',
@@ -940,7 +940,7 @@ ProjectSchema.methods = {
 				}
 				logger.log({
 					description:'User found.',
-					application:self, foundUser:foundUser,
+					project:self, foundUser:foundUser,
 					obj:'Project', func:'findUser'
 				});
 				return foundUser;

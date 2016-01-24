@@ -79,19 +79,19 @@ export function get(req, res, next) {
 export function add(req, res, next) {
 	//Query for existing template with same name
 	if(!_.has(req.body, "name")){
-		res.status(400).send("Name is required to create a new app");
+		res.status(400).send("Name is required to create a new project");
 	} else {
 		logger.log({
 			description: 'Template add request.',
 			name: req.body.name, func: 'add', obj: 'TemplatesCtrls'
 		});
-		let appData = _.extend({}, req.body);
-		if(!_.has(appData, 'author')){
+		let projectData = _.extend({}, req.body);
+		if(!_.has(projectData, 'author')){
 			logger.log({
 				description: 'No author provided. Using user', user: req.user,
 				func: 'add', obj: 'TemplatesCtrls'
 			});
-			appData.author = req.user.userId;
+			projectData.author = req.user.userId;
 		}
 		let query = Template.findOne({"name":req.body.name}); // find using name field
 		query.then((qResult) => {
@@ -104,18 +104,18 @@ export function add(req, res, next) {
 			}
 			//template does not already exist
 			//Handle string list of tags as tag param
-			if(_.has(appData, 'tags')){
+			if(_.has(projectData, 'tags')){
 				//TODO: Remove spaces from tags if they exist
-				appData.tags = appData.tags.split(",");
+				projectData.tags = projectData.tags.split(",");
 			}
-			if(_.has(appData, 'frameworks')){
-				appData.frameworks = appData.frameworks.split(",");
+			if(_.has(projectData, 'frameworks')){
+				projectData.frameworks = projectData.frameworks.split(",");
 			}
 			logger.log({
-				description: 'Creating new template.', template: appData,
+				description: 'Creating new template.', template: projectData,
 				func: 'add', obj: 'TemplatesCtrl'
 			});
-			let template = new Template(appData);
+			let template = new Template(projectData);
 			template.createNew(req).then( (newTemplate) => {
 				logger.log({
 					description: 'Template created successfully.',
@@ -162,7 +162,7 @@ export function add(req, res, next) {
  */
 export function update(req, res, next) {
 	logger.log({
-		description: 'app update request. ', name: req.params.name,
+		description: 'project update request. ', name: req.params.name,
 		func: 'update', obj: 'TemplatesCtrl'
 	});
 	if(req.params.name){

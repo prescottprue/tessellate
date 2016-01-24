@@ -3,7 +3,7 @@
  */
 import logger from '../utils/logger';
 import * as fileStorage from '../utils/fileStorage';
-import { Application } from '../models/application';
+import { Application } from '../models/project';
 
 /**
  * @api {get} /admin/buckets Get Buckets
