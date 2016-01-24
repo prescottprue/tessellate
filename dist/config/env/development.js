@@ -27,7 +27,7 @@ module.exports = {
 			redirectUrl: process.env.TESSELLATE_GOOGLE_REDIRECT_URL || 'http://localhost:3000/oauth2callback'
 		}
 	},
-	authEnabled: true,
+	authEnabled: false,
 	authRocket: {
 		enabled: false,
 		secret: process.env.AUTHROCKET_JWT_SECRET
