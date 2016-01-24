@@ -7,11 +7,8 @@ import { has } from 'lodash';
 import logger from '../utils/logger';
 import { User } from '../models/user';
 import { Session } from '../models/session';
-import AuthRocket from 'authrocket';
 import jwt from 'jsonwebtoken';
 import config from '../config/default';
-let authRocketEnabled = config.authRocket ? config.authRocket.enabled : false;
-let authrocket = new AuthRocket();
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new user and start a session as that new user
@@ -36,7 +33,7 @@ let authrocket = new AuthRocket();
  *
  */
 export function signup(req, res, next) {
-	logger.log({
+	logger.debug({
 		description: 'Signup request.', body: req.body,
 		func: 'signup', obj: 'AuthCtrls'
 	});
@@ -47,53 +44,18 @@ export function signup(req, res, next) {
 			message:"Username or Email required to signup"
 		});
 	}
-	let query;
-	if(authRocketEnabled){
-		return authrocket.signup(req.body).then((signupRes) => {
-			logger.log({
-				description: 'Successfully signed up through authrocket.',
-				response: signupRes, func: 'signup', obj: 'AuthCtrls'
-			});
-			//TODO: Record user within internal auth system
-			res.send(signupRes);
-		}, (err) => {
-			logger.error({
-				description: 'Error signing up through auth rocket.',
-				error: err, func: 'signup', obj: 'AuthCtrls'
-			});
-			res.send(err);
+	let account = new Account(req.body);
+	// TODO: Start a session with new account
+	account.signup(req.body).then(newAccount => {
+		logger.debug({
+			description: 'New account created successfully.', newAccount,
+			func: 'signup', obj: 'AuthCtrls'
 		});
-	}
-	//Basic Internal Signup
-	if(has(req.body, "username")){
-		query = User.findOne({"username":req.body.username}); // find using username field
-	} else {
-		query = User.findOne({"email":req.body.email}); // find using email field
-	}
-	query.then(result => {
-		if(result){ //Matching user already exists
-			// TODO: Respond with a specific error code
-			return res.status(400).send('User with this information already exists.');
-		}
-		//user does not already exist
-		//Build user data from request
-		var user = new User(req.body);
-		// TODO: Start a session with new user
-		user.createWithPass(req.body.password).then(newUser => {
-			res.send(newUser);
-		}, err => {
-			res.status(500).json({
-				code:500,
-				message:'Error hashing password',
-				error:err
-			});
-		});
+		res.send(newAccount);
 	}, error => {
-		logger.error({
-			description: 'Error querying for user.',
-			error, func: 'signup', obj: 'AuthCtrl'
+		res.status(500).json({
+			message:'Error creating new Account.'
 		});
-		res.status(500).send('Error querying for user.');
 	});
 };
 

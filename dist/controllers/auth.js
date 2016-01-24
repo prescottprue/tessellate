@@ -27,10 +27,6 @@ var _user = require('../models/user');
 
 var _session = require('../models/session');
 
-var _authrocket = require('authrocket');
-
-var _authrocket2 = _interopRequireDefault(_authrocket);
-
 var _jsonwebtoken = require('jsonwebtoken');
 
 var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
@@ -41,11 +37,6 @@ var _default2 = _interopRequireDefault(_default);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var authRocketEnabled = _default2.default.authRocket ? _default2.default.authRocket.enabled : false; /**
-                                                                                                      * @description Authentication controller
-                                                                                                      */
-
-var authrocket = new _authrocket2.default();
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new user and start a session as that new user
@@ -69,8 +60,11 @@ var authrocket = new _authrocket2.default();
  *     }
  *
  */
+/**
+ * @description Authentication controller
+ */
 function signup(req, res, next) {
-	_logger2.default.log({
+	_logger2.default.debug({
 		description: 'Signup request.', body: req.body,
 		func: 'signup', obj: 'AuthCtrls'
 	});
@@ -81,54 +75,18 @@ function signup(req, res, next) {
 			message: "Username or Email required to signup"
 		});
 	}
-	var query = undefined;
-	if (authRocketEnabled) {
-		return authrocket.signup(req.body).then(function (signupRes) {
-			_logger2.default.log({
-				description: 'Successfully signed up through authrocket.',
-				response: signupRes, func: 'signup', obj: 'AuthCtrls'
-			});
-			//TODO: Record user within internal auth system
-			res.send(signupRes);
-		}, function (err) {
-			_logger2.default.error({
-				description: 'Error signing up through auth rocket.',
-				error: err, func: 'signup', obj: 'AuthCtrls'
-			});
-			res.send(err);
+	var account = new Account(req.body);
+	// TODO: Start a session with new account
+	account.signup(req.body).then(function (newAccount) {
+		_logger2.default.debug({
+			description: 'New account created successfully.', newAccount: newAccount,
+			func: 'signup', obj: 'AuthCtrls'
 		});
-	}
-	//Basic Internal Signup
-	if ((0, _lodash.has)(req.body, "username")) {
-		query = _user.User.findOne({ "username": req.body.username }); // find using username field
-	} else {
-			query = _user.User.findOne({ "email": req.body.email }); // find using email field
-		}
-	query.then(function (result) {
-		if (result) {
-			//Matching user already exists
-			// TODO: Respond with a specific error code
-			return res.status(400).send('User with this information already exists.');
-		}
-		//user does not already exist
-		//Build user data from request
-		var user = new _user.User(req.body);
-		// TODO: Start a session with new user
-		user.createWithPass(req.body.password).then(function (newUser) {
-			res.send(newUser);
-		}, function (err) {
-			res.status(500).json({
-				code: 500,
-				message: 'Error hashing password',
-				error: err
-			});
-		});
+		res.send(newAccount);
 	}, function (error) {
-		_logger2.default.error({
-			description: 'Error querying for user.',
-			error: error, func: 'signup', obj: 'AuthCtrl'
+		res.status(500).json({
+			message: 'Error creating new Account.'
 		});
-		res.status(500).send('Error querying for user.');
 	});
 };
 
