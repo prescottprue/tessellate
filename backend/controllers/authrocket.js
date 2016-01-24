@@ -2,13 +2,13 @@
  *
  */
 import logger from '../utils/logger';
-import { Account } from '../models/account';
+import { User } from '../models/user';
 
 /**
  * @description handles events from authrocket hook POST requests
  */
 export function events(req, res, next) {
-  //TODO:Link to user account if matching account already exists and does not have linked account
+  //TODO:Link to user user if matching user already exists and does not have linked user
   logger.warn({
     description: 'Authrocket event recieved.',
     body: req.body || req, func: 'authrocket'
@@ -86,7 +86,7 @@ function userCreated(requestData){
     //   description: 'Find object build', findObj: findObj,
     //   func: 'userCreated', obj: 'AuthrocketCtrls'
     // });
-    var account = new Account({
+    var user = new User({
       authrocketId: requestData.user_id
     });
     //TODO: Load data from authrocket users endpoint to put in new user data
@@ -102,45 +102,45 @@ function userCreated(requestData){
 
 
 
-    account.saveNew().then((newAccount) => {
+    user.saveNew().then((newUser) => {
       logger.warn({
-        description: 'New account created from authrocket user_created event.',
+        description: 'New user created from authrocket user_created event.',
         func: 'userCreated', obj: 'AuthrocketCtrls'
       });
       resolve('Thanks.');
     }, (err) => {
       logger.error({
-        description: 'Error creating new account.', error: err,
+        description: 'Error creating new user.', error: err,
         func: 'userCreated', obj: 'AuthrocketCtrls'
       });
       resolve('Thanks'); //Bogus response to authrocket
     });
-    // //Find account within mongo
-  	// var query = Account.findOne(findObj);
-  	// query.then((accountData) => {
+    // //Find user within mongo
+  	// var query = User.findOne(findObj);
+  	// query.then((userData) => {
     //   logger.warn({
-    //     message:'Account query response', accountData: accountData,
+    //     message:'User query response', userData: userData,
     //     func:'userCreated', obj:'AuthrocketCtrls'
     //   });
-  	// 	if(!accountData){
+  	// 	if(!userData){
   	// 		logger.warn({
-    //       message:'Account does not already exist',
+    //       message:'User does not already exist',
     //       func:'userCreated', obj:'AuthrocketCtrls'
     //     });
     //
   	// 	} else {
     //     logger.warn({
-    //       message:'Account with matching user_id already exists.',
+    //       message:'User with matching user_id already exists.',
     //       func:'userCreated', obj:'AuthrocketCtrls'
     //     });
     //     return res.send('Thanks.'); //Bogus response to authrocket
   	// 	}
   	// }, (err) => {
   	// 	logger.error({
-    //     message:'Error finding account data.', error:err,
+    //     message:'Error finding user data.', error:err,
     //     func:'userCreated', obj:'AuthrocketCtrls'
     //   });
-  	// 	return res.status(500).send('Error getting account.');
+  	// 	return res.status(500).send('Error getting user.');
   	// });
   });
 
@@ -151,40 +151,40 @@ function userUpdated(requestData){
     func: 'userCreated', obj: 'AuthrocketCtrls'
   });
   return new Promise((resolve, reject) => {
-    Account.findOne({authrocketId:requestData.user_id}, (err, account) => {
+    User.findOne({authrocketId:requestData.user_id}, (err, user) => {
       if(err){
         logger.error({
-          description: 'Error finding account.', reqData: requestData,
-          error: err, func:'update', obj:'AccountsCtrl'
+          description: 'Error finding user.', reqData: requestData,
+          error: err, func:'update', obj:'UsersCtrl'
         });
-        // res.status(500).send('Error finding account.');
+        // res.status(500).send('Error finding user.');
         resolve();
-      } else if(!account){
+      } else if(!user){
         logger.error({
-          description: 'Account with matching authrocket id not found',
-          reqData: requestData, func:'update', obj:'AccountsCtrl'
+          description: 'User with matching authrocket id not found',
+          reqData: requestData, func:'update', obj:'UsersCtrl'
         });
-        //TODO: Add to a new account or an account with matching username
-        // res.status(400).send('Account not found.');
+        //TODO: Add to a new user or an user with matching username
+        // res.status(400).send('User not found.');
         resolve()
       } else {
         //Select only valid parameters
         logger.log({
-          description: 'Account before save.', account: account,
-          func: 'update', obj: 'AccountsCtrl'
+          description: 'User before save.', user: user,
+          func: 'update', obj: 'UsersCtrl'
         });
-        account.saveNew().then((savedAccount) => {
+        user.saveNew().then((savedUser) => {
           logger.log({
-            description: 'Account saved successfully.',
-            func: 'update', account: savedAccount, obj: 'AccountsCtrl'
+            description: 'User saved successfully.',
+            func: 'update', user: savedUser, obj: 'UsersCtrl'
           });
-          resolve(savedAccount);
+          resolve(savedUser);
         }, (err) => {
           logger.error({
-            description: 'Error saving account.', error: err,
-            func: 'update', obj: 'AccountsCtrl'
+            description: 'Error saving user.', error: err,
+            func: 'update', obj: 'UsersCtrl'
           });
-          reject('Error updating account.');
+          reject('Error updating user.');
         });
       }
     });
@@ -197,19 +197,19 @@ function userDeleted(requestData){
   });
   return new Promise((resolve, reject) => {
     if(requestData.user_id){
-  		var query = Account.findOneAndRemove({authrocketId: requestData.user_id}); // find and delete using id field
+  		var query = User.findOneAndRemove({authrocketId: requestData.user_id}); // find and delete using id field
   		query.then((result) => {
   			logger.log({
-          description: 'Account deleted successfully:',
+          description: 'User deleted successfully:',
           func: 'userDelected'
         });
   			resolve(result);
   		}, (err) => {
   			logger.error({
-          description: 'Account could not be deleted.',
+          description: 'User could not be deleted.',
           error: err, func: 'userDeleted'
         });
-        reject('Account cound not be deleted')
+        reject('User cound not be deleted')
   		});
   	}
   });

@@ -3,7 +3,7 @@ import db from './../utils/db';
 
 let SessionSchema = new mongoose.Schema(
 	{
-		accountId:{type: mongoose.Schema.Types.ObjectId, ref:'Account'},
+		userId:{type: mongoose.Schema.Types.ObjectId, ref:'User'},
 		active:{type: Boolean, default:true},
 		createdAt: { type: Date, default: Date.now, index: true},
 		endedAt: { type: Date, index: true},

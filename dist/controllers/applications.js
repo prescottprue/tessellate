@@ -21,6 +21,7 @@ exports.groups = groups;
 exports.addGroup = addGroup;
 exports.updateGroup = updateGroup;
 exports.deleteGroup = deleteGroup;
+exports.findProjectsByUserId = findProjectsByUserId;
 
 var _lodash = require('lodash');
 
@@ -96,28 +97,31 @@ function get(req, res, next) {
 	// logger.log({description: 'User from request.', user: user, func: 'get', obj: 'ApplicationsCtrls'});
 	var isList = true;
 	var findObj = {};
-	var query = undefined;
-	if (req.params.name) {
+	var name = req.params.name;
+	var username = req.body.username;
+
+	if (!req.user && !username) {
+		return res.status(400).json('Username and Token are required');
+	}
+	if (name) {
 		//Get data for a specific application
 		_logger2.default.log({
-			description: 'Application get request.', name: req.params.name,
+			description: 'Application get request.', name: name,
 			func: 'get', obj: 'ApplicationsCtrls'
 		});
-		findObj.name = req.params.name;
+		findObj.name = name;
 		isList = false;
-		query = _application.Application.findOne(findObj).populate({ path: 'owner', select: 'username name email' }).populate({ path: 'collaborators', select: 'username name email' }).populate({ path: 'groups', select: 'name accounts' });
 	} else {
 		//Find applications that current user as owner or as a collaborator
 		if (req.user) {
 			findObj.$or = [{ 'owner': req.user.accountId }, { 'collaborators': { $in: [req.user.accountId] } }];
 		}
-		query = _application.Application.find(findObj).populate({ path: 'owner', select: 'username name email' }).populate({ path: 'collaborators', select: 'username name email' }).populate({ path: 'groups', select: 'name accounts' });
 	}
 	_logger2.default.log({
 		description: 'Get find object created.', findObj: findObj,
 		func: 'get', obj: 'ApplicationsCtrls'
 	});
-	query.then(function (result) {
+	_application.Application.findOne(findObj).populate({ path: 'owner', select: 'username name email' }).populate({ path: 'collaborators', select: 'username name email' }).populate({ path: 'groups', select: 'name accounts' }).then(function (result) {
 		if (!result) {
 			_logger2.default.error({
 				description: 'Error finding Application(s).',
@@ -1493,6 +1497,40 @@ function findApplication(appName) {
 			return Promise.reject({ message: 'Error finding application.' });
 		});
 	}
+}
+// Utility functions
+//Wrap finding application in a promise that handles errors
+//TODO: Allow choosing populate settings
+function findProjectsByUserId(userId) {
+	if (!userId) {
+		_logger2.default.error({
+			description: 'User id is required to find projects.',
+			func: 'findProjectsByUserId'
+		});
+		return Promise.reject({ message: 'User id is required to find projects.' });
+	}
+	var findObj = { owner: userId, $or: [{ 'owner': userId }, { 'collaborators': { $in: [userId] } }] };
+	var query = _application.Application.find(findObj).populate({ path: 'owner', select: 'username name email' });
+	return query.then(function (foundApp) {
+		if (!foundApp) {
+			_logger2.default.error({
+				description: 'Application not found',
+				func: 'findApplication'
+			});
+			return Promise.reject({ message: 'Application not found' });
+		}
+		_logger2.default.log({
+			description: 'Application found.',
+			foundApp: foundApp, func: 'findApplication'
+		});
+		return foundApp;
+	}, function (error) {
+		_logger2.default.error({
+			description: 'Error finding application.',
+			error: error, func: 'findApplication'
+		});
+		return Promise.reject({ message: 'Error finding application.' });
+	});
 }
 // ------------------------------------------------------------------------------------------
 // Current Errors.

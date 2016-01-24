@@ -1,7 +1,5 @@
 'use strict';
 
-require('newrelic');
-
 var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
@@ -52,6 +50,7 @@ var _routes2 = _interopRequireDefault(_routes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// import 'newrelic';
 // import 'babel-core/register';
 
 var app = (0, _express2.default)();

@@ -39,10 +39,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function get(req, res, next) {
 	var isList = true;
 	_logger2.default.log({ description: 'Group(s) get request.', params: req.params, func: 'get', obj: 'GroupsCtrls' });
-	var query = _group.Group.find({}).populate({ path: 'accounts', select: 'name username email' });
+	var query = _group.Group.find({}).populate({ path: 'users', select: 'name username email' });
 	if (req.params.name) {
 		//Get data for a specific Group
-		query = _group.Group.findOne({ name: req.params.name }).populate({ path: 'directories', select: 'name accounts groups' }).populate({ path: 'accounts', select: 'name username email' });
+		query = _group.Group.findOne({ name: req.params.name }).populate({ path: 'directories', select: 'name users groups' }).populate({ path: 'users', select: 'name username email' });
 		isList = false;
 	}
 	query.then(function (groupData) {
@@ -70,7 +70,7 @@ function add(req, res, next) {
 	//Group does not already exist
 	_logger2.default.log({ description: 'Group request.', body: req.body, func: 'add', obj: 'GroupsCtrls' });
 	if (req.body && _lodash2.default.has(req.body, "name")) {
-		//TODO: Handle array of accounts
+		//TODO: Handle array of users
 		var query = _group.Group.findOne({ "name": req.body.name }); // find using email field
 		query.then(function () {
 			var group = new _group.Group(req.body);

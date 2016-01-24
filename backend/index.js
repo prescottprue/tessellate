@@ -1,4 +1,4 @@
-import 'newrelic';
+// import 'newrelic';
 // import 'babel-core/register';
 
 import express from 'express';

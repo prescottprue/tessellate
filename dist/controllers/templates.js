@@ -100,20 +100,20 @@ function get(req, res, next) {
 function add(req, res, next) {
 	//Query for existing template with same name
 	if (!_lodash2.default.has(req.body, "name")) {
-		res.status(400).send("Name is required to create a new app");
+		res.status(400).send("Name is required to create a new project");
 	} else {
 		(function () {
 			_logger2.default.log({
 				description: 'Template add request.',
 				name: req.body.name, func: 'add', obj: 'TemplatesCtrls'
 			});
-			var appData = _lodash2.default.extend({}, req.body);
-			if (!_lodash2.default.has(appData, 'author')) {
+			var projectData = _lodash2.default.extend({}, req.body);
+			if (!_lodash2.default.has(projectData, 'author')) {
 				_logger2.default.log({
-					description: 'No author provided. Using account', user: req.user,
+					description: 'No author provided. Using user', user: req.user,
 					func: 'add', obj: 'TemplatesCtrls'
 				});
-				appData.author = req.user.accountId;
+				projectData.author = req.user.userId;
 			}
 			var query = _template.Template.findOne({ "name": req.body.name }); // find using name field
 			query.then(function (qResult) {
@@ -127,18 +127,18 @@ function add(req, res, next) {
 				}
 				//template does not already exist
 				//Handle string list of tags as tag param
-				if (_lodash2.default.has(appData, 'tags')) {
+				if (_lodash2.default.has(projectData, 'tags')) {
 					//TODO: Remove spaces from tags if they exist
-					appData.tags = appData.tags.split(",");
+					projectData.tags = projectData.tags.split(",");
 				}
-				if (_lodash2.default.has(appData, 'frameworks')) {
-					appData.frameworks = appData.frameworks.split(",");
+				if (_lodash2.default.has(projectData, 'frameworks')) {
+					projectData.frameworks = projectData.frameworks.split(",");
 				}
 				_logger2.default.log({
-					description: 'Creating new template.', template: appData,
+					description: 'Creating new template.', template: projectData,
 					func: 'add', obj: 'TemplatesCtrl'
 				});
-				var template = new _template.Template(appData);
+				var template = new _template.Template(projectData);
 				template.createNew(req).then(function (newTemplate) {
 					_logger2.default.log({
 						description: 'Template created successfully.',
@@ -186,7 +186,7 @@ function add(req, res, next) {
  */
 function update(req, res, next) {
 	_logger2.default.log({
-		description: 'app update request. ', name: req.params.name,
+		description: 'project update request. ', name: req.params.name,
 		func: 'update', obj: 'TemplatesCtrl'
 	});
 	if (req.params.name) {
@@ -326,14 +326,14 @@ function del(req, res, next) {
 	}
 };
 /**
- * @api {get} /account/:id Search Accounts
- * @apiDescription Search Accounts.
- * @apiName SearchAccount
- * @apiGroup Account
+ * @api {get} /user/:id Search Users
+ * @apiDescription Search Users.
+ * @apiName SearchUser
+ * @apiGroup User
  *
- * @apiParam {String} searchQuery String to search through accounts with
+ * @apiParam {String} searchQuery String to search through users with
  *
- * @apiSuccess {Object} accountData Object containing deleted accounts data.
+ * @apiSuccess {Object} userData Object containing deleted users data.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -341,7 +341,7 @@ function del(req, res, next) {
  *       "id":"189B7NV89374N4839"
  *       "name": "John",
  *       "title": "Doe",
- *       "role":"account",
+ *       "role":"user",
  *     }
  *
  */
@@ -370,7 +370,7 @@ function search(req, res, next) {
 	});
 };
 /**
- * Create a account query based on provided key and value (in mongo)
+ * Create a user query based on provided key and value (in mongo)
  */
 function createTemplateQuery(key, val) {
 	var queryArr = _lodash2.default.map(val.split(' '), function (qr) {

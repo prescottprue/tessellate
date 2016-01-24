@@ -16,9 +16,9 @@ var _underscore = require('underscore');
 
 var _underscore2 = _interopRequireDefault(_underscore);
 
-var _application = require('./application');
+var _project = require('./project');
 
-var _account = require('./account');
+var _user = require('./user');
 
 var _logger = require('../utils/logger');
 
@@ -27,9 +27,9 @@ var _logger2 = _interopRequireDefault(_logger);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GroupSchema = new _mongoose2.default.Schema({
-	application: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Application' },
+	project: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Project' },
 	name: { type: String, default: '' },
-	accounts: [{ type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Account' }],
+	users: [{ type: _mongoose2.default.Schema.Types.ObjectId, ref: 'User' }],
 	createdAt: { type: Date, default: Date.now },
 	updatedAt: { type: Date, default: Date.now, index: true }
 }, {
@@ -43,48 +43,48 @@ GroupSchema.set('collection', 'groups');
  * Setup schema methods
  */
 GroupSchema.methods = {
-	addAccount: function addAccount(account) {
-		//TODO: Handle adding an account to the group
-		this.save().then(function (newAccount) {
-			return newAccount;
+	addUser: function addUser(user) {
+		//TODO: Handle adding an user to the group
+		this.save().then(function (newUser) {
+			return newUser;
 		}, function (err) {
 			_logger2.default.error('Error', err);
 		});
 	},
-	findAccount: function findAccount(accountData) {
+	findUser: function findUser(userData) {
 		//TODO: Find by parameters other than username
-		if (!accountData || !_underscore2.default.has(accountData, 'username')) {
+		if (!userData || !_underscore2.default.has(userData, 'username')) {
 			_logger2.default.error({
-				description: 'Username required to find account.', func: 'findAccount', obj: 'Group'
+				description: 'Username required to find user.', func: 'findUser', obj: 'Group'
 			});
-			return Promise.reject({ message: 'Account not found.' });
+			return Promise.reject({ message: 'User not found.' });
 		}
 		_logger2.default.log({
-			description: 'Account data.', accountData: accountData
+			description: 'User data.', userData: userData
 		});
-		var aq = this.model('Account').findOne({ username: accountData.username }).populate({ path: 'groups', select: 'name accounts' }).select({ password: 0 });
-		// d.resolve(account);
+		var aq = this.model('User').findOne({ username: userData.username }).populate({ path: 'groups', select: 'name users' }).select({ password: 0 });
+		// d.resolve(user);
 		return aq.then(function (result) {
 			if (!result) {
 				_logger2.default.error({
-					description: 'Error finding account.'
+					description: 'Error finding user.'
 				});
 				return Promise.reject(null);
 			}
 			_logger2.default.log({
-				description: 'directory returned:', result: result, func: 'findAccount', obj: 'Group'
+				description: 'directory returned:', result: result, func: 'findUser', obj: 'Group'
 			});
 			return result;
 		}, function (err) {
 			_logger2.default.error({
-				description: 'Error getting account.', error: err, func: 'findAccount', obj: 'Group'
+				description: 'Error getting user.', error: err, func: 'findUser', obj: 'Group'
 			});
 			return Promise.reject(err);
 		});
 	}
 };
 /*
- * Construct `Account` model from `AccountSchema`
+ * Construct `User` model from `UserSchema`
  */
 _db2.default.tessellate.model('Group', GroupSchema);
 

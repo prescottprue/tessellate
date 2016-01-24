@@ -11,7 +11,7 @@ var _db2 = _interopRequireDefault(_db);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var SessionSchema = new _mongoose2.default.Schema({
-	accountId: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'Account' },
+	userId: { type: _mongoose2.default.Schema.Types.ObjectId, ref: 'User' },
 	active: { type: Boolean, default: true },
 	createdAt: { type: Date, default: Date.now, index: true },
 	endedAt: { type: Date, index: true },
