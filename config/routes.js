@@ -36,7 +36,7 @@ module.exports = function (app, passport) {
       failureRedirect: '/login',
       failureFlash: 'Invalid email or password.'
     }), users.session);
-  app.get('/users/:userId', users.show);
+  app.get('/users/:username', users.show);
   app.get('/auth/github',
     passport.authenticate('github', {
       failureRedirect: '/login'
@@ -58,12 +58,11 @@ module.exports = function (app, passport) {
       failureRedirect: '/login'
     }), users.authCallback);
 
-  app.param('userId', users.load);
+  app.param('username', users.load);
 
   // project routes
   app.param('id', projects.load);
   app.get('/projects', projects.index);
-  app.get('/projects/new', auth.requiresLogin, projects.new);
   app.post('/projects', auth.requiresLogin, projects.create);
   app.get('/projects/:id', projects.show);
   app.get('/projects/:id/edit', projectAuth, projects.edit);

@@ -19,8 +19,8 @@ const oAuthTypes = [
 
 const UserSchema = new Schema({
   name: { type: String, default: '' },
-  email: { type: String, default: '' },
-  username: { type: String, default: '' },
+  email: { type: String, default: '', unique: true },
+  username: { type: String, default: '', unique: true },
   provider: { type: String, default: '' },
   hashed_password: { type: String, default: '' },
   salt: { type: String, default: '' },

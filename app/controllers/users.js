@@ -12,8 +12,8 @@ const User = mongoose.model('User');
  * Load
  */
 
-exports.load = wrap(function* (req, res, next, _id) {
-  const criteria = { _id };
+exports.load = wrap(function* (req, res, next, username) {
+  const criteria = { username };
   req.profile = yield User.load({ criteria });
   if (!req.profile) return next(new Error('User not found'));
   next();
@@ -39,7 +39,7 @@ exports.create = wrap(function* (req, res) {
 
 exports.show = function (req, res) {
   const user = req.profile;
-  res.render('users/show', {
+  res.json({
     title: user.name,
     user: user
   });

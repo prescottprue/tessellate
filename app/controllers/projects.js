@@ -35,7 +35,7 @@ exports.index = wrap(function* (req, res) {
   const projects = yield Project.list(options);
   const count = yield Project.count();
 
-  res.render('projects/index', {
+  res.json({
     title: 'Projects',
     projects: projects,
     page: page + 1,
