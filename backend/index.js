@@ -57,12 +57,11 @@ if(config.authEnabled){
     '/logout', '/signup',
     '/docs', '/docs/**',
     '/authrocket', '/authUrl', '/oauth2',
-    /(\/apps\/.*\/login)/,
-    /(\/apps\/.*\/logout)/,
-    /(\/apps\/.*\/signup)/,
-    /(\/apps\/.*\/providers)/,
-    /(\/apps\/.*\/googleAuthUrl)/,
-    /(\/apps\/.*\/oauth2callback)/
+    /(\/projects\/.*\/logout)/,
+    /(\/projects\/.*\/signup)/,
+    /(\/projects\/.*\/providers)/,
+    /(\/projects\/.*\/googleAuthUrl)/,
+    /(\/projects\/.*\/oauth2callback)/
   ];
   let secret = config.jwtSecret;
   if (config.authRocket && config.authRocket.enabled) {
@@ -90,7 +89,11 @@ if(config.authEnabled){
       });
       //TODO: look for application name
       //TODO: Try decoding with application's authrocket secret
-      return res.status(401).send('Unauthorized');
+      return res.status(401).json({
+        message: `Unauthorized: ${err.message || 'Error'}`,
+        code: err.code || 'Invalid Token',
+        status: 'UNAUTHORIZED'
+      });
     }
   });
 } else {

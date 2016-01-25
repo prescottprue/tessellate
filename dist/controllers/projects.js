@@ -221,7 +221,7 @@ function getProviders(req, res, next) {
 function add(req, res, next) {
 	//Query for existing project with same _id
 	if (!req.body || !req.body.name) {
-		return res.status(400).send('Name is required to create project');
+		return res.status(400).send({ message: 'Name is required to create project' });
 	}
 	_logger2.default.debug({
 		description: 'Projects add called.',
@@ -248,7 +248,7 @@ function add(req, res, next) {
 			description: 'Project does not already exist.',
 			func: 'add', obj: 'Project'
 		});
-		var project = new _project.Project({ name: name, owner: userId });
+		var project = new _project.Project({ name: name, owner: userId }).populate({ path: 'owner', select: 'username, email, name' });
 		if (!template) {
 			//Template name was not provided
 			return project.save().then(function (newProject) {
@@ -256,10 +256,10 @@ function add(req, res, next) {
 					description: 'Project created successfully.',
 					newProject: newProject, func: 'add', obj: 'Project'
 				});
-				//TODO: Correctly populate project
-				if (newProject.owner && !(0, _lodash.isObject)(newProject.owner)) {
-					newProject.owner = { id: userId, username: username };
-				}
+				_logger2.default.log({
+					description: 'Project created successfully.',
+					newProject: newProject, func: 'add', obj: 'Project'
+				});
 				res.json(newProject);
 			}, function (error) {
 				_logger2.default.error({

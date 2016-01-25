@@ -183,7 +183,7 @@ export function getProviders(req, res, next) {
 export function add(req, res, next) {
 	//Query for existing project with same _id
 	if(!req.body || !req.body.name){
-		return res.status(400).send('Name is required to create project');
+		return res.status(400).send({message: 'Name is required to create project'});
 	}
 	logger.debug({
 		description: 'Projects add called.',
@@ -206,7 +206,7 @@ export function add(req, res, next) {
 			description: 'Project does not already exist.',
 			func: 'add', obj: 'Project'
 		});
-		let project = new Project({name, owner: userId});
+		let project = new Project({name, owner: userId}).populate({ path: 'owner', select: 'username, email, name'});
 		if(!template){
 			//Template name was not provided
 			return project.save().then(newProject => {
@@ -214,10 +214,10 @@ export function add(req, res, next) {
 					description: 'Project created successfully.',
 					newProject, func: 'add', obj: 'Project'
 				});
-				//TODO: Correctly populate project
-				if(newProject.owner && !isObject(newProject.owner)){
-					newProject.owner = { id: userId, username};
-				}
+				logger.log({
+					description: 'Project created successfully.',
+					newProject, func: 'add', obj: 'Project'
+				});
 				res.json(newProject);
 			}, error => {
 				logger.error({

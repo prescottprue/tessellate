@@ -90,7 +90,7 @@ app.options('*', (0, _cors2.default)());
  * @description Enable authentication based on config setting
  */
 if (_default2.default.authEnabled) {
-  var allowedPaths = ['/', '/login', '/recover', '/logout', '/signup', '/docs', '/docs/**', '/authrocket', '/authUrl', '/oauth2', /(\/apps\/.*\/login)/, /(\/apps\/.*\/logout)/, /(\/apps\/.*\/signup)/, /(\/apps\/.*\/providers)/, /(\/apps\/.*\/googleAuthUrl)/, /(\/apps\/.*\/oauth2callback)/];
+  var allowedPaths = ['/', '/login', '/recover', '/logout', '/signup', '/docs', '/docs/**', '/authrocket', '/authUrl', '/oauth2', /(\/projects\/.*\/logout)/, /(\/projects\/.*\/signup)/, /(\/projects\/.*\/providers)/, /(\/projects\/.*\/googleAuthUrl)/, /(\/projects\/.*\/oauth2callback)/];
   var secret = _default2.default.jwtSecret;
   if (_default2.default.authRocket && _default2.default.authRocket.enabled) {
     if (!_default2.default.authRocket.secret) {
@@ -117,7 +117,11 @@ if (_default2.default.authEnabled) {
       });
       //TODO: look for application name
       //TODO: Try decoding with application's authrocket secret
-      return res.status(401).send('Unauthorized');
+      return res.status(401).json({
+        message: 'Unauthorized: ' + (err.message || 'Error'),
+        code: err.code || 'Invalid Token',
+        status: 'UNAUTHORIZED'
+      });
     }
   });
 } else {

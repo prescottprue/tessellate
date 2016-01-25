@@ -69,16 +69,18 @@ function getProjects(req, res, next) {
 
   _logger2.default.debug({
     message: 'Get user called with username.',
-    username: username, func: 'get', obj: 'UserCtrl'
+    username: username, func: 'get', obj: 'UserCtrl', time: Date.now()
   });
   findByUsername(username).then(function (user) {
     _logger2.default.info({
       message: 'User found.',
-      user: user, func: 'getProjects', obj: 'UserCtrl'
+      user: user, func: 'getProjects', obj: 'UserCtrl',
+      time: Date.now()
     });
     (0, _projects.findProjectsByUserId)(user.id).then(function (projectsList) {
       _logger2.default.info({
-        message: 'Projects list found.', func: 'getProjects', obj: 'UserCtrl'
+        message: 'Projects list found.', func: 'getProjects', obj: 'UserCtrl',
+        time: Date.now()
       });
       res.json(projectsList);
     }, function (error) {
@@ -86,13 +88,13 @@ function getProjects(req, res, next) {
         message: 'Error getting projects by id.', error: error,
         func: 'getProjects', obj: 'UserCtrl'
       });
-      res.status(400).send('Error getting projects.');
+      res.status(400).json({ message: 'Error getting projects.' });
     });
   }, function (error) {
     _logger2.default.error({
       message: 'Error find user by username.', username: username, error: error,
       func: 'getProjects', obj: 'UserCtrl'
     });
-    res.status(400).send('Error finding user');
+    res.status(400).json({ message: 'Error finding user' });
   });
 };

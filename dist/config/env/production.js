@@ -8,7 +8,7 @@ module.exports = {
 		url: process.env.TESSELLATE_MONGO
 	},
 	logging: {
-		level: 2, //Only errors and debug
+		level: process.env.LOG_LEVEL || 0, //Only errors and debug
 		external: true
 	},
 	aws: {

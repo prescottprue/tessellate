@@ -53,16 +53,18 @@ export function getProjects(req, res, next) {
   const { username } = req.params;
 	logger.debug({
 		message:'Get user called with username.',
-		username, func:'get', obj:'UserCtrl'
+		username, func:'get', obj:'UserCtrl', time: Date.now()
 	});
   findByUsername(username).then(user => {
     logger.info({
   		message:'User found.',
-  		user, func:'getProjects', obj:'UserCtrl'
+  		user, func:'getProjects', obj:'UserCtrl',
+      time: Date.now()
   	});
     findProjectsByUserId(user.id).then(projectsList => {
       logger.info({
-    		message:'Projects list found.', func:'getProjects', obj:'UserCtrl'
+    		message:'Projects list found.', func:'getProjects', obj:'UserCtrl',
+        time: Date.now()
     	});
       res.json(projectsList);
     }, error => {
@@ -70,13 +72,13 @@ export function getProjects(req, res, next) {
     		message:'Error getting projects by id.', error,
     		func:'getProjects', obj:'UserCtrl'
     	});
-      res.status(400).send('Error getting projects.');
+      res.status(400).json({message: 'Error getting projects.'});
     });
   }, error => {
     logger.error({
       message:'Error find user by username.', username, error,
       func:'getProjects', obj:'UserCtrl'
     });
-    res.status(400).send('Error finding user');
+    res.status(400).json({message: 'Error finding user'});
   });
 };
