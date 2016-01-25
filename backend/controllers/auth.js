@@ -2,13 +2,13 @@
  * @description Authentication controller
  */
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import url from 'url';
 import { has, isString } from 'lodash';
 import logger from '../utils/logger';
-import { User } from '../models/user';
-import { Session } from '../models/session';
-import jwt from 'jsonwebtoken';
 import config from '../config/default';
+const User = mongoose.model('User');
+const Session = mongoose.model('Session');
 /**
  * @api {post} /signup Sign Up
  * @apiDescription Sign up a new user and start a session as that new user
