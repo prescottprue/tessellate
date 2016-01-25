@@ -97,6 +97,10 @@ exports.default = {
 		endpoint: '/users/:username/projects',
 		controller: projectCtrls.add
 	}, {
+		type: 'DELETE',
+		endpoint: '/users/:username/projects/:projectName',
+		controller: projectCtrls.del
+	}, {
 		type: 'POST',
 		endpoint: '/users',
 		controller: usersCtrls.add

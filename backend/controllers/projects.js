@@ -197,16 +197,16 @@ export function add(req, res, next) {
 			description: 'Project with this name already exists.',
 			foundApp, func: 'add', obj: 'ProjectsCtrl'
 		});
-		res.status(400).send('Project with this name already exists.');
+		res.status(400).send({message: 'Project with this name already exists.'});
 	}, error => {
 		if(typeof error !== 'undefined' && error.status == 'EXISTS'){
-			return res.status(400).send('Project with this name already exists.');
+			return res.status(400).json({message: 'Project with this name already exists.'});
 		}
 		logger.log({
 			description: 'Project does not already exist.',
 			func: 'add', obj: 'Project'
 		});
-		let project = new Project({name, owner: userId}).populate({ path: 'owner', select: 'username, email, name'});
+		let project = new Project({name, owner: userId});
 		if(!template){
 			//Template name was not provided
 			return project.save().then(newProject => {
@@ -224,7 +224,7 @@ export function add(req, res, next) {
 					description: 'Error creating project.', error,
 					func: 'add', obj: 'Project'
 				});
-				res.status(500).send('Error saving project.');
+				res.status(500).json({message: 'Error saving project.'});
 			});
 		}
 		//Template name was provided
@@ -240,7 +240,7 @@ export function add(req, res, next) {
 				description: 'Error creating project.',
 				error, func: 'add', obj: 'Project'
 			});
-			res.status(400).send({message: 'Error creating project.'});
+			res.status(400).json({message: 'Error creating project.'});
 		});
 	});
 };
@@ -338,35 +338,43 @@ export function update(req, res, next) {
  *
  */
 export function del(req, res, next) {
-	let query = Project.findOneAndRemove({'name':req.params.name}); // find and delete using id field
+	let query = Project.findOneAndRemove({'name': req.params.name || req.params.projectName}); // find and delete using id field
 	query.then(result => {
 		if(!result){
 			logger.error({
 				description: 'Project not found.',
 				func: 'delete', obj: 'ProjectsCtrl'
 			});
-			return res.status(400).json({message: 'Project could not be found.'});
+			return res.status(400).json({
+				message: 'Project could not be found.'
+			});
 		}
-		let project = new Project(result);
-		project.removeStorage().then(() => {
+		result.removeStorage().then(() => {
 			logger.log({
 				description: 'Project storage deleted successfully.',
 				func: 'delete', obj: 'ProjectsCtrl'
 			});
-			res.json(result);
+			res.json({
+				message: 'Project deleted successfully',
+				status: 'SUCCESS'
+			});
 		}, error => {
 			logger.error({
 				description: 'Error removing storage from project.',
 				error, func: 'delete', obj: 'ProjectsCtrl'
 			});
-			res.status(400).json({message: 'Error removing storage from project.'});
+			res.status(400).json({
+				message: 'Error removing storage from project.'
+			});
 		});
 	}, error => {
 		logger.error({
 			description: 'Error getting project.', error,
 			func: 'delete', obj: 'ProjectsCtrl'
 		});
-		res.status(500).json({message: 'Error deleting Project.'});
+		res.status(500).json({
+			message: 'Error deleting Project.'
+		});
 	});
 };
 
@@ -1374,6 +1382,10 @@ export function deleteGroup(req, res, next) {
 //Wrap finding project in a promise that handles errors
 //TODO: Allow choosing populate settings
 function findProject(name, owner) {
+	logger.error({
+		description: 'Find project called',
+		func: 'findProject'
+	});
 	if(!name){
 		logger.error({
 			description: 'Project name and owner are required to find project.',
@@ -1385,63 +1397,69 @@ function findProject(name, owner) {
 	if(owner){
 		findObj.owner = owner;
 	}
-	let query = Project.findOne(findObj)
-	.populate({path:'owner', select:'username name email'})
-	return query.then(foundApp => {
-		if(!foundApp){
-			logger.error({
-				description: 'Project not found',
-				func: 'findProject'
+	return Project.findOne(findObj)
+		.populate({path:'owner', select:'username name email'})
+		.then(foundApp => {
+			if(!foundApp){
+				logger.error({
+					description: 'Project not found',
+					func: 'findProject'
+				});
+				return Promise.reject({message: 'Project not found'});
+			}
+			logger.log({
+				description: 'Project found.',
+				foundApp, func: 'findProject'
 			});
-			return Promise.reject({message: 'Project not found'});
-		}
-		logger.log({
-			description: 'Project found.',
-			foundApp, func: 'findProject'
+			return foundApp;
+		}, error => {
+			logger.error({
+				description: 'Error finding project.',
+				error, func: 'findProject'
+			});
+			return Promise.reject({message: 'Error finding project.'});
 		});
-		return foundApp;
-	}, error => {
-		logger.error({
-			description: 'Error finding project.',
-			error, func: 'findProject'
-		});
-		return Promise.reject({message: 'Error finding project.'});
-	});
 }
 // Utility functions
 //Wrap finding project in a promise that handles errors
 //TODO: Allow choosing populate settings
-export function findProjectsByUserId(userId) {
+function findProjectsByUserId(userId) {
 	if(!userId){
 		logger.error({
 			description: 'User id is required to find projects.',
 			func: 'findProjectsByUserId'
 		});
-		return Promise.reject({message: 'User id is required to find projects.'});
+		return Promise.reject({
+			message: 'User id is required to find projects.',
+			status: 'MISSING_INPUT'
+		});
 	}
 	const findObj = {owner: userId, $or: [{'owner': userId}, {'collaborators': {$in:[userId]}}]};
-	let query = Project.find(findObj)
-	.populate({path:'owner', select:'username name email'})
-	return query.then(foundApp => {
-		if(!foundApp){
-			logger.error({
-				description: 'Project not found',
-				func: 'findProject'
+	return Project.find(findObj)
+		.populate({path:'owner', select:'username name email'})
+		.then(foundApp => {
+			if(!foundApp){
+				logger.error({
+					description: 'Project not found',
+					func: 'findProject'
+				});
+				return Promise.reject({
+					message: 'Project not found',
+					status: 'NOT_FOUND'
+				});
+			}
+			logger.log({
+				description: 'Project found.',
+				foundApp, func: 'findProject'
 			});
-			return Promise.reject({message: 'Project not found'});
-		}
-		logger.log({
-			description: 'Project found.',
-			foundApp, func: 'findProject'
+			return foundApp;
+		}, error => {
+			logger.error({
+				description: 'Error finding project.',
+				error, func: 'findProject'
+			});
+			return Promise.reject({message: 'Error finding project.'});
 		});
-		return foundApp;
-	}, error => {
-		logger.error({
-			description: 'Error finding project.',
-			error, func: 'findProject'
-		});
-		return Promise.reject({message: 'Error finding project.'});
-	});
 }
 // ------------------------------------------------------------------------------------------
 // Current Errors.

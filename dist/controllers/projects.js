@@ -21,7 +21,6 @@ exports.groups = groups;
 exports.addGroup = addGroup;
 exports.updateGroup = updateGroup;
 exports.deleteGroup = deleteGroup;
-exports.findProjectsByUserId = findProjectsByUserId;
 
 var _lodash = require('lodash');
 
@@ -239,16 +238,16 @@ function add(req, res, next) {
 			description: 'Project with this name already exists.',
 			foundApp: foundApp, func: 'add', obj: 'ProjectsCtrl'
 		});
-		res.status(400).send('Project with this name already exists.');
+		res.status(400).send({ message: 'Project with this name already exists.' });
 	}, function (error) {
 		if (typeof error !== 'undefined' && error.status == 'EXISTS') {
-			return res.status(400).send('Project with this name already exists.');
+			return res.status(400).json({ message: 'Project with this name already exists.' });
 		}
 		_logger2.default.log({
 			description: 'Project does not already exist.',
 			func: 'add', obj: 'Project'
 		});
-		var project = new _project.Project({ name: name, owner: userId }).populate({ path: 'owner', select: 'username, email, name' });
+		var project = new _project.Project({ name: name, owner: userId });
 		if (!template) {
 			//Template name was not provided
 			return project.save().then(function (newProject) {
@@ -266,7 +265,7 @@ function add(req, res, next) {
 					description: 'Error creating project.', error: error,
 					func: 'add', obj: 'Project'
 				});
-				res.status(500).send('Error saving project.');
+				res.status(500).json({ message: 'Error saving project.' });
 			});
 		}
 		//Template name was provided
@@ -282,7 +281,7 @@ function add(req, res, next) {
 				description: 'Error creating project.',
 				error: error, func: 'add', obj: 'Project'
 			});
-			res.status(400).send({ message: 'Error creating project.' });
+			res.status(400).json({ message: 'Error creating project.' });
 		});
 	});
 };
@@ -380,35 +379,43 @@ function update(req, res, next) {
  *
  */
 function del(req, res, next) {
-	var query = _project.Project.findOneAndRemove({ 'name': req.params.name }); // find and delete using id field
+	var query = _project.Project.findOneAndRemove({ 'name': req.params.name || req.params.projectName }); // find and delete using id field
 	query.then(function (result) {
 		if (!result) {
 			_logger2.default.error({
 				description: 'Project not found.',
 				func: 'delete', obj: 'ProjectsCtrl'
 			});
-			return res.status(400).json({ message: 'Project could not be found.' });
+			return res.status(400).json({
+				message: 'Project could not be found.'
+			});
 		}
-		var project = new _project.Project(result);
-		project.removeStorage().then(function () {
+		result.removeStorage().then(function () {
 			_logger2.default.log({
 				description: 'Project storage deleted successfully.',
 				func: 'delete', obj: 'ProjectsCtrl'
 			});
-			res.json(result);
+			res.json({
+				message: 'Project deleted successfully',
+				status: 'SUCCESS'
+			});
 		}, function (error) {
 			_logger2.default.error({
 				description: 'Error removing storage from project.',
 				error: error, func: 'delete', obj: 'ProjectsCtrl'
 			});
-			res.status(400).json({ message: 'Error removing storage from project.' });
+			res.status(400).json({
+				message: 'Error removing storage from project.'
+			});
 		});
 	}, function (error) {
 		_logger2.default.error({
 			description: 'Error getting project.', error: error,
 			func: 'delete', obj: 'ProjectsCtrl'
 		});
-		res.status(500).json({ message: 'Error deleting Project.' });
+		res.status(500).json({
+			message: 'Error deleting Project.'
+		});
 	});
 };
 
@@ -1424,6 +1431,10 @@ function deleteGroup(req, res, next) {
 //Wrap finding project in a promise that handles errors
 //TODO: Allow choosing populate settings
 function findProject(name, owner) {
+	_logger2.default.error({
+		description: 'Find project called',
+		func: 'findProject'
+	});
 	if (!name) {
 		_logger2.default.error({
 			description: 'Project name and owner are required to find project.',
@@ -1435,8 +1446,7 @@ function findProject(name, owner) {
 	if (owner) {
 		findObj.owner = owner;
 	}
-	var query = _project.Project.findOne(findObj).populate({ path: 'owner', select: 'username name email' });
-	return query.then(function (foundApp) {
+	return _project.Project.findOne(findObj).populate({ path: 'owner', select: 'username name email' }).then(function (foundApp) {
 		if (!foundApp) {
 			_logger2.default.error({
 				description: 'Project not found',
@@ -1466,17 +1476,22 @@ function findProjectsByUserId(userId) {
 			description: 'User id is required to find projects.',
 			func: 'findProjectsByUserId'
 		});
-		return Promise.reject({ message: 'User id is required to find projects.' });
+		return Promise.reject({
+			message: 'User id is required to find projects.',
+			status: 'MISSING_INPUT'
+		});
 	}
 	var findObj = { owner: userId, $or: [{ 'owner': userId }, { 'collaborators': { $in: [userId] } }] };
-	var query = _project.Project.find(findObj).populate({ path: 'owner', select: 'username name email' });
-	return query.then(function (foundApp) {
+	return _project.Project.find(findObj).populate({ path: 'owner', select: 'username name email' }).then(function (foundApp) {
 		if (!foundApp) {
 			_logger2.default.error({
 				description: 'Project not found',
 				func: 'findProject'
 			});
-			return Promise.reject({ message: 'Project not found' });
+			return Promise.reject({
+				message: 'Project not found',
+				status: 'NOT_FOUND'
+			});
 		}
 		_logger2.default.log({
 			description: 'Project found.',

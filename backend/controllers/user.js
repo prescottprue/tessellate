@@ -1,19 +1,56 @@
 import logger from '../utils/logger';
 import { User } from '../models/user';
-import { findProjectsByUserId } from './projects';
-export function findByUsername(username, withoutList) {
+import { Project } from '../models/project';
+function findProjectsByUserId(userId) {
+	if(!userId){
+		logger.error({
+			description: 'User id is required to find projects.',
+			func: 'findProjectsByUserId'
+		});
+		return Promise.reject({
+			message: 'User id is required to find projects.',
+			status: 'MISSING_INPUT'
+		});
+	}
+	const findObj = {owner: userId, $or: [{'owner': userId}, {'collaborators': {$in:[userId]}}]};
+	return Project.find(findObj)
+		.populate({path:'owner', select:'username name email'})
+		.then(projects => {
+			if(!projects){
+				logger.error({
+					description: 'Projects not found',
+					func: 'findProject'
+				});
+				return Promise.reject({
+					message: 'Project not found',
+					status: 'NOT_FOUND'
+				});
+			}
+			logger.log({
+				description: 'Project found.', time: Date.now(), func: 'findProject'
+			});
+			return projects;
+		}, error => {
+			logger.error({
+				description: 'Error finding project.',
+				error, func: 'findProject'
+			});
+			return Promise.reject({message: 'Error finding project.'});
+		});
+}
+function findByUsername(username, withoutList) {
   return User.findOne({ username }, {password:0, __v:0}).then(user => {
     if(!user){
       logger.log({
-        message:'No user data',
+        description: 'No user data',
         func:'get', obj:'UserCtrl'
       });
-      return Promise.reject({message: 'User not found.'});
+      return Promise.reject({message:  'User not found.'});
     }
     return user;
   }, error => {
     logger.error({
-      message:'Error finding user.',
+      description: 'Error finding user.',
       error, func:'findByUsername', obj:'UserCtrl'
     });
     return Promise.reject(error);
@@ -44,41 +81,41 @@ export function findByUsername(username, withoutList) {
  */
 export function getProjects(req, res, next) {
 	logger.log({
-		message:'User(s) get called.',
-		func:'get', obj:'UserCtrl'
+		description: 'User(s) get called.',
+		func:'getProjects', obj:'UserCtrl'
 	});
   if(!req.params.username){
-    return res.status(400).send('Username is required to get projects');
+    return res.status(400).json({message: 'Username is required to get projects'});
   }
   const { username } = req.params;
 	logger.debug({
-		message:'Get user called with username.',
-		username, func:'get', obj:'UserCtrl', time: Date.now()
+		description: 'Get user called with username.',
+		username, func:'getProjects', obj:'UserCtrl', time: Date.now()
 	});
   findByUsername(username).then(user => {
     logger.info({
-  		message:'User found.',
+  		description: 'User found.',
   		user, func:'getProjects', obj:'UserCtrl',
       time: Date.now()
   	});
     findProjectsByUserId(user.id).then(projectsList => {
       logger.info({
-    		message:'Projects list found.', func:'getProjects', obj:'UserCtrl',
+    		description: 'Projects list found.', func:'getProjects', obj:'UserCtrl',
         time: Date.now()
     	});
       res.json(projectsList);
     }, error => {
       logger.error({
-    		message:'Error getting projects by id.', error,
+    		description: 'Error getting projects by id.', error,
     		func:'getProjects', obj:'UserCtrl'
     	});
-      res.status(400).json({message: 'Error getting projects.'});
+      res.status(400).json({message:  'Error getting projects.'});
     });
   }, error => {
     logger.error({
-      message:'Error find user by username.', username, error,
+      description: 'Error find user by username.', username, error,
       func:'getProjects', obj:'UserCtrl'
     });
-    res.status(400).json({message: 'Error finding user'});
+    res.status(400).json({message:  'Error finding user'});
   });
 };
