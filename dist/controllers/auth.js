@@ -54,9 +54,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "name": "John",
- *       "title": "Doe",
- *     	 "role":"admin",
+ *       user: {
+ *         "name": "John Doe",
+ *         "username": "someguy1",
+ *     	   "email": "test@test.com",
+ *       },
+ *       token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InNjb3R0NSIsImdyb3VwcyI6W10sInNlc3Npb25JZCI6IjU2YTVhYTkxMWMxNjljYTgwZTQyOWE5ZSIsInVzZXJJZCI6IjU2YTVhYTkxMWMxNjljYTgwZTQyOWE5ZCIsImlhdCI6MTQ1MzY5NzY4MX0.USXvRAjcHj44amw_NqjcnVUMGQMB6R3efWpvC6HtCyY"
  *     }
  *
  */
@@ -70,6 +73,7 @@ function signup(req, res, next) {
 	var _req$body = req.body;
 	var username = _req$body.username;
 	var email = _req$body.email;
+	var name = _req$body.name;
 	//Check for username or email
 
 	if (!username || !email) {
@@ -78,18 +82,20 @@ function signup(req, res, next) {
 			message: 'Username and Email are required to signup'
 		});
 	}
-	var account = new Account(req.body);
-	// TODO: Start a session with new account
-	account.signup(req.body).then(function (newAccount) {
+	var user = new _user.User({ username: username, email: email, name: name });
+	// TODO: Start a session with new user
+	user.signup(req.body).then(function (newUser) {
 		_logger2.default.debug({
-			description: 'New account created successfully.', newAccount: newAccount,
+			description: 'New user created successfully.', newUser: newUser,
 			func: 'signup', obj: 'AuthCtrls'
 		});
-		res.send(newAccount);
+		res.send(newUser);
 	}, function (error) {
-		res.status(500).json({
-			message: 'Error creating new Account.'
+		_logger2.default.error({
+			description: 'Error signing up.', error: error,
+			func: 'signup', obj: 'AuthCtrls'
 		});
+		res.status(500).json(error);
 	});
 };
 

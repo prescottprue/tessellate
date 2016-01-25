@@ -145,7 +145,7 @@ UserSchema.methods = {
 		//Check password
 		if (!this.password) {
 			_logger2.default.error({
-				description: 'Account does not include password. Do you need to get the account first?',
+				description: 'User does not include password. Do you need to get the user first?',
 				func: 'login', obj: 'User'
 			});
 			return Promise.reject({
@@ -214,7 +214,7 @@ UserSchema.methods = {
 	signup: function signup(signupData) {
 		_logger2.default.debug({
 			description: 'Signup called.',
-			signupData: signupData, func: 'Signup', obj: 'Account'
+			signupData: signupData, func: 'Signup', obj: 'User'
 		});
 		var email = signupData.email;
 		var username = signupData.username;
@@ -233,26 +233,18 @@ UserSchema.methods = {
 		if (provider) {
 			findObj.provider = provider;
 		}
-		return Account.findOne(findObj).then(function (matchingAccount) {
-			if (matchingAccount) {
-				//Matching account already exists
-				// TODO: Respond with a specific error code
-				return Promise.reject('Account with this information already exists.');
-			}
-			var account = new Account(signupData);
-			//Provider signup
-			if (provider) {
-				return account.createWithProvider();
-			}
-			//Password signup
-			return account.createWithPass(password);
-		}, function (error) {
-			_logger2.default.error({
-				description: 'Error querying for account.',
-				error: error, func: 'signup', obj: 'Account'
-			});
-			return Promise.reject({ message: 'Error finding matching account.' });
+		var User = this.model('User');
+		var user = new User({ username: username, email: email, name: name });
+		_logger2.default.debug({
+			description: 'Userobject created calling.',
+			user: user, func: 'Signup', obj: 'User'
 		});
+		//Provider signup
+		if (provider) {
+			return user.createWithProvider();
+		}
+		//Password signup
+		return user.createWithPass(password);
 	},
 	/**
   * @function comparePassword
@@ -407,7 +399,11 @@ UserSchema.methods = {
   * @param {string} password - Password with which to create user
   * @param {string} project - Application with which to create user
   */
-	createWithPass: function createWithPass(password, application) {
+	createWithPass: function createWithPass(password, project) {
+		_logger2.default.debug({
+			description: 'Create with pass called.',
+			func: 'createWithPass', obj: 'User'
+		});
 		if (!this.username) {
 			_logger2.default.warn({
 				description: 'Username is required to create a new user.',
@@ -420,7 +416,7 @@ UserSchema.methods = {
 		if (!password || !(0, _lodash.isString)(password)) {
 			_logger2.default.error({
 				description: 'Invalid password.',
-				password: password, func: 'createWithPass', obj: 'Account'
+				password: password, func: 'createWithPass', obj: 'User'
 			});
 			return Promise.reject({
 				message: 'Invalid password.'
@@ -437,8 +433,7 @@ UserSchema.methods = {
 			});
 		}
 		var self = this;
-		var query = this.model('User').findOne(findObj);
-		return query.then(function (foundUser) {
+		return this.model('User').findOne(findObj).then(function (foundUser) {
 			if (foundUser) {
 				_logger2.default.warn({
 					description: 'A user with provided username already exists',
@@ -459,10 +454,9 @@ UserSchema.methods = {
 				return self.save().then(function (newUser) {
 					_logger2.default.log({
 						description: 'New user created successfully.',
-						newUser: newUser,
-						func: 'createWithPass', obj: 'User'
+						newUser: newUser, func: 'createWithPass', obj: 'User'
 					});
-					return newUser;
+					return newUser.login(password);
 				}, function (error) {
 					_logger2.default.error({
 						description: 'Error creating new user.',
@@ -471,7 +465,7 @@ UserSchema.methods = {
 					if (error && error.code && error.code === 11000) {
 						_logger2.default.error({
 							description: 'Email is already taken.',
-							error: error, func: 'createWithPass', obj: 'Account'
+							error: error, func: 'createWithPass', obj: 'User'
 						});
 						return Promise.reject({
 							message: 'Email is associated with an existing user.',
@@ -483,21 +477,21 @@ UserSchema.methods = {
 			}, function (error) {
 				_logger2.default.error({
 					description: 'Error hashing password.',
-					error: error, func: 'createWithPass', obj: 'Account'
+					error: error, func: 'createWithPass', obj: 'User'
 				});
 				return Promise.reject(error);
 			});
 		}, function (error) {
 			_logger2.default.error({
-				description: 'Error searching for matching account.',
-				error: error, func: 'createWithPass', obj: 'Account'
+				description: 'Error searching for matching user.',
+				error: error, func: 'createWithPass', obj: 'User'
 			});
 			return Promise.reject(error);
 		});
 	},
 	createWithProvider: function createWithProvider(project) {
 		_logger2.default.debug({
-			description: 'Create with provider called.', this: this, project: project,
+			description: 'Create with provider called.', project: project,
 			func: 'createWithProvider', obj: 'User'
 		});
 		if (!this.username) {
@@ -565,37 +559,37 @@ UserSchema.methods = {
 	startSession: function startSession() {
 		_logger2.default.log({
 			description: 'Start session called.',
-			func: 'startSession', obj: 'Account'
+			func: 'startSession', obj: 'User'
 		});
-		var session = new _session.Session({ accountId: this._id });
+		var session = new _session.Session({ userId: this._id });
 		return session.save().then(function (newSession) {
 			if (!newSession) {
 				_logger2.default.error({
 					description: 'New session was not created.',
-					func: 'startSession', obj: 'Account'
+					func: 'startSession', obj: 'User'
 				});
 				return Promise.reject({ message: 'Session could not be started.' });
 			}
 			_logger2.default.log({
 				description: 'Session started successfully.',
-				newSession: newSession, func: 'startSession', obj: 'Account'
+				newSession: newSession, func: 'startSession', obj: 'User'
 			});
 			return newSession;
 		}, function (error) {
 			_logger2.default.error({
 				description: 'Error saving new session.', error: error,
-				func: 'startSession', obj: 'Account'
+				func: 'startSession', obj: 'User'
 			});
 			return Promise.reject(error);
 		});
 	},
 	/**
   * @function endSession
-  * @description End a current account's session. Session is kept, but "active" parameter is set to false
+  * @description End a current user's session. Session is kept, but "active" parameter is set to false
   */
 	endSession: function endSession() {
 		_logger2.default.log({
-			description: 'End session called.', func: 'endSession', obj: 'Account'
+			description: 'End session called.', func: 'endSession', obj: 'User'
 		});
 		var sessionId = this.sessionId;
 
@@ -605,26 +599,26 @@ UserSchema.methods = {
 				if (error) {
 					_logger2.default.error({
 						description: 'Error ending session.', error: error,
-						func: 'endSession', obj: 'Account'
+						func: 'endSession', obj: 'User'
 					});
 					return reject({ message: 'Error ending session.' });
 				}
 				if (affect.nModified > 0) {
 					_logger2.default.info({
 						description: 'Session ended successfully.', session: session,
-						affect: affect, func: 'endSession', obj: 'Account'
+						affect: affect, func: 'endSession', obj: 'User'
 					});
 					if (affect.nModified != 1) {
 						_logger2.default.error({
 							description: 'More than one session modified.', session: session,
-							affect: affect, func: 'endSession', obj: 'Account'
+							affect: affect, func: 'endSession', obj: 'User'
 						});
 					}
 					return resolve(session);
 				}
 				_logger2.default.warn({
 					description: 'Affect number in session.', func: 'endSession',
-					affect: affect, session: session, obj: 'Account'
+					affect: affect, session: session, obj: 'User'
 				});
 				resolve({ id: sessionId });
 			});
@@ -637,12 +631,12 @@ UserSchema.methods = {
 	hashPassword: function hashPassword(password) {
 		_logger2.default.log({
 			description: 'Hashing password.',
-			func: 'hashPassword', obj: 'Account'
+			func: 'hashPassword', obj: 'User'
 		});
 		if (!password || !(0, _lodash.isString)(password) || password.length < 0) {
 			_logger2.default.log({
 				description: 'Valid password is required to hash.',
-				password: password, func: 'hashPassword', obj: 'Account'
+				password: password, func: 'hashPassword', obj: 'User'
 			});
 			return Promise.reject('Valid password is required to hash.');
 		}
@@ -651,22 +645,22 @@ UserSchema.methods = {
 				if (error) {
 					_logger2.default.log({
 						description: 'Error generating salt',
-						error: error, func: 'hashPassword', obj: 'Account'
+						error: error, func: 'hashPassword', obj: 'User'
 					});
 					return reject(error);
 				}
 				_bcryptNodejs2.default.hash(password, salt, null, function (error, hash) {
-					//Add hash to accountData
+					//Add hash to userData
 					if (error) {
 						_logger2.default.log({
 							description: 'Error Hashing password.',
-							error: error, func: 'hashPassword', obj: 'Account'
+							error: error, func: 'hashPassword', obj: 'User'
 						});
 						return reject(error);
 					}
 					_logger2.default.debug({
 						description: 'Password hash successful.',
-						func: 'hashPassword', obj: 'Account'
+						func: 'hashPassword', obj: 'User'
 					});
 					resolve(hash);
 				});

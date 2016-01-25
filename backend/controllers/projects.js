@@ -2,9 +2,7 @@
  * @description Project Controller
  */
 
-
-import _ from 'lodash';
-import { each, has, keys, find } from 'lodash';
+import { each, has, keys, find, isObject } from 'lodash';
 import logger from '../utils/logger';
 import { Project } from '../models/project';
 import { User } from '../models/user';
@@ -57,9 +55,8 @@ import authUtil from '../utils/auth';
 export function get(req, res, next) {
 	const { username } = req.body;
 	if(!req.user && !username){
-		return res.status(400).json('Username and Token are required');
+		return res.status(400).json({message: 'Username and Token are required'});
 	}
-	let isList = true;
 	let findObj = {};
 	const { name } = req.params;
 	if(name){ //Get data for a specific project
@@ -68,7 +65,6 @@ export function get(req, res, next) {
 			func: 'get', obj: 'ProjectsCtrls'
 		});
 		findObj.name = name;
-		isList = false;
 	} else {
 		//Find projects that current user as owner or as a collaborator
 		if(req.user){
@@ -89,7 +85,7 @@ export function get(req, res, next) {
 				description: 'Error finding Project(s).',
 				func: 'get', obj: 'ProjectsCtrls'
 			});
-			return res.status(400).json({message: 'Project(s) could not be found.'});
+			return res.status(400).json({message: 'Project(s) could not be found.', status: 'NOT_FOUND'});
 		}
 		logger.log({
 			description: 'Project(s) found.',
@@ -101,7 +97,7 @@ export function get(req, res, next) {
 			description: 'Error getting project(s):',
 			error, func: 'get', obj: 'ProjectsCtrls'
 		});
-		res.status(500).json({message: 'Error getting Project(s).'});
+		res.status(500).json({message: 'Error getting Project(s).', status: 'SERVER_ERROR'});
 	});
 };
 /**
@@ -218,6 +214,10 @@ export function add(req, res, next) {
 					description: 'Project created successfully.',
 					newProject, func: 'add', obj: 'Project'
 				});
+				//TODO: Correctly populate project
+				if(newProject.owner && !isObject(newProject.owner)){
+					newProject.owner = { id: userId, username};
+				}
 				res.json(newProject);
 			}, error => {
 				logger.error({

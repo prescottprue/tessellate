@@ -1,5 +1,7 @@
 "use strict";
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 module.exports = {
 	envName: 'development',
 	db: {
@@ -27,7 +29,7 @@ module.exports = {
 			redirectUrl: process.env.TESSELLATE_GOOGLE_REDIRECT_URL || 'http://localhost:3000/oauth2callback'
 		}
 	},
-	authEnabled: true,
+	authEnabled: typeof process.env.AUTH_ENABLED !== 'undefined' ? _typeof(process.env.AUTH_ENABLED) : true,
 	authRocket: {
 		enabled: false,
 		secret: process.env.AUTHROCKET_JWT_SECRET

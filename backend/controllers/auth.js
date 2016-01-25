@@ -26,9 +26,12 @@ import config from '../config/default';
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "name": "John",
- *       "title": "Doe",
- *     	 "role":"admin",
+ *       user: {
+ *         "name": "John Doe",
+ *         "username": "someguy1",
+ *     	   "email": "test@test.com",
+ *       },
+ *       token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InNjb3R0NSIsImdyb3VwcyI6W10sInNlc3Npb25JZCI6IjU2YTVhYTkxMWMxNjljYTgwZTQyOWE5ZSIsInVzZXJJZCI6IjU2YTVhYTkxMWMxNjljYTgwZTQyOWE5ZCIsImlhdCI6MTQ1MzY5NzY4MX0.USXvRAjcHj44amw_NqjcnVUMGQMB6R3efWpvC6HtCyY"
  *     }
  *
  */
@@ -36,7 +39,7 @@ export function signup(req, res, next) {
 	logger.debug({
 		description: 'Signup request.', func: 'signup', obj: 'AuthCtrls'
 	});
-	const { username, email } = req.body;
+	const { username, email, name } = req.body;
 	//Check for username or email
 	if(!username || !email){
 		return res.status(400).json({
@@ -44,18 +47,20 @@ export function signup(req, res, next) {
 			message: 'Username and Email are required to signup'
 		});
 	}
-	let account = new Account(req.body);
-	// TODO: Start a session with new account
-	account.signup(req.body).then(newAccount => {
+	let user = new User({ username, email, name });
+	// TODO: Start a session with new user
+	user.signup(req.body).then(newUser => {
 		logger.debug({
-			description: 'New account created successfully.', newAccount,
+			description: 'New user created successfully.', newUser,
 			func: 'signup', obj: 'AuthCtrls'
 		});
-		res.send(newAccount);
+		res.send(newUser);
 	}, error => {
-		res.status(500).json({
-			message:'Error creating new Account.'
+		logger.error({
+			description: 'Error signing up.', error,
+			func: 'signup', obj: 'AuthCtrls'
 		});
+		res.status(500).json(error);
 	});
 };
 

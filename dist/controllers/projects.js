@@ -25,8 +25,6 @@ exports.findProjectsByUserId = findProjectsByUserId;
 
 var _lodash = require('lodash');
 
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _logger = require('../utils/logger');
 
 var _logger2 = _interopRequireDefault(_logger);
@@ -87,13 +85,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *     }
  */
 
+/**
+ * @description Project Controller
+ */
+
 function get(req, res, next) {
 	var username = req.body.username;
 
 	if (!req.user && !username) {
-		return res.status(400).json('Username and Token are required');
+		return res.status(400).json({ message: 'Username and Token are required' });
 	}
-	var isList = true;
 	var findObj = {};
 	var name = req.params.name;
 
@@ -104,7 +105,6 @@ function get(req, res, next) {
 			func: 'get', obj: 'ProjectsCtrls'
 		});
 		findObj.name = name;
-		isList = false;
 	} else {
 		//Find projects that current user as owner or as a collaborator
 		if (req.user) {
@@ -121,7 +121,7 @@ function get(req, res, next) {
 				description: 'Error finding Project(s).',
 				func: 'get', obj: 'ProjectsCtrls'
 			});
-			return res.status(400).json({ message: 'Project(s) could not be found.' });
+			return res.status(400).json({ message: 'Project(s) could not be found.', status: 'NOT_FOUND' });
 		}
 		_logger2.default.log({
 			description: 'Project(s) found.',
@@ -133,13 +133,9 @@ function get(req, res, next) {
 			description: 'Error getting project(s):',
 			error: error, func: 'get', obj: 'ProjectsCtrls'
 		});
-		res.status(500).json({ message: 'Error getting Project(s).' });
+		res.status(500).json({ message: 'Error getting Project(s).', status: 'SERVER_ERROR' });
 	});
-} /**
-   * @description Project Controller
-   */
-
-;
+};
 /**
  * @api {get} /projects Get Project's provider data
  * @apiDescription Get a specific project's data or a list of projects.
@@ -260,6 +256,10 @@ function add(req, res, next) {
 					description: 'Project created successfully.',
 					newProject: newProject, func: 'add', obj: 'Project'
 				});
+				//TODO: Correctly populate project
+				if (newProject.owner && !(0, _lodash.isObject)(newProject.owner)) {
+					newProject.owner = { id: userId, username: username };
+				}
 				res.json(newProject);
 			}, function (error) {
 				_logger2.default.error({
