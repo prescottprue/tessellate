@@ -1,0 +1,23 @@
+{% extends '../layouts/default.html' %}
+
+{% block main %}
+  <h1>{{ title }}</h1>
+{% endblock %}
+
+{% block content %}
+
+  <a href="/auth/github">
+    <img src="/img/github.png" alt="github auth">
+  </a>
+  <a href="/auth/google">
+    <img src="/img/google.png" alt="google auth">
+  </a>
+
+  <br>
+  <h2>OR</h2>
+  <br>
+
+  <div class="login">
+    {% block auth %}{% endblock %}
+  </div>
+{% endblock %}
