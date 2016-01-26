@@ -172,10 +172,28 @@ UserSchema.statics = {
    */
 
   load: function (options, cb) {
-    options.select = options.select || 'name username';
+    options.select = options.select || 'name username email';
     return this.findOne(options.criteria)
       .select(options.select)
       .exec(cb);
+  },
+
+  /**
+   * List projects
+   *
+   * @param {Object} options
+   * @api private
+   */
+
+  list: function (options) {
+    const criteria = options.criteria || {};
+    const page = options.page || 0;
+    const limit = options.limit || 30;
+    return this.find(criteria)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(limit * page)
+      .exec();
   }
 };
 

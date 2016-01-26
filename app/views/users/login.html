@@ -1,7 +1,7 @@
 {% extends 'auth.html' %}
 
 {% block auth %}
-  <form action="/users/session" method="post" role="form" class="form-horizontal">
+  <form action="/login" method="post" role="form" class="form-horizontal">
     <input type="hidden" name="_csrf" value="{{ csrf_token }}">
 
     <p class="col-sm-offset-2 error">

@@ -8,6 +8,7 @@
 // set the NODE_PATH to be ./app/controllers (package.json # scripts # start)
 
 const users = require('../app/controllers/users');
+const user = require('../app/controllers/users');
 const projects = require('../app/controllers/projects');
 const comments = require('../app/controllers/comments');
 const tags = require('../app/controllers/tags');
@@ -17,6 +18,7 @@ const auth = require('./middlewares/authorization');
  * Route middlewares
  */
 
+const userAuth = [auth.requiresLogin, auth.user.hasAuthorization];
 const projectAuth = [auth.requiresLogin, auth.project.hasAuthorization];
 const commentAuth = [auth.requiresLogin, auth.comment.hasAuthorization];
 
@@ -30,13 +32,11 @@ module.exports = function (app, passport) {
   app.get('/login', users.login);
   app.get('/signup', users.signup);
   app.get('/logout', users.logout);
-  app.post('/users', users.create);
-  app.post('/users/session',
+  app.post('/login',
     passport.authenticate('local', {
       failureRedirect: '/login',
       failureFlash: 'Invalid email or password.'
     }), users.session);
-  app.get('/users/:username', users.show);
   app.get('/auth/google',
     passport.authenticate('google', {
       failureRedirect: '/login',
@@ -51,6 +51,11 @@ module.exports = function (app, passport) {
     }), users.authCallback);
 
   app.param('username', users.load);
+
+  app.post('/users', users.create);
+  app.get('/users', users.index);
+  app.get('/users/:username', users.show);
+  app.delete('/users', users.destroy);
 
   // project routes
   app.param('id', projects.load);
@@ -95,9 +100,6 @@ module.exports = function (app, passport) {
 
   // assume 404 since no middleware responded
   app.use(function (req, res) {
-    res.status(404).render('404', {
-      url: req.originalUrl,
-      error: 'Not found'
-    });
+    res.status(404).json({message: 'Invalid request'});
   });
 };
