@@ -75,13 +75,12 @@ exports.destroy = wrap(function* (req, res) {
   res.json({message: 'User deleted successfully'});
 });
 
-exports.signin = function () {};
-
 /**
  * Auth callback
  */
 
 exports.authCallback = login;
+exports.signin = function(){};
 
 /**
  * Show login form
@@ -119,7 +118,10 @@ exports.logout = function (req, res) {
 
 exports.session = (err, user, errData) => {
   console.log('session called..', err, user, errData);
-  return errData;
+  if(err || !user){
+    return errData;
+  }
+  return user;
 };
 
 /**

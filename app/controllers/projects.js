@@ -11,7 +11,7 @@ const only = require('only');
 const Project = mongoose.model('Project');
 
 /**
- * Load
+ * Load project
  */
 
 exports.load = wrap(function* (req, res, next, projectName) {
@@ -21,7 +21,7 @@ exports.load = wrap(function* (req, res, next, projectName) {
 });
 
 /**
- * List
+ * List projects
  */
 
 exports.index = wrap(function* (req, res) {
@@ -44,7 +44,7 @@ exports.index = wrap(function* (req, res) {
 });
 
 /**
- * New project
+ * New project page
  */
 
 exports.new = function (req, res){
@@ -73,7 +73,7 @@ exports.create = wrap(function* (req, res) {
 });
 
 /**
- * Edit an project
+ * Edit page
  */
 
 exports.edit = function (req, res) {
@@ -95,7 +95,9 @@ exports.update = wrap(function* (req, res){
 
   assign(project, only(req.body, 'title body tags'));
   yield project.uploadAndSave(images);
-  res.redirect('/projects/' + project._id);
+  // Redirect to projects page
+  // res.redirect('/projects/' + project._id);
+    res.json(project);
 });
 
 /**
@@ -111,11 +113,10 @@ exports.show = function (req, res){
 };
 
 /**
- * Delete an project
+ * Get a project
  */
 
 exports.get = function (req, res){
-  console.log('project', req.project);
   res.json(req.project);
 };
 
@@ -125,8 +126,14 @@ exports.get = function (req, res){
 
 exports.destroy = wrap(function* (req, res) {
   if(req.project.owner && req.project.owner != req.user._id){
-    return res.status(400).json({message: 'You are not the project owner'});
+    return res.status(400).json({
+      message: 'You are not the project owner',
+      status: 'NOT_OWNER'
+    });
   }
   yield req.project.remove();
-  res.json({message: 'Project deleted successfully'});
+  res.json({
+    message: 'Project deleted successfully',
+    status: 'SUCCESS'
+  });
 });

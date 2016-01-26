@@ -8,7 +8,7 @@
 // set the NODE_PATH to be ./app/controllers (package.json # scripts # start)
 
 const users = require('../app/controllers/users');
-const user = require('../app/controllers/users');
+const userCtrl = require('../app/controllers/user');
 const projects = require('../app/controllers/projects');
 const comments = require('../app/controllers/comments');
 const tags = require('../app/controllers/tags');
@@ -55,20 +55,24 @@ module.exports = function (app, passport) {
       failureRedirect: '/login'
     }), users.authCallback);
 
-  app.get('/user', users.load);
+  //User routes
+  app.get('/user', userCtrl.index);
+  app.get('/user/projects', userCtrl.projects);
+
   //Users routes
   app.param('username', users.load);
   app.get('/users', users.index);
   app.get('/users/:username', users.show);
   app.delete('/users/:username', users.destroy);
 
-  // project routes
+  // projects routes
   app.param('projectName', projects.load);
   app.get('/projects', projects.index);
   app.get('/projects/:projectName/edit', projectAuth, projects.edit);
   app.put('/projects/:projectName', projectAuth, projects.update);
   app.delete('/projects/:projectName', projectAuth, projects.destroy);
-  
+
+  // users routes
   app.get('/users/:username/projects', auth.requiresLogin, projects.index);
   app.post('/users/:username/projects', auth.requiresLogin, projects.create);
   app.get('/users/:username/projects/:projectName', projects.index);
@@ -76,12 +80,6 @@ module.exports = function (app, passport) {
 
   // home route
   app.get('/', projects.index);
-
-  // comment routes
-  app.param('commentId', comments.load);
-  app.post('/projects/:id/comments', auth.requiresLogin, comments.create);
-  app.get('/projects/:id/comments', auth.requiresLogin, comments.create);
-  app.delete('/projects/:id/comments/:commentId', commentAuth, comments.destroy);
 
   /**
    * Error handling

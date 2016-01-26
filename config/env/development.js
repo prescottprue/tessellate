@@ -26,6 +26,7 @@ if (fs.existsSync(envFile)) {
 module.exports = {
   envName: 'development',
   db: process.env.TESSELLATE_DEV_MONGO || 'mongodb://localhost/tessellate',
+  jwtSecret: process.env.TESSELLATE_JWT_SECRET || process.env.JWT_SECRET,
   google: {
     clientID: process.env.TESSELLATE_GOOGLE_CLIENTID || process.env.GOOGLE_CLIENTID,
     clientSecret: process.env.TESSELLATE_GOOGLE_SECRET || process.env.GOOGLE_SECRET,

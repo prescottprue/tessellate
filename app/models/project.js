@@ -7,10 +7,6 @@
 const mongoose = require('mongoose');
 const notify = require('../mailer');
 
-// const Imager = require('imager');
-// const config = require('../../config/config');
-// const imagerConfig = require(config.root + '/config/imager.js');
-
 const Schema = mongoose.Schema;
 
 const getTags = tags => tags.join(',');
@@ -34,28 +30,10 @@ const ProjectSchema = new Schema({
 ProjectSchema.path('name').required(true, 'Project name cannot be blank');
 
 /**
- * Pre-save hook
- */
-
-// ProjectSchema.pre('save', function (next) {
-//   if (!this.isNew) return next(new Error('Project is not new.'));
-//   next()
-// });
-
-
-/**
  * Pre-remove hook
  */
 
 ProjectSchema.pre('remove', function (next) {
-  // const imager = new Imager(imagerConfig, 'S3');
-  // const files = this.image.files;
-
-  // if there are files associated with the item, remove from the cloud too
-  // imager.remove(files, function (err) {
-  //   if (err) return next(err);
-  // }, 'project');
-
   next();
 });
 
@@ -66,41 +44,13 @@ ProjectSchema.pre('remove', function (next) {
 ProjectSchema.methods = {
 
   /**
-   * Save project and upload image
+   * Add collaborator
    *
-   * @param {Object} images
+   * @param {Object|String} user - User object of user to add as collaborator
    * @api private
    */
 
-  uploadAndSave: function (images) {
-    const err = this.validateSync();
-    if (err && err.toString()) throw new Error(err.toString());
-    // this.load({owner: this.username, })
-    return this.save();
-
-    /*
-    if (images && !images.length) return this.save();
-    const imager = new Imager(imagerConfig, 'S3');
-
-    imager.upload(images, function (err, cdnUri, files) {
-      if (err) return cb(err);
-      if (files.length) {
-        self.image = { cdnUri : cdnUri, files : files };
-      }
-      self.save(cb);
-    }, 'project');
-    */
-  },
-
-  /**
-   * Add comment
-   *
-   * @param {User} user
-   * @param {Object} comment
-   * @api private
-   */
-
-  addCollaborator: function (user, comment) {
+  addCollaborator: function (user) {
     this.collaborators.push(user._id);
 
     if (!this.user.email) this.user.email = 'email@product.com';
@@ -109,19 +59,19 @@ ProjectSchema.methods = {
   },
 
   /**
-   * Remove comment
+   * Remove collaborator
    *
-   * @param {commentId} String
+   * @param {String} userId - Id of user to remove from collaborators
    * @api private
    */
 
-  removeComment: function (commentId) {
-    const index = this.comments
-      .map(comment => comment.id)
-      .indexOf(commentId);
+  removeCollaborator: function (userId) {
+    const index = this.collaborators
+      .map(user => user.id)
+      .indexOf(userId);
 
     if (~index) this.comments.splice(index, 1);
-    else throw new Error('Comment not found');
+    else throw new Error('Collaborator not found');
     return this.save();
   }
 };
@@ -158,7 +108,7 @@ ProjectSchema.statics = {
     const page = options.page || 0;
     const limit = options.limit || 30;
     return this.find(criteria)
-      .populate('user', 'name username')
+      .populate('owner', 'name username email')
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(limit * page)

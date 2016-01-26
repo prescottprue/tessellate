@@ -6,6 +6,9 @@
 
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const only = require('only');
+const config = require('./../../config/config');
+const jwt = require('jsonwebtoken');
 
 const Schema = mongoose.Schema;
 const oAuthTypes = [
@@ -154,7 +157,32 @@ UserSchema.methods = {
 
   skipValidation: function () {
     return ~oAuthTypes.indexOf(this.provider);
-  }
+  },
+
+  /**
+   * Authenticate - check if the passwords are the same
+   *
+   * @param {String} plainText
+   * @return {Boolean}
+   * @api public
+   */
+
+  createAuthToken: function () {
+    try {
+			const tokenData = this.tokenData();
+			const token = jwt.sign(tokenData, config.jwtSecret);
+			console.log({
+				description: 'Token generated.', token,
+				func: 'generateToken', obj: 'User'
+			});
+      return this.authToken = token;
+		} catch (error) {
+			console.log({
+				description: 'Error generating token.',
+				error, func: 'generateToken', obj: 'User'
+			});
+		}
+  },
 };
 
 /**
@@ -194,6 +222,16 @@ UserSchema.statics = {
       .limit(limit)
       .skip(limit * page)
       .exec();
+  },
+
+  /**
+   * Get data for token
+   *
+   * @api private
+   */
+
+  tokenData() {
+    return only(this, '_id username email provider');
   }
 };
 
