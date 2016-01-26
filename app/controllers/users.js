@@ -117,7 +117,10 @@ exports.logout = function (req, res) {
  * Session
  */
 
-exports.session = login;
+exports.session = (req, res) => {
+  console.log('req.profile', req);
+  res.json(req.profile);
+};
 
 /**
  * Login
