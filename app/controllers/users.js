@@ -53,7 +53,8 @@ exports.create = wrap(function* (req, res) {
   yield user.save();
   req.logIn(user, err => {
     if (err) req.flash('info', 'Sorry! We are not able to log you in!');
-    return res.redirect('/');
+    // return res.redirect('/');
+    req.json(user);
   });
 });
 
@@ -109,7 +110,8 @@ exports.signup = function (req, res) {
 
 exports.logout = function (req, res) {
   req.logout();
-  res.redirect('/login');
+  res.json({message: 'Logout successful.'});
+  // res.redirect('/login');
 };
 
 /**

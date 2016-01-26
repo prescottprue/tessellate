@@ -10,6 +10,7 @@ const compression = require('compression');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 // const csrf = require('csurf');
@@ -22,7 +23,6 @@ const winston = require('winston');
 const helpers = require('view-helpers');
 const config = require('./config');
 const pkg = require('../package.json');
-
 const env = process.env.NODE_ENV || 'development';
 
 /**
@@ -107,7 +107,8 @@ module.exports = function (app, passport) {
 
   // should be declared after session and flash
   app.use(helpers(pkg.name));
-
+  
+  app.use(cors());
   //Cross Site Request Forgery
   // if (env !== 'test') {
   //   app.use(csrf());

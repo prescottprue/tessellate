@@ -35,14 +35,15 @@ exports.index = wrap(function* (req, res) {
   };
 
   const projects = yield Project.list(options);
-  const count = yield Project.count();
-
-  res.json({
-    title: 'Projects',
-    projects: projects,
-    page: page + 1,
-    pages: Math.ceil(count / limit)
-  });
+  // Response with page data
+  // const count = yield Project.count();
+  // res.json({
+  //   title: 'Projects',
+  //   projects: projects,
+  //   page: page + 1,
+  //   pages: Math.ceil(count / limit)
+  // });
+  res.json(projects);
 });
 
 /**
@@ -97,9 +98,7 @@ exports.update = wrap(function* (req, res){
 
   assign(project, only(req.body, 'title body tags'));
   yield project.uploadAndSave(images);
-  // Redirect to projects page
-  // res.redirect('/projects/' + project._id);
-    res.json(project);
+  res.json(project);
 });
 
 /**

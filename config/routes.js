@@ -32,16 +32,18 @@ module.exports = function (app, passport) {
   // app.get('/login', users.login); //Login page
   // app.get('/signup', users.signup); //Signup page
   // app.get('/logout', users.logout); //Logout Page
-
-  app.post('/signup', users.create);
-  app.post('/login', function(req, res, next) {
+  function loginReq(req, res, next) {
     passport.authenticate('local', function(err, user, info) {
       if(err || !user){
         return res.status(400).json(info);
       }
-      res.json(info);
+      const token = user.createAuthToken();
+      res.json({ user, token });
     })(req, res, next);
-  });
+  }
+  app.post('/signup', users.create);
+  app.post('/login', loginReq);
+  app.put('/login', loginReq);
   app.get('/auth/google',
     passport.authenticate('google', {
       failureRedirect: '/login',
@@ -69,13 +71,15 @@ module.exports = function (app, passport) {
   app.param('projectName', projects.load);
   app.get('/projects', projects.index);
   app.get('/projects/:projectName', projects.get);
-  app.get('/projects/:projectName/edit', projectAuth, projects.edit);
-  app.put('/projects/:projectName', projectAuth, projects.update);
-  app.delete('/projects/:projectName', projectAuth, projects.destroy);
+  // app.get('/projects/:projectName/edit', projectAuth, projects.edit);
+  app.get('/projects/:projectName/edit', projects.edit);
+  app.put('/projects/:projectName', projects.update);
+  app.delete('/projects/:projectName', projects.destroy);
 
   // users routes
-  app.get('/users/:username/projects', auth.requiresLogin, projects.index);
-  app.post('/users/:username/projects', auth.requiresLogin, projects.create);
+  // app.get('/users/:username/projects', auth.requiresLogin, projects.index);
+  app.get('/users/:username/projects', projects.index);
+  app.post('/users/:username/projects', projects.create);
   app.get('/users/:username/projects/:projectName', projects.index);
   app.delete('/users/:username/projects/:projectName', projects.destroy);
 

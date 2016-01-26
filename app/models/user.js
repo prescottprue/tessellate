@@ -169,17 +169,17 @@ UserSchema.methods = {
 
   createAuthToken: function () {
     try {
-			const tokenData = this.tokenData();
+			const tokenData = only(this, '_id username email provider');
 			const token = jwt.sign(tokenData, config.jwtSecret);
 			console.log({
-				description: 'Token generated.', token,
-				func: 'generateToken', obj: 'User'
+				description: 'Token generated.',
+				func: 'createAuthToken', obj: 'User'
 			});
       return this.authToken = token;
 		} catch (error) {
 			console.log({
 				description: 'Error generating token.',
-				error, func: 'generateToken', obj: 'User'
+				error, func: 'createAuthToken', obj: 'User'
 			});
 		}
   },
@@ -222,16 +222,6 @@ UserSchema.statics = {
       .limit(limit)
       .skip(limit * page)
       .exec();
-  },
-
-  /**
-   * Get data for token
-   *
-   * @api private
-   */
-
-  tokenData() {
-    return only(this, '_id username email provider');
   }
 };
 
