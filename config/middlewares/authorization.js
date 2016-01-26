@@ -30,9 +30,13 @@ exports.user = {
 
 exports.project = {
   hasAuthorization: function (req, res, next) {
-    if (req.project.user.id != req.user.id) {
-      req.flash('info', 'You are not authorized');
-      return res.redirect('/projects/' + req.project.id);
+    //TODO: Check if user is administrator
+    if (req.project.owner != req.user._id) {
+      console.log('user', req.user);
+      console.log('project', req.project);
+      return res.json({
+        message: 'Not Authorized'
+      });
     }
     next();
   }

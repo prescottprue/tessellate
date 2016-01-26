@@ -5,7 +5,8 @@
  */
 
 module.exports = {
-  db: process.env.MONGOHQ_URL,
+  envVame: 'production',
+  db: process.env.TESSELLATE_MONGO || process.env.MONGO_URL,
   google: {
     clientID: process.env.GOOGLE_CLIENTID,
     clientSecret: process.env.GOOGLE_SECRET,

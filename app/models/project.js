@@ -21,19 +21,9 @@ const setTags = tags => tags.split(',');
  */
 
 const ProjectSchema = new Schema({
-  title: { type : String, default : '', trim : true },
-  body: { type : String, default : '', trim : true },
-  user: { type : Schema.ObjectId, ref : 'User' },
-  comments: [{
-    body: { type : String, default : '' },
-    user: { type : Schema.ObjectId, ref : 'User' },
-    createdAt: { type : Date, default : Date.now }
-  }],
+  name: { type : String, default : '', trim : true },
+  owner: { type : Schema.ObjectId, ref : 'User' },
   tags: { type: [], get: getTags, set: setTags },
-  image: {
-    cdnUri: String,
-    files: []
-  },
   createdAt  : { type : Date, default : Date.now }
 });
 
@@ -41,8 +31,17 @@ const ProjectSchema = new Schema({
  * Validations
  */
 
-ProjectSchema.path('title').required(true, 'Project title cannot be blank');
-ProjectSchema.path('body').required(true, 'Project body cannot be blank');
+ProjectSchema.path('name').required(true, 'Project name cannot be blank');
+
+/**
+ * Pre-save hook
+ */
+
+// ProjectSchema.pre('save', function (next) {
+//   if (!this.isNew) return next(new Error('Project is not new.'));
+//   next()
+// });
+
 
 /**
  * Pre-remove hook
@@ -76,6 +75,7 @@ ProjectSchema.methods = {
   uploadAndSave: function (images) {
     const err = this.validateSync();
     if (err && err.toString()) throw new Error(err.toString());
+    // this.load({owner: this.username, })
     return this.save();
 
     /*
@@ -100,19 +100,10 @@ ProjectSchema.methods = {
    * @api private
    */
 
-  addComment: function (user, comment) {
-    this.comments.push({
-      body: comment.body,
-      user: user._id
-    });
+  addCollaborator: function (user, comment) {
+    this.collaborators.push(user._id);
 
     if (!this.user.email) this.user.email = 'email@product.com';
-
-    notify.comment({
-      project: this,
-      currentUser: user,
-      comment: comment.body
-    });
 
     return this.save();
   },
@@ -148,8 +139,8 @@ ProjectSchema.statics = {
    * @api private
    */
 
-  load: function (_id) {
-    return this.findOne({ _id })
+  load: function (find) {
+    return this.findOne(find)
       .populate('user', 'name email username')
       .populate('comments.user')
       .exec();

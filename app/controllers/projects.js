@@ -14,8 +14,8 @@ const Project = mongoose.model('Project');
  * Load
  */
 
-exports.load = wrap(function* (req, res, next, id) {
-  req.project = yield Project.load(id);
+exports.load = wrap(function* (req, res, next, projectName) {
+  req.project = yield Project.load({name: projectName, owner: req.params.owner});
   if (!req.project) return next(new Error('Project not found'));
   next();
 });
@@ -60,15 +60,16 @@ exports.new = function (req, res){
  */
 
 exports.create = wrap(function* (req, res) {
-  const project = new Project(only(req.body, 'title body tags'));
-  const images = req.files.image
+  const project = new Project(only(req.body, 'name collaborators'));
+  const images = (req.files && req.files.image)
     ? [req.files.image]
     : undefined;
 
-  project.user = req.user;
-  yield project.uploadAndSave(images);
-  req.flash('success', 'Successfully created project!');
-  res.redirect('/projects/' + project._id);
+  project.owner = req.user;
+  yield project.save();
+  // req.flash('success', 'Successfully created project!');
+  // res.redirect('/projects/' + project._id);
+  res.json(project);
 });
 
 /**
@@ -102,6 +103,7 @@ exports.update = wrap(function* (req, res){
  */
 
 exports.show = function (req, res){
+  //  Render project page
   res.render('projects/show', {
     title: req.project.title,
     project: req.project
@@ -112,8 +114,19 @@ exports.show = function (req, res){
  * Delete an project
  */
 
+exports.get = function (req, res){
+  console.log('project', req.project);
+  res.json(req.project);
+};
+
+/**
+ * Delete an project
+ */
+
 exports.destroy = wrap(function* (req, res) {
+  if(req.project.owner && req.project.owner != req.user._id){
+    return res.status(400).json({message: 'You are not the project owner'});
+  }
   yield req.project.remove();
-  req.flash('success', 'Deleted successfully');
-  res.redirect('/projects');
+  res.json({message: 'Project deleted successfully'});
 });

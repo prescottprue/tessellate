@@ -108,6 +108,7 @@ module.exports = function (app, passport) {
   // should be declared after session and flash
   app.use(helpers(pkg.name));
 
+  //Cross Site Request Forgery
   // if (env !== 'test') {
   //   app.use(csrf());
   //

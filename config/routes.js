@@ -29,19 +29,19 @@ const commentAuth = [auth.requiresLogin, auth.comment.hasAuthorization];
 module.exports = function (app, passport) {
 
   // user routes
-  app.get('/login', users.login);
-  app.get('/signup', users.signup);
-  app.get('/logout', users.logout);
+  // app.get('/login', users.login); //Login page
+  // app.get('/signup', users.signup); //Signup page
+  // app.get('/logout', users.logout); //Logout Page
+
+  app.post('/signup', users.create);
   app.post('/login', function(req, res, next) {
     passport.authenticate('local', function(err, user, info) {
-      console.log('final called', err, user, info);
       if(err || !user){
         return res.status(400).json(info);
       }
       res.json(info);
     })(req, res, next);
   });
-
   app.get('/auth/google',
     passport.authenticate('google', {
       failureRedirect: '/login',
@@ -55,21 +55,24 @@ module.exports = function (app, passport) {
       failureRedirect: '/login'
     }), users.authCallback);
 
+  app.get('/user', users.load);
+  //Users routes
   app.param('username', users.load);
-
-  app.post('/users', users.create);
   app.get('/users', users.index);
   app.get('/users/:username', users.show);
-  app.delete('/users', users.destroy);
+  app.delete('/users/:username', users.destroy);
 
   // project routes
-  app.param('id', projects.load);
+  app.param('projectName', projects.load);
   app.get('/projects', projects.index);
-  app.post('/projects', auth.requiresLogin, projects.create);
-  app.get('/projects/:id', projects.show);
-  app.get('/projects/:id/edit', projectAuth, projects.edit);
-  app.put('/projects/:id', projectAuth, projects.update);
-  app.delete('/projects/:id', projectAuth, projects.destroy);
+  app.get('/projects/:projectName/edit', projectAuth, projects.edit);
+  app.put('/projects/:projectName', projectAuth, projects.update);
+  app.delete('/projects/:projectName', projectAuth, projects.destroy);
+  
+  app.get('/users/:username/projects', auth.requiresLogin, projects.index);
+  app.post('/users/:username/projects', auth.requiresLogin, projects.create);
+  app.get('/users/:username/projects/:projectName', projects.index);
+  app.delete('/users/:username/projects/:projectName', projects.destroy);
 
   // home route
   app.get('/', projects.index);
@@ -100,11 +103,22 @@ module.exports = function (app, passport) {
     }
 
     // error page
-    res.status(500).render('500', { error: err.stack });
+    // res.status(500).render('500', { error: err.stack });
+
+    // 500 Response
+    res.status(500).json({
+      message: 'Error.',
+      stack: err.stack,
+      code: 500
+    });
   });
 
   // assume 404 since no middleware responded
   app.use(function (req, res) {
-    res.status(404).json({message: 'Invalid request'});
+    res.status(404).json({
+      message: 'Invalid request.',
+      status: 'NOT_FOUND',
+      code: 404
+    });
   });
 };

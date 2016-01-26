@@ -45,7 +45,10 @@ connect()
 function listen () {
   if (app.get('env') === 'test') return;
   app.listen(port);
-  console.log('Express app started on port ' + port);
+  const startMsg = 'Tessellate started\n' +
+  `environment: ${config.envName}\n` +
+  `port: ${port} \n`;
+  console.log(startMsg);
 }
 
 function connect () {

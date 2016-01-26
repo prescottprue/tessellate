@@ -70,9 +70,9 @@ exports.show = function (req, res) {
  */
 
 exports.destroy = wrap(function* (req, res) {
+  console.log('user destroy called', req);
   yield req.profile.remove();
-  req.flash('success', 'Deleted successfully');
-  res.redirect('/users');
+  res.json({message: 'User deleted successfully'});
 });
 
 exports.signin = function () {};
