@@ -32,11 +32,16 @@ module.exports = function (app, passport) {
   app.get('/login', users.login);
   app.get('/signup', users.signup);
   app.get('/logout', users.logout);
-  app.post('/login',
-    passport.authenticate('local', {
-      failureRedirect: '/login',
-      failureFlash: 'Invalid email or password.'
-    }), users.session);
+  app.post('/login', function(req, res, next) {
+    passport.authenticate('local', function(err, user, info) {
+      console.log('final called', err, user, info);
+      if(err || !user){
+        return res.status(400).json(info);
+      }
+      res.json(info);
+    })(req, res, next);
+  });
+
   app.get('/auth/google',
     passport.authenticate('google', {
       failureRedirect: '/login',

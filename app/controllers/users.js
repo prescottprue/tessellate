@@ -117,9 +117,9 @@ exports.logout = function (req, res) {
  * Session
  */
 
-exports.session = (req, res) => {
-  console.log('req.profile', req);
-  res.json(req.profile);
+exports.session = (err, user, errData) => {
+  console.log('session called..', err, user, errData);
+  return errData;
 };
 
 /**
