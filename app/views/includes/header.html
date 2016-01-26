@@ -7,7 +7,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="/" class="navbar-brand">Tesselate</a>
+      <a href="/" class="navbar-brand">Tessellate</a>
     </div>
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
@@ -15,8 +15,6 @@
           <a href="/projects/new" title="new project">New</a>
         </li>
       </ul>
-
-
       <ul class="nav navbar-nav navbar-right">
         {% if (req.isAuthenticated()) %}
           <li class="{% if (isActive('/users/' + req.user.id )) %}active{% endif %}">
