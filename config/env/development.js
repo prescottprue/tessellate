@@ -24,15 +24,10 @@ if (fs.existsSync(envFile)) {
  */
 
 module.exports = {
-  db: 'mongodb://localhost/noobjs_dev',
-  github: {
-    clientID: process.env.GITHUB_CLIENTID,
-    clientSecret: process.env.GITHUB_SECRET,
-    callbackURL: 'http://localhost:3000/auth/github/callback'
-  },
+  db: process.env.TESSELLATE_DEV_MONGO || 'mongodb://localhost/tessellate',
   google: {
-    clientID: process.env.GOOGLE_CLIENTID,
-    clientSecret: process.env.GOOGLE_SECRET,
+    clientID: process.env.TESSELLATE_GOOGLE_CLIENTID || process.env.GOOGLE_CLIENTID,
+    clientSecret: process.env.TESSELLATE_GOOGLE_SECRET || process.env.GOOGLE_SECRET,
     callbackURL: 'http://localhost:3000/auth/google/callback'
   }
 };

@@ -37,14 +37,6 @@ module.exports = function (app, passport) {
       failureFlash: 'Invalid email or password.'
     }), users.session);
   app.get('/users/:username', users.show);
-  app.get('/auth/github',
-    passport.authenticate('github', {
-      failureRedirect: '/login'
-    }), users.signin);
-  app.get('/auth/github/callback',
-    passport.authenticate('github', {
-      failureRedirect: '/login'
-    }), users.authCallback);
   app.get('/auth/google',
     passport.authenticate('google', {
       failureRedirect: '/login',
@@ -77,10 +69,6 @@ module.exports = function (app, passport) {
   app.post('/projects/:id/comments', auth.requiresLogin, comments.create);
   app.get('/projects/:id/comments', auth.requiresLogin, comments.create);
   app.delete('/projects/:id/comments/:commentId', commentAuth, comments.destroy);
-
-  // tag routes
-  app.get('/tags/:tag', tags.index);
-
 
   /**
    * Error handling

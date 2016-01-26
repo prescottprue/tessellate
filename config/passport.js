@@ -24,5 +24,5 @@ module.exports = function (passport) {
   // use these strategies
   passport.use(local);
   passport.use(google);
-  passport.use(github);
+  // passport.use(github);
 };
