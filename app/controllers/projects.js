@@ -15,7 +15,9 @@ const Project = mongoose.model('Project');
  */
 
 exports.load = wrap(function* (req, res, next, projectName) {
-  req.project = yield Project.load({name: projectName, owner: req.params.owner});
+  console.log('req.user', req.user);
+  console.log('req.params', req.params);
+  req.project = yield Project.load({name: projectName, owner: req.params.username || req.user._id});
   if (!req.project) return next(new Error('Project not found'));
   next();
 });
@@ -116,9 +118,12 @@ exports.show = function (req, res){
  * Get a project
  */
 
-exports.get = function (req, res){
+exports.get = wrap(function* (req, res){
+  if(!req.project){
+    return res.json({message: 'Project not found.'});
+  }
   res.json(req.project);
-};
+});
 
 /**
  * Delete an project

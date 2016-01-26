@@ -91,7 +91,7 @@ ProjectSchema.statics = {
 
   load: function (find) {
     return this.findOne(find)
-      .populate('user', 'name email username')
+      .populate('owner', 'name email username')
       .populate('comments.user')
       .exec();
   },

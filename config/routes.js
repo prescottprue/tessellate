@@ -68,6 +68,7 @@ module.exports = function (app, passport) {
   // projects routes
   app.param('projectName', projects.load);
   app.get('/projects', projects.index);
+  app.get('/projects/:projectName', projects.get);
   app.get('/projects/:projectName/edit', projectAuth, projects.edit);
   app.put('/projects/:projectName', projectAuth, projects.update);
   app.delete('/projects/:projectName', projectAuth, projects.destroy);
