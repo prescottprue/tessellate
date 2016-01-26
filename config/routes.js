@@ -32,18 +32,11 @@ module.exports = function (app, passport) {
   // app.get('/login', users.login); //Login page
   // app.get('/signup', users.signup); //Signup page
   // app.get('/logout', users.logout); //Logout Page
-  function loginReq(req, res, next) {
-    passport.authenticate('local', function(err, user, info) {
-      if(err || !user){
-        return res.status(400).json(info);
-      }
-      const token = user.createAuthToken();
-      res.json({ user, token });
-    })(req, res, next);
-  }
+
   app.post('/signup', users.create);
   app.post('/login', loginReq);
   app.put('/login', loginReq);
+  app.put('/logout', userCtrl.logout);
   app.get('/auth/google',
     passport.authenticate('google', {
       failureRedirect: '/login',
@@ -124,4 +117,14 @@ module.exports = function (app, passport) {
       code: 404
     });
   });
+
+  function loginReq(req, res, next) {
+    passport.authenticate('local', function (err, user, info) {
+      if(err || !user){
+        return res.status(400).json(info || err);
+      }
+      const token = user.createAuthToken();
+      res.json({ user, token });
+    })(req, res, next);
+  }
 };

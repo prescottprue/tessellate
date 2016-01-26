@@ -30,3 +30,17 @@ exports.projects = wrap(function* (req, res) {
   const projects = yield Project.list({ owner: req.user._id });
   res.json(projects);
 });
+
+/**
+ * Return logged in user
+ */
+
+exports.logout = wrap(function* (req, res) {
+  console.log('logout request:', req.user);
+  // const user = yield User.load({ owner: req.user._id  });
+  // delete user.authToken;
+  // yield user.save();
+  res.json({
+    message: 'Logout successful.'
+  });
+});

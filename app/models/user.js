@@ -27,7 +27,7 @@ const UserSchema = new Schema({
   provider: { type: String, default: '' },
   hashed_password: { type: String, default: '' },
   salt: { type: String, default: '' },
-  authToken: { type: String, default: '' },
+  authToken: { type: String },
   github: {},
   google: {},
 });
