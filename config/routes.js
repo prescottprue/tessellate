@@ -27,29 +27,30 @@ const commentAuth = [auth.requiresLogin, auth.comment.hasAuthorization];
  */
 
 module.exports = function (app, passport) {
-
-  // user routes
+  //Ui Auth
   // app.get('/login', users.login); //Login page
   // app.get('/signup', users.signup); //Signup page
   // app.get('/logout', users.logout); //Logout Page
+  // app.get('/auth/google',
+  //   passport.authenticate('google', {
+  //     failureRedirect: '/login',
+  //     scope: [
+  //       'https://www.googleapis.com/auth/userinfo.profile',
+  //       'https://www.googleapis.com/auth/userinfo.email'
+  //     ]
+  //   }), users.signin);
+  // app.get('/auth/google/callback',
+  //   passport.authenticate('google', {
+  //     failureRedirect: '/login'
+  //   }), users.authCallback);
 
+  // Auth
   app.post('/signup', users.create);
   app.post('/login', loginReq);
   app.put('/login', loginReq);
   app.put('/logout', userCtrl.logout);
-  app.get('/auth/google',
-    passport.authenticate('google', {
-      failureRedirect: '/login',
-      scope: [
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/userinfo.email'
-      ]
-    }), users.signin);
-  app.get('/auth/google/callback',
-    passport.authenticate('google', {
-      failureRedirect: '/login'
-    }), users.authCallback);
-
+  app.put('/auth/google', googleReq);
+  
   //User routes
   app.get('/user', userCtrl.index);
   app.get('/user/projects', userCtrl.projects);
@@ -125,6 +126,15 @@ module.exports = function (app, passport) {
       }
       const token = user.createAuthToken();
       res.json({ user, token });
+    })(req, res, next);
+  }
+  function googleReq(req, res, next) {
+    passport.authenticate('google', function (err, user, info) {
+      if(err || !user){
+        return res.status(400).json(info || err);
+      }
+      // const token = user.createAuthToken();
+      res.json(user);
     })(req, res, next);
   }
 };

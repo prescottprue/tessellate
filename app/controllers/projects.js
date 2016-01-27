@@ -9,15 +9,15 @@ const assign = require('object-assign');
 const wrap = require('co-express');
 const only = require('only');
 const Project = mongoose.model('Project');
+const User = mongoose.model('User');
 
 /**
  * Load project
  */
 
 exports.load = wrap(function* (req, res, next, projectName) {
-  console.log('req.user', req.user);
-  console.log('req.params', req.params);
-  req.project = yield Project.load({name: projectName, owner: req.params.username || req.user._id});
+  req.owner = yield User.load({username: req.params.username});
+  req.project = yield Project.load({name: projectName, owner: req.owner._id || req.user._id});
   if (!req.project) return next(new Error('Project not found'));
   next();
 });
@@ -35,7 +35,7 @@ exports.index = wrap(function* (req, res) {
   };
 
   const projects = yield Project.list(options);
-  // Response with page data
+  // Response with pagination data
   // const count = yield Project.count();
   // res.json({
   //   title: 'Projects',
@@ -59,20 +59,22 @@ exports.new = function (req, res){
 
 /**
  * Create an project
- * Upload an image
  */
 
 exports.create = wrap(function* (req, res) {
   const project = new Project(only(req.body, 'name collaborators'));
-  const images = (req.files && req.files.image)
-    ? [req.files.image]
-    : undefined;
-
-  project.owner = req.user;
-  yield project.save();
-  // req.flash('success', 'Successfully created project!');
-  // res.redirect('/projects/' + project._id);
-  res.json(project);
+  project.owner = req.user._id;
+  try {
+    yield project.save();
+  } catch(err) {
+    console.log('error creating project', err);
+    return res.status(400).json({
+      message: 'Error creating project.',
+      error: err
+    });
+  }
+  const populatedProject = yield Project.load({ _id: project._id });
+  res.json(populatedProject);
 });
 
 /**
@@ -92,17 +94,13 @@ exports.edit = function (req, res) {
 
 exports.update = wrap(function* (req, res){
   const project = req.project;
-  const images = req.files.image
-    ? [req.files.image]
-    : undefined;
-
-  assign(project, only(req.body, 'title body tags'));
-  yield project.uploadAndSave(images);
+  assign(project, only(req.body, 'name collaborators owner'));
+  yield project.save();
   res.json(project);
 });
 
 /**
- * Show
+ * Project detail page
  */
 
 exports.show = function (req, res){
@@ -119,7 +117,10 @@ exports.show = function (req, res){
 
 exports.get = wrap(function* (req, res){
   if(!req.project){
-    return res.json({message: 'Project not found.'});
+    return res.json({
+      message: 'Project not found.',
+      status: 'NOT_FOUND'
+    });
   }
   res.json(req.project);
 });
@@ -129,13 +130,14 @@ exports.get = wrap(function* (req, res){
  */
 
 exports.destroy = wrap(function* (req, res) {
-  if(req.project.owner && req.project.owner != req.user._id){
+  if(req.project.owner && (JSON.stringify(req.project.owner._id) !== JSON.stringify(req.user._id))){
     return res.status(400).json({
       message: 'You are not the project owner',
       status: 'NOT_OWNER'
     });
   }
-  yield req.project.remove();
+  const project = req.project;
+  yield project.remove();
   res.json({
     message: 'Project deleted successfully',
     status: 'SUCCESS'

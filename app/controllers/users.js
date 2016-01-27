@@ -6,6 +6,7 @@
 
 const mongoose = require('mongoose');
 const wrap = require('co-express');
+const _ = require('lodash');
 const User = mongoose.model('User');
 const Project = mongoose.model('Project');
 
@@ -50,11 +51,20 @@ exports.index = wrap(function* (req, res) {
 exports.create = wrap(function* (req, res) {
   const user = new User(req.body);
   user.provider = 'local';
-  yield user.save();
+  try {
+    yield user.save();
+  } catch(err) {
+    var errorsList = _.map(err.errors, function(e, key){
+      return e.message || key;
+    });
+    return res.status(400).json({
+      message: 'Error signing up.', errors: errorsList
+    });
+  }
   req.logIn(user, err => {
     if (err) req.flash('info', 'Sorry! We are not able to log you in!');
     // return res.redirect('/');
-    req.json(user);
+    res.json(_.omit(user, ['hashed_password', 'salt']));
   });
 });
 
