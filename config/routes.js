@@ -49,7 +49,15 @@ module.exports = function (app, passport) {
   app.post('/login', loginReq);
   app.put('/login', loginReq);
   app.put('/logout', userCtrl.logout);
-  app.put('/auth/google', googleReq);
+  app.put('/auth/google', function(req, res, next) {
+    passport.authenticate('google', function (err, user, info) {
+      if(err || !user){
+        return res.status(400).json(info || err);
+      }
+      //TODO: Map this to a controller function
+      res.json(user);
+    })(req, res, next);
+  });
   //User routes
   app.get('/user', userCtrl.index);
   app.get('/user/projects', userCtrl.projects);
@@ -64,13 +72,11 @@ module.exports = function (app, passport) {
   app.param('projectName', projects.load);
   app.get('/projects', projects.index);
   app.get('/projects/:projectName', projects.get);
-  // app.get('/projects/:projectName/edit', projects.edit);
   app.get('/projects/:projectName/edit', projects.edit);
   app.put('/projects/:projectName', projects.update);
   app.delete('/projects/:projectName', projects.destroy);
 
   // users routes
-  // app.get('/users/:username/projects', auth.requiresLogin, projects.index);
   app.get('/users/:username/projects', projects.index);
   app.post('/users/:username/projects', projects.create);
   app.get('/users/:username/projects/:projectName', projects.index);
@@ -119,21 +125,13 @@ module.exports = function (app, passport) {
   });
 
   function loginReq(req, res, next) {
-    passport.authenticate('local', function (err, user, info) {
-      if(err || !user){
+    passport.authenticate('local', function (error, user, info) {
+      if(error || !user){
+        console.log({ message: 'Error with login request.', error });
         return res.status(400).json(info || err);
       }
-      const token = user.createAuthToken();
-      res.json({ user, token });
-    })(req, res, next);
-  }
-  function googleReq(req, res, next) {
-    passport.authenticate('google', function (err, user, info) {
-      if(err || !user){
-        return res.status(400).json(info || err);
-      }
-      // const token = user.createAuthToken();
-      res.json(user);
+      req.user = user;
+      userCtrl.login(req, res, next);
     })(req, res, next);
   }
 };

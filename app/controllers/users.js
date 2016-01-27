@@ -7,6 +7,7 @@
 const mongoose = require('mongoose');
 const wrap = require('co-express');
 const _ = require('lodash');
+const only = require('only');
 const User = mongoose.model('User');
 const Project = mongoose.model('Project');
 
@@ -54,17 +55,20 @@ exports.create = wrap(function* (req, res) {
   try {
     yield user.save();
   } catch(err) {
-    var errorsList = _.map(err.errors, function(e, key){
+    const errorsList = _.map(err.errors, function(e, key){
       return e.message || key;
     });
     return res.status(400).json({
       message: 'Error signing up.', errors: errorsList
     });
   }
-  req.logIn(user, err => {
-    if (err) req.flash('info', 'Sorry! We are not able to log you in!');
-    // return res.redirect('/');
-    res.json(_.omit(user, ['hashed_password', 'salt']));
+  req.logIn(user, error => {
+    if (error) {
+      console.error({message: 'Error with login', error});
+      req.status(500).json({message: 'Error with login.'})
+    }
+    const token = user.createAuthToken();
+    res.json({ token, user: only(user, 'username email name provider _id')});
   });
 });
 
@@ -81,38 +85,9 @@ exports.show = function (req, res) {
  */
 
 exports.destroy = wrap(function* (req, res) {
-  console.log('user destroy called', req);
   yield req.profile.remove();
   res.json({message: 'User deleted successfully'});
 });
-
-/**
- * Auth callback
- */
-
-exports.authCallback = login;
-exports.signin = function(){};
-
-/**
- * Show login form
- */
-
-exports.login = function (req, res) {
-  res.render('users/login', {
-    title: 'Login'
-  });
-};
-
-/**
- * Show sign up form
- */
-
-exports.signup = function (req, res) {
-  res.render('users/signup', {
-    title: 'Sign up',
-    user: new User()
-  });
-};
 
 /**
  * Logout
@@ -121,7 +96,6 @@ exports.signup = function (req, res) {
 exports.logout = function (req, res) {
   req.logout();
   res.json({message: 'Logout successful.'});
-  // res.redirect('/login');
 };
 
 /**
@@ -135,15 +109,3 @@ exports.session = (err, user, errData) => {
   }
   return user;
 };
-
-/**
- * Login
- */
-
-function login (req, res) {
-  const redirectTo = req.session.returnTo
-    ? req.session.returnTo
-    : '/';
-  delete req.session.returnTo;
-  res.redirect(redirectTo);
-}

@@ -6,7 +6,6 @@
 
 const mongoose = require('mongoose');
 const notify = require('../mailer');
-
 const Schema = mongoose.Schema;
 
 const getTags = tags => tags.join(',');
@@ -26,23 +25,20 @@ const ProjectSchema = new Schema({
 /**
  * Validations
  */
+ProjectSchema.path('owner').required(true, 'Project owner cannot be blank');
 
- ProjectSchema.path('name').required(true, 'Project name cannot be blank');
- ProjectSchema.path('owner').required(true, 'Project owner cannot be blank');
+ProjectSchema.path('name').required(true, 'Project name cannot be blank');
 
-
-ProjectSchema.path('name').validate(function (name, fn) {
- const Project = mongoose.model('Project');
-
- // Check only when it is a new user or when name field is modified
- if (this.isNew || this.isModified('name')) {
-   Project.find({ name: name, owner: this.owner }).exec(function (err, projects) {
-     console.log('projects', projects);
-     fn(!err && projects.length === 0);
-   });
+ProjectSchema.path('name').validate(function(name, fn) {
+  const Project = mongoose.model('Project');
+  // Check only when it is a new project or when name field is modified
+  if (this.isNew || this.isModified('name')) {
+    //Check that owner does not already have a project with the same name
+    Project.find({ name: name, owner: this.owner }).exec(function(err, projects) {
+      fn(!err && projects.length === 0);
+    });
  } else fn(true);
- }, 'Owner already has a project with that name.');
-
+}, 'Owner already has a project with that name.');
 
 /**
  * Pre-remove hook
