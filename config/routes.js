@@ -50,7 +50,6 @@ module.exports = function (app, passport) {
   app.put('/login', loginReq);
   app.put('/logout', userCtrl.logout);
   app.put('/auth/google', googleReq);
-  
   //User routes
   app.get('/user', userCtrl.index);
   app.get('/user/projects', userCtrl.projects);
@@ -65,7 +64,7 @@ module.exports = function (app, passport) {
   app.param('projectName', projects.load);
   app.get('/projects', projects.index);
   app.get('/projects/:projectName', projects.get);
-  // app.get('/projects/:projectName/edit', projectAuth, projects.edit);
+  // app.get('/projects/:projectName/edit', projects.edit);
   app.get('/projects/:projectName/edit', projects.edit);
   app.put('/projects/:projectName', projects.update);
   app.delete('/projects/:projectName', projects.destroy);

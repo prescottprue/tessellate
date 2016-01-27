@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const assign = require('object-assign');
 const wrap = require('co-express');
 const only = require('only');
+const _ = require('lodash');
 const Project = mongoose.model('Project');
 const User = mongoose.model('User');
 
@@ -63,18 +64,26 @@ exports.new = function (req, res){
 
 exports.create = wrap(function* (req, res) {
   const project = new Project(only(req.body, 'name collaborators'));
-  project.owner = req.user._id;
-  try {
-    yield project.save();
-  } catch(err) {
-    console.log('error creating project', err);
-    return res.status(400).json({
-      message: 'Error creating project.',
-      error: err
+  if(!req.profile || !req.profile._id){
+    return res.status(400).send({
+      message: 'Error creating project. User not found.'
     });
   }
-  const populatedProject = yield Project.load({ _id: project._id });
-  res.json(populatedProject);
+  project.owner = req.profile._id;
+  try {
+    yield project.save();
+    const populatedProject = yield Project.load({ _id: project._id });
+    res.json(populatedProject);
+  } catch(err) {
+    var errorsList = _.map(err.errors, function(e, key){
+      return e.message || key;
+    });
+    // console.log('error creating project', errorsList);
+    res.status(400).json({
+      message: 'Error creating project.',
+      error: errorsList[0] || err
+    });
+  }
 });
 
 /**
