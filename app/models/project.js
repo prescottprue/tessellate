@@ -22,6 +22,7 @@ const ProjectSchema = new Schema({
   createdAt  : { type : Date, default : Date.now }
 });
 
+
 /**
  * Validations
  */
@@ -103,7 +104,6 @@ ProjectSchema.statics = {
   load: function (find) {
     return this.findOne(find)
       .populate('owner', 'name email username')
-      .populate('comments.user')
       .exec();
   },
 

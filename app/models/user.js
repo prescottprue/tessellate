@@ -213,9 +213,10 @@ UserSchema.statics = {
    */
 
   load: function (options, cb) {
-    options.select = options.select || 'name username email';
-    return this.findOne(options.criteria)
-      .select(options.select)
+    const select = options.select || 'name username email';
+    const criteria = options.criteria || options || {};
+    return this.findOne(criteria)
+      .select(select)
       .exec(cb);
   },
 
