@@ -10,8 +10,7 @@
 const users = require('../app/controllers/users');
 const userCtrl = require('../app/controllers/user');
 const projects = require('../app/controllers/projects');
-const comments = require('../app/controllers/comments');
-const tags = require('../app/controllers/tags');
+const home = require('../app/controllers/home');
 const auth = require('./middlewares/authorization');
 
 /**
@@ -83,7 +82,7 @@ module.exports = function (app, passport) {
   app.delete('/users/:username/projects/:projectName', projects.destroy);
 
   // home route
-  app.get('/', projects.index);
+  app.get('/', home.index);
 
   /**
    * Error handling

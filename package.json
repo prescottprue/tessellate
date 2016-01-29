@@ -1,6 +1,6 @@
 {
   "name": "kyper-tessellate",
-  "description": "",
+  "description": "Code project building and mangagement platform.",
   "keywords": [
     "express",
     "mongoose",
