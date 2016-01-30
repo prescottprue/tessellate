@@ -61,11 +61,13 @@ module.exports = function (app, passport) {
   app.get('/user', userCtrl.index);
   app.get('/user/projects', userCtrl.projects);
 
+  app.get('/users/search', users.search);
   //Users routes
   app.param('username', users.load);
   app.get('/users', users.index);
   app.get('/users/:username', users.show);
   app.delete('/users/:username', users.destroy);
+
 
   // projects routes
   app.param('projectName', projects.load);
@@ -80,7 +82,6 @@ module.exports = function (app, passport) {
   app.post('/users/:username/projects', projects.create);
   app.get('/users/:username/projects/:projectName', projects.index);
   app.delete('/users/:username/projects/:projectName', projects.destroy);
-
   // home route
   app.get('/', home.index);
 

@@ -14,7 +14,6 @@ const Project = mongoose.model('Project');
 /**
  * Load
  */
-
 exports.load = wrap(function* (req, res, next, username) {
   const criteria = { username };
   req.profile = yield User.load({ criteria });
@@ -25,7 +24,6 @@ exports.load = wrap(function* (req, res, next, username) {
 /**
  * List
  */
-
 exports.index = wrap(function* (req, res) {
   const page = (req.query.page > 0 ? req.query.page : 1) - 1;
   const limit = 30;
@@ -48,7 +46,6 @@ exports.index = wrap(function* (req, res) {
 /**
  * Create user
  */
-
 exports.create = wrap(function* (req, res) {
   const user = new User(req.body);
   user.provider = 'local';
@@ -75,15 +72,35 @@ exports.create = wrap(function* (req, res) {
 /**
  *  Show profile
  */
-
 exports.show = function (req, res) {
   res.json(req.profile);
 };
 
 /**
+ * Search for a user
+ */
+exports.search = wrap(function* (req, res, next) {
+  if (!req.query || (!req.query.username && !req.query.email)){
+    return res.status(400).json({
+      message: 'Query parameter required to search.'
+    });
+  }
+  const limit = 15;
+  const select = 'username email name';
+  const criteria = {
+    $or: [
+      createQueryObj('username', req.query.username) ||
+      createQueryObj('email', req.query.email)
+    ]
+  };
+  const user = yield User.list({ criteria, limit, select });
+  if (!user) return res.json([]);
+  res.json(user);
+});
+
+/**
  * Delete a user
  */
-
 exports.destroy = wrap(function* (req, res) {
   yield req.profile.remove();
   res.json({message: 'User deleted successfully'});
@@ -92,7 +109,6 @@ exports.destroy = wrap(function* (req, res) {
 /**
  * Logout
  */
-
 exports.logout = function (req, res) {
   req.logout();
   res.json({message: 'Logout successful.'});
@@ -101,7 +117,6 @@ exports.logout = function (req, res) {
 /**
  * Session
  */
-
 exports.session = (err, user, errData) => {
   console.log('session called..', err, user, errData);
   if(err || !user){
@@ -109,3 +124,16 @@ exports.session = (err, user, errData) => {
   }
   return user;
 };
+
+/**
+ * Create a query object
+ * @param {String} key - Key/Name of query parameter
+ * @param {String} val - Value of query
+ * @return {Object}
+ */
+function createQueryObj(key, val) {
+  if(!val) return null;
+  var obj = {};
+  obj[key] = new RegExp(_.escapeRegExp(val), 'i');
+  return obj;
+}

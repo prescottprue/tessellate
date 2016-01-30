@@ -229,9 +229,11 @@ UserSchema.statics = {
 
   list: function (options) {
     const criteria = options.criteria || {};
+    const select = options.select || {};
     const page = options.page || 0;
     const limit = options.limit || 30;
     return this.find(criteria)
+      .select(select)
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(limit * page)
