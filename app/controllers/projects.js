@@ -139,6 +139,21 @@ exports.addCollaborator = wrap(function* (req, res){
 });
 
 /**
+ * Remove collaborator from project
+ */
+
+exports.removeCollaborator = wrap(function* (req, res){
+	const project = req.project;
+	if(!req.user) return res.status(400).json({message: 'Username is required to add a collaborator'});
+	try {
+		yield project.removeCollaborator(req.user._id);
+		res.json(project);
+	} catch(err) {
+		res.status(400).send({message: 'Error removing collaborator.', error: err.toString()});
+	}
+});
+
+/**
  * List project collaborators
  */
 

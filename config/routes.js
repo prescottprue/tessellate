@@ -60,33 +60,39 @@ module.exports = function (app, passport) {
   //User routes
   app.get('/user', userCtrl.index);
   app.get('/user/projects', userCtrl.projects);
+  // app.post('/user/projects', userCtrl.createProject);
 
-  app.get('/users/search', users.search);
   //Users routes
   app.param('username', users.load);
   app.get('/users', users.index);
   app.get('/users/:username', users.show);
   app.delete('/users/:username', users.destroy);
+  app.get('/users/search', users.search);
 
-
-  // projects routes
+  app.param('owner', users.load);
   app.param('projectName', projects.load);
+  app.param('collaborator', users.loadCollaborator);
+  
+  // projects routes
   app.get('/projects', projects.index);
-  app.get('/projects/:projectName', projects.get);
-  app.get('/projects/:projectName/edit', projects.edit);
-  app.put('/projects/:projectName', projects.update);
-  app.delete('/projects/:projectName', projects.destroy);
+  app.get('/projects/:owner/:projectName', projects.get);
+  app.get('/projects/:owner/:projectName/edit', projects.edit);
+  app.put('/projects/:owner/:projectName', projects.update);
+  app.delete('/projects/:owner/:projectName', projects.destroy);
+  app.get('/projects/:owner/:projectName/collaborators', projects.getCollaborators);
+  app.put('/projects/:owner/:projectName/collaborators/:collaborator', projects.addCollaborator);
+  app.delete('/projects/:owner/:projectName/collaborators/:collaborator', projects.removeCollaborator);
 
   // users routes
-  app.param('owner', users.load);
-  app.param('collaborator', users.loadCollaborator);
   app.get('/users/:owner/projects', projects.index);
   app.post('/users/:owner/projects', projects.create);
   app.get('/users/:owner/projects/:projectName', projects.get);
   app.put('/users/:owner/projects/:projectName', projects.update);
   app.get('/users/:owner/projects/:projectName/collaborators', projects.getCollaborators);
   app.put('/users/:owner/projects/:projectName/collaborators/:collaborator', projects.addCollaborator);
+  app.delete('/users/:owner/projects/:projectName/collaborators/:collaborator', projects.removeCollaborator);
   app.delete('/users/:owner/projects/:projectName', projects.destroy);
+
   // home route
   app.get('/', home.index);
 

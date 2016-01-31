@@ -73,10 +73,9 @@ ProjectSchema.methods = {
 
   removeCollaborator: function (userId) {
     const index = this.collaborators
-      .map(user => user.id)
-      .indexOf(userId);
-
-    if (~index) this.comments.splice(index, 1);
+      .map(user => JSON.stringify(user._id))
+      .indexOf(JSON.stringify(userId));
+    if (~index) this.collaborators.splice(index, 1);
     else throw new Error('Collaborator not found');
     return this.save();
   }
