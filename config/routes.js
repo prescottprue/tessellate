@@ -78,10 +78,15 @@ module.exports = function (app, passport) {
   app.delete('/projects/:projectName', projects.destroy);
 
   // users routes
-  app.get('/users/:username/projects', projects.index);
-  app.post('/users/:username/projects', projects.create);
-  app.get('/users/:username/projects/:projectName', projects.index);
-  app.delete('/users/:username/projects/:projectName', projects.destroy);
+  app.param('owner', users.load);
+  app.param('collaborator', users.loadCollaborator);
+  app.get('/users/:owner/projects', projects.index);
+  app.post('/users/:owner/projects', projects.create);
+  app.get('/users/:owner/projects/:projectName', projects.get);
+  app.put('/users/:owner/projects/:projectName', projects.update);
+  app.get('/users/:owner/projects/:projectName/collaborators', projects.getCollaborators);
+  app.put('/users/:owner/projects/:projectName/collaborators/:collaborator', projects.addCollaborator);
+  app.delete('/users/:owner/projects/:projectName', projects.destroy);
   // home route
   app.get('/', home.index);
 

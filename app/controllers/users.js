@@ -15,9 +15,19 @@ const Project = mongoose.model('Project');
  * Load
  */
 exports.load = wrap(function* (req, res, next, username) {
-  const criteria = { username };
+  let criteria = { username };
   req.profile = yield User.load({ criteria });
   if (!req.profile) return res.status(404).json({message: 'User not found'});
+  next();
+});
+
+/**
+ * Load collaborator
+ */
+exports.loadCollaborator = wrap(function* (req, res, next, username) {
+  let criteria = { username };
+  req.user = yield User.load({ criteria });
+  if (!req.user) return res.status(404).json({message: 'User not found'});
   next();
 });
 

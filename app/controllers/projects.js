@@ -17,8 +17,8 @@ const User = mongoose.model('User');
  */
 
 exports.load = wrap(function* (req, res, next, projectName) {
-	req.owner = yield User.load({username: req.params.username});
-	req.project = yield Project.load({name: projectName, owner: req.owner._id || req.user._id});
+	if(!req.profile) return res.status(400).json({message: 'Owner required to get project.'});
+	req.project = yield Project.load({name: projectName, owner: req.profile._id});
 	if (!req.project) return next(new Error('Project not found'));
 	next();
 });
@@ -34,9 +34,8 @@ exports.index = wrap(function* (req, res) {
 		limit: limit,
 		page: page
 	};
-	if(req.params.username){
-		const user = yield User.load({username: req.params.username});
-		options.criteria = { $or: [{owner: user._id}, {collaborators: {$in: [user._id]}}]};
+	if(req.profile){
+		options.criteria = { $or: [{owner: req.profile._id}, {collaborators: {$in: [req.profile._id]}}]};
 	}
 	const projects = yield Project.list(options);
 	// TODO: Responsed with pagination data
@@ -81,7 +80,7 @@ exports.create = wrap(function* (req, res) {
 		const populatedProject = yield Project.load({ _id: project._id });
 		res.json(populatedProject);
 	} catch(err) {
-		var errorsList = _.map(err.errors, function(e, key){
+		const errorsList = _.map(err.errors, function(e, key){
 			return e.message || key;
 		});
 		// console.log('error creating project', errorsList);
@@ -98,9 +97,15 @@ exports.create = wrap(function* (req, res) {
 
 exports.update = wrap(function* (req, res){
 	const project = req.project;
-	assign(project, only(req.body, 'name collaborators owner'));
-	yield project.save();
-	res.json(project);
+	// console.log('update called before:', req.body);
+	const newProject = assign(project, only(req.body, 'name collaborators owner'));
+	try {
+		// console.log('project after assign', newProject);
+		yield project.save();
+		res.json(project);
+	} catch(err) {
+		res.status(400).send({message: 'Error updating project'});
+	}
 });
 
 /**
@@ -122,6 +127,24 @@ exports.destroy = wrap(function* (req, res) {
 	});
 });
 
+/**
+ * Add collaborator to project
+ */
+
+exports.addCollaborator = wrap(function* (req, res){
+	const project = req.project;
+	if(!req.user) return res.status(400).json({message: 'Username is required to add a collaborator'});
+	yield project.addCollaborator(req.user);
+	res.json(project);
+});
+
+/**
+ * List project collaborators
+ */
+
+exports.getCollaborators = function(req, res){
+	res.json(req.project.collaborators);
+};
 
 /**
  * New project page

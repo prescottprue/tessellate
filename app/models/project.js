@@ -8,9 +8,6 @@ const mongoose = require('mongoose');
 const notify = require('../mailer');
 const Schema = mongoose.Schema;
 
-const getTags = tags => tags.join(',');
-const setTags = tags => tags.split(',');
-
 /**
  * Project Schema
  */
@@ -18,8 +15,8 @@ const setTags = tags => tags.split(',');
 const ProjectSchema = new Schema({
   name: { type : String, default : '', trim : true },
   owner: { type : Schema.ObjectId, ref : 'User' },
-  tags: { type: [], get: getTags, set: setTags },
-  createdAt  : { type : Date, default : Date.now }
+  createdAt  : { type : Date, default : Date.now },
+  collaborators: [{type: Schema.ObjectId, ref: 'User'}]
 });
 
 
@@ -64,9 +61,6 @@ ProjectSchema.methods = {
 
   addCollaborator: function (user) {
     this.collaborators.push(user._id);
-
-    if (!this.user.email) this.user.email = 'email@product.com';
-
     return this.save();
   },
 
@@ -104,6 +98,7 @@ ProjectSchema.statics = {
   load: function (find) {
     return this.findOne(find)
       .populate('owner', 'name email username')
+      .populate('collaborators', 'name email username')
       .exec();
   },
 
