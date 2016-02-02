@@ -134,8 +134,13 @@ exports.destroy = wrap(function* (req, res) {
 exports.addCollaborator = wrap(function* (req, res){
 	const project = req.project;
 	if(!req.user) return res.status(400).json({message: 'Username is required to add a collaborator'});
-	yield project.addCollaborator(req.user);
-	res.json(project);
+	try {
+		yield project.addCollaborator(req.user);
+		res.json(project);
+	} catch(error) {
+		console.log('error:', error);
+		res.status(400).send({ message: error.toString() || 'Error adding collaborator.' });
+	}
 });
 
 /**

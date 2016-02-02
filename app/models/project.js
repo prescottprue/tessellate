@@ -7,6 +7,7 @@
 const mongoose = require('mongoose');
 const notify = require('../mailer');
 const Schema = mongoose.Schema;
+const _ = require('lodash');
 
 /**
  * Project Schema
@@ -60,7 +61,10 @@ ProjectSchema.methods = {
    */
 
   addCollaborator: function (user) {
-    this.collaborators.push(user._id);
+    if(this.collaborators && _.find(this.collaborators, {_id: user._id})){
+      throw new Error('Collaborator already exists');
+    }
+    this.collaborators.push(user);
     return this.save();
   },
 
@@ -96,8 +100,8 @@ ProjectSchema.statics = {
 
   load: function (find) {
     return this.findOne(find)
-      .populate('owner', 'name email username')
-      .populate('collaborators', 'name email username')
+      .populate('owner', 'name email username avatar_url')
+      .populate('collaborators', 'name email username avatar_url')
       .exec();
   },
 
@@ -113,7 +117,8 @@ ProjectSchema.statics = {
     const page = options.page || 0;
     const limit = options.limit || 30;
     return this.find(criteria)
-      .populate('owner', 'name username email')
+      .populate('collaborators', 'name username email avatar_url')
+      .populate('owner', 'name username email avatar_url')
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(limit * page)

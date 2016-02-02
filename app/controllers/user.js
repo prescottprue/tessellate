@@ -36,9 +36,17 @@ exports.projects = wrap(function* (req, res) {
  */
 
 exports.login = wrap(function* (req, res) {
-  if(!req.user) res.status(400).json({message: 'Error with login.'});
-  const user = req.user;
-  const token = req.user.createAuthToken();
+  var googleUser;
+  if(req.body.provider === 'google'){
+    console.log('loading google user:', req.body);
+    googleUser = yield User.load({ email: req.body.email });
+    console.log('google user loaded', googleUser);
+  }
+
+  // if(!req.user) res.status(400).json({message: 'Error with login.'});
+
+  const user = googleUser || req.user;
+  const token = user.createAuthToken();
   res.json({ token, user: only(user, '_id username email name') });
 });
 

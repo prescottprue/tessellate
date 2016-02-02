@@ -24,6 +24,7 @@ const UserSchema = new Schema({
   name: { type: String, default: '' },
   email: { type: String, default: '', unique: true },
   username: { type: String, default: '', unique: true },
+  avatar_url: { type: String },
   provider: { type: String, default: '' },
   hashed_password: { type: String, default: '' },
   salt: { type: String, default: '' },
@@ -67,7 +68,7 @@ UserSchema.path('email').validate(function (email) {
 
 UserSchema.path('email').validate(function (email, fn) {
   const User = mongoose.model('User');
-  if (this.skipValidation()) fn(true);
+  // if (this.skipValidation()) fn(true);
 
   // Check only when it is a new user or when email field is modified
   if (this.isNew || this.isModified('email')) {
@@ -84,7 +85,7 @@ UserSchema.path('username').validate(function (username) {
 
 UserSchema.path('username').validate(function (username, fn) {
   const User = mongoose.model('User');
-  if (this.skipValidation()) fn(true);
+  // if (this.skipValidation()) fn(true);
 
   // Check only when it is a new user or when username field is modified
   if (this.isNew || this.isModified('username')) {

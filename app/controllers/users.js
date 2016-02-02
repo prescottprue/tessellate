@@ -58,10 +58,19 @@ exports.index = wrap(function* (req, res) {
  */
 exports.create = wrap(function* (req, res) {
   const user = new User(req.body);
-  user.provider = 'local';
+  if(user.provider){
+    user.skipValidation();
+  } else {
+    user.provider = 'local';
+  }
   try {
     yield user.save();
   } catch(err) {
+    if(err.code === 11000){
+      return res.status(400).json({
+        message: 'A user with those credentials already exists.'
+      });
+    }
     const errorsList = _.map(err.errors, function(e, key){
       return e.message || key;
     });
@@ -104,6 +113,7 @@ exports.search = wrap(function* (req, res, next) {
     ]
   };
   const user = yield User.list({ criteria, limit, select });
+  console.log('user:', user);
   if (!user) return res.json([]);
   res.json(user);
 });

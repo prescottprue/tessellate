@@ -61,18 +61,18 @@ module.exports = function (app, passport) {
   app.get('/user', userCtrl.index);
   app.get('/user/projects', userCtrl.projects);
   // app.post('/user/projects', userCtrl.createProject);
+  app.get('/users/search', users.search);
 
   //Users routes
   app.param('username', users.load);
   app.get('/users', users.index);
   app.get('/users/:username', users.show);
   app.delete('/users/:username', users.destroy);
-  app.get('/users/search', users.search);
 
   app.param('owner', users.load);
   app.param('projectName', projects.load);
   app.param('collaborator', users.loadCollaborator);
-  
+
   // projects routes
   app.get('/projects', projects.index);
   app.get('/projects/:owner/:projectName', projects.get);
@@ -136,13 +136,17 @@ module.exports = function (app, passport) {
   });
 
   function loginReq(req, res, next) {
-    passport.authenticate('local', function (error, user, info) {
-      if(error || !user){
-        console.log({ message: 'Error with login request.', error });
-        return res.status(400).json(info || err);
-      }
-      req.user = user;
+    if(req.body.provider === 'google'){
       userCtrl.login(req, res, next);
-    })(req, res, next);
+    } else {
+      passport.authenticate('local', function (error, user, info) {
+        if(error || !user){
+          console.log({ message: 'Error with login request.', error });
+          return res.status(400).json(info || err);
+        }
+        req.user = user;
+        userCtrl.login(req, res, next);
+      })(req, res, next);
+    }
   }
 };
