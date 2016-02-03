@@ -146,26 +146,7 @@ exports.session = (err, user, errData) => {
   }
   return user;
 };
-/**
- * Session
- */
-exports.uploadImage = wrap(function* (req, res) {
-  console.log('upload image called');
-  if(req.files){
-    //Handle an image
-    const image = req.files
-      ? req.files.image
-      : undefined;
-  }
-  try {
-    const user = req.profile;
-    yield user.uploadImageAndSave(image);
-    res.json({message: 'Image uploaded successfully.'});
-  } catch(error) {
-    res.status(400).json({message: 'Error uploading image.', error: error.toString()});
-  }
 
-});
 
 
 /**

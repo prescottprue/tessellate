@@ -63,3 +63,21 @@ exports.logout = wrap(function* (req, res) {
     message: 'Logout successful.'
   });
 });
+
+/**
+ * Session
+ */
+exports.avatar = wrap(function* (req, res) {
+  console.log('upload image called', req.files, req.files[0]);
+  //Handle an image
+  const image = req.files
+    ? req.files[0]
+    : undefined;
+  try {
+    const user = req.profile;
+    yield user.uploadImageAndSave(image);
+    res.json({message: 'Image uploaded successfully.'});
+  } catch(error) {
+    res.status(400).json({message: 'Error uploading image.', error: error.toString()});
+  }
+});

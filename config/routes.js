@@ -60,6 +60,7 @@ module.exports = function (app, passport) {
   //User routes
   app.get('/user', userCtrl.index);
   app.get('/user/projects', userCtrl.projects);
+  app.put('/user/avatar', userCtrl.avatar);
   // app.post('/user/projects', userCtrl.createProject);
   app.get('/users/search', users.search);
 
@@ -68,6 +69,7 @@ module.exports = function (app, passport) {
   app.get('/users', users.index);
   app.get('/users/:username', users.show);
   app.delete('/users/:username', users.destroy);
+  app.put('/users/:username/avatar', userCtrl.avatar);
 
   app.param('owner', users.load);
   app.param('projectName', projects.load);

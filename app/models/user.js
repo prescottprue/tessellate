@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const only = require('only');
 const config = require('./../../config/config');
 const jwt = require('jsonwebtoken');
+const s3 = require('../utils/s3');
 
 const Schema = mongoose.Schema;
 const oAuthTypes = [
@@ -197,6 +198,15 @@ UserSchema.methods = {
 			});
 		}
   },
+
+  
+  uploadImageAndSave: function(image) {
+    console.log('uploadImageAndSave called', image);
+    const err = this.validateSync();
+    if (err && err.toString()) throw new Error(err.toString());
+    s3.saveFile();
+    return this.save();
+  }
 };
 
 /**
