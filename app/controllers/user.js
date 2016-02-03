@@ -68,11 +68,11 @@ exports.logout = wrap(function* (req, res) {
  * Session
  */
 exports.avatar = wrap(function* (req, res) {
-  console.log('upload image called', req.files, req.files[0]);
   //Handle an image
-  const image = req.files
-    ? req.files[0]
+  const image = req.file
+    ? req.file
     : undefined;
+  console.log('image from req:', image);
   try {
     const user = req.profile;
     yield user.uploadImageAndSave(image);

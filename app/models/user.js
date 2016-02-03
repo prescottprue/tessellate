@@ -4,12 +4,13 @@
  * Module dependencies.
  */
 
-const mongoose = require('mongoose');
-const crypto = require('crypto');
-const only = require('only');
-const config = require('./../../config/config');
-const jwt = require('jsonwebtoken');
-const s3 = require('../utils/s3');
+import mongoose from 'mongoose';
+import crypto from 'crypto';
+import only from 'only';
+import config from './../../config/config';
+import jwt from 'jsonwebtoken';
+import * as s3 from '../utils/s3';
+
 
 const Schema = mongoose.Schema;
 const oAuthTypes = [
@@ -199,13 +200,25 @@ UserSchema.methods = {
 		}
   },
 
-  
-  uploadImageAndSave: function(image) {
+
+  uploadImageAndSave: async function(image) {
     console.log('uploadImageAndSave called', image);
+    if(!image) throw new Error('Image required to upload');
     const err = this.validateSync();
     if (err && err.toString()) throw new Error(err.toString());
-    s3.saveFile();
-    return this.save();
+    const { avatar, images } = config.contentSettings;
+    console.log('uploading to bucket:', images.bucket);
+    console.log('prefix:', avatar.prefix);
+    image.key = `${avatar.prefix}/${this._id}/${image.originalname}`;
+    console.log('image with prefix', image.key)
+    try {
+      var output = await s3.uploadFileToBucket(images.bucket, {localFile: image.path, key: image.key});
+      this.avatar_url = output.url;
+      await this.save();
+    } catch(err) {
+      console.log('error uploading image file');
+    }
+
   }
 };
 
@@ -224,7 +237,7 @@ UserSchema.statics = {
    */
 
   load: function (options, cb) {
-    const select = options.select || 'name username email';
+    const select = options.select || 'name username email avatar_url';
     const criteria = options.criteria || options || {};
     return this.findOne(criteria)
       .select(select)

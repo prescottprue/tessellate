@@ -4,10 +4,11 @@
  * Module dependencies.
  */
 
-const mongoose = require('mongoose');
-const notify = require('../mailer');
+import mongoose from 'mongoose';
+import notify from '../mailer';
+import { find } from 'lodash';
+
 const Schema = mongoose.Schema;
-const _ = require('lodash');
 
 /**
  * Project Schema
@@ -33,7 +34,7 @@ ProjectSchema.path('name').validate(function(name, fn) {
   // Check only when it is a new project or when name field is modified
   if (this.isNew || this.isModified('name')) {
     //Check that owner does not already have a project with the same name
-    Project.find({ name: name, owner: this.owner }).exec(function(err, projects) {
+    Project.find({ name, owner: this.owner }).exec((err, projects) => {
       fn(!err && projects.length === 0);
     });
  } else fn(true);
@@ -43,9 +44,9 @@ ProjectSchema.path('name').validate(function(name, fn) {
  * Pre-remove hook
  */
 
-ProjectSchema.pre('remove', function (next) {
-  next();
-});
+// ProjectSchema.pre('remove', (next) => {
+//   next();
+// });
 
 /**
  * Methods
@@ -61,7 +62,7 @@ ProjectSchema.methods = {
    */
 
   addCollaborator: function (user) {
-    if(this.collaborators && _.find(this.collaborators, {_id: user._id})){
+    if(this.collaborators && find(this.collaborators, {_id: user._id})){
       throw new Error('Collaborator already exists');
     }
     this.collaborators.push(user);

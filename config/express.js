@@ -75,7 +75,7 @@ module.exports = function (app, passport) {
   // bodyParser should be above methodOverride
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(multer().array('image', 1));
+  app.use(multer({dest: './uploads/'}).single('image'));
   app.use(methodOverride(function (req) {
     if (req.body && typeof req.body === 'object' && '_method' in req.body) {
       // look in urlencoded POST bodies and delete it
@@ -109,7 +109,7 @@ module.exports = function (app, passport) {
   app.use(helpers(pkg.name));
 
   app.use(cors());
-  
+
   // Cross Site Request Forgery
   // if (env !== 'test') {
   //   app.use(csrf());
