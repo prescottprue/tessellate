@@ -58,11 +58,13 @@ exports.index = wrap(function* (req, res) {
  */
 exports.create = wrap(function* (req, res) {
   const user = new User(req.body);
+  //Handle 3rd party providers
   if(user.provider){
     user.skipValidation();
   } else {
     user.provider = 'local';
   }
+
   try {
     yield user.save();
   } catch(err) {
@@ -144,6 +146,27 @@ exports.session = (err, user, errData) => {
   }
   return user;
 };
+/**
+ * Session
+ */
+exports.uploadImage = wrap(function* (req, res) {
+  console.log('upload image called');
+  if(req.files){
+    //Handle an image
+    const image = req.files
+      ? req.files.image
+      : undefined;
+  }
+  try {
+    const user = req.profile;
+    yield user.uploadImageAndSave(image);
+    res.json({message: 'Image uploaded successfully.'});
+  } catch(error) {
+    res.status(400).json({message: 'Error uploading image.', error: error.toString()});
+  }
+
+});
+
 
 /**
  * Create a query object
