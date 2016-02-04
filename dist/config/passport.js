@@ -9,7 +9,6 @@ var User = mongoose.model('User');
 
 var local = require('./passport/local');
 var google = require('./passport/google');
-var github = require('./passport/github');
 var jwt = require('./passport/jwt');
 
 /**

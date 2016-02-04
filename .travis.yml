@@ -3,12 +3,11 @@ services:
   - mongodb
 node_js:
   - "4.2.2"
-  - "5.0.0"
 branches:
   only:
     - master
 sudo: false
-script: "npm test"
+script: "npm run build && npm test"
 addons:
   code_climate:
     repo_token: $CODE_CLIMATE_TOKEN

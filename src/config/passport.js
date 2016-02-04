@@ -9,7 +9,6 @@ const User = mongoose.model('User');
 
 const local = require('./passport/local');
 const google = require('./passport/google');
-const github = require('./passport/github');
 const jwt = require('./passport/jwt');
 
 /**
