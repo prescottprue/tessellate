@@ -9,7 +9,7 @@ import crypto from 'crypto';
 import only from 'only';
 import config from './../../config/config';
 import jwt from 'jsonwebtoken';
-import * as s3 from '../utils/s3';
+import * as fileStorage from '../utils/fileStorage';
 
 
 const Schema = mongoose.Schema;
@@ -187,10 +187,6 @@ UserSchema.methods = {
     try {
 			const tokenData = only(this, '_id username email provider');
 			const token = jwt.sign(tokenData, config.jwtSecret);
-			console.log({
-				description: 'Token generated.',
-				func: 'createAuthToken', obj: 'User'
-			});
       return this.authToken = token;
 		} catch (error) {
 			console.log({
@@ -202,23 +198,18 @@ UserSchema.methods = {
 
 
   uploadImageAndSave: async function(image) {
-    console.log('uploadImageAndSave called', image);
     if(!image) throw new Error('Image required to upload');
     const err = this.validateSync();
     if (err && err.toString()) throw new Error(err.toString());
-    const { avatar, images } = config.contentSettings;
-    console.log('uploading to bucket:', images.bucket);
-    console.log('prefix:', avatar.prefix);
-    image.key = `${avatar.prefix}/${this._id}/${image.originalname}`;
-    console.log('image with prefix', image.key)
+    image.key = `${this._id}/${image.originalname}`;
     try {
-      var output = await s3.uploadFileToBucket(images.bucket, {localFile: image.path, key: image.key});
+      const output = await fileStorage.uploadAvatar({localPath: image.path, key: image.key});
       this.avatar_url = output.url;
       await this.save();
     } catch(err) {
-      console.log('error uploading image file');
+      console.log('error uploading image file', err);
+      throw err;
     }
-
   }
 };
 

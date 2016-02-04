@@ -30,11 +30,11 @@ function uploadFileToBucket(bucketName, fileData) {
 		description: 'Upload file called.', bucketName: bucketName, fileData: fileData,
 		func: 'uploadFile'
 	});
-	var localFile = fileData.localFile;
+	var localPath = fileData.localPath;
 	var key = fileData.key;
 
 	var fileParams = {
-		localFile: localFile,
+		localFile: localPath,
 		s3Params: {
 			Bucket: bucketName,
 			Key: key,

@@ -17,9 +17,9 @@ export function uploadFileToBucket(bucketName, fileData){
 		description: 'Upload file called.', bucketName, fileData,
 		func: 'uploadFile'
 	});
-	const { localFile, key } = fileData;
+	const { localPath, key } = fileData;
   const fileParams = {
-    localFile,
+    localFile: localPath,
     s3Params: {
       Bucket: bucketName,
       Key: key,
@@ -55,6 +55,7 @@ export function uploadFileToBucket(bucketName, fileData){
 		});
   });
 }
+
 
 /**
 * @description Configure S3 client module

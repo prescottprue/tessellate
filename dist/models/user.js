@@ -24,9 +24,9 @@ var _jsonwebtoken = require('jsonwebtoken');
 
 var _jsonwebtoken2 = _interopRequireDefault(_jsonwebtoken);
 
-var _s = require('../utils/s3');
+var _fileStorage = require('../utils/fileStorage');
 
-var s3 = _interopRequireWildcard(_s);
+var fileStorage = _interopRequireWildcard(_fileStorage);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -201,10 +201,6 @@ UserSchema.methods = {
     try {
       var tokenData = (0, _only2.default)(this, '_id username email provider');
       var token = _jsonwebtoken2.default.sign(tokenData, _config2.default.jwtSecret);
-      console.log({
-        description: 'Token generated.',
-        func: 'createAuthToken', obj: 'User'
-      });
       return this.authToken = token;
     } catch (error) {
       console.log({
@@ -216,67 +212,58 @@ UserSchema.methods = {
 
   uploadImageAndSave: function () {
     var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(image) {
-      var err, _config$contentSettin, avatar, images, output;
-
+      var err, output;
       return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              console.log('uploadImageAndSave called', image);
-
               if (image) {
-                _context.next = 3;
+                _context.next = 2;
                 break;
               }
 
               throw new Error('Image required to upload');
 
-            case 3:
+            case 2:
               err = this.validateSync();
 
               if (!(err && err.toString())) {
-                _context.next = 6;
+                _context.next = 5;
                 break;
               }
 
               throw new Error(err.toString());
 
-            case 6:
-              _config$contentSettin = _config2.default.contentSettings;
-              avatar = _config$contentSettin.avatar;
-              images = _config$contentSettin.images;
+            case 5:
+              image.key = this._id + '/' + image.originalname;
+              _context.prev = 6;
+              _context.next = 9;
+              return fileStorage.uploadAvatar({ localPath: image.path, key: image.key });
 
-              console.log('uploading to bucket:', images.bucket);
-              console.log('prefix:', avatar.prefix);
-              image.key = avatar.prefix + '/' + this._id + '/' + image.originalname;
-              console.log('image with prefix', image.key);
-              _context.prev = 13;
-              _context.next = 16;
-              return s3.uploadFileToBucket(images.bucket, { localFile: image.path, key: image.key });
-
-            case 16:
+            case 9:
               output = _context.sent;
 
               this.avatar_url = output.url;
-              _context.next = 20;
+              _context.next = 13;
               return this.save();
 
-            case 20:
-              _context.next = 25;
+            case 13:
+              _context.next = 19;
               break;
 
-            case 22:
-              _context.prev = 22;
-              _context.t0 = _context['catch'](13);
+            case 15:
+              _context.prev = 15;
+              _context.t0 = _context['catch'](6);
 
-              console.log('error uploading image file');
+              console.log('error uploading image file', _context.t0);
+              throw _context.t0;
 
-            case 25:
+            case 19:
             case 'end':
               return _context.stop();
           }
         }
-      }, _callee, this, [[13, 22]]);
+      }, _callee, this, [[6, 15]]);
     }));
 
     return function uploadImageAndSave(_x) {
