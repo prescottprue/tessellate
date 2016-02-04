@@ -10,7 +10,6 @@ const User = mongoose.model('User');
 const local = require('./passport/local');
 const google = require('./passport/google');
 const github = require('./passport/github');
-const oauth = require('./passport/oauth');
 const jwt = require('./passport/jwt');
 
 /**
@@ -27,6 +26,5 @@ module.exports = function (passport) {
   passport.use(local);
   passport.use(google);
   passport.use(jwt);
-  passport.use(oauth);
   // passport.use(github);
 };

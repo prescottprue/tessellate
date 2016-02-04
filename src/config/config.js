@@ -21,7 +21,7 @@ const notifier = {
 
 const defaults = {
   root: path.join(__dirname, '..'),
-  notifier: notifier
+  notifier
 };
 
 /**
