@@ -6,7 +6,6 @@
 
 const path = require('path');
 const extend = require('util')._extend;
-
 const development = require('./env/development');
 const test = require('./env/test');
 const production = require('./env/production');

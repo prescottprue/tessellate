@@ -11,4 +11,12 @@ sudo: false
 script: "npm test"
 addons:
   code_climate:
-    repo_token: 009bb049c787d187d084eac946bc3514a89b83f6d9f26a085d55ffde94e0c5a5
+    repo_token: $CODE_CLIMATE_TOKEN
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: $AWS_KEY
+  secret_access_key: $AWS_SECRET
+  region: us-east-1
+  app: tessellate
+  env: tessellate-stg
+  bucket_name: $BUCKET
