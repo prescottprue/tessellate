@@ -22,7 +22,7 @@ const flash = require('connect-flash');
 const winston = require('winston');
 const helpers = require('view-helpers');
 const config = require('./config');
-const pkg = require('../package.json');
+const pkg = require('../../package.json');
 const env = process.env.NODE_ENV || 'development';
 
 /**

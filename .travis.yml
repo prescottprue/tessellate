@@ -1,6 +1,14 @@
+language: node_js
 services:
   - mongodb
-language: node_js
 node_js:
   - "4.2.2"
   - "5.0.0"
+branches:
+  only:
+    - master
+sudo: false
+script: "npm test"
+addons:
+  code_climate:
+    repo_token: 009bb049c787d187d084eac946bc3514a89b83f6d9f26a085d55ffde94e0c5a5

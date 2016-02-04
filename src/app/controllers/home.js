@@ -4,7 +4,7 @@
  * New project page
  */
 
-exports.index = function (req, res){
+export function index(req, res){
 	res.render('home/index', {
     title: 'Tessellate'
   });

@@ -17,7 +17,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const config = require('./config/config');
 
-const models = join(__dirname, 'dist/models');
+const models = join(__dirname, 'app/models');
 const port = process.env.PORT || 3000;
 const app = express();
 
@@ -41,6 +41,7 @@ connect()
   .on('error', console.log)
   .on('disconnected', connect)
   .once('open', listen);
+
 
 function listen () {
   if (app.get('env') === 'test') return;

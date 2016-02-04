@@ -13,10 +13,6 @@ const s3Client = createS3Client();
  * @param {string} fileData.content - File contents in string form
  */
 export function uploadFileToBucket(bucketName, fileData){
-	console.log({
-		description: 'Upload file called.', bucketName, fileData,
-		func: 'uploadFile'
-	});
 	const { localPath, key } = fileData;
   const fileParams = {
     localFile: localPath,
@@ -26,12 +22,8 @@ export function uploadFileToBucket(bucketName, fileData){
       ACL:'public-read'
     }
   };
-	console.log({
-		description: 'Upload file called.', fileParams,
-		func: 'uploadFile'
-	});
   return new Promise((resolve, reject) => {
-    let uploader = s3Client.uploadFile(fileParams);
+    const uploader = s3Client.uploadFile(fileParams);
 		uploader.on('error', error => {
 			console.error({
 				description: 'Error uploading file.',
@@ -47,15 +39,11 @@ export function uploadFileToBucket(bucketName, fileData){
 		// });
 		uploader.on('end', () => {
 			const uploadedFile = {url: `https://${bucketName}.s3.amazonaws.com/${key}`};
-			console.log({
-				description: 'File upload progress.', uploadedFile,
-				func: 'uploadFile'
-			});
+			console.log('File uploaded successfully.');
 			resolve(uploadedFile);
 		});
   });
 }
-
 
 /**
 * @description Configure S3 client module
