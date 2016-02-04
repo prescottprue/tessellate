@@ -3,7 +3,6 @@ services:
   - mongodb
 node_js:
   - "4.2.2"
-  - "5.0.0"
 branches:
   only:
     - master

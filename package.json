@@ -58,9 +58,12 @@
     "passport-jwt": "^1.2.1",
     "passport-linkedin": "~1.0.0",
     "passport-local": "~1.0.0",
+    "passport-oauth2": "^1.1.2",
+    "passport-oauth2-client-password": "^0.1.2",
     "passport-twitter": "~1.0.3",
     "rimraf": "^2.5.1",
     "s3": "^4.4.0",
+    "simple-oauth2": "^0.5.1",
     "swig": "~1.4.2",
     "view-helpers": "~0.1.5",
     "winston": "~2.1.1"

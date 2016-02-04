@@ -12,7 +12,7 @@ const userCtrl = require('../app/controllers/user');
 const projects = require('../app/controllers/projects');
 const home = require('../app/controllers/home');
 const auth = require('./middlewares/authorization');
-
+const config = require('./config');
 /**
  * Route middlewares
  */
@@ -26,10 +26,47 @@ const commentAuth = [auth.requiresLogin, auth.comment.hasAuthorization];
  */
 
 module.exports = function (app, passport) {
+  const { clientID, clientSecret } = config.github;
+
+  var oauth2 = require('simple-oauth2')({
+  clientID,
+  clientSecret,
+  site: 'https://github.com/login',
+  tokenPath: '/oauth/access_token',
+  authorizationPath: '/oauth/authorize'
+});
+
+// Authorization uri definition
+var authorization_uri = oauth2.authCode.authorizeURL({
+  redirect_uri: 'http://localhost:3000/callback',
+  scope: 'repos',
+  state: '3(#0/!~'
+});
+
+// Initial page redirecting to Github
+app.get('/auth', function (req, res) {
+    res.redirect(authorization_uri);
+});
+
+// Callback service parsing the authorization token and asking for the access token
+app.get('/callback', function (req, res) {
+  console.log('callback url');
+  var code = req.query.code;
+
+  oauth2.authCode.getToken({
+    code: code,
+    redirect_uri: 'http://localhost:3000/callback'
+  }, saveToken);
+
+  function saveToken(error, result) {
+    if (error) { console.log('Access Token Error', error.message); }
+    token = oauth2.accessToken.create(result);
+  }
+});
   // Auth
   app.post('/signup', users.create);
   app.post('/login', loginReq);
-  app.put('/login', loginReq);
+  app.put('/login', passport.authenticate('oauth2'));
   app.put('/logout', userCtrl.logout);
   app.put('/auth/google', function(req, res, next) {
     passport.authenticate('google', function (err, user, info) {
@@ -254,17 +291,28 @@ module.exports = function (app, passport) {
   });
 
   function loginReq(req, res, next) {
-    if(req.body.provider === 'google'){
+    console.log('login request', req.body);
+    passport.authenticate('oauth2', (error, user, info) => {
+      console.log('response:', error, user);
+      if(error || !user){
+        console.log({ message: 'Error with login request.', error });
+        return res.status(400).json(info || err);
+      }
+      console.log('user:', user);
+      req.user = user;
       userCtrl.login(req, res, next);
-    } else {
-      passport.authenticate('local', function (error, user, info) {
-        if(error || !user){
-          console.log({ message: 'Error with login request.', error });
-          return res.status(400).json(info || err);
-        }
-        req.user = user;
-        userCtrl.login(req, res, next);
-      })(req, res, next);
-    }
+    });
+    // if(req.body.provider === 'google'){
+    //   userCtrl.login(req, res, next);
+    // } else {
+    //   passport.authenticate('local', function (error, user, info) {
+    //     if(error || !user){
+    //       console.log({ message: 'Error with login request.', error });
+    //       return res.status(400).json(info || err);
+    //     }
+    //     req.user = user;
+    //     userCtrl.login(req, res, next);
+    //   })(req, res, next);
+    // }
   }
 };

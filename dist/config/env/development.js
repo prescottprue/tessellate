@@ -49,5 +49,9 @@ module.exports = {
     clientID: process.env.TESSELLATE_GOOGLE_CLIENTID || process.env.GOOGLE_CLIENTID,
     clientSecret: process.env.TESSELLATE_GOOGLE_SECRET || process.env.GOOGLE_SECRET,
     callbackURL: 'http://localhost:3000/auth/google/callback'
+  },
+  github: {
+    clientID: process.env.TESSELLATE_GITHUB_KEY || process.env.GITHUB_KEY,
+    clientSecret: process.env.TESSELLATE_GITHUB_SECRET || process.env.GITHUB_SECRET
   }
 };

@@ -28,5 +28,9 @@ module.exports = {
     clientID: process.env.GOOGLE_CLIENTID,
     clientSecret: process.env.GOOGLE_SECRET,
     callbackURL: 'http://tessellate.elasticbeanstalk.com/auth/google/callback'
+  },
+  github: {
+    clientID: process.env.TESSELLATE_GITHUB_KEY || process.env.GITHUB_KEY,
+    clientSecret: process.env.TESSELLATE_GITHUB_SECRET || process.env.GITHUB_SECRET
   }
 };
