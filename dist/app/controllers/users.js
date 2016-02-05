@@ -282,6 +282,22 @@ exports.session = function (err, user, errData) {
   }
   return user;
 };
+/**
+ * Auth callback
+ */
+
+exports.authCallback = login;
+
+/**
+ * Show login form
+ */
+
+exports.login = function (req, res) {
+  res.render('users/login', {
+    title: 'Login'
+  });
+};
+exports.signin = function () {};
 
 /**
  * Create a query object
@@ -294,4 +310,13 @@ function createQueryObj(key, val) {
   var obj = {};
   obj[key] = new RegExp(_.escapeRegExp(val), 'i');
   return obj;
+}
+
+/**
+ * Login
+ */
+function login(req, res) {
+  var redirectTo = req.session.returnTo ? req.session.returnTo : '/';
+  delete req.session.returnTo;
+  res.redirect(redirectTo);
 }

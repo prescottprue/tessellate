@@ -26,5 +26,5 @@ module.exports = function (passport) {
   passport.use(local);
   passport.use(google);
   passport.use(jwt);
-  // passport.use(github);
+  passport.use(github);
 };
