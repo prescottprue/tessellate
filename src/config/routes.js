@@ -266,17 +266,13 @@ module.exports = function (app, passport) {
   });
 
   function loginReq(req, res, next) {
-    if(req.body.provider === 'google'){
+    passport.authenticate('local', function (error, user, info) {
+      if(error || !user){
+        console.log({ message: 'Error with login request.', error });
+        return res.status(400).json(info || err);
+      }
+      req.user = user;
       userCtrl.login(req, res, next);
-    } else {
-      passport.authenticate('local', function (error, user, info) {
-        if(error || !user){
-          console.log({ message: 'Error with login request.', error });
-          return res.status(400).json(info || err);
-        }
-        req.user = user;
-        userCtrl.login(req, res, next);
-      })(req, res, next);
-    }
+    })(req, res, next);
   }
 };
