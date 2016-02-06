@@ -297,7 +297,10 @@ exports.login = function (req, res) {
     title: 'Login'
   });
 };
-exports.signin = function () {};
+exports.signin = function () {
+
+  console.log('signing route being called');
+};
 
 /**
  * Create a query object
@@ -318,5 +321,10 @@ function createQueryObj(key, val) {
 function login(req, res) {
   var redirectTo = req.session.returnTo ? req.session.returnTo : '/';
   delete req.session.returnTo;
-  res.redirect(redirectTo);
+  console.log('login route hit', req.url);
+  // res.json({message: 'yup'});
+  // res.redirect(redirectTo);
+  res.render('home/redirect', {
+    title: 'Login'
+  });
 }

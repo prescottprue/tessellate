@@ -36,13 +36,14 @@ module.exports = function (app, passport) {
   app.post('/login', loginReq);
   app.put('/login', loginReq);
   app.put('/logout', userCtrl.logout);
+  app.get('/stateToken', userCtrl.getStateToken);
+  app.put('/auth', userCtrl.auth);
   app.get('/auth/google', passport.authenticate('google', {
+    successRedirect: '/',
     failureRedirect: '/login',
     scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
-  }), users.signin);
-  app.get('/auth/google/callback', passport.authenticate('google', {
-    failureRedirect: '/login'
-  }), users.authCallback);
+  }));
+  app.get('/auth/google/callback', users.authCallback);
   app.get('/auth/github', passport.authenticate('github', {
     failureRedirect: '/login'
   }), users.signin);
@@ -259,17 +260,13 @@ module.exports = function (app, passport) {
   });
 
   function loginReq(req, res, next) {
-    if (req.body.provider === 'google') {
+    passport.authenticate('local', function (error, user, info) {
+      if (error || !user) {
+        console.log({ message: 'Error with login request.', error: error });
+        return res.status(400).json(info || err);
+      }
+      req.user = user;
       userCtrl.login(req, res, next);
-    } else {
-      passport.authenticate('local', function (error, user, info) {
-        if (error || !user) {
-          console.log({ message: 'Error with login request.', error: error });
-          return res.status(400).json(info || err);
-        }
-        req.user = user;
-        userCtrl.login(req, res, next);
-      })(req, res, next);
-    }
+    })(req, res, next);
   }
 };

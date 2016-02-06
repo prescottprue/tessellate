@@ -22,7 +22,7 @@
   },
   "main": "dist/server.js",
   "scripts": {
-    "copy-views": "cp -a src/app/views dist/app/views",
+    "copy-views": "cp -a src/app/views dist/app/",
     "copy-assets": "cp -a public dist/public",
     "copy": "mkdir -p dist && npm run copy-views && npm run copy-assets",
     "build": "npm run copy && babel src --out-dir dist",
@@ -52,6 +52,7 @@
     "morgan": "~1.6.1",
     "multer": "~1.1.0",
     "notifier": "~0.1.7",
+    "oauthio": "^0.3.3",
     "object-assign": "~4.0.1",
     "only": "0.0.2",
     "passport": "~0.3.2",

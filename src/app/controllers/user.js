@@ -9,7 +9,7 @@ const wrap = require('co-express');
 const only = require('only');
 const User = mongoose.model('User');
 const Project = mongoose.model('Project');
-
+import OAuth from 'oauthio';
 /**
  * Return logged in user
  */
@@ -20,7 +20,26 @@ exports.index = wrap(function* (req, res) {
   res.json(user);
 });
 
+exports.getStateToken = function(req, res) {
+  OAuth.initialize('sxwuB9Gci8-4pBH7xjD0V_jooNU', 'H3mAP5uBspePZLft6-vimBp3Ox8');
+  var token = OAuth.generateStateToken(req);
+  console.log('token generated');
+  res.json({ token });
+};
+exports.auth = wrap(function* (req, res) {
+  console.log("auth called with", req.body, req.session);
+  try {
+    OAuth.auth(req.body.code, req).then((response) => {
+      console.log('authenticated: ', response);
+      res.json({response});
+    }).fail((error) => {
+      console.log('error auth oauth:', error.toString());
+    })
+  } catch(err) {
+    console.error('error authenticating with oAuth', err);
+  }
 
+});
 
 /**
  * Return projects for logged in user
