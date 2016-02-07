@@ -4,12 +4,13 @@
  * Module dependencies.
  */
 
-const mongoose = require('mongoose');
-const wrap = require('co-express');
-const _ = require('lodash');
-const only = require('only');
+import mongoose from 'mongoose';
+import wrap from 'co-express';
+import { escapeRegExp, map } from 'lodash';
+import only from 'only';
 const User = mongoose.model('User');
 const Project = mongoose.model('Project');
+
 
 /**
  * Load
@@ -73,7 +74,7 @@ exports.create = wrap(function* (req, res) {
         message: 'A user with those credentials already exists.'
       });
     }
-    const errorsList = _.map(err.errors, function(e, key){
+    const errorsList = map(err.errors, function(e, key){
       return e.message || key;
     });
     return res.status(400).json({
@@ -177,7 +178,7 @@ exports.signin = function () {
 function createQueryObj(key, val) {
   if(!val) return null;
   var obj = {};
-  obj[key] = new RegExp(_.escapeRegExp(val), 'i');
+  obj[key] = new RegExp(escapeRegExp(val), 'i');
   return obj;
 }
 

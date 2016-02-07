@@ -184,6 +184,7 @@ UserSchema.methods = {
    */
 
   createAuthToken: function () {
+    if(this.authToken) return this.authToken;
     try {
 			const tokenData = only(this, '_id username email provider');
 			const token = jwt.sign(tokenData, config.jwtSecret);

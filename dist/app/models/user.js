@@ -198,6 +198,7 @@ UserSchema.methods = {
    */
 
   createAuthToken: function createAuthToken() {
+    if (this.authToken) return this.authToken;
     try {
       var tokenData = (0, _only2.default)(this, '_id username email provider');
       var token = _jsonwebtoken2.default.sign(tokenData, _config2.default.jwtSecret);

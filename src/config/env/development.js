@@ -40,8 +40,8 @@ module.exports = {
     }
   },
   aws: {
-    key: process.env.TESSELLATE_AWS_KEY,
-    secret: process.env.TESSELLATE_AWS_SECRET
+    key: process.env.TESSELLATE_AWS_KEY || process.env.AWS_KEY,
+    secret: process.env.TESSELLATE_AWS_SECRET || process.env.AWS_SECRET
   },
   google: {
     clientID: process.env.DEVSHARE_GOOGLE_CLIENTID || process.env.GOOGLE_CLIENTID,

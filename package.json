@@ -44,6 +44,7 @@
     "cors": "^2.7.1",
     "express": "~4.13.3",
     "express-session": "~1.12.1",
+    "express-stormpath": "^2.3.7",
     "forever": "~0.15.1",
     "jsonwebtoken": "^5.5.4",
     "lodash": "^4.1.0",
@@ -63,6 +64,7 @@
     "rimraf": "^2.5.1",
     "s3": "^4.4.0",
     "simple-oauth2": "^0.5.1",
+    "stormpath": "^0.17.1",
     "swig": "~1.4.2",
     "view-helpers": "~0.1.5",
     "winston": "~2.1.1"

@@ -37,19 +37,8 @@ module.exports = function (app, passport) {
   app.put('/login', loginReq);
   app.put('/logout', userCtrl.logout);
   app.get('/stateToken', userCtrl.getStateToken);
-  app.put('/auth', userCtrl.auth);
-  app.get('/auth/google', passport.authenticate('google', {
-    successRedirect: '/',
-    failureRedirect: '/login',
-    scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
-  }));
-  app.get('/auth/google/callback', users.authCallback);
-  app.get('/auth/github', passport.authenticate('github', {
-    failureRedirect: '/login'
-  }), users.signin);
-  app.get('/auth/github/callback', passport.authenticate('github', {
-    failureRedirect: '/login'
-  }), users.authCallback);
+  app.put('/auth', userCtrl.providerAuth);
+
   //User routes
   app.get('/user', userCtrl.index);
   app.get('/user/projects', userCtrl.projects);

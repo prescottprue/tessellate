@@ -4,17 +4,29 @@
  * Module dependencies.
  */
 
-var mongoose = require('mongoose');
-var wrap = require('co-express');
-var _ = require('lodash');
-var only = require('only');
-var User = mongoose.model('User');
-var Project = mongoose.model('Project');
+var _mongoose = require('mongoose');
+
+var _mongoose2 = _interopRequireDefault(_mongoose);
+
+var _coExpress = require('co-express');
+
+var _coExpress2 = _interopRequireDefault(_coExpress);
+
+var _lodash = require('lodash');
+
+var _only = require('only');
+
+var _only2 = _interopRequireDefault(_only);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var User = _mongoose2.default.model('User');
+var Project = _mongoose2.default.model('Project');
 
 /**
  * Load
  */
-exports.load = wrap(regeneratorRuntime.mark(function _callee(req, res, next, username) {
+exports.load = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee(req, res, next, username) {
   var criteria;
   return regeneratorRuntime.wrap(function _callee$(_context) {
     while (1) {
@@ -48,7 +60,7 @@ exports.load = wrap(regeneratorRuntime.mark(function _callee(req, res, next, use
 /**
  * Load collaborator
  */
-exports.loadCollaborator = wrap(regeneratorRuntime.mark(function _callee2(req, res, next, username) {
+exports.loadCollaborator = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee2(req, res, next, username) {
   var criteria;
   return regeneratorRuntime.wrap(function _callee2$(_context2) {
     while (1) {
@@ -82,7 +94,7 @@ exports.loadCollaborator = wrap(regeneratorRuntime.mark(function _callee2(req, r
 /**
  * List
  */
-exports.index = wrap(regeneratorRuntime.mark(function _callee3(req, res) {
+exports.index = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee3(req, res) {
   var page, limit, options, users, count;
   return regeneratorRuntime.wrap(function _callee3$(_context3) {
     while (1) {
@@ -123,7 +135,7 @@ exports.index = wrap(regeneratorRuntime.mark(function _callee3(req, res) {
 /**
  * Create user
  */
-exports.create = wrap(regeneratorRuntime.mark(function _callee4(req, res) {
+exports.create = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee4(req, res) {
   var user, errorsList;
   return regeneratorRuntime.wrap(function _callee4$(_context4) {
     while (1) {
@@ -160,7 +172,7 @@ exports.create = wrap(regeneratorRuntime.mark(function _callee4(req, res) {
           }));
 
         case 11:
-          errorsList = _.map(_context4.t0.errors, function (e, key) {
+          errorsList = (0, _lodash.map)(_context4.t0.errors, function (e, key) {
             return e.message || key;
           });
           return _context4.abrupt('return', res.status(400).json({
@@ -174,7 +186,7 @@ exports.create = wrap(regeneratorRuntime.mark(function _callee4(req, res) {
               req.status(500).json({ message: 'Error with login.' });
             }
             var token = user.createAuthToken();
-            res.json({ token: token, user: only(user, 'username email name provider _id') });
+            res.json({ token: token, user: (0, _only2.default)(user, 'username email name provider _id') });
           });
 
         case 14:
@@ -195,7 +207,7 @@ exports.show = function (req, res) {
 /**
  * Search for a user
  */
-exports.search = wrap(regeneratorRuntime.mark(function _callee5(req, res, next) {
+exports.search = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee5(req, res, next) {
   var limit, select, criteria, user;
   return regeneratorRuntime.wrap(function _callee5$(_context5) {
     while (1) {
@@ -245,7 +257,7 @@ exports.search = wrap(regeneratorRuntime.mark(function _callee5(req, res, next) 
 /**
  * Delete a user
  */
-exports.destroy = wrap(regeneratorRuntime.mark(function _callee6(req, res) {
+exports.destroy = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee6(req, res) {
   return regeneratorRuntime.wrap(function _callee6$(_context6) {
     while (1) {
       switch (_context6.prev = _context6.next) {
@@ -311,7 +323,7 @@ exports.signin = function () {
 function createQueryObj(key, val) {
   if (!val) return null;
   var obj = {};
-  obj[key] = new RegExp(_.escapeRegExp(val), 'i');
+  obj[key] = new RegExp((0, _lodash.escapeRegExp)(val), 'i');
   return obj;
 }
 
