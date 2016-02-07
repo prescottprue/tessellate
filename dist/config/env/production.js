@@ -20,6 +20,10 @@ module.exports = {
       prefix: 'avatars'
     }
   },
+  oauthio: {
+    publicKey: process.env.OAUTHIO_KEY,
+    secretKey: process.env.OAUTHIO_SECRET
+  },
   aws: {
     key: process.env.TESSELLATE_AWS_KEY || process.env.AWS_KEY,
     secret: process.env.TESSELLATE_AWS_SECRET || process.env.AWS_SECRET

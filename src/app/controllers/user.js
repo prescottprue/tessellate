@@ -22,13 +22,22 @@ exports.index = wrap(function* (req, res) {
 });
 
 /**
+ * Login
+ */
+exports.login = wrap(function* (req, res) {
+  if(!req.user) return res.status(400).json({message: 'User required to login.'});
+  const user = req.user;
+  const token = user.createAuthToken();
+  res.json({ token, user: only(user, '_id username email name') });
+});
+
+/**
  * Get state token
  */
 exports.getStateToken = function(req, res) {
-  OAuth.initialize('sxwuB9Gci8-4pBH7xjD0V_jooNU', 'H3mAP5uBspePZLft6-vimBp3Ox8');
+  if(!config.oauthio || !config.oauthio.key) throw new Error('OAuthio config is required.');
+  OAuth.initialize(config.oauthio.key, config.oauthio.secret);
   var token = OAuth.generateStateToken(req.session);
-  console.log('token generated', token, typeof token);
-  console.log('session', req.session);
   res.json({ token });
 };
 
@@ -59,7 +68,7 @@ exports.providerAuth = wrap(function* (req, res) {
       }
     }
   } catch(err) {
-    console.error('error authenticating with oAuth', err.toString());
+    console.error('error authenticating with oAuthio', err.toString());
     res.status(400).json({message: 'error authenticating', error: err.toString()});
   }
 });

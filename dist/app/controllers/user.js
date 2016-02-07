@@ -4,8 +4,6 @@
  * Module dependencies.
  */
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
@@ -61,22 +59,51 @@ exports.index = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
 }));
 
 /**
- * Get state token
+ * Login
  */
-exports.getStateToken = function (req, res) {
-  _oauthio2.default.initialize('sxwuB9Gci8-4pBH7xjD0V_jooNU', 'H3mAP5uBspePZLft6-vimBp3Ox8');
-  var token = _oauthio2.default.generateStateToken(req.session);
-  console.log('token generated', token, typeof token === 'undefined' ? 'undefined' : _typeof(token));
-  console.log('session', req.session);
-  res.json({ token: token });
-};
-
-exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee2(req, res) {
-  var _req$body, stateToken, provider, code, auth, providerAccount, email, name, avatar, existingUser, existingToken, newData, user, token;
-
+exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee2(req, res) {
+  var user, token;
   return regeneratorRuntime.wrap(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
+        case 0:
+          if (req.user) {
+            _context2.next = 2;
+            break;
+          }
+
+          return _context2.abrupt('return', res.status(400).json({ message: 'User required to login.' }));
+
+        case 2:
+          user = req.user;
+          token = user.createAuthToken();
+
+          res.json({ token: token, user: (0, _only2.default)(user, '_id username email name') });
+
+        case 5:
+        case 'end':
+          return _context2.stop();
+      }
+    }
+  }, _callee2, this);
+}));
+
+/**
+ * Get state token
+ */
+exports.getStateToken = function (req, res) {
+  if (!config.oauthio || !config.oauthio.key) throw new Error('OAuthio config is required.');
+  _oauthio2.default.initialize(config.oauthio.key, config.oauthio.secret);
+  var token = _oauthio2.default.generateStateToken(req.session);
+  res.json({ token: token });
+};
+
+exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee3(req, res) {
+  var _req$body, stateToken, provider, code, auth, providerAccount, email, name, avatar, existingUser, existingToken, newData, user, token;
+
+  return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
         case 0:
           _req$body = req.body;
           stateToken = _req$body.stateToken;
@@ -84,91 +111,91 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
           code = _req$body.code;
 
           req.session.csrf_tokens = [stateToken];
-          _context2.prev = 5;
-          _context2.next = 8;
+          _context3.prev = 5;
+          _context3.next = 8;
           return _oauthio2.default.auth(provider, req.session, { code: code });
 
         case 8:
-          auth = _context2.sent;
-          _context2.next = 11;
+          auth = _context3.sent;
+          _context3.next = 11;
           return auth.me();
 
         case 11:
-          providerAccount = _context2.sent;
+          providerAccount = _context3.sent;
           email = providerAccount.email;
           name = providerAccount.name;
           avatar = providerAccount.avatar;
-          _context2.prev = 15;
-          _context2.next = 18;
+          _context3.prev = 15;
+          _context3.next = 18;
           return User.load({ criteria: { email: email } });
 
         case 18:
-          existingUser = _context2.sent;
+          existingUser = _context3.sent;
           existingToken = existingUser.createAuthToken();
 
           if (!existingUser) {
-            _context2.next = 22;
+            _context3.next = 22;
             break;
           }
 
-          return _context2.abrupt('return', res.json({ user: existingUser, token: existingToken }));
+          return _context3.abrupt('return', res.json({ user: existingUser, token: existingToken }));
 
         case 22:
-          _context2.next = 39;
+          _context3.next = 39;
           break;
 
         case 24:
-          _context2.prev = 24;
-          _context2.t0 = _context2['catch'](15);
+          _context3.prev = 24;
+          _context3.t0 = _context3['catch'](15);
 
           //User already exists
           newData = { email: email, name: name, provider: provider, avatar_url: avatar, username: providerAccount.alias || email.split('@')[0] };
 
           newData[req.body.provider] = providerAccount;
-          _context2.prev = 28;
+          _context3.prev = 28;
           user = new User(newData);
-          _context2.next = 32;
+          _context3.next = 32;
           return user.save();
 
         case 32:
           token = user.createAuthToken();
 
           res.json({ token: token, user: user });
-          _context2.next = 39;
+          _context3.next = 39;
           break;
 
         case 36:
-          _context2.prev = 36;
-          _context2.t1 = _context2['catch'](28);
+          _context3.prev = 36;
+          _context3.t1 = _context3['catch'](28);
 
-          res.status(400).json({ message: 'Error creating new user.', error: _context2.t1.toString() });
+          res.status(400).json({ message: 'Error creating new user.', error: _context3.t1.toString() });
 
         case 39:
-          _context2.next = 45;
+          _context3.next = 45;
           break;
 
         case 41:
-          _context2.prev = 41;
-          _context2.t2 = _context2['catch'](5);
+          _context3.prev = 41;
+          _context3.t2 = _context3['catch'](5);
 
-          console.error('error authenticating with oAuth', _context2.t2.toString());
-          res.status(400).json({ message: 'error authenticating', error: _context2.t2.toString() });
+          console.error('error authenticating with oAuthio', _context3.t2.toString());
+          res.status(400).json({ message: 'error authenticating', error: _context3.t2.toString() });
 
         case 45:
         case 'end':
-          return _context2.stop();
+          return _context3.stop();
       }
     }
-  }, _callee2, this, [[5, 41], [15, 24], [28, 36]]);
+  }, _callee3, this, [[5, 41], [15, 24], [28, 36]]);
 }));
 
 /**
  * Return logged in user
  */
-exports.logout = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee3(req, res) {
-  return regeneratorRuntime.wrap(function _callee3$(_context3) {
+exports.logout = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee4(req, res) {
+  return regeneratorRuntime.wrap(function _callee4$(_context4) {
     while (1) {
-      switch (_context3.prev = _context3.next) {
+      switch (_context4.prev = _context4.next) {
         case 0:
           // console.log('logout request:', req.user);
           // const user = yield User.load({ owner: req.user._id  });
@@ -180,32 +207,6 @@ exports.logout = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
 
         case 1:
         case 'end':
-          return _context3.stop();
-      }
-    }
-  }, _callee3, this);
-}));
-
-/**
- * Return projects for logged in user
- */
-
-exports.projects = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee4(req, res) {
-  var projects;
-  return regeneratorRuntime.wrap(function _callee4$(_context4) {
-    while (1) {
-      switch (_context4.prev = _context4.next) {
-        case 0:
-          _context4.next = 2;
-          return Project.list({ owner: req.user._id });
-
-        case 2:
-          projects = _context4.sent;
-
-          res.json(projects);
-
-        case 4:
-        case 'end':
           return _context4.stop();
       }
     }
@@ -213,39 +214,65 @@ exports.projects = (0, _coExpress2.default)(regeneratorRuntime.mark(function _ca
 }));
 
 /**
- * Avatar
+ * Return projects for logged in user
  */
-exports.avatar = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee5(req, res) {
-  var image, _user;
 
+exports.projects = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee5(req, res) {
+  var projects;
   return regeneratorRuntime.wrap(function _callee5$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
+        case 0:
+          _context5.next = 2;
+          return Project.list({ owner: req.user._id });
+
+        case 2:
+          projects = _context5.sent;
+
+          res.json(projects);
+
+        case 4:
+        case 'end':
+          return _context5.stop();
+      }
+    }
+  }, _callee5, this);
+}));
+
+/**
+ * Avatar
+ */
+exports.avatar = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee6(req, res) {
+  var image, _user;
+
+  return regeneratorRuntime.wrap(function _callee6$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
         case 0:
           //Handle an image
           image = req.file ? req.file : undefined;
 
           console.log('image from req:', image);
-          _context5.prev = 2;
+          _context6.prev = 2;
           _user = req.profile;
-          _context5.next = 6;
+          _context6.next = 6;
           return _user.uploadImageAndSave(image);
 
         case 6:
           res.json({ message: 'Image uploaded successfully.' });
-          _context5.next = 12;
+          _context6.next = 12;
           break;
 
         case 9:
-          _context5.prev = 9;
-          _context5.t0 = _context5['catch'](2);
+          _context6.prev = 9;
+          _context6.t0 = _context6['catch'](2);
 
-          res.status(400).json({ message: 'Error uploading image.', error: _context5.t0.toString() });
+          res.status(400).json({ message: 'Error uploading image.', error: _context6.t0.toString() });
 
         case 12:
         case 'end':
-          return _context5.stop();
+          return _context6.stop();
       }
     }
-  }, _callee5, this, [[2, 9]]);
+  }, _callee6, this, [[2, 9]]);
 }));
