@@ -98,62 +98,68 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
           email = providerAccount.email;
           name = providerAccount.name;
           avatar = providerAccount.avatar;
-
-          //Log into already existing user
-
-          _context2.next = 17;
+          _context2.prev = 15;
+          _context2.next = 18;
           return User.load({ criteria: { email: email } });
 
-        case 17:
+        case 18:
           existingUser = _context2.sent;
           existingToken = existingUser.createAuthToken();
 
           if (!existingUser) {
-            _context2.next = 21;
+            _context2.next = 22;
             break;
           }
 
           return _context2.abrupt('return', res.json({ user: existingUser, token: existingToken }));
 
-        case 21:
-          newData = { email: email, name: name, provider: provider, avatar_url: avatar, username: email.split('@')[0] };
+        case 22:
+          _context2.next = 39;
+          break;
+
+        case 24:
+          _context2.prev = 24;
+          _context2.t0 = _context2['catch'](15);
+
+          //User already exists
+          newData = { email: email, name: name, provider: provider, avatar_url: avatar, username: providerAccount.alias || email.split('@')[0] };
 
           newData[req.body.provider] = providerAccount;
-          _context2.prev = 23;
+          _context2.prev = 28;
           user = new User(newData);
-          _context2.next = 27;
+          _context2.next = 32;
           return user.save();
 
-        case 27:
+        case 32:
           token = user.createAuthToken();
 
           res.json({ token: token, user: user });
-          _context2.next = 34;
-          break;
-
-        case 31:
-          _context2.prev = 31;
-          _context2.t0 = _context2['catch'](23);
-
-          res.status(400).json({ message: 'Error creating new user.', error: _context2.t0.toString() });
-
-        case 34:
-          _context2.next = 40;
+          _context2.next = 39;
           break;
 
         case 36:
           _context2.prev = 36;
-          _context2.t1 = _context2['catch'](5);
+          _context2.t1 = _context2['catch'](28);
 
-          console.error('error authenticating with oAuth', _context2.t1.toString());
-          res.status(400).json({ message: 'error authenticating' });
+          res.status(400).json({ message: 'Error creating new user.', error: _context2.t1.toString() });
 
-        case 40:
+        case 39:
+          _context2.next = 45;
+          break;
+
+        case 41:
+          _context2.prev = 41;
+          _context2.t2 = _context2['catch'](5);
+
+          console.error('error authenticating with oAuth', _context2.t2.toString());
+          res.status(400).json({ message: 'error authenticating', error: _context2.t2.toString() });
+
+        case 45:
         case 'end':
           return _context2.stop();
       }
     }
-  }, _callee2, this, [[5, 36], [23, 31]]);
+  }, _callee2, this, [[5, 41], [15, 24], [28, 36]]);
 }));
 
 /**

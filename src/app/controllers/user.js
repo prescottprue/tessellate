@@ -40,24 +40,27 @@ exports.providerAuth = wrap(function* (req, res) {
     const auth = yield OAuth.auth(provider, req.session, { code });
     const providerAccount = yield auth.me();
     const { email, name, avatar } = providerAccount;
-
-    //Log into already existing user
-    const existingUser = yield User.load({ criteria: { email } });
-    const existingToken = existingUser.createAuthToken();
-    if(existingUser) return res.json({ user: existingUser, token: existingToken });
-    let newData = { email, name, provider, avatar_url: avatar, username: email.split('@')[0] };
-    newData[req.body.provider] = providerAccount;
     try {
-      const user = new User(newData);
-      yield user.save();
-      const token = user.createAuthToken();
-      res.json({ token, user });
-    } catch(error) {
-      res.status(400).json({message: 'Error creating new user.', error: error.toString()});
+      //Log into already existing user
+      const existingUser = yield User.load({ criteria: { email } });
+      const existingToken = existingUser.createAuthToken();
+      if(existingUser) return res.json({ user: existingUser, token: existingToken });
+    } catch(err) {
+      //User already exists
+      let newData = { email, name, provider, avatar_url: avatar, username: providerAccount.alias || email.split('@')[0] };
+      newData[req.body.provider] = providerAccount;
+      try {
+        const user = new User(newData);
+        yield user.save();
+        const token = user.createAuthToken();
+        res.json({ token, user });
+      } catch(error) {
+        res.status(400).json({message: 'Error creating new user.', error: error.toString()});
+      }
     }
   } catch(err) {
     console.error('error authenticating with oAuth', err.toString());
-    res.status(400).json({message: 'error authenticating'});
+    res.status(400).json({message: 'error authenticating', error: err.toString()});
   }
 });
 
