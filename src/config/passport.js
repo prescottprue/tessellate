@@ -8,8 +8,6 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User');
 
 const local = require('./passport/local');
-const google = require('./passport/google');
-const jwt = require('./passport/jwt');
 
 /**
  * Expose
@@ -23,7 +21,7 @@ module.exports = function (passport) {
 
   // use these strategies
   passport.use(local);
-  passport.use(google);
-  passport.use(jwt);
+  // passport.use(google);
+  // passport.use(jwt);
   // passport.use(github);
 };

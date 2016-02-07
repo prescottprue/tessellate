@@ -12,7 +12,7 @@ var userCtrl = require('../app/controllers/user');
 var projects = require('../app/controllers/projects');
 var home = require('../app/controllers/home');
 var auth = require('./middlewares/authorization');
-
+var config = require('./config');
 /**
  * Route middlewares
  */
@@ -26,20 +26,18 @@ var commentAuth = [auth.requiresLogin, auth.comment.hasAuthorization];
  */
 
 module.exports = function (app, passport) {
+  var _config$github = config.github;
+  var clientID = _config$github.clientID;
+  var clientSecret = _config$github.clientSecret;
+
   // Auth
+
   app.post('/signup', users.create);
   app.post('/login', loginReq);
   app.put('/login', loginReq);
   app.put('/logout', userCtrl.logout);
-  app.put('/auth/google', function (req, res, next) {
-    passport.authenticate('google', function (err, user, info) {
-      if (err || !user) {
-        return res.status(400).json(info || err);
-      }
-      //TODO: Map this to a controller function
-      res.json(user);
-    })(req, res, next);
-  });
+  app.get('/stateToken', userCtrl.getStateToken);
+  app.put('/auth', userCtrl.providerAuth);
 
   //User routes
   app.get('/user', userCtrl.index);
@@ -251,17 +249,13 @@ module.exports = function (app, passport) {
   });
 
   function loginReq(req, res, next) {
-    if (req.body.provider === 'google') {
+    passport.authenticate('local', function (error, user, info) {
+      if (error || !user) {
+        console.log({ message: 'Error with login request.', error: error });
+        return res.status(400).json(info || err);
+      }
+      req.user = user;
       userCtrl.login(req, res, next);
-    } else {
-      passport.authenticate('local', function (error, user, info) {
-        if (error || !user) {
-          console.log({ message: 'Error with login request.', error: error });
-          return res.status(400).json(info || err);
-        }
-        req.user = user;
-        userCtrl.login(req, res, next);
-      })(req, res, next);
-    }
+    })(req, res, next);
   }
 };

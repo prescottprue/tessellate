@@ -4,12 +4,13 @@
  * Module dependencies.
  */
 
-const mongoose = require('mongoose');
-const wrap = require('co-express');
-const _ = require('lodash');
-const only = require('only');
+import mongoose from 'mongoose';
+import wrap from 'co-express';
+import { escapeRegExp, map } from 'lodash';
+import only from 'only';
 const User = mongoose.model('User');
 const Project = mongoose.model('Project');
+
 
 /**
  * Load
@@ -73,7 +74,7 @@ exports.create = wrap(function* (req, res) {
         message: 'A user with those credentials already exists.'
       });
     }
-    const errorsList = _.map(err.errors, function(e, key){
+    const errorsList = map(err.errors, function(e, key){
       return e.message || key;
     });
     return res.status(400).json({
@@ -146,7 +147,26 @@ exports.session = (err, user, errData) => {
   }
   return user;
 };
+/**
+ * Auth callback
+ */
 
+exports.authCallback = login;
+
+/**
+ * Show login form
+ */
+
+exports.login = function (req, res) {
+  res.render('users/login', {
+    title: 'Login'
+  });
+};
+exports.signin = function () {
+
+
+  console.log('signing route being called');
+};
 
 
 /**
@@ -158,6 +178,23 @@ exports.session = (err, user, errData) => {
 function createQueryObj(key, val) {
   if(!val) return null;
   var obj = {};
-  obj[key] = new RegExp(_.escapeRegExp(val), 'i');
+  obj[key] = new RegExp(escapeRegExp(val), 'i');
   return obj;
+}
+
+
+/**
+ * Login
+ */
+function login (req, res) {
+  const redirectTo = req.session.returnTo
+    ? req.session.returnTo
+    : '/';
+  delete req.session.returnTo;
+  console.log('login route hit', req.url);
+  // res.json({message: 'yup'});
+  // res.redirect(redirectTo);
+  res.render('home/redirect', {
+    title: 'Login'
+  });
 }

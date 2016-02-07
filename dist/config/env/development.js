@@ -42,12 +42,16 @@ module.exports = {
     }
   },
   aws: {
-    key: process.env.TESSELLATE_AWS_KEY,
-    secret: process.env.TESSELLATE_AWS_SECRET
+    key: process.env.TESSELLATE_AWS_KEY || process.env.AWS_KEY,
+    secret: process.env.TESSELLATE_AWS_SECRET || process.env.AWS_SECRET
   },
   google: {
-    clientID: process.env.TESSELLATE_GOOGLE_CLIENTID || process.env.GOOGLE_CLIENTID,
-    clientSecret: process.env.TESSELLATE_GOOGLE_SECRET || process.env.GOOGLE_SECRET,
+    clientID: process.env.DEVSHARE_GOOGLE_CLIENTID || process.env.GOOGLE_CLIENTID,
+    clientSecret: process.env.DEVSHARE_GOOGLE_SECRET || process.env.GOOGLE_SECRET,
     callbackURL: 'http://localhost:3000/auth/google/callback'
+  },
+  github: {
+    clientID: process.env.DEVSHARE_GITHUB_KEY || process.env.GITHUB_KEY,
+    clientSecret: process.env.DEVSHARE_GITHUB_SECRET || process.env.GITHUB_SECRET
   }
 };
