@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 import wrap from 'co-express';
 import only from 'only';
 import OAuth from 'oauthio';
-
+import config from '../../config/config';
 const User = mongoose.model('User');
 const Project = mongoose.model('Project');
 
@@ -31,17 +31,21 @@ exports.login = wrap(function* (req, res) {
   res.json({ token, user: only(user, '_id username email name') });
 });
 
+console.log('this is    :', config);
+
 /**
  * Get state token
  */
 exports.getStateToken = function(req, res) {
-  if(!config.oauthio || !config.oauthio.key) throw new Error('OAuthio config is required.');
-  OAuth.initialize(config.oauthio.key, config.oauthio.secret);
+  if(!config.oauthio || !config.oauthio.publicKey) throw new Error('OAuthio config is required.');
+  OAuth.initialize(config.oauthio.publicKey, config.oauthio.secretKey);
   var token = OAuth.generateStateToken(req.session);
   res.json({ token });
 };
 
-
+/**
+ * Authenticate with external provider
+ */
 exports.providerAuth = wrap(function* (req, res) {
   const { stateToken, provider, code } = req.body;
   req.session.csrf_tokens = [ stateToken ];
@@ -86,12 +90,9 @@ exports.logout = wrap(function* (req, res) {
   });
 });
 
-
-
 /**
  * Return projects for logged in user
  */
-
 exports.projects = wrap(function* (req, res) {
   const projects = yield Project.list({ owner: req.user._id });
   res.json(projects);

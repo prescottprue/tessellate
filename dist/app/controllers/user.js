@@ -20,6 +20,10 @@ var _oauthio = require('oauthio');
 
 var _oauthio2 = _interopRequireDefault(_oauthio);
 
+var _config = require('../../config/config');
+
+var _config2 = _interopRequireDefault(_config);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var User = _mongoose2.default.model('User');
@@ -88,16 +92,21 @@ exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
   }, _callee2, this);
 }));
 
+console.log('this is    :', _config2.default);
+
 /**
  * Get state token
  */
 exports.getStateToken = function (req, res) {
-  if (!config.oauthio || !config.oauthio.key) throw new Error('OAuthio config is required.');
-  _oauthio2.default.initialize(config.oauthio.key, config.oauthio.secret);
+  if (!_config2.default.oauthio || !_config2.default.oauthio.publicKey) throw new Error('OAuthio config is required.');
+  _oauthio2.default.initialize(_config2.default.oauthio.publicKey, _config2.default.oauthio.secretKey);
   var token = _oauthio2.default.generateStateToken(req.session);
   res.json({ token: token });
 };
 
+/**
+ * Authenticate with external provider
+ */
 exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee3(req, res) {
   var _req$body, stateToken, provider, code, auth, providerAccount, email, name, avatar, existingUser, existingToken, newData, user, token;
 
@@ -216,7 +225,6 @@ exports.logout = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
 /**
  * Return projects for logged in user
  */
-
 exports.projects = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee5(req, res) {
   var projects;
   return regeneratorRuntime.wrap(function _callee5$(_context5) {
