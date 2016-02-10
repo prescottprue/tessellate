@@ -80,11 +80,13 @@ exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
 
         case 2:
           user = req.user;
+
+          console.log('user:', user);
           token = user.createAuthToken();
 
-          res.json({ token: token, user: (0, _only2.default)(user, '_id username email name') });
+          res.json({ token: token, user: (0, _only2.default)(user, '_id username email name avatar_url') });
 
-        case 5:
+        case 6:
         case 'end':
           return _context2.stop();
       }
@@ -259,28 +261,26 @@ exports.avatar = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
         case 0:
           //Handle an image
           image = req.file ? req.file : undefined;
-
-          console.log('image from req:', image);
-          _context6.prev = 2;
+          _context6.prev = 1;
           _user = req.profile;
-          _context6.next = 6;
+          _context6.next = 5;
           return _user.uploadImageAndSave(image);
 
-        case 6:
+        case 5:
           res.json({ message: 'Image uploaded successfully.' });
-          _context6.next = 12;
+          _context6.next = 11;
           break;
 
-        case 9:
-          _context6.prev = 9;
-          _context6.t0 = _context6['catch'](2);
+        case 8:
+          _context6.prev = 8;
+          _context6.t0 = _context6['catch'](1);
 
           res.status(400).json({ message: 'Error uploading image.', error: _context6.t0.toString() });
 
-        case 12:
+        case 11:
         case 'end':
           return _context6.stop();
       }
     }
-  }, _callee6, this, [[2, 9]]);
+  }, _callee6, this, [[1, 8]]);
 }));

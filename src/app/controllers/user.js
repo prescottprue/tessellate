@@ -27,8 +27,9 @@ exports.index = wrap(function* (req, res) {
 exports.login = wrap(function* (req, res) {
   if(!req.user) return res.status(400).json({message: 'User required to login.'});
   const user = req.user;
+  console.log('user:', user);
   const token = user.createAuthToken();
-  res.json({ token, user: only(user, '_id username email name') });
+  res.json({ token, user: only(user, '_id username email name avatar_url') });
 });
 
 console.log('this is    :', config);
@@ -106,7 +107,6 @@ exports.avatar = wrap(function* (req, res) {
   const image = req.file
     ? req.file
     : undefined;
-  console.log('image from req:', image);
   try {
     const user = req.profile;
     yield user.uploadImageAndSave(image);

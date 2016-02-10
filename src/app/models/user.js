@@ -244,7 +244,7 @@ UserSchema.statics = {
 
   list: function (options) {
     const criteria = options.criteria || {};
-    const select = options.select || {};
+    const select = options.select || 'name username email avatar_url';
     const page = options.page || 0;
     const limit = options.limit || 30;
     return this.find(criteria)

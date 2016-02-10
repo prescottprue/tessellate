@@ -118,6 +118,7 @@ exports.index = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
         case 8:
           count = _context3.sent;
 
+
           res.json({
             title: 'Users',
             users: users,
@@ -187,7 +188,7 @@ exports.create = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
               req.status(500).json({ message: 'Error with login.' });
             }
             var token = user.createAuthToken();
-            res.json({ token: token, user: (0, _only2.default)(user, 'username email name provider _id') });
+            res.json({ token: token, user: (0, _only2.default)(user, 'username email name provider avatar_url _id id') });
           });
 
         case 14:
@@ -275,7 +276,7 @@ exports.show = function (req, res) {
  * Search for a user
  */
 exports.search = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee7(req, res, next) {
-  var limit, select, criteria, user;
+  var limit, select, criteria, users;
   return regeneratorRuntime.wrap(function _callee7$(_context7) {
     while (1) {
       switch (_context7.prev = _context7.next) {
@@ -291,7 +292,7 @@ exports.search = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
 
         case 2:
           limit = 15;
-          select = 'username email name';
+          select = 'username email name avatar_url';
           criteria = {
             $or: [createQueryObj('username', req.query.username) || createQueryObj('email', req.query.email)]
           };
@@ -299,21 +300,19 @@ exports.search = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
           return User.list({ criteria: criteria, limit: limit, select: select });
 
         case 7:
-          user = _context7.sent;
+          users = _context7.sent;
 
-          console.log('user:', user);
-
-          if (user) {
-            _context7.next = 11;
+          if (users) {
+            _context7.next = 10;
             break;
           }
 
           return _context7.abrupt('return', res.json([]));
 
-        case 11:
-          res.json(user);
+        case 10:
+          res.json(users);
 
-        case 12:
+        case 11:
         case 'end':
           return _context7.stop();
       }

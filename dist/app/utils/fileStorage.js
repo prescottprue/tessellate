@@ -4,27 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.uploadAndRemoveLocal = exports.uploadFileToBucket = exports.uploadAvatar = exports.uploadImage = undefined;
-exports.removeLocalFile = removeLocalFile;
 
-var _config = require('../../config/config');
-
-var _config2 = _interopRequireDefault(_config);
-
-var _s = require('./s3');
-
-var s3 = _interopRequireWildcard(_s);
-
-var _rimraf = require('rimraf');
-
-var _rimraf2 = _interopRequireDefault(_rimraf);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { return step("next", value); }, function (err) { return step("throw", err); }); } } return step("next"); }); }; } /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * @description Interface for External File Storage (currently S3)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */
 
 /** Upload a file to the image bucket then remove
  * @function uploadImage
@@ -57,8 +37,6 @@ var uploadImage = exports.uploadImage = function () {
     return ref.apply(this, arguments);
   };
 }();
-
-;
 
 /** Upload an avatar image file to the image bucket with the avatar prefix then remove the local copy
  * @function uploadAvatar
@@ -110,6 +88,7 @@ var uploadAvatar = exports.uploadAvatar = function () {
  * @param {string} fileData.content - File contents in string form
  */
 
+
 var uploadFileToBucket = exports.uploadFileToBucket = function () {
   var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(bucket, fileData) {
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
@@ -134,8 +113,6 @@ var uploadFileToBucket = exports.uploadFileToBucket = function () {
     return ref.apply(this, arguments);
   };
 }();
-
-;
 
 /** Upload a local file to S3 bucket the remove the local file
  * @function uploadAndRemoveLocal
@@ -189,7 +166,30 @@ var uploadAndRemoveLocal = exports.uploadAndRemoveLocal = function () {
  * @param {string} path - Path of local file to remove
  */
 
-function removeLocalFile(path) {
+
+exports.removeLocalFile = removeLocalFile;
+
+var _config = require('../../config/config');
+
+var _config2 = _interopRequireDefault(_config);
+
+var _s = require('./s3');
+
+var s3 = _interopRequireWildcard(_s);
+
+var _rimraf = require('rimraf');
+
+var _rimraf2 = _interopRequireDefault(_rimraf);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { return step("next", value); }, function (err) { return step("throw", err); }); } } return step("next"); }); }; } /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          * @description Interface for External File Storage (currently S3)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          */
+
+;;function removeLocalFile(path) {
   return new Promise(function (resolve, reject) {
     (0, _rimraf2.default)(path, {}, function (error) {
       if (error) {

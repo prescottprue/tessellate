@@ -80,7 +80,7 @@ exports.create = wrap(function* (req, res) {
 		const populatedProject = yield Project.load({ _id: project._id });
 		res.json(populatedProject);
 	} catch(err) {
-		const errorsList = _.map(err.errors, function(e, key){
+		const errorsList = _.map(err.errors, (e, key) => {
 			return e.message || key;
 		});
 		// console.log('error creating project', errorsList);

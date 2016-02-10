@@ -301,7 +301,7 @@ UserSchema.statics = {
 
   list: function list(options) {
     var criteria = options.criteria || {};
-    var select = options.select || {};
+    var select = options.select || 'name username email avatar_url';
     var page = options.page || 0;
     var limit = options.limit || 30;
     return this.find(criteria).select(select).sort({ createdAt: -1 }).limit(limit).skip(limit * page).exec();

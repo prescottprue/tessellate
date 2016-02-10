@@ -19,7 +19,7 @@ module.exports = new LocalStrategy({
   console.log('calling stragey with', username, password);
   var options = {
     criteria: { username: username },
-    select: 'name username email hashed_password salt'
+    select: 'name username email hashed_password salt avatar_url'
   };
   User.load(options, function (err, user) {
     if (err) return done(err);

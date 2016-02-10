@@ -75,7 +75,7 @@ exports.create = wrap(function* (req, res) {
         message: 'A user with those credentials already exists.'
       });
     }
-    const errorsList = map(err.errors, function(e, key){
+    const errorsList = map(err.errors, (e, key) => {
       return e.message || key;
     });
     return res.status(400).json({
@@ -88,7 +88,7 @@ exports.create = wrap(function* (req, res) {
       req.status(500).json({message: 'Error with login.'})
     }
     const token = user.createAuthToken();
-    res.json({ token, user: only(user, 'username email name provider _id')});
+    res.json({ token, user: only(user, 'username email name provider avatar_url _id id')});
   });
 });
 
@@ -145,17 +145,16 @@ exports.search = wrap(function* (req, res, next) {
     });
   }
   const limit = 15;
-  const select = 'username email name';
+  const select = 'username email name avatar_url';
   const criteria = {
     $or: [
       createQueryObj('username', req.query.username) ||
       createQueryObj('email', req.query.email)
     ]
   };
-  const user = yield User.list({ criteria, limit, select });
-  console.log('user:', user);
-  if (!user) return res.json([]);
-  res.json(user);
+  const users = yield User.list({ criteria, limit, select });
+  if (!users) return res.json([]);
+  res.json(users);
 });
 
 /**
