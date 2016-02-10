@@ -59,6 +59,7 @@ module.exports = function (app, passport) {
 
   // Swig templating engine settings
   if (env === 'development' || env === 'test') {
+    console.log('');
     swig.setDefaults({
       cache: false
     });
@@ -113,7 +114,11 @@ module.exports = function (app, passport) {
   app.use(helpers(pkg.name));
 
   app.use(cors());
-
+  app.use(function (err, req, res, next) {
+    console.error('Error:');
+    console.error(err.stack);
+    console.error(err.toString());
+  });
   // Cross Site Request Forgery
   // if (env !== 'test') {
   //   app.use(csrf());

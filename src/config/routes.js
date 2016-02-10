@@ -47,8 +47,10 @@ module.exports = function (app, passport) {
   app.param('username', users.load);
   app.get('/users', users.index);
   app.get('/users/:username', users.show);
+  app.put('/users/:username', users.update);
   app.delete('/users/:username', users.destroy);
   app.put('/users/:username/avatar', userCtrl.avatar);
+  app.post('/users/:username/avatar', userCtrl.avatar);
 
   //Projects routes
   app.param('owner', users.load);

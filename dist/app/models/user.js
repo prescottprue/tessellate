@@ -110,7 +110,6 @@ UserSchema.path('username').validate(function (username, fn) {
   // Check only when it is a new user or when username field is modified
   if (this.isNew || this.isModified('username')) {
     User.find({ username: username }).exec(function (err, users) {
-      console.log('users', users);
       fn(!err && users.length === 0);
     });
   } else fn(true);

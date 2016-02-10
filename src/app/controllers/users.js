@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import wrap from 'co-express';
 import { escapeRegExp, map } from 'lodash';
 import only from 'only';
+const assign = require('object-assign');
 const User = mongoose.model('User');
 const Project = mongoose.model('Project');
 
@@ -91,6 +92,42 @@ exports.create = wrap(function* (req, res) {
   });
 });
 
+
+
+
+/**
+ * Update a user
+ */
+
+exports.update = wrap(function* (req, res){
+	let user = req.profile;
+	// console.log('update called before:', req.body);
+	const newUser = assign(user, only(req.body, 'name username email avatar_url'));
+	try {
+		// console.log('user after assign', newProject);
+		yield newUser.save();
+		res.json(newUser);
+	} catch(err) {
+		res.status(400).send({message: 'Error updating project'});
+	}
+});
+/**
+ * Delete a user
+ */
+exports.destroy = wrap(function* (req, res) {
+  yield req.profile.remove();
+  res.json({message: 'User deleted successfully'});
+});
+
+/**
+ * Logout
+ */
+exports.logout = function (req, res) {
+  req.logout();
+  res.json({message: 'Logout successful.'});
+};
+
+
 /**
  *  Show profile
  */
@@ -122,22 +159,6 @@ exports.search = wrap(function* (req, res, next) {
 });
 
 /**
- * Delete a user
- */
-exports.destroy = wrap(function* (req, res) {
-  yield req.profile.remove();
-  res.json({message: 'User deleted successfully'});
-});
-
-/**
- * Logout
- */
-exports.logout = function (req, res) {
-  req.logout();
-  res.json({message: 'Logout successful.'});
-};
-
-/**
  * Session
  */
 exports.session = (err, user, errData) => {
@@ -147,6 +168,7 @@ exports.session = (err, user, errData) => {
   }
   return user;
 };
+
 /**
  * Auth callback
  */
@@ -163,9 +185,7 @@ exports.login = function (req, res) {
   });
 };
 exports.signin = function () {
-
-
-  console.log('signing route being called');
+  console.log('signin route being called');
 };
 
 

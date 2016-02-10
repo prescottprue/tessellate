@@ -20,6 +20,7 @@ var _only2 = _interopRequireDefault(_only);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var assign = require('object-assign');
 var User = _mongoose2.default.model('User');
 var Project = _mongoose2.default.model('Project');
 
@@ -198,62 +199,41 @@ exports.create = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
 }));
 
 /**
- *  Show profile
+ * Update a user
  */
-exports.show = function (req, res) {
-  res.json(req.profile);
-};
 
-/**
- * Search for a user
- */
-exports.search = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee5(req, res, next) {
-  var limit, select, criteria, user;
+exports.update = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee5(req, res) {
+  var user, newUser;
   return regeneratorRuntime.wrap(function _callee5$(_context5) {
     while (1) {
       switch (_context5.prev = _context5.next) {
         case 0:
-          if (!(!req.query || !req.query.username && !req.query.email)) {
-            _context5.next = 2;
-            break;
-          }
+          user = req.profile;
+          // console.log('update called before:', req.body);
 
-          return _context5.abrupt('return', res.status(400).json({
-            message: 'Query parameter required to search.'
-          }));
+          newUser = assign(user, (0, _only2.default)(req.body, 'name username email avatar_url'));
+          _context5.prev = 2;
+          _context5.next = 5;
+          return newUser.save();
 
-        case 2:
-          limit = 15;
-          select = 'username email name';
-          criteria = {
-            $or: [createQueryObj('username', req.query.username) || createQueryObj('email', req.query.email)]
-          };
-          _context5.next = 7;
-          return User.list({ criteria: criteria, limit: limit, select: select });
+        case 5:
+          res.json(newUser);
+          _context5.next = 11;
+          break;
 
-        case 7:
-          user = _context5.sent;
+        case 8:
+          _context5.prev = 8;
+          _context5.t0 = _context5['catch'](2);
 
-          console.log('user:', user);
-
-          if (user) {
-            _context5.next = 11;
-            break;
-          }
-
-          return _context5.abrupt('return', res.json([]));
+          res.status(400).send({ message: 'Error updating project' });
 
         case 11:
-          res.json(user);
-
-        case 12:
         case 'end':
           return _context5.stop();
       }
     }
-  }, _callee5, this);
+  }, _callee5, this, [[2, 8]]);
 }));
-
 /**
  * Delete a user
  */
@@ -285,6 +265,63 @@ exports.logout = function (req, res) {
 };
 
 /**
+ *  Show profile
+ */
+exports.show = function (req, res) {
+  res.json(req.profile);
+};
+
+/**
+ * Search for a user
+ */
+exports.search = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee7(req, res, next) {
+  var limit, select, criteria, user;
+  return regeneratorRuntime.wrap(function _callee7$(_context7) {
+    while (1) {
+      switch (_context7.prev = _context7.next) {
+        case 0:
+          if (!(!req.query || !req.query.username && !req.query.email)) {
+            _context7.next = 2;
+            break;
+          }
+
+          return _context7.abrupt('return', res.status(400).json({
+            message: 'Query parameter required to search.'
+          }));
+
+        case 2:
+          limit = 15;
+          select = 'username email name';
+          criteria = {
+            $or: [createQueryObj('username', req.query.username) || createQueryObj('email', req.query.email)]
+          };
+          _context7.next = 7;
+          return User.list({ criteria: criteria, limit: limit, select: select });
+
+        case 7:
+          user = _context7.sent;
+
+          console.log('user:', user);
+
+          if (user) {
+            _context7.next = 11;
+            break;
+          }
+
+          return _context7.abrupt('return', res.json([]));
+
+        case 11:
+          res.json(user);
+
+        case 12:
+        case 'end':
+          return _context7.stop();
+      }
+    }
+  }, _callee7, this);
+}));
+
+/**
  * Session
  */
 exports.session = function (err, user, errData) {
@@ -294,6 +331,7 @@ exports.session = function (err, user, errData) {
   }
   return user;
 };
+
 /**
  * Auth callback
  */
@@ -310,8 +348,7 @@ exports.login = function (req, res) {
   });
 };
 exports.signin = function () {
-
-  console.log('signing route being called');
+  console.log('signin route being called');
 };
 
 /**

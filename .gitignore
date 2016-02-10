@@ -10,3 +10,5 @@ Makefile
 !.elasticbeanstalk/*.global.yml
 
 uploads/
+
+npm-debug.log
