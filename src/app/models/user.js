@@ -58,11 +58,6 @@ UserSchema
 
 // the below 5 validations only apply if you are signing up traditionally
 
-UserSchema.path('name').validate(function (name) {
-  if (this.skipValidation()) return true;
-  return name.length;
-}, 'Name cannot be blank');
-
 UserSchema.path('email').validate(function (email) {
   if (this.skipValidation()) return true;
   return email.length;
@@ -74,7 +69,7 @@ UserSchema.path('email').validate(function (email, fn) {
 
   // Check only when it is a new user or when email field is modified
   if (this.isNew || this.isModified('email')) {
-    User.find({ email: email }).exec(function (err, users) {
+    User.find({ email }).exec(function(err, users) {
       fn(!err && users.length === 0);
     });
   } else fn(true);
@@ -91,7 +86,7 @@ UserSchema.path('username').validate(function (username, fn) {
 
   // Check only when it is a new user or when username field is modified
   if (this.isNew || this.isModified('username')) {
-    User.find({ username: username }).exec(function (err, users) {
+    User.find({ username }).exec(function (err, users) {
       fn(!err && users.length === 0);
     });
   } else fn(true);

@@ -40,7 +40,7 @@ console.log('this is    :', config);
 exports.getStateToken = function(req, res) {
   if(!config.oauthio || !config.oauthio.publicKey) throw new Error('OAuthio config is required.');
   OAuth.initialize(config.oauthio.publicKey, config.oauthio.secretKey);
-  var token = OAuth.generateStateToken(req.session);
+  let token = OAuth.generateStateToken(req.session);
   res.json({ token });
 };
 
