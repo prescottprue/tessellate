@@ -94,8 +94,6 @@ exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
   }, _callee2, this);
 }));
 
-console.log('this is    :', _config2.default);
-
 /**
  * Get state token
  */

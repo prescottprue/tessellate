@@ -16,5 +16,10 @@ module.exports = {
     clientSecret: 'asdfasdf',
     callbackURL: 'http://localhost:3000/auth/google/callback'
   },
-  jwtSecret: 'shhhhh'
+  jwtSecret: 'shhhhh',
+  auth: {
+    enabled: true,
+    secret: process.env.TESSELLATE_JWT_SECRET || process.env.JWT_SECRET,
+    cookieName: 'tessellate'
+  }
 };

@@ -17,8 +17,9 @@ const Schema = mongoose.Schema;
 const ProjectSchema = new Schema({
   name: { type : String, default : '', trim : true },
   owner: { type : Schema.ObjectId, ref : 'User' },
-  createdAt  : { type : Date, default : Date.now },
-  collaborators: [{type: Schema.ObjectId, ref: 'User'}]
+  private: { type: Boolean, default: false },
+  collaborators: [ { type: Schema.ObjectId, ref: 'User' } ],
+  createdAt  : { type : Date, default : Date.now }
 });
 
 
