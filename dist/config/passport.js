@@ -25,7 +25,4 @@ module.exports = function (passport) {
 
   // use these strategies
   passport.use(local);
-  // passport.use(google);
-  // passport.use(jwt);
-  // passport.use(github);
 };

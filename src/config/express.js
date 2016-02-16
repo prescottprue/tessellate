@@ -4,25 +4,27 @@
  * Module dependencies.
  */
 
-const express = require('express');
-const session = require('express-session');
-const compression = require('compression');
-const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-const cookieSession = require('cookie-session');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const methodOverride = require('method-override');
-// const csrf = require('csurf');
-const multer = require('multer');
-const swig = require('swig');
+import express from 'express';
+import session from 'express-session';
+import compression from 'compression';
+import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
+import cookieSession from 'cookie-session';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import methodOverride from 'method-override';
+// import csrf from 'csurf';
+import multer from 'multer';
+import swig from 'swig';
+import jwt from 'express-jwt';
+
+import flash from 'connect-flash';
+import winston from 'winston';
+import helpers from 'view-helpers';
+import config from './config';
+import pkg from '../../package.json';
 
 const mongoStore = require('connect-mongo')(session);
-const flash = require('connect-flash');
-const winston = require('winston');
-const helpers = require('view-helpers');
-const config = require('./config');
-const pkg = require('../../package.json');
 const env = process.env.NODE_ENV || 'development';
 
 /**
@@ -67,7 +69,7 @@ module.exports = function (app, passport) {
   app.set('view engine', 'html');
 
   // expose package.json to views
-  app.use(function (req, res, next) {
+  app.use((req, res, next) => {
     res.locals.pkg = pkg;
     res.locals.env = env;
     next();
@@ -77,7 +79,7 @@ module.exports = function (app, passport) {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(multer({dest: './uploads/'}).single('image'));
-  app.use(methodOverride(function (req) {
+  app.use(methodOverride(req => {
     if (req.body && typeof req.body === 'object' && '_method' in req.body) {
       // look in urlencoded POST bodies and delete it
       var method = req.body._method;
@@ -110,6 +112,40 @@ module.exports = function (app, passport) {
   app.use(helpers(pkg.name));
 
   app.use(cors());
+
+
+  /** Authentication
+   * @description Enable authentication based on config setting
+   */
+  const { enabled, secret, ignoredPaths } = config.auth;
+
+  if(enabled){
+    /** Route Protection
+     * @description Get token from Authorization header
+     */
+    app.use(jwt({ secret, credentialsRequired: false }).unless({ path: ignoredPaths }));
+
+
+
+    /** Unauthorized Error Handler
+     * @description Respond with 401 when authorization token is invalid
+     */
+    app.use((err, req, res, next) => {
+      if (err.name === 'UnauthorizedError') {
+        console.error({
+          description: 'Error confirming token.',
+          error: err, obj: 'server'
+        });
+        return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
+      }
+    });
+  } else {
+    console.log({
+      description: 'Authentication is disabled. Endpoint results may be affected.',
+      obj: 'server'
+    });
+  }
+
   app.use((err, req, res, next) => {
     console.error('Error:');
     console.error(err.stack);

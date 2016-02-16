@@ -41,6 +41,10 @@ module.exports = {
       prefix: 'avatars'
     }
   },
+  auth: {
+    enabled: true,
+    secret: process.env.TESSELLATE_JWT_SECRET || process.env.JWT_SECRET
+  },
   oauthio: {
     publicKey: process.env.OAUTHIO_KEY,
     secretKey: process.env.OAUTHIO_SECRET

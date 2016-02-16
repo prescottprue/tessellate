@@ -19,7 +19,6 @@ const config = require('./config');
 
 const userAuth = [auth.requiresLogin, auth.user.hasAuthorization];
 const projectAuth = [auth.requiresLogin, auth.project.hasAuthorization];
-const commentAuth = [auth.requiresLogin, auth.comment.hasAuthorization];
 
 /**
  * Expose routes
@@ -49,13 +48,14 @@ module.exports = function (app, passport) {
   app.get('/users/:username', users.show);
   app.put('/users/:username', users.update);
   app.delete('/users/:username', users.destroy);
-  app.put('/users/:username/avatar', userCtrl.avatar);
-  app.post('/users/:username/avatar', userCtrl.avatar);
+  app.put('/users/:username/avatar', userAuth, userCtrl.avatar);
+  app.post('/users/:username/avatar', userAuth, userCtrl.avatar);
 
   //Projects routes
   app.param('owner', users.load);
   app.param('projectName', projects.load);
   app.param('collaborator', users.loadCollaborator);
+
   /**
    * @api {get} /projects Get Projects
    * @apiDescription Get a list of all public projects
@@ -124,7 +124,7 @@ module.exports = function (app, passport) {
    * @apiParam {String} [name] Name of Project
    * @apiSuccess {Array} projects List of projects
    */
-  app.delete('/projects/:owner/:projectName/collaborators/:collaborator', projects.removeCollaborator);
+  app.delete('/projects/:owner/:projectName/collaborators/:collaborator', projectAuth, projects.removeCollaborator);
 
 
   //--------------------------- Users routes ---------------------------------//

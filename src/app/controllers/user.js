@@ -32,8 +32,6 @@ exports.login = wrap(function* (req, res) {
   res.json({ token, user: only(user, '_id username email name avatar_url') });
 });
 
-console.log('this is    :', config);
-
 /**
  * Get state token
  */
