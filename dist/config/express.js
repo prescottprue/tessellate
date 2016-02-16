@@ -56,6 +56,8 @@ var _expressJwt = require('express-jwt');
 
 var _expressJwt2 = _interopRequireDefault(_expressJwt);
 
+var _lodash = require('lodash');
+
 var _connectFlash = require('connect-flash');
 
 var _connectFlash2 = _interopRequireDefault(_connectFlash);
@@ -179,14 +181,33 @@ module.exports = function (app, passport) {
 
 
   if (enabled) {
-    /** Route Protection
-     * @description Get token from Authorization header
-     */
-    app.use((0, _expressJwt2.default)({ secret: secret, credentialsRequired: false }).unless({ path: ignoredPaths }));
+    var fromHeaderOrCookie = function fromHeaderOrCookie(req) {
+      console.log('auth req headers:', req.headers);
+      if (req.headers.authorization) {
+        return req.headers.authorization.split(' ')[1];
+      }
+      if (req.headers.cookie) {
+        console.log('there are cookies');
+        var cookiesList = req.headers.cookie.split(';');
+        var matchingCookie = (0, _lodash.find)(cookiesList, function (cookie) {
+          return cookie.split('=')[0] === _config2.default.auth.cookieName;
+        });
+        console.log('matching cookie:', matchingCookie.split('=')[1].replace(';', ''));
+        if (matchingCookie) return matchingCookie.split('=')[1].replace(';', '');
+      }
+      return null;
+    };
 
     /** Unauthorized Error Handler
      * @description Respond with 401 when authorization token is invalid
      */
+
+
+    /** Route Protection
+     * @description Get token from Authorization header
+     */
+    app.use((0, _expressJwt2.default)({ secret: secret, credentialsRequired: false, getToken: fromHeaderOrCookie }).unless({ path: ignoredPaths }));
+
     app.use(function (err, req, res, next) {
       if (err.name === 'UnauthorizedError') {
         console.error({

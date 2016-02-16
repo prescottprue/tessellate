@@ -43,7 +43,8 @@ module.exports = {
   },
   auth: {
     enabled: true,
-    secret: process.env.TESSELLATE_JWT_SECRET || process.env.JWT_SECRET
+    secret: process.env.TESSELLATE_JWT_SECRET || process.env.JWT_SECRET,
+    cookieName: 'tessellate'
   },
   oauthio: {
     publicKey: process.env.OAUTHIO_KEY,

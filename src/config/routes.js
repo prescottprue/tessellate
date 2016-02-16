@@ -215,7 +215,7 @@ module.exports = function (app, passport) {
    * Error handling
    */
 
-  app.use(function (err, req, res, next) {
+  app.use((err, req, res, next) => {
     // treat as 404
     if (err.message
       && (~err.message.indexOf('not found')
@@ -242,7 +242,7 @@ module.exports = function (app, passport) {
   });
 
   // assume 404 since no middleware responded
-  app.use(function (req, res) {
+  app.use((req, res) => {
     res.status(404).json({
       message: 'Invalid request.',
       status: 'NOT_FOUND',
@@ -251,7 +251,7 @@ module.exports = function (app, passport) {
   });
 
   function loginReq(req, res, next) {
-    passport.authenticate('local', function (error, user, info) {
+    passport.authenticate('local', (error, user, info) => {
       if(error || !user){
         console.log({ message: 'Error with login request.', error });
         return res.status(400).json(info || err);

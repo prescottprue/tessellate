@@ -17,7 +17,7 @@ import methodOverride from 'method-override';
 import multer from 'multer';
 import swig from 'swig';
 import jwt from 'express-jwt';
-
+import { find } from 'lodash';
 import flash from 'connect-flash';
 import winston from 'winston';
 import helpers from 'view-helpers';
@@ -123,9 +123,24 @@ module.exports = function (app, passport) {
     /** Route Protection
      * @description Get token from Authorization header
      */
-    app.use(jwt({ secret, credentialsRequired: false }).unless({ path: ignoredPaths }));
+    app.use(jwt({ secret, credentialsRequired: false, getToken: fromHeaderOrCookie }).unless({ path: ignoredPaths }));
 
-
+    function fromHeaderOrCookie(req) {
+      console.log('auth req headers:', req.headers);
+      if(req.headers.authorization){
+        return req.headers.authorization.split(' ')[1];
+      }
+      if(req.headers.cookie){
+        console.log('there are cookies');
+        const cookiesList = req.headers.cookie.split(';');
+        const matchingCookie = find(cookiesList, cookie => {
+          return cookie.split('=')[0] === config.auth.cookieName
+        });
+        console.log('matching cookie:', matchingCookie.split('=')[1].replace(';', ''));
+        if(matchingCookie) return matchingCookie.split('=')[1].replace(';', '');
+      }
+      return null;
+    }
 
     /** Unauthorized Error Handler
      * @description Respond with 401 when authorization token is invalid

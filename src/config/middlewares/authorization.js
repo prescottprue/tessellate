@@ -7,8 +7,7 @@
 export function requiresLogin(req, res, next) {
   if (req.isAuthenticated()) return next();
   if (req.method == 'GET') req.session.returnTo = req.originalUrl;
-  console.log('request:', req.user);
-  // res.json({message: 'Authentication is required.'});
+  if(!req.user) return res.status(401).json({message: 'Authentication is required.'});
   next();
 };
 
