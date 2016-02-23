@@ -177,42 +177,22 @@ module.exports = function (app, passport) {
   var _config$auth = _config2.default.auth;
   var enabled = _config$auth.enabled;
   var secret = _config$auth.secret;
-  var ignoredPaths = _config$auth.ignoredPaths;
 
 
   if (enabled) {
-    var fromHeaderOrCookie = function fromHeaderOrCookie(req) {
-      console.log('auth req headers:', req.headers);
-      if (req.headers.authorization) {
-        return req.headers.authorization.split(' ')[1];
-      }
-      if (req.headers.cookie) {
-        console.log('there are cookies');
-        var cookiesList = req.headers.cookie.split(';');
-        var matchingCookie = (0, _lodash.find)(cookiesList, function (cookie) {
-          return cookie.split('=')[0] === _config2.default.auth.cookieName;
-        });
-        console.log('matching cookie:', matchingCookie.split('=')[1].replace(';', ''));
-        if (matchingCookie) return matchingCookie.split('=')[1].replace(';', '');
-      }
-      return null;
-    };
+    /** JWT Auth
+     * @description Get token from Authorization header
+     */
+    app.use((0, _expressJwt2.default)({ secret: secret, credentialsRequired: false, getToken: fromHeaderOrCookie }));
 
     /** Unauthorized Error Handler
      * @description Respond with 401 when authorization token is invalid
      */
-
-
-    /** Route Protection
-     * @description Get token from Authorization header
-     */
-    app.use((0, _expressJwt2.default)({ secret: secret, credentialsRequired: false, getToken: fromHeaderOrCookie }).unless({ path: ignoredPaths }));
-
     app.use(function (err, req, res, next) {
       if (err.name === 'UnauthorizedError') {
         console.error({
           description: 'Error confirming token.',
-          error: err, obj: 'server'
+          err: err, obj: 'server'
         });
         return res.status(401).json({ message: 'Invalid token', code: 'UNAUTHORIZED' });
       }
@@ -240,3 +220,18 @@ module.exports = function (app, passport) {
   //   });
   // }
 };
+
+function fromHeaderOrCookie(req) {
+  if (req.headers.authorization) {
+    return req.headers.authorization.split(' ')[1];
+  }
+  if (req.headers.cookie) {
+    var cookiesList = req.headers.cookie.split(';');
+    var matchingCookie = (0, _lodash.find)(cookiesList, function (cookie) {
+      return cookie.split('=')[0] === _config2.default.auth.cookieName;
+    });
+    console.log('matching cookie:', matchingCookie.split('=')[1].replace(';', ''));
+    if (matchingCookie) return matchingCookie.split('=')[1].replace(';', '');
+  }
+  return null;
+}

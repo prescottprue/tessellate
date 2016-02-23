@@ -117,30 +117,13 @@ module.exports = function (app, passport) {
   /** Authentication
    * @description Enable authentication based on config setting
    */
-  const { enabled, secret, ignoredPaths } = config.auth;
+  const { enabled, secret } = config.auth
 
   if(enabled){
-    /** Route Protection
+    /** JWT Auth
      * @description Get token from Authorization header
      */
-    app.use(jwt({ secret, credentialsRequired: false, getToken: fromHeaderOrCookie }).unless({ path: ignoredPaths }));
-
-    function fromHeaderOrCookie(req) {
-      console.log('auth req headers:', req.headers);
-      if(req.headers.authorization){
-        return req.headers.authorization.split(' ')[1];
-      }
-      if(req.headers.cookie){
-        console.log('there are cookies');
-        const cookiesList = req.headers.cookie.split(';');
-        const matchingCookie = find(cookiesList, cookie => {
-          return cookie.split('=')[0] === config.auth.cookieName
-        });
-        console.log('matching cookie:', matchingCookie.split('=')[1].replace(';', ''));
-        if(matchingCookie) return matchingCookie.split('=')[1].replace(';', '');
-      }
-      return null;
-    }
+    app.use(jwt({ secret, credentialsRequired: false, getToken: fromHeaderOrCookie }))
 
     /** Unauthorized Error Handler
      * @description Respond with 401 when authorization token is invalid
@@ -149,11 +132,11 @@ module.exports = function (app, passport) {
       if (err.name === 'UnauthorizedError') {
         console.error({
           description: 'Error confirming token.',
-          error: err, obj: 'server'
-        });
-        return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'});
+          err, obj: 'server'
+        })
+        return res.status(401).json({message:'Invalid token', code:'UNAUTHORIZED'})
       }
-    });
+    })
   } else {
     console.log({
       description: 'Authentication is disabled. Endpoint results may be affected.',
@@ -177,3 +160,18 @@ module.exports = function (app, passport) {
   //   });
   // }
 };
+
+function fromHeaderOrCookie (req) {
+  if(req.headers.authorization){
+    return req.headers.authorization.split(' ')[1]
+  }
+  if(req.headers.cookie){
+    const cookiesList = req.headers.cookie.split(';')
+    const matchingCookie = find(cookiesList, cookie => {
+      return cookie.split('=')[0] === config.auth.cookieName
+    })
+    console.log('matching cookie:', matchingCookie.split('=')[1].replace(';', ''))
+    if(matchingCookie) return matchingCookie.split('=')[1].replace(';', '')
+  }
+  return null
+}

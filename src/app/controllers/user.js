@@ -27,7 +27,6 @@ exports.index = wrap(function* (req, res) {
 exports.login = wrap(function* (req, res) {
   if(!req.user) return res.status(400).json({message: 'User required to login.'});
   const user = req.user;
-  console.log('user:', user);
   const token = user.createAuthToken();
   res.json({ token, user: only(user, '_id username email name avatar_url') });
 });
@@ -37,29 +36,40 @@ exports.login = wrap(function* (req, res) {
  */
 exports.getStateToken = function(req, res) {
   if(!config.oauthio || !config.oauthio.publicKey) throw new Error('OAuthio config is required.');
-  OAuth.initialize(config.oauthio.publicKey, config.oauthio.secretKey);
-  let token = OAuth.generateStateToken(req.session);
-  res.json({ token });
+  const { publicKey, secretKey } = config.oauthio;
+  OAuth.initialize(publicKey, secretKey);
+  try {
+    const token = OAuth.generateStateToken(req.session);
+    res.json({ token });
+  } catch(err) {
+    console.log('error getting state token', err);
+    res.status(400).json({ message: 'Error getting state token.'})
+  }
 };
 
 /**
  * Authenticate with external provider
  */
 exports.providerAuth = wrap(function* (req, res) {
-  const { stateToken, provider, code } = req.body;
-  req.session.csrf_tokens = [ stateToken ];
+  if(!req.body) return res.status(400).json({ message: 'Provider auth data required.' })
+  const { stateToken, provider, code } = req.body
+  req.session.csrf_tokens = [ stateToken ]
   try {
-    const auth = yield OAuth.auth(provider, req.session, { code });
-    const providerAccount = yield auth.me();
-    const { email, name, avatar } = providerAccount;
+    const auth = yield OAuth.auth(provider, req.session, { code })
+    const providerAccount = yield auth.me()
+    const { email, name, avatar, id } = providerAccount;
     try {
       //Log into already existing user
-      const existingUser = yield User.load({ criteria: { email } });
-      const existingToken = existingUser.createAuthToken();
-      if(existingUser) return res.json({ user: existingUser, token: existingToken });
+      // TODO: Search based on user's providerId (google id or github id)
+      const existingUser = yield User.load({ criteria: { email, provider }})
+      const existingToken = existingUser.createAuthToken()
+      if(existingUser) return res.json({ user: existingUser, token: existingToken })
     } catch(err) {
-      //User already exists
-      let newData = { email, name, provider, avatar_url: avatar, username: providerAccount.alias || email.split('@')[0] };
+      //User does not already exist
+      let newData = {
+        email, name, provider, avatar_url: avatar, providerId: id,
+        username: providerAccount.alias || email.split('@')[0]
+      };
       newData[req.body.provider] = providerAccount;
       try {
         const user = new User(newData);

@@ -80,13 +80,11 @@ exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
 
         case 2:
           user = req.user;
-
-          console.log('user:', user);
           token = user.createAuthToken();
 
           res.json({ token: token, user: (0, _only2.default)(user, '_id username email name avatar_url') });
 
-        case 6:
+        case 5:
         case 'end':
           return _context2.stop();
       }
@@ -99,103 +97,124 @@ exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
  */
 exports.getStateToken = function (req, res) {
   if (!_config2.default.oauthio || !_config2.default.oauthio.publicKey) throw new Error('OAuthio config is required.');
-  _oauthio2.default.initialize(_config2.default.oauthio.publicKey, _config2.default.oauthio.secretKey);
-  var token = _oauthio2.default.generateStateToken(req.session);
-  res.json({ token: token });
+  var _config$oauthio = _config2.default.oauthio;
+  var publicKey = _config$oauthio.publicKey;
+  var secretKey = _config$oauthio.secretKey;
+
+  _oauthio2.default.initialize(publicKey, secretKey);
+  try {
+    var token = _oauthio2.default.generateStateToken(req.session);
+    res.json({ token: token });
+  } catch (err) {
+    console.log('error getting state token', err);
+    res.status(400).json({ message: 'Error getting state token.' });
+  }
 };
 
 /**
  * Authenticate with external provider
  */
 exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee3(req, res) {
-  var _req$body, stateToken, provider, code, auth, providerAccount, email, name, avatar, existingUser, existingToken, newData, user, token;
+  var _req$body, stateToken, provider, code, auth, providerAccount, email, name, avatar, id, existingUser, existingToken, newData, user, token;
 
   return regeneratorRuntime.wrap(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
         case 0:
+          if (req.body) {
+            _context3.next = 2;
+            break;
+          }
+
+          return _context3.abrupt('return', res.status(400).json({ message: 'Provider auth data required.' }));
+
+        case 2:
           _req$body = req.body;
           stateToken = _req$body.stateToken;
           provider = _req$body.provider;
           code = _req$body.code;
 
           req.session.csrf_tokens = [stateToken];
-          _context3.prev = 5;
-          _context3.next = 8;
+          _context3.prev = 7;
+          _context3.next = 10;
           return _oauthio2.default.auth(provider, req.session, { code: code });
 
-        case 8:
+        case 10:
           auth = _context3.sent;
-          _context3.next = 11;
+          _context3.next = 13;
           return auth.me();
 
-        case 11:
+        case 13:
           providerAccount = _context3.sent;
           email = providerAccount.email;
           name = providerAccount.name;
           avatar = providerAccount.avatar;
-          _context3.prev = 15;
-          _context3.next = 18;
-          return User.load({ criteria: { email: email } });
+          id = providerAccount.id;
+          _context3.prev = 18;
+          _context3.next = 21;
+          return User.load({ criteria: { email: email, provider: provider } });
 
-        case 18:
+        case 21:
           existingUser = _context3.sent;
           existingToken = existingUser.createAuthToken();
 
           if (!existingUser) {
-            _context3.next = 22;
+            _context3.next = 25;
             break;
           }
 
           return _context3.abrupt('return', res.json({ user: existingUser, token: existingToken }));
 
-        case 22:
-          _context3.next = 39;
+        case 25:
+          _context3.next = 42;
           break;
 
-        case 24:
-          _context3.prev = 24;
-          _context3.t0 = _context3['catch'](15);
+        case 27:
+          _context3.prev = 27;
+          _context3.t0 = _context3['catch'](18);
 
-          //User already exists
-          newData = { email: email, name: name, provider: provider, avatar_url: avatar, username: providerAccount.alias || email.split('@')[0] };
+          //User does not already exist
+          newData = {
+            email: email, name: name, provider: provider, avatar_url: avatar, providerId: id,
+            username: providerAccount.alias || email.split('@')[0]
+          };
 
           newData[req.body.provider] = providerAccount;
-          _context3.prev = 28;
+          _context3.prev = 31;
           user = new User(newData);
-          _context3.next = 32;
+          _context3.next = 35;
           return user.save();
 
-        case 32:
+        case 35:
           token = user.createAuthToken();
 
           res.json({ token: token, user: user });
-          _context3.next = 39;
+          _context3.next = 42;
           break;
 
-        case 36:
-          _context3.prev = 36;
-          _context3.t1 = _context3['catch'](28);
+        case 39:
+          _context3.prev = 39;
+          _context3.t1 = _context3['catch'](31);
 
           res.status(400).json({ message: 'Error creating new user.', error: _context3.t1.toString() });
 
-        case 39:
-          _context3.next = 45;
+        case 42:
+          _context3.next = 48;
           break;
 
-        case 41:
-          _context3.prev = 41;
-          _context3.t2 = _context3['catch'](5);
+        case 44:
+          _context3.prev = 44;
+          _context3.t2 = _context3['catch'](7);
 
           console.error('error authenticating with oAuthio', _context3.t2.toString());
           res.status(400).json({ message: 'error authenticating', error: _context3.t2.toString() });
 
-        case 45:
+        case 48:
         case 'end':
           return _context3.stop();
       }
     }
-  }, _callee3, this, [[5, 41], [15, 24], [28, 36]]);
+  }, _callee3, this, [[7, 44], [18, 27], [31, 39]]);
 }));
 
 /**

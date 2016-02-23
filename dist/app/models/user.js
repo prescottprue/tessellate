@@ -47,6 +47,7 @@ var UserSchema = new Schema({
   username: { type: String, default: '', unique: true },
   avatar_url: { type: String },
   provider: { type: String, default: '' },
+  providerId: { type: String },
   hashed_password: { type: String, default: '' },
   salt: { type: String, default: '' },
   authToken: { type: String },
@@ -195,7 +196,7 @@ UserSchema.methods = {
     if (this.authToken) return this.authToken;
     try {
       var tokenData = (0, _only2.default)(this, '_id username email provider');
-      var token = _jsonwebtoken2.default.sign(tokenData, _config2.default.jwtSecret);
+      var token = _jsonwebtoken2.default.sign(tokenData, _config2.default.auth.secret);
       return this.authToken = token;
     } catch (error) {
       console.log({

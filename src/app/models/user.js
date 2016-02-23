@@ -28,6 +28,7 @@ const UserSchema = new Schema({
   username: { type: String, default: '', unique: true },
   avatar_url: { type: String },
   provider: { type: String, default: '' },
+  providerId: { type: String },
   hashed_password: { type: String, default: '' },
   salt: { type: String, default: '' },
   authToken: { type: String },
@@ -181,7 +182,7 @@ UserSchema.methods = {
     if(this.authToken) return this.authToken;
     try {
 			const tokenData = only(this, '_id username email provider');
-			const token = jwt.sign(tokenData, config.jwtSecret);
+			const token = jwt.sign(tokenData, config.auth.secret);
       return this.authToken = token;
 		} catch (error) {
 			console.log({
