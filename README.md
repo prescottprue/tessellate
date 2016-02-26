@@ -2,10 +2,20 @@
 
 Code project building and management platform
 
-[![Build Status](https://img.shields.io/travis/KyperTech/tessellate.svg?style=flat)](https://travis-ci.org/KyperTech/tessellate)
-[![Dependencies](https://img.shields.io/david/KyperTech/tessellate.svg?style=flat)](https://david-dm.org/KyperTech/tessellate)
-[![Code climate](http://img.shields.io/codeclimate/github/KyperTech/tessellate.svg?style=flat)](https://codeclimate.com/github/KyperTech/tessellate)
+[![Build Status](https://img.shields.io/travis/KyperTech/tessellate.svg?style=flat-square)](https://travis-ci.org/KyperTech/tessellate)
+[![Dependencies](https://img.shields.io/david/KyperTech/tessellate.svg?style=flat-square)](https://david-dm.org/KyperTech/tessellate)
+[![Code climate](http://img.shields.io/codeclimate/github/KyperTech/tessellate.svg?style=flat-square)](https://codeclimate.com/github/KyperTech/tessellate)
 
+## Using The API
+
+Tessellate can be interacted with through a REST API as well as few different javascript helper libraries listed below.
+
+## Helper Libraries
+
+There are a few helper libraries for interacting with the service (instead of making direct REST calls)
+
+Authentication library: Matter
+Resource interaction library: Grout
 
 ## Install
 1. Clone and install
@@ -16,12 +26,13 @@ $ npm install
 
 2. Set environment vars
 ```sh
-$ export GOOGLE_CLIENTID=GOOGLE_CLIENTID
-$ export GOOGLE_SECRET=GOOGLE_SECRET
-$ export IMAGER_S3_KEY=AWS_S3_KEY
-$ export IMAGER_S3_SECRET=AWS_S3_SECRET
-$ export IMAGER_S3_BUCKET=AWS_S3_BUCKET
+$ export JWT_SECRET
+$ export OAUTHIO_KEY
+$ export OAUTHIO_SECRET
+$ export AWS_KEY
+$ export AWS_SECRET
 ```
+
 3. Start dev server
 
   ```sh

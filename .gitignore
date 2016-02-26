@@ -1,14 +1,14 @@
-node_modules/
-.monitor
-config/env/env.json
-Makefile
 .DS_Store
+*.log
+node_modules
+dist
+lib
+es
+coverage
+_book
+uploads/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-
-uploads/
-
-npm-debug.log
