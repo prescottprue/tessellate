@@ -11,20 +11,20 @@ List all public projects
 
   Get a project's data based on its owner and name
 
-## PATCH	/projects	/:owner	/:project
+## PATCH	/projects/:owner/:project
 
   edit a project
 
-## GET	/projects	/:owner	/:project	/collaborators
+## GET	/projects/:owner/:project/collaborators
 
   get collaborators for a project
 
-## POST	/projects	/:owner	/:project	/collaborators
+## POST	/projects/:owner/:project/collaborators
   Add collaborator to a project.
 
   **Authentication:** You must be the owner or a collaborator on the project to add others.
 
-## DELETE	/projects	/:owner	/:project
+## DELETE	/projects/:owner/:project
 
   delete a project
 
