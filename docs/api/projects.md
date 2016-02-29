@@ -3,11 +3,11 @@
 ## List Projects
   List all public projects
 
-  **Endpoint** `GET /projects`
+  `GET /projects`
 
   **Example**
 
-  `curl http://tessellate.kyper.io/projects`
+  `curl -i -X GET http://tessellate.kyper.io/projects`
 
   **Authentication**
 
@@ -17,11 +17,11 @@
 
   Get all projects for which the user is an owner or a collaborator
 
-  **Endpoint** `GET /projects/:username`
+  `GET /projects/:username`
 
   **Example**
 
-  `GET http://tessellate.kyper.io/projects/testuser`
+  `curl -i -X GET http://tessellate.kyper.io/projects/testuser`
 
   **Authentication**
 
@@ -31,11 +31,11 @@
 
   Create a new project owned by the provided user
 
-  **Endpoint** `POST /projects/:username`
+  `POST /projects/:username`
 
   **Example**
 
-  `POST http://tessellate.kyper.io/projects/testuser`
+  `curl -i -X POST http://tessellate.kyper.io/projects/testuser`
 
   | Name          | Type   | Required | Description         
   |---------------|--------|----------|---------------------
@@ -50,7 +50,7 @@
 
   Get a project's data provided its owner and name
 
-  **Endpoint** `GET /projects/:owner/:project`
+  `GET /projects/:owner/:project`
 
   **Example**
   `GET http://tessellate.kyper.io/projects/testuser/exampleProject`
@@ -63,7 +63,7 @@
 
   Edit/Update an already existing project
 
-  **Endpoint** `PATCH /projects/:owner/:project`
+  `PATCH /projects/:owner/:project`
 
   **Example**
   `GET http://tessellate.kyper.io/projects/testuser/exampleProject`
@@ -78,7 +78,7 @@
 
   Delete a project provided its owner and name
 
-  **Endpoint** `DELETE /projects/:owner/:project`
+  `DELETE /projects/:owner/:project`
 
   **Example**
   `DELETE http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators`
@@ -93,7 +93,7 @@
 
   Get list of collaborators for a project
 
-  **Endpoint** `GET	/projects	/:owner	/:project	/collaborators`
+  `GET	/projects	/:owner	/:project	/collaborators`
 
   **Example:**
   `GET http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators`
@@ -103,7 +103,7 @@
 
   Add collaborator to a project.
 
-  **Endpoint** `POST	/projects/:owner/:project/collaborators/:collaborator`
+  `POST	/projects/:owner/:project/collaborators/:collaborator`
 
   **Example:**
   `POST http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators/someguy1`
