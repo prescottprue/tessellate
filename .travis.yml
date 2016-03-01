@@ -1,0 +1,25 @@
+language: node_js
+services:
+  - mongodb
+node_js:
+  - "4.2.2"
+branches:
+  only:
+    - master
+sudo: false
+script: "npm run pre-deploy && npm run build && npm test"
+cache:
+  directories:
+    - node_modules
+addons:
+  code_climate:
+    repo_token: $CODE_CLIMATE_TOKEN
+deploy:
+  skip_cleanup: true
+  provider: elasticbeanstalk
+  access_key_id: $AWS_KEY
+  secret_access_key: $AWS_SECRET
+  region: us-east-1
+  app: tessellate
+  env: tessellate-stg
+  bucket_name: $BUCKET
