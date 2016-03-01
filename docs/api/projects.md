@@ -7,7 +7,33 @@
 
   **Example**
 
+  *Request*
+
   `curl -i -X GET http://tessellate.kyper.io/projects`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "name": "exampleProject",
+      "owner": {
+        "username": "testuser"
+      },
+      "collaborators": [
+        {
+          "username": "someguy1"
+        }
+      ]
+    }, {
+      "name": "testProject",
+      "owner": {
+        "username": "someguy"
+      },
+      "collaborators": []
+    }
+  ]
+  ```
 
   **Authentication**
 
@@ -21,7 +47,34 @@
 
   **Example**
 
+  *Request*
+
   `curl -i -X GET http://tessellate.kyper.io/projects/testuser`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "name": "exampleProject",
+      "owner": {
+        "username": "testuser"
+      },
+      "collaborators": [
+        {
+          "username": "someguy1"
+        }
+      ]
+    }, {
+      "name": "testProject",
+      "owner": {
+        "username": "someguy"
+      },
+      "collaborators": []
+    }
+  ]
+  ```
+
 
   **Authentication**
 
@@ -33,14 +86,34 @@
 
   `POST /projects/:username`
 
-  **Example**
-
-  `curl -i -X POST http://tessellate.kyper.io/projects/testuser`
+  **Body Parameters**
 
   | Name          | Type   | Required | Description         
   |---------------|--------|----------|---------------------
   | name          | String | `true`   | Name of new project
   | collaborators | Array  | `false`  | List of collaborators usernames to add to new project
+
+  **Example**
+
+  *Request*
+
+  `curl -i -X POST http://tessellate.kyper.io/projects/testuser`
+
+  *Response*
+
+  ```json
+  {
+    "name": "exampleProject",
+    "owner": {
+      "username": "testuser"
+    },
+    "collaborators": [
+      {
+        "username": "someguy1"
+      }
+    ]
+  }
+  ```
 
   **Authentication**
 
@@ -48,12 +121,28 @@
 
 ## Get a Project
 
-  Get a project's data provided its owner and name
+  Get a project"s data provided its owner and name
 
   `GET /projects/:owner/:project`
 
   **Example**
-  `GET http://tessellate.kyper.io/projects/testuser/exampleProject`
+
+  *Request*
+
+  `curl -i -X GET http://tessellate.kyper.io/projects/testuser/exampleProject`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "name": "exampleProject",
+      "owner": {
+        "username": "testuser"
+      }
+    }
+  ]
+  ```
 
   **Authentication**
 
@@ -66,7 +155,23 @@
   `PATCH /projects/:owner/:project`
 
   **Example**
-  `GET http://tessellate.kyper.io/projects/testuser/exampleProject`
+
+  *Request*
+
+  `curl -i -X GET http://tessellate.kyper.io/projects/testuser/exampleProject`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "name": "exampleProject",
+      "owner": {
+        "username": "testuser"
+      }
+    }
+  ]
+  ```
 
   | Name          | Type   | Required | Description         
   |---------------|--------|----------|---------------------
@@ -81,10 +186,26 @@
   `DELETE /projects/:owner/:project`
 
   **Example**
-  `DELETE http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators`
 
+  *Request*
+
+  `curl -i -X DELETE http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "name": "exampleProject",
+      "owner":{
+        "username": "testuser"
+      }
+    }
+  ]
+  ```
 
   **Authentication** You must be the owner or a collaborator on the project to add others.
+
 
 
 ## Collaborators
@@ -93,19 +214,81 @@
 
   Get list of collaborators for a project
 
-  `GET	/projects	/:owner	/:project	/collaborators`
+  `GET	/projects/:owner/:project/collaborators`
 
   **Example:**
-  `GET http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators`
+
+  *Request*
+
+  `curl -i -X GET http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "username": "someguy1",
+      "name": "Some Guy",
+    }
+  ]
+  ```
 
 ### Add Collaborator
 
   Add collaborator to a project.
 
-  `POST	/projects/:owner/:project/collaborators/:collaborator`
+  `PUT	/projects/:owner/:project/collaborators/:collaborator/:username`
 
   **Example:**
-  `POST http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators/someguy1`
+
+  *Request*
+
+  `curl -i -X POST http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators/someguy1`
+
+  *Response*
+
+  ```json
+  {
+    "name": "exampleProject",
+    "owner": {
+      "username": "testuser"
+    },
+    "collaborators": [
+      {
+        "username": "someguy1"
+      }
+    ]
+  }
+  ```
+
+  **Authentication**
+
+  You must be the owner or a collaborator on the project to add others.
+
+### Remove Collaborator
+
+  Remove collaborator from a project.
+
+  `DELETE	/projects/:owner/:project/collaborators/:collaborator/:username`
+
+  **Example:**
+
+  *Request*
+
+  `curl -i -X POST http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators/someguy1`
+
+  *Response*
+
+  ```json
+  {
+    "name": "exampleProject",
+    "owner": {
+      "username": "testuser"
+    },
+    "collaborators": [
+    ]
+  }
+  ```
 
   **Authentication**
 
