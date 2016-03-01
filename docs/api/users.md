@@ -3,11 +3,30 @@
 ## List Users
   List all public users
 
-  **Endpoint** `GET /users`
+  `GET /users`
 
   **Example**
 
+  *Request*
+
   `curl http://tessellate.kyper.io/users`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "username": "someguy1",
+      "email": "someguy1@email.com",
+      "name": "Some Guy"
+    },
+    {
+      "username": "bob",
+      "email": "bob@gmail.com",
+      "name": "Bob Dasso"
+    }
+  ]
+  ```
 
   **Authentication**
 
@@ -17,11 +36,30 @@
 
   Get all users for which the user is an owner or a collaborator
 
-  **Endpoint** `GET /users/:username`
+  `GET /users/:username`
 
   **Example**
 
+  *Request*
+
   `GET http://tessellate.kyper.io/users/testuser`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "username": "someguy1",
+      "email": "someguy1@email.com",
+      "name": "Some Guy"
+    },
+    {
+      "username": "bob",
+      "email": "bob@gmail.com",
+      "name": "Bob Dasso"
+    }
+  ]
+  ```
 
   **Authentication**
 
@@ -31,26 +69,77 @@
 
   Get all users for which the user is an owner or a collaborator
 
-  **Endpoint** `GET /users/search`
+  `GET /users/search`
 
   **Examples**
 
   Search by username
-  `GET http://tessellate.kyper.io/users/search?username=testuser`
+  *Request*
+
+  `curl -i GET http://tessellate.kyper.io/users/search?username=testuser`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "username": "someguy1",
+      "email": "someguy1@email.com",
+      "name": "Some Guy"
+    },
+    {
+      "username": "bob",
+      "email": "bob@gmail.com",
+      "name": "Bob Dasso"
+    }
+  ]
+  ```
 
   Search by email
-  `GET http://tessellate.kyper.io/users/search?email=test@test.com`
+
+  *Request*
+
+  `curl -i GET http://tessellate.kyper.io/users/search?email=test@test.com`
+
+  *Response*
+
+  ```json
+  [
+    {
+      "username": "someguy1",
+      "email": "someguy1@email.com",
+      "name": "Some Guy"
+    },
+    {
+      "username": "bob",
+      "email": "bob@gmail.com",
+      "name": "Bob Dasso"
+    }
+  ]
+  ```
 
 ## Upload Avatar
 
   Upload an avatar to a user's account
 
-  **Endpoint** `GET /users/:username/avatar`
+  `PUT /users/:username/avatar`
 
   **Example**
 
-  Search by username
-  `GET http://tessellate.kyper.io/users/`
+  *Request*
+
+  `curl -i PUT http://tessellate.kyper.io/users/someguy1/avatar`
+
+  *Response*
+
+  ```json
+  {
+    "username": "someguy1",
+    "email": "someguy1@email.com",
+    "name": "Some Guy",
+    "avatar_url": "https://someimagelink.com"
+  }
+  ```
 
   **Authentication**
 

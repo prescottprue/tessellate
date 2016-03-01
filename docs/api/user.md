@@ -8,9 +8,21 @@ You must be logged in for ALL user endpoints to work
 
   Upload an avatar to a user's account
 
-  **Endpoint** `PUT /user/avatar`
+  `PUT /user/avatar`
 
   **Example**
 
-  Search by username
-  `GET http://tessellate.kyper.io/users/`
+  *Request*
+
+    `curl -i PUT http://tessellate.kyper.io/user/avatar`
+
+  *Response*
+
+  ```json
+  {
+    "username": "someguy1",
+    "email": "someguy1@email.com",
+    "name": "Some Guy",
+    "avatar_url": "https://someimagelink.com"
+  }
+  ```

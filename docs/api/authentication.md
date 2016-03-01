@@ -4,11 +4,9 @@
 
   Upload an avatar to a user's account
 
-  **Endpoint**  `PUT /login`
+  `PUT /login`
 
-  **Example**
-
-  `PUT http://tessellate.kyper.io/login`
+  **Body Parameters**
 
   | Name     | Type   | Required | Description
   |----------|--------|----------|---------------------
@@ -16,15 +14,37 @@
   | email    | String | `false` | Email of user to login as (required if username is not provided)
   | password | String | `true`  | User's password
 
+  **Example**
+
+  *Request*
+
+  `curl -i PUT http://tessellate.kyper.io/login`
+
+  *Response*
+
+  ```json
+  {
+    "token": "asdfijasofijasdf",
+    "user": {
+      "username": "testuser",
+      "email": "test@test.com",
+      "avatar_url": "https://someurl.com/img.jpg"
+    }
+  }
+  ```
+
 ## Signup
 
   Signup for a new account and login with that account
 
-  **Endpoint**  `PUT /signup`
+  `PUT /signup`
 
   **Example**
 
-  `PUT http://tessellate.kyper.io/signup`
+  *Request*
+  `curl -i PUT http://tessellate.kyper.io/signup`
+
+  *Response*
 
   | Name     | Type   | Required | Description
   |----------|--------|----------|---------------------
