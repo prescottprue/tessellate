@@ -22,7 +22,7 @@
   },
   "main": "dist/server.js",
   "scripts": {
-    "copy-views": "cp -a src/app/views dist/app/",
+    "copy-views": "cp -a src/app/views dist/app",
     "copy-assets": "cp -a public dist/public",
     "copy": "mkdir -p dist && npm run copy-views && npm run copy-assets",
     "pre-deploy": "node ./bin/pre-deploy",
