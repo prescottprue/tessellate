@@ -237,7 +237,7 @@
 
   Add collaborator to a project.
 
-  `PUT	/projects/:owner/:project/collaborators/:collaborator/:username`
+  `PUT	/projects/:owner/:project/collaborators/:collaborator/:collaborator`
 
   **Example:**
 
@@ -269,7 +269,7 @@
 
   Remove collaborator from a project.
 
-  `DELETE	/projects/:owner/:project/collaborators/:collaborator/:username`
+  `DELETE	/projects/:owner/:project/collaborators/:collaborator`
 
   **Example:**
 
