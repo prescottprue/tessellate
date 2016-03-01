@@ -189,19 +189,14 @@
 
   *Request*
 
-  `curl -i -X DELETE http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators`
+  `curl -i -X DELETE http://tessellate.kyper.io/projects/testuser/exampleProject`
 
   *Response*
 
   ```json
-  [
-    {
-      "name": "exampleProject",
-      "owner":{
-        "username": "testuser"
-      }
-    }
-  ]
+  {
+    "message": "project deleted successfully"
+  }
   ```
 
   **Authentication** You must be the owner or a collaborator on the project to add others.
@@ -281,12 +276,7 @@
 
   ```json
   {
-    "name": "exampleProject",
-    "owner": {
-      "username": "testuser"
-    },
-    "collaborators": [
-    ]
+    "message": "collaborator deleted successfully"
   }
   ```
 

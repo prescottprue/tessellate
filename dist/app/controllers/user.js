@@ -49,7 +49,7 @@ exports.index = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
             break;
           }
 
-          return _context.abrupt('return', res.status(404).json({ message: 'User not found' }));
+          return _context.abrupt('return', res.status(404).json({ message: 'user not found' }));
 
         case 5:
           res.json(user);
@@ -76,7 +76,7 @@ exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
             break;
           }
 
-          return _context2.abrupt('return', res.status(400).json({ message: 'User required to login.' }));
+          return _context2.abrupt('return', res.status(400).json({ message: 'user required to login.' }));
 
         case 2:
           user = req.user;
@@ -107,7 +107,7 @@ exports.getStateToken = function (req, res) {
     res.json({ token: token });
   } catch (err) {
     console.log('error getting state token', err);
-    res.status(400).json({ message: 'Error getting state token.' });
+    res.status(400).json({ message: 'error getting state token.' });
   }
 };
 
@@ -126,7 +126,7 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
             break;
           }
 
-          return _context3.abrupt('return', res.status(400).json({ message: 'Provider auth data required.' }));
+          return _context3.abrupt('return', res.status(400).json({ message: 'provider auth data required.' }));
 
         case 2:
           _req$body = req.body;
@@ -196,7 +196,7 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
           _context3.prev = 39;
           _context3.t1 = _context3['catch'](31);
 
-          res.status(400).json({ message: 'Error creating new user.', error: _context3.t1.toString() });
+          res.status(400).json({ message: 'error creating new user.', error: _context3.t1.toString() });
 
         case 42:
           _context3.next = 48;
@@ -230,7 +230,7 @@ exports.logout = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
           // delete user.authToken
           // yield user.save()
           res.json({
-            message: 'Logout successful.'
+            message: 'logout successful.'
           });
 
         case 1:
@@ -284,7 +284,7 @@ exports.avatar = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
           return _user.uploadImageAndSave(image);
 
         case 5:
-          res.json({ message: 'Image uploaded successfully.' });
+          res.json({ message: 'image uploaded successfully.' });
           _context6.next = 11;
           break;
 
@@ -292,7 +292,7 @@ exports.avatar = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
           _context6.prev = 8;
           _context6.t0 = _context6['catch'](1);
 
-          res.status(400).json({ message: 'Error uploading image.', error: _context6.t0.toString() });
+          res.status(400).json({ message: 'error uploading image.', error: _context6.t0.toString() });
 
         case 11:
         case 'end':

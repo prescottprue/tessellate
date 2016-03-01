@@ -17,7 +17,7 @@ const Project = mongoose.model('Project')
  */
 exports.index = wrap(function * (req, res) {
   const user = yield User.load({ _id: req.user._id })
-  if (!user) return res.status(404).json({message: 'User not found'})
+  if (!user) return res.status(404).json({message: 'user not found'})
   res.json(user)
 })
 
@@ -25,7 +25,7 @@ exports.index = wrap(function * (req, res) {
  * Login
  */
 exports.login = wrap(function * (req, res) {
-  if (!req.user) return res.status(400).json({message: 'User required to login.'})
+  if (!req.user) return res.status(400).json({message: 'user required to login.'})
   const user = req.user
   const token = user.createAuthToken()
   res.json({ token, user: only(user, '_id username email name avatar_url') })
@@ -43,7 +43,7 @@ exports.getStateToken = function (req, res) {
     res.json({ token })
   } catch (err) {
     console.log('error getting state token', err)
-    res.status(400).json({ message: 'Error getting state token.' })
+    res.status(400).json({ message: 'error getting state token.' })
   }
 }
 
@@ -51,7 +51,7 @@ exports.getStateToken = function (req, res) {
  * Authenticate with external provider
  */
 exports.providerAuth = wrap(function * (req, res) {
-  if (!req.body) return res.status(400).json({ message: 'Provider auth data required.' })
+  if (!req.body) return res.status(400).json({ message: 'provider auth data required.' })
   const { stateToken, provider, code } = req.body
   req.session.csrf_tokens = [ stateToken ]
   try {
@@ -77,7 +77,7 @@ exports.providerAuth = wrap(function * (req, res) {
         const token = user.createAuthToken()
         res.json({ token, user })
       } catch (error) {
-        res.status(400).json({message: 'Error creating new user.', error: error.toString()})
+        res.status(400).json({message: 'error creating new user.', error: error.toString()})
       }
     }
   } catch (err) {
@@ -95,7 +95,7 @@ exports.logout = wrap(function * (req, res) {
   // delete user.authToken
   // yield user.save()
   res.json({
-    message: 'Logout successful.'
+    message: 'logout successful.'
   })
 })
 
@@ -118,8 +118,8 @@ exports.avatar = wrap(function * (req, res) {
   try {
     const user = req.profile
     yield user.uploadImageAndSave(image)
-    res.json({message: 'Image uploaded successfully.'})
+    res.json({message: 'image uploaded successfully.'})
   } catch (error) {
-    res.status(400).json({message: 'Error uploading image.', error: error.toString()})
+    res.status(400).json({message: 'error uploading image.', error: error.toString()})
   }
 })
