@@ -98,7 +98,6 @@
   **Example:**
   `GET http://tessellate.kyper.io/projects/testuser/exampleProject/collaborators`
 
-
 ### Add Collaborator
 
   Add collaborator to a project.
