@@ -36,7 +36,13 @@ exports.index = wrap(function * (req, res) {
   if (req.profile) {
     options.criteria = { $or: [ { owner: req.profile._id }, { collaborators: { $in: [req.profile._id] } } ] }
   }
-  const projects = yield Project.list(options)
+  try {
+    const projects = yield Project.list(options)
+    res.json(projects)
+  } catch (err) {
+    console.log('Error getting projects:', err)
+    res.json({message: 'Error getting projects', error: err.toString()})
+  }
   // TODO: Responsed with pagination data
   // const count = yield Project.count()
   // res.json({
@@ -45,7 +51,6 @@ exports.index = wrap(function * (req, res) {
   //	 page: page + 1,
   //	 pages: Math.ceil(count / limit)
   // })
-  res.json(projects)
 })
 
 /**

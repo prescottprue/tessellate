@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 /**
  * Expose
@@ -42,4 +42,4 @@ module.exports = {
     clientID: process.env.TESSELLATE_GITHUB_KEY || process.env.GITHUB_KEY,
     clientSecret: process.env.TESSELLATE_GITHUB_SECRET || process.env.GITHUB_SECRET
   }
-}
+};

@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 /**
  * Expose
@@ -21,4 +21,4 @@ module.exports = {
     secret: 'shhhhh',
     cookieName: 'tessellate'
   }
-}
+};
