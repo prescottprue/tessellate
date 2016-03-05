@@ -23,12 +23,13 @@ var defaults = {
   root: path.join(__dirname, '..'),
   notifier: notifier
 };
+if (process.env.NODE_ENV !== 'test') {
+  var requiredEnvVars = ['TESSELLATE_DEV_MONGO', 'JWT_SECRET', 'FIREBASE_SECRET', 'OAUTHIO_KEY', 'OAUTHIO_SECRET'];
 
-var requiredEnvVars = ['TESSELLATE_DEV_MONGO', 'JWT_SECRET', 'FIREBASE_SECRET', 'OAUTHIO_KEY', 'OAUTHIO_SECRET'];
-
-requiredEnvVars.forEach(function (envVar) {
-  if (!process.env[envVar] && !process.env['TESSELLATE_' + envVar]) throw Error(envVar + ' is a required environment variable');
-});
+  requiredEnvVars.forEach(function (envVar) {
+    if (!process.env[envVar] && !process.env['TESSELLATE_' + envVar]) throw Error(envVar + ' is a required environment variable');
+  });
+}
 
 /**
  * Expose

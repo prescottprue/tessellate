@@ -12,7 +12,7 @@ import jwt from 'jsonwebtoken'
 import * as fileStorage from '../utils/fileStorage'
 import FirebaseTokenGenerator from 'firebase-token-generator'
 
-const tokenGenerator = new FirebaseTokenGenerator(config.auth.firebaseSecret)
+const tokenGenerator = new FirebaseTokenGenerator(config.auth.firebaseSecret || '')
 
 const Schema = mongoose.Schema
 const oAuthTypes = [
