@@ -4,19 +4,21 @@
  * Module dependencies.
  */
 
-import mongoose from 'mongoose';
-import crypto from 'crypto';
-import only from 'only';
-import config from './../../config/config';
-import jwt from 'jsonwebtoken';
-import * as fileStorage from '../utils/fileStorage';
+import mongoose from 'mongoose'
+import crypto from 'crypto'
+import only from 'only'
+import config from './../../config/config'
+import jwt from 'jsonwebtoken'
+import * as fileStorage from '../utils/fileStorage'
+import FirebaseTokenGenerator from 'firebase-token-generator'
 
+const tokenGenerator = new FirebaseTokenGenerator(config.auth.firebaseSecret)
 
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema
 const oAuthTypes = [
   'github',
   'google',
-];
+]
 
 /**
  * User Schema
@@ -34,9 +36,9 @@ const UserSchema = new Schema({
   authToken: { type: String },
   github: {},
   google: {},
-});
+})
 
-const validatePresenceOf = value => value && value.length;
+const validatePresenceOf = value => value && value.length
 
 /**
  * Virtuals
@@ -45,13 +47,13 @@ const validatePresenceOf = value => value && value.length;
 UserSchema
   .virtual('password')
   .set(function (password) {
-    this._password = password;
-    this.salt = this.makeSalt();
-    this.hashed_password = this.encryptPassword(password);
+    this._password = password
+    this.salt = this.makeSalt()
+    this.hashed_password = this.encryptPassword(password)
   })
   .get(function () {
-    return this._password;
-  });
+    return this._password
+  })
 
 /**
  * Validations
@@ -60,21 +62,21 @@ UserSchema
 // the below 5 validations only apply if you are signing up traditionally
 
 UserSchema.path('email').validate(function (email) {
-  if (this.skipValidation()) return true;
-  return email.length;
-}, 'Email cannot be blank');
+  if (this.skipValidation()) return true
+  return email.length
+}, 'Email cannot be blank')
 
 UserSchema.path('email').validate(function (email, fn) {
-  const User = mongoose.model('User');
-  // if (this.skipValidation()) fn(true);
+  const User = mongoose.model('User')
+  // if (this.skipValidation()) fn(true)
 
   // Check only when it is a new user or when email field is modified
   if (this.isNew || this.isModified('email')) {
     User.find({ email }).exec(function(err, users) {
-      fn(!err && users.length === 0);
-    });
-  } else fn(true);
-}, 'Email already exists');
+      fn(!err && users.length === 0)
+    })
+  } else fn(true)
+}, 'Email already exists')
 
 UserSchema.path('username').validate(function (username) {
   if (this.skipValidation()) return true;
@@ -91,12 +93,12 @@ UserSchema.path('username').validate(function (username, fn) {
       fn(!err && users.length === 0);
     });
   } else fn(true);
-}, 'Username already exists');
+}, 'Username already exists')
 
 UserSchema.path('hashed_password').validate(function (hashed_password) {
-  if (this.skipValidation()) return true;
-  return hashed_password.length && this._password.length;
-}, 'Password cannot be blank');
+  if (this.skipValidation()) return true
+  return hashed_password.length && this._password.length
+}, 'Password cannot be blank')
 
 
 /**
@@ -104,14 +106,14 @@ UserSchema.path('hashed_password').validate(function (hashed_password) {
  */
 
 UserSchema.pre('save', function (next) {
-  if (!this.isNew) return next();
+  if (!this.isNew) return next()
 
   if (!validatePresenceOf(this.password) && !this.skipValidation()) {
-    next(new Error('Invalid password'));
+    next(new Error('Invalid password'))
   } else {
-    next();
+    next()
   }
-});
+})
 
 /**
  * Methods
@@ -128,7 +130,7 @@ UserSchema.methods = {
    */
 
   authenticate: function (plainText) {
-    return this.encryptPassword(plainText) === this.hashed_password;
+    return this.encryptPassword(plainText) === this.hashed_password
   },
 
   /**
@@ -179,23 +181,26 @@ UserSchema.methods = {
    */
 
   createAuthToken: function () {
-    if(this.authToken) return this.authToken;
+    if(this.authToken) return this.authToken
     try {
-			const tokenData = only(this, '_id username email provider');
-			const token = jwt.sign(tokenData, config.auth.secret);
-      return this.authToken = token;
+			let tokenData = only(this, '_id username email provider')
+			const token = jwt.sign(tokenData, config.auth.secret)
+      return this.authToken = token
 		} catch (error) {
 			console.log({
 				description: 'Error generating token.',
 				error, func: 'createAuthToken', obj: 'User'
-			});
+			})
 		}
   },
 
+  createFirebaseAuthToken: function() {
+    return tokenGenerator.createToken({ uid: this._id, username: this.username })
+  },
 
   uploadImageAndSave: async function(image) {
-    if(!image) throw new Error('Image required to upload');
-    const err = this.validateSync();
+    if(!image) throw new Error('Image required to upload')
+    const err = this.validateSync()
     if (err && err.toString()) throw new Error(err.toString());
     image.key = `${this._id}/${image.originalname}`;
     try {

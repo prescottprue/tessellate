@@ -28,7 +28,8 @@ exports.login = wrap(function * (req, res) {
   if (!req.user) return res.status(400).json({message: 'user required to login.'})
   const user = req.user
   const token = user.createAuthToken()
-  res.json({ token, user: only(user, '_id username email name avatar_url') })
+  const firebaseToken = user.createFirebaseAuthToken()
+  res.json({ token, firebaseToken, user: only(user, '_id username email name avatar_url') })
 })
 
 /**
@@ -63,7 +64,8 @@ exports.providerAuth = wrap(function * (req, res) {
       // TODO: Search based on user's providerId (google id or github id)
       const existingUser = yield User.load({ criteria: { email, provider } })
       const existingToken = existingUser.createAuthToken()
-      if (existingUser) return res.json({ user: existingUser, token: existingToken })
+      const firebaseToken = existingUser.createFirebaseAuthToken()
+      if (existingUser) return res.json({ user: existingUser, token: existingToken, firebaseToken })
     } catch (err) {
       // User does not already exist
       let newData = {
@@ -75,7 +77,8 @@ exports.providerAuth = wrap(function * (req, res) {
         const user = new User(newData)
         yield user.save()
         const token = user.createAuthToken()
-        res.json({ token, user })
+        const firebaseToken = user.createFirebaseAuthToken()
+        res.json({ token, user, firebaseToken })
       } catch (error) {
         res.status(400).json({message: 'error creating new user.', error: error.toString()})
       }

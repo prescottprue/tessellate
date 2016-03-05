@@ -28,11 +28,17 @@ var _fileStorage = require('../utils/fileStorage');
 
 var fileStorage = _interopRequireWildcard(_fileStorage);
 
+var _firebaseTokenGenerator = require('firebase-token-generator');
+
+var _firebaseTokenGenerator2 = _interopRequireDefault(_firebaseTokenGenerator);
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { return step("next", value); }, function (err) { return step("throw", err); }); } } return step("next"); }); }; }
+
+var tokenGenerator = new _firebaseTokenGenerator2.default(_config2.default.auth.firebaseSecret);
 
 var Schema = _mongoose2.default.Schema;
 var oAuthTypes = ['github', 'google'];
@@ -84,7 +90,7 @@ UserSchema.path('email').validate(function (email) {
 
 UserSchema.path('email').validate(function (email, fn) {
   var User = _mongoose2.default.model('User');
-  // if (this.skipValidation()) fn(true);
+  // if (this.skipValidation()) fn(true)
 
   // Check only when it is a new user or when email field is modified
   if (this.isNew || this.isModified('email')) {
@@ -204,6 +210,10 @@ UserSchema.methods = {
         error: error, func: 'createAuthToken', obj: 'User'
       });
     }
+  },
+
+  createFirebaseAuthToken: function createFirebaseAuthToken() {
+    return tokenGenerator.createToken({ uid: this._id, username: this.username });
   },
 
   uploadImageAndSave: function () {

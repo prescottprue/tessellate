@@ -85,7 +85,8 @@ exports.create = wrap(function * (req, res) {
       req.status(500).json({ message: 'error with login' })
     }
     const token = user.createAuthToken()
-    res.json({ token, user: only(user, 'username email name provider avatar_url _id id') })
+    const firebaseToken = user.createFirebaseAuthToken()
+    res.json({ token, firebaseToken, user: only(user, 'username email name provider avatar_url _id id') })
   })
 })
 

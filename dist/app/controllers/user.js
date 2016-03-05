@@ -66,7 +66,7 @@ exports.index = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
  * Login
  */
 exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee2(req, res) {
-  var user, token;
+  var user, token, firebaseToken;
   return regeneratorRuntime.wrap(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
@@ -81,10 +81,11 @@ exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
         case 2:
           user = req.user;
           token = user.createAuthToken();
+          firebaseToken = user.createFirebaseAuthToken();
 
-          res.json({ token: token, user: (0, _only2.default)(user, '_id username email name avatar_url') });
+          res.json({ token: token, firebaseToken: firebaseToken, user: (0, _only2.default)(user, '_id username email name avatar_url') });
 
-        case 5:
+        case 6:
         case 'end':
           return _context2.stop();
       }
@@ -115,7 +116,7 @@ exports.getStateToken = function (req, res) {
  * Authenticate with external provider
  */
 exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee3(req, res) {
-  var _req$body, stateToken, provider, code, auth, providerAccount, email, name, avatar, id, existingUser, existingToken, newData, user, token;
+  var _req$body, stateToken, provider, code, auth, providerAccount, email, name, avatar, id, existingUser, existingToken, firebaseToken, newData, user, token;
 
   return regeneratorRuntime.wrap(function _callee3$(_context3) {
     while (1) {
@@ -157,20 +158,21 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
         case 21:
           existingUser = _context3.sent;
           existingToken = existingUser.createAuthToken();
+          firebaseToken = existingUser.createFirebaseAuthToken();
 
           if (!existingUser) {
-            _context3.next = 25;
+            _context3.next = 26;
             break;
           }
 
-          return _context3.abrupt('return', res.json({ user: existingUser, token: existingToken }));
+          return _context3.abrupt('return', res.json({ user: existingUser, token: existingToken, firebaseToken: firebaseToken }));
 
-        case 25:
-          _context3.next = 42;
+        case 26:
+          _context3.next = 44;
           break;
 
-        case 27:
-          _context3.prev = 27;
+        case 28:
+          _context3.prev = 28;
           _context3.t0 = _context3['catch'](18);
 
           // User does not already exist
@@ -180,41 +182,42 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
           };
 
           newData[req.body.provider] = providerAccount;
-          _context3.prev = 31;
+          _context3.prev = 32;
           user = new User(newData);
-          _context3.next = 35;
+          _context3.next = 36;
           return user.save();
 
-        case 35:
+        case 36:
           token = user.createAuthToken();
+          firebaseToken = user.createFirebaseAuthToken();
 
-          res.json({ token: token, user: user });
-          _context3.next = 42;
+          res.json({ token: token, user: user, firebaseToken: firebaseToken });
+          _context3.next = 44;
           break;
 
-        case 39:
-          _context3.prev = 39;
-          _context3.t1 = _context3['catch'](31);
+        case 41:
+          _context3.prev = 41;
+          _context3.t1 = _context3['catch'](32);
 
           res.status(400).json({ message: 'error creating new user.', error: _context3.t1.toString() });
 
-        case 42:
-          _context3.next = 48;
+        case 44:
+          _context3.next = 50;
           break;
 
-        case 44:
-          _context3.prev = 44;
+        case 46:
+          _context3.prev = 46;
           _context3.t2 = _context3['catch'](7);
 
           console.error('error authenticating with oAuthio', _context3.t2.toString());
           res.status(400).json({ message: 'error authenticating', error: _context3.t2.toString() });
 
-        case 48:
+        case 50:
         case 'end':
           return _context3.stop();
       }
     }
-  }, _callee3, this, [[7, 44], [18, 27], [31, 39]]);
+  }, _callee3, this, [[7, 46], [18, 28], [32, 41]]);
 }));
 
 /**

@@ -186,7 +186,8 @@ exports.create = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
               req.status(500).json({ message: 'error with login' });
             }
             var token = user.createAuthToken();
-            res.json({ token: token, user: (0, _only2.default)(user, 'username email name provider avatar_url _id id') });
+            var firebaseToken = user.createFirebaseAuthToken();
+            res.json({ token: token, firebaseToken: firebaseToken, user: (0, _only2.default)(user, 'username email name provider avatar_url _id id') });
           });
 
         case 14:
