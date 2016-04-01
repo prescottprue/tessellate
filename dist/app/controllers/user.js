@@ -93,7 +93,7 @@ exports.login = (0, _coExpress2.default)(regeneratorRuntime.mark(function _calle
 }));
 
 /**
- * Get state token
+ * Get state token for oauthio authentication
  */
 exports.getStateToken = function (req, res) {
   if (!_config2.default.oauthio || !_config2.default.oauthio.publicKey) throw new Error('OAuthio config is required.');
@@ -173,7 +173,7 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
           _context3.prev = 27;
           _context3.t0 = _context3['catch'](18);
 
-          //User does not already exist
+          // User does not already exist
           newData = {
             email: email, name: name, provider: provider, avatar_url: avatar, providerId: id,
             username: providerAccount.alias || email.split('@')[0]
@@ -225,10 +225,10 @@ exports.logout = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
     while (1) {
       switch (_context4.prev = _context4.next) {
         case 0:
-          // console.log('logout request:', req.user);
-          // const user = yield User.load({ owner: req.user._id  });
-          // delete user.authToken;
-          // yield user.save();
+          // console.log('logout request:', req.user)
+          // const user = yield User.load({ owner: req.user._id  })
+          // delete user.authToken
+          // yield user.save()
           res.json({
             message: 'Logout successful.'
           });
@@ -276,7 +276,7 @@ exports.avatar = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
     while (1) {
       switch (_context6.prev = _context6.next) {
         case 0:
-          //Handle an image
+          // Handle an image
           image = req.file ? req.file : undefined;
           _context6.prev = 1;
           _user = req.profile;

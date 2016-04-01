@@ -30,12 +30,7 @@
     "start": "NODE_ENV=development ./node_modules/.bin/nodemon ./dist/server.js",
     "production": "NODE_ENV=production ./node_modules/.bin/forever -m 5 ./dist/server.js",
     "debug": "NODE_ENV=development ./node_modules/.bin/nodemon --debug ./dist/server.js",
-    "test": "NODE_ENV=test mocha -R spec --compilers js:babel-core/register ./test/**/*.spec.js",
-    "docs:clean": "rimraf _book",
-    "docs:prepare": "gitbook install",
-    "docs:build": "npm run docs:prepare && gitbook build -g kypertech/tessellate",
-    "docs:watch": "npm run docs:prepare && gitbook serve",
-    "docs:publish": "npm run docs:clean && npm run docs:build && cd _book && git init && git commit --allow-empty -m 'update book' && git checkout -b gh-pages && touch .nojekyll && git add . && git commit -am 'update book' && git push git@github.com:kypertech/tessellate gh-pages --force"
+    "test": "NODE_ENV=test mocha -R spec --compilers js:babel-core/register ./test/**/*.spec.js"
   },
   "dependencies": {
     "babel-polyfill": "^6.3.14",

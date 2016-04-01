@@ -22,7 +22,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var assign = require('object-assign');
 var User = _mongoose2.default.model('User');
-var Project = _mongoose2.default.model('Project');
 
 /**
  * Load
@@ -144,14 +143,13 @@ exports.create = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
       switch (_context4.prev = _context4.next) {
         case 0:
           user = new User(req.body);
-          //Handle 3rd party providers
+          // Handle 3rd party providers
 
           if (user.provider) {
             user.skipValidation();
           } else {
             user.provider = 'local';
           }
-
           _context4.prev = 2;
           _context4.next = 5;
           return user.save();
@@ -202,7 +200,6 @@ exports.create = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
 /**
  * Update a user
  */
-
 exports.update = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee5(req, res) {
   var user, newUser;
   return regeneratorRuntime.wrap(function _callee5$(_context5) {
@@ -210,7 +207,7 @@ exports.update = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
       switch (_context5.prev = _context5.next) {
         case 0:
           user = req.profile;
-          // console.log('update called before:', req.body);
+          // console.log('update called before:', req.body)
 
           newUser = assign(user, (0, _only2.default)(req.body, 'name username email avatar_url'));
           _context5.prev = 2;
@@ -332,12 +329,6 @@ exports.session = function (err, user, errData) {
 };
 
 /**
- * Auth callback
- */
-
-exports.authCallback = login;
-
-/**
  * Show login form
  */
 
@@ -345,9 +336,6 @@ exports.login = function (req, res) {
   res.render('users/login', {
     title: 'Login'
   });
-};
-exports.signin = function () {
-  console.log('signin route being called');
 };
 
 /**
@@ -361,18 +349,4 @@ function createQueryObj(key, val) {
   var obj = {};
   obj[key] = new RegExp((0, _lodash.escapeRegExp)(val), 'i');
   return obj;
-}
-
-/**
- * Login
- */
-function login(req, res) {
-  var redirectTo = req.session.returnTo ? req.session.returnTo : '/';
-  delete req.session.returnTo;
-  console.log('login route hit', req.url);
-  // res.json({message: 'yup'});
-  // res.redirect(redirectTo);
-  res.render('home/redirect', {
-    title: 'Login'
-  });
 }
