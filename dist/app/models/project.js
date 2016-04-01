@@ -8,10 +8,6 @@ var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
-var _mailer = require('../mailer');
-
-var _mailer2 = _interopRequireDefault(_mailer);
-
 var _lodash = require('lodash');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -41,7 +37,7 @@ ProjectSchema.path('name').validate(function (name, fn) {
   var Project = _mongoose2.default.model('Project');
   // Check only when it is a new project or when name field is modified
   if (this.isNew || this.isModified('name')) {
-    //Check that owner does not already have a project with the same name
+    // Check that owner does not already have a project with the same name
     Project.find({ name: name, owner: this.owner }).exec(function (err, projects) {
       fn(!err && projects.length === 0);
     });
@@ -53,8 +49,8 @@ ProjectSchema.path('name').validate(function (name, fn) {
  */
 
 // ProjectSchema.pre('remove', (next) => {
-//   next();
-// });
+//   next()
+// })
 
 /**
  * Methods

@@ -10,12 +10,17 @@ Code project building and management platform
 
 Tessellate can be interacted with through a REST API as well as few different javascript helper libraries listed below.
 
+## Documentation
+
+* [REST API](http://kyper.io/tessellate/docs/api/index.html)
+* [Matter](http://kyper.io/matter/docs/api/index.html)
+
 ## Helper Libraries
 
 There are a few helper libraries for interacting with the service (instead of making direct REST calls)
 
-Authentication library: Matter
-Resource interaction library: Grout
+* Authentication library - [Matter](https://github.com/kypertech/matter)
+* Resource interaction library - [Grout](https://github.com/kypertech/grout)
 
 ## Install
 1. Clone and install

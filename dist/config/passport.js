@@ -14,7 +14,6 @@ var local = require('./passport/local');
  */
 
 module.exports = function (passport) {
-
   // serialize sessions
   passport.serializeUser(function (user, cb) {
     return cb(null, user.id);

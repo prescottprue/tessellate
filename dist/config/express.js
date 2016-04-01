@@ -5,7 +5,7 @@
  */
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-// import csrf from 'csurf';
+// import csrf from 'csurf'
 
 
 var _express = require('express');
@@ -80,7 +80,7 @@ var _package2 = _interopRequireDefault(_package);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var mongoStore = require('connect-mongo')(_expressSession2.default);
+var MongoStore = require('connect-mongo')(_expressSession2.default);
 var env = process.env.NODE_ENV || 'development';
 
 /**
@@ -88,7 +88,6 @@ var env = process.env.NODE_ENV || 'development';
  */
 
 module.exports = function (app, passport) {
-
   // Compression middleware (should be placed before express.static)
   app.use((0, _compression2.default)({
     threshold: 512
@@ -153,7 +152,7 @@ module.exports = function (app, passport) {
     resave: true,
     saveUninitialized: true,
     secret: _package2.default.name,
-    store: new mongoStore({
+    store: new MongoStore({
       url: _config2.default.db,
       collection: 'sessions'
     })
@@ -211,27 +210,27 @@ module.exports = function (app, passport) {
   });
   // Cross Site Request Forgery
   // if (env !== 'test') {
-  //   app.use(csrf());
+  //   app.use(csrf())
   //
   //   // This could be moved to view-helpers :-)
   //   app.use(function (req, res, next) {
-  //     res.locals.csrf_token = req.csrfToken();
-  //     next();
-  //   });
+  //     res.locals.csrf_token = req.csrfToken()
+  //     next()
+  //   })
   // }
 };
 
 function fromHeaderOrCookie(req) {
+  console.log('fromHeaderOrCookie call', req);
   if (req.headers.authorization) {
     return req.headers.authorization.split(' ')[1];
   }
   if (req.headers.cookie) {
-    var cookiesList = req.headers.cookie.split(';');
+    var cookiesList = req.headers.cookie.split('');
     var matchingCookie = (0, _lodash.find)(cookiesList, function (cookie) {
       return cookie.split('=')[0] === _config2.default.auth.cookieName;
     });
-    console.log('matching cookie:', matchingCookie.split('=')[1].replace(';', ''));
-    if (matchingCookie) return matchingCookie.split('=')[1].replace(';', '');
+    if (matchingCookie) return matchingCookie.split('=')[1].replace('', '');
   }
   return null;
 }

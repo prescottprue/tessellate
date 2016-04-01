@@ -1,53 +1,51 @@
-'use strict';
+'use strict'
 
 /**
  * Module dependencies.
  */
 
-import mongoose from 'mongoose';
-import notify from '../mailer';
-import { find } from 'lodash';
+import mongoose from 'mongoose'
+import { find } from 'lodash'
 
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema
 
 /**
  * Project Schema
  */
 
 const ProjectSchema = new Schema({
-  name: { type : String, default : '', trim : true },
-  owner: { type : Schema.ObjectId, ref : 'User' },
+  name: { type: String, default: '', trim: true },
+  owner: { type: Schema.ObjectId, ref: 'User' },
   private: { type: Boolean, default: false },
   collaborators: [ { type: Schema.ObjectId, ref: 'User' } ],
-  createdAt  : { type : Date, default : Date.now }
-});
-
+  createdAt: { type: Date, default: Date.now }
+})
 
 /**
  * Validations
  */
-ProjectSchema.path('owner').required(true, 'Project owner cannot be blank');
+ProjectSchema.path('owner').required(true, 'Project owner cannot be blank')
 
-ProjectSchema.path('name').required(true, 'Project name cannot be blank');
+ProjectSchema.path('name').required(true, 'Project name cannot be blank')
 
-ProjectSchema.path('name').validate(function(name, fn) {
-  const Project = mongoose.model('Project');
+ProjectSchema.path('name').validate(function (name, fn) {
+  const Project = mongoose.model('Project')
   // Check only when it is a new project or when name field is modified
   if (this.isNew || this.isModified('name')) {
-    //Check that owner does not already have a project with the same name
+    // Check that owner does not already have a project with the same name
     Project.find({ name, owner: this.owner }).exec((err, projects) => {
-      fn(!err && projects.length === 0);
-    });
- } else fn(true);
-}, 'Owner already has a project with that name.');
+      fn(!err && projects.length === 0)
+    })
+  } else fn(true)
+}, 'Owner already has a project with that name.')
 
 /**
  * Pre-remove hook
  */
 
 // ProjectSchema.pre('remove', (next) => {
-//   next();
-// });
+//   next()
+// })
 
 /**
  * Methods
@@ -63,11 +61,11 @@ ProjectSchema.methods = {
    */
 
   addCollaborator: function (user) {
-    if(this.collaborators && find(this.collaborators, {_id: user._id})){
-      throw new Error('Collaborator already exists');
+    if (this.collaborators && find(this.collaborators, {_id: user._id})) {
+      throw new Error('Collaborator already exists')
     }
-    this.collaborators.push(user);
-    return this.save();
+    this.collaborators.push(user)
+    return this.save()
   },
 
   /**
@@ -80,12 +78,12 @@ ProjectSchema.methods = {
   removeCollaborator: function (userId) {
     const index = this.collaborators
       .map(user => JSON.stringify(user._id))
-      .indexOf(JSON.stringify(userId));
-    if (~index) this.collaborators.splice(index, 1);
-    else throw new Error('Collaborator not found');
-    return this.save();
+      .indexOf(JSON.stringify(userId))
+    if (~index) this.collaborators.splice(index, 1)
+    else throw new Error('Collaborator not found')
+    return this.save()
   }
-};
+}
 
 /**
  * Statics
@@ -104,7 +102,7 @@ ProjectSchema.statics = {
     return this.findOne(find)
       .populate('owner', 'name email username avatar_url')
       .populate('collaborators', 'name email username avatar_url')
-      .exec();
+      .exec()
   },
 
   /**
@@ -115,17 +113,17 @@ ProjectSchema.statics = {
    */
 
   list: function (options) {
-    const criteria = options.criteria || {};
-    const page = options.page || 0;
-    const limit = options.limit || 30;
+    const criteria = options.criteria || {}
+    const page = options.page || 0
+    const limit = options.limit || 30
     return this.find(criteria)
       .populate('collaborators', 'name username email avatar_url')
       .populate('owner', 'name username email avatar_url')
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(limit * page)
-      .exec();
+      .exec()
   }
-};
+}
 
-mongoose.model('Project', ProjectSchema);
+mongoose.model('Project', ProjectSchema)

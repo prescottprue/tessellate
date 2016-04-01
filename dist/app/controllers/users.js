@@ -44,7 +44,7 @@ exports.load = (0, _coExpress2.default)(regeneratorRuntime.mark(function _callee
             break;
           }
 
-          return _context.abrupt('return', res.status(404).json({ message: 'User not found' }));
+          return _context.abrupt('return', res.status(404).json({ message: 'user not found' }));
 
         case 6:
           next();
@@ -78,7 +78,7 @@ exports.loadCollaborator = (0, _coExpress2.default)(regeneratorRuntime.mark(func
             break;
           }
 
-          return _context2.abrupt('return', res.status(404).json({ message: 'User not found' }));
+          return _context2.abrupt('return', res.status(404).json({ message: 'user not found' }));
 
         case 6:
           next();
@@ -168,7 +168,7 @@ exports.create = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
           }
 
           return _context4.abrupt('return', res.status(400).json({
-            message: 'A user with those credentials already exists.'
+            message: 'user with those credentials already exists'
           }));
 
         case 11:
@@ -176,14 +176,14 @@ exports.create = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
             return e.message || key;
           });
           return _context4.abrupt('return', res.status(400).json({
-            message: 'Error signing up.', errors: errorsList
+            message: 'error signing up', errors: errorsList
           }));
 
         case 13:
           req.logIn(user, function (error) {
             if (error) {
-              console.error({ message: 'Error with login', error: error });
-              req.status(500).json({ message: 'Error with login.' });
+              console.error({ message: 'error with login', error: error });
+              req.status(500).json({ message: 'error with login' });
             }
             var token = user.createAuthToken();
             res.json({ token: token, user: (0, _only2.default)(user, 'username email name provider avatar_url _id id') });
@@ -223,7 +223,7 @@ exports.update = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
           _context5.prev = 8;
           _context5.t0 = _context5['catch'](2);
 
-          res.status(400).send({ message: 'Error updating project' });
+          res.status(400).send({ message: 'error updating project' });
 
         case 11:
         case 'end':
@@ -244,7 +244,7 @@ exports.destroy = (0, _coExpress2.default)(regeneratorRuntime.mark(function _cal
           return req.profile.remove();
 
         case 2:
-          res.json({ message: 'User deleted successfully' });
+          res.json({ message: 'user deleted successfully' });
 
         case 3:
         case 'end':
@@ -259,7 +259,7 @@ exports.destroy = (0, _coExpress2.default)(regeneratorRuntime.mark(function _cal
  */
 exports.logout = function (req, res) {
   req.logout();
-  res.json({ message: 'Logout successful.' });
+  res.json({ message: 'logout successful.' });
 };
 
 /**
@@ -284,7 +284,7 @@ exports.search = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
           }
 
           return _context7.abrupt('return', res.status(400).json({
-            message: 'Query parameter required to search.'
+            message: 'query parameter required to search.'
           }));
 
         case 2:
@@ -321,7 +321,7 @@ exports.search = (0, _coExpress2.default)(regeneratorRuntime.mark(function _call
  * Session
  */
 exports.session = function (err, user, errData) {
-  console.log('session called..', err, user, errData);
+  // console.log('session called', err, user, errData)
   if (err || !user) {
     return errData;
   }

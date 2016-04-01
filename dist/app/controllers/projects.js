@@ -25,7 +25,7 @@ exports.load = wrap(regeneratorRuntime.mark(function _callee(req, res, next, pro
             break;
           }
 
-          return _context.abrupt('return', res.status(400).json({ message: 'Owner required to get project.' }));
+          return _context.abrupt('return', res.status(400).json({ message: 'owner required to get project.' }));
 
         case 2:
           _context.next = 4;
@@ -39,7 +39,7 @@ exports.load = wrap(regeneratorRuntime.mark(function _callee(req, res, next, pro
             break;
           }
 
-          return _context.abrupt('return', next(new Error('Project not found')));
+          return _context.abrupt('return', next(new Error('project not found')));
 
         case 7:
           next();
@@ -72,34 +72,44 @@ exports.index = wrap(regeneratorRuntime.mark(function _callee2(req, res) {
           if (req.profile) {
             options.criteria = { $or: [{ owner: req.profile._id }, { collaborators: { $in: [req.profile._id] } }] };
           }
-          _context2.next = 6;
+          _context2.prev = 4;
+          _context2.next = 7;
           return Project.list(options);
 
-        case 6:
+        case 7:
           projects = _context2.sent;
 
-          // TODO: Responsed with pagination data
-          // const count = yield Project.count()
-          // res.json({
-          //	 title: 'Projects',
-          //	 projects: projects,
-          //	 page: page + 1,
-          //	 pages: Math.ceil(count / limit)
-          // })
           res.json(projects);
+          _context2.next = 15;
+          break;
 
-        case 8:
+        case 11:
+          _context2.prev = 11;
+          _context2.t0 = _context2['catch'](4);
+
+          console.log('error getting projects:', _context2.t0);
+          res.json({ message: 'error getting projects', error: _context2.t0.toString() });
+
+        case 15:
         case 'end':
           return _context2.stop();
       }
     }
-  }, _callee2, this);
+  }, _callee2, this, [[4, 11]]);
 }));
 
 /**
  * Get a project
  */
 
+// TODO: Responsed with pagination data
+// const count = yield Project.count()
+// res.json({
+//	 title: 'Projects',
+//	 projects: projects,
+//	 page: page + 1,
+//	 pages: Math.ceil(count / limit)
+// })
 exports.get = wrap(regeneratorRuntime.mark(function _callee3(req, res) {
   return regeneratorRuntime.wrap(function _callee3$(_context3) {
     while (1) {
@@ -111,7 +121,7 @@ exports.get = wrap(regeneratorRuntime.mark(function _callee3(req, res) {
           }
 
           return _context3.abrupt('return', res.json({
-            message: 'Project not found.',
+            message: 'project not found.',
             status: 'NOT_FOUND'
           }));
 
@@ -144,7 +154,7 @@ exports.create = wrap(regeneratorRuntime.mark(function _callee4(req, res) {
           }
 
           return _context4.abrupt('return', res.status(400).send({
-            message: 'Error creating project. User not found.'
+            message: 'error creating project. User not found.'
           }));
 
         case 3:
@@ -173,7 +183,7 @@ exports.create = wrap(regeneratorRuntime.mark(function _callee4(req, res) {
           // console.log('error creating project', errorsList)
 
           res.status(400).json({
-            message: 'Error creating project.',
+            message: 'error creating project.',
             error: errorsList[0] || _context4.t0
           });
 
@@ -212,7 +222,7 @@ exports.update = wrap(regeneratorRuntime.mark(function _callee5(req, res) {
           _context5.prev = 8;
           _context5.t0 = _context5['catch'](2);
 
-          res.status(400).send({ message: 'Error updating project' });
+          res.status(400).send({ message: 'error updating project' });
 
         case 11:
         case 'end':
@@ -238,7 +248,7 @@ exports.destroy = wrap(regeneratorRuntime.mark(function _callee6(req, res) {
           }
 
           return _context6.abrupt('return', res.status(400).json({
-            message: 'You are not the project owner',
+            message: 'you are not the project owner',
             status: 'NOT_OWNER'
           }));
 
@@ -249,7 +259,7 @@ exports.destroy = wrap(regeneratorRuntime.mark(function _callee6(req, res) {
 
         case 5:
           res.json({
-            message: 'Project deleted successfully',
+            message: 'project deleted successfully',
             status: 'SUCCESS'
           });
 
@@ -278,7 +288,7 @@ exports.addCollaborator = wrap(regeneratorRuntime.mark(function _callee7(req, re
             break;
           }
 
-          return _context7.abrupt('return', res.status(400).json({ message: 'Username is required to add a collaborator' }));
+          return _context7.abrupt('return', res.status(400).json({ message: 'username is required to add a collaborator' }));
 
         case 3:
           _context7.prev = 3;
@@ -295,7 +305,7 @@ exports.addCollaborator = wrap(regeneratorRuntime.mark(function _callee7(req, re
           _context7.t0 = _context7['catch'](3);
 
           console.log('error:', _context7.t0);
-          res.status(400).send({ message: _context7.t0.toString() || 'Error adding collaborator.' });
+          res.status(400).send({ message: _context7.t0.toString() || 'error adding collaborator' });
 
         case 13:
         case 'end':
@@ -322,7 +332,7 @@ exports.removeCollaborator = wrap(regeneratorRuntime.mark(function _callee8(req,
             break;
           }
 
-          return _context8.abrupt('return', res.status(400).json({ message: 'Username is required to add a collaborator' }));
+          return _context8.abrupt('return', res.status(400).json({ message: 'username is required to add a collaborator' }));
 
         case 3:
           _context8.prev = 3;
@@ -338,7 +348,7 @@ exports.removeCollaborator = wrap(regeneratorRuntime.mark(function _callee8(req,
           _context8.prev = 9;
           _context8.t0 = _context8['catch'](3);
 
-          res.status(400).send({ message: 'Error removing collaborator.', error: _context8.t0.toString() });
+          res.status(400).send({ message: 'error removing collaborator.', error: _context8.t0.toString() });
 
         case 12:
         case 'end':

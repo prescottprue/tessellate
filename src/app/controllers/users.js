@@ -17,7 +17,7 @@ const User = mongoose.model('User')
 exports.load = wrap(function * (req, res, next, username) {
   let criteria = { username }
   req.profile = yield User.load({ criteria })
-  if (!req.profile) return res.status(404).json({ message: 'User not found' })
+  if (!req.profile) return res.status(404).json({ message: 'user not found' })
   next()
 })
 
@@ -27,7 +27,7 @@ exports.load = wrap(function * (req, res, next, username) {
 exports.loadCollaborator = wrap(function * (req, res, next, username) {
   let criteria = { username }
   req.user = yield User.load({ criteria })
-  if (!req.user) return res.status(404).json({ message: 'User not found' })
+  if (!req.user) return res.status(404).json({ message: 'user not found' })
   next()
 })
 
@@ -69,20 +69,20 @@ exports.create = wrap(function * (req, res) {
   } catch (err) {
     if (err.code === 11000) {
       return res.status(400).json({
-        message: 'A user with those credentials already exists.'
+        message: 'user with those credentials already exists'
       })
     }
     const errorsList = map(err.errors, (e, key) => {
       return e.message || key
     })
     return res.status(400).json({
-      message: 'Error signing up.', errors: errorsList
+      message: 'error signing up', errors: errorsList
     })
   }
   req.logIn(user, error => {
     if (error) {
-      console.error({ message: 'Error with login', error })
-      req.status(500).json({ message: 'Error with login.' })
+      console.error({ message: 'error with login', error })
+      req.status(500).json({ message: 'error with login' })
     }
     const token = user.createAuthToken()
     res.json({ token, user: only(user, 'username email name provider avatar_url _id id') })
@@ -101,7 +101,7 @@ exports.update = wrap(function * (req, res) {
     yield newUser.save()
     res.json(newUser)
   } catch (err) {
-    res.status(400).send({message: 'Error updating project'})
+    res.status(400).send({message: 'error updating project'})
   }
 })
 /**
@@ -109,7 +109,7 @@ exports.update = wrap(function * (req, res) {
  */
 exports.destroy = wrap(function * (req, res) {
   yield req.profile.remove()
-  res.json({message: 'User deleted successfully'})
+  res.json({message: 'user deleted successfully'})
 })
 
 /**
@@ -117,7 +117,7 @@ exports.destroy = wrap(function * (req, res) {
  */
 exports.logout = function (req, res) {
   req.logout()
-  res.json({message: 'Logout successful.'})
+  res.json({message: 'logout successful.'})
 }
 
 /**
@@ -133,7 +133,7 @@ exports.show = function (req, res) {
 exports.search = wrap(function * (req, res, next) {
   if (!req.query || (!req.query.username && !req.query.email)) {
     return res.status(400).json({
-      message: 'Query parameter required to search.'
+      message: 'query parameter required to search.'
     })
   }
   const limit = 15
@@ -153,7 +153,7 @@ exports.search = wrap(function * (req, res, next) {
  * Session
  */
 exports.session = (err, user, errData) => {
-  console.log('session called..', err, user, errData)
+  // console.log('session called', err, user, errData)
   if (err || !user) {
     return errData
   }

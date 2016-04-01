@@ -16,9 +16,9 @@ const Project = mongoose.model('Project')
  */
 
 exports.load = wrap(function * (req, res, next, projectName) {
-  if (!req.profile) return res.status(400).json({ message: 'Owner required to get project.' })
+  if (!req.profile) return res.status(400).json({ message: 'owner required to get project.' })
   req.project = yield Project.load({ name: projectName, owner: req.profile._id })
-  if (!req.project) return next(new Error('Project not found'))
+  if (!req.project) return next(new Error('project not found'))
   next()
 })
 
@@ -36,7 +36,13 @@ exports.index = wrap(function * (req, res) {
   if (req.profile) {
     options.criteria = { $or: [ { owner: req.profile._id }, { collaborators: { $in: [req.profile._id] } } ] }
   }
-  const projects = yield Project.list(options)
+  try {
+    const projects = yield Project.list(options)
+    res.json(projects)
+  } catch (err) {
+    console.log('error getting projects:', err)
+    res.json({message: 'error getting projects', error: err.toString()})
+  }
   // TODO: Responsed with pagination data
   // const count = yield Project.count()
   // res.json({
@@ -45,7 +51,6 @@ exports.index = wrap(function * (req, res) {
   //	 page: page + 1,
   //	 pages: Math.ceil(count / limit)
   // })
-  res.json(projects)
 })
 
 /**
@@ -55,7 +60,7 @@ exports.index = wrap(function * (req, res) {
 exports.get = wrap(function * (req, res) {
   if (!req.project) {
     return res.json({
-      message: 'Project not found.',
+      message: 'project not found.',
       status: 'NOT_FOUND'
     })
   }
@@ -70,7 +75,7 @@ exports.create = wrap(function * (req, res) {
   const project = new Project(only(req.body, 'name collaborators'))
   if (!req.profile || !req.profile._id) {
     return res.status(400).send({
-      message: 'Error creating project. User not found.'
+      message: 'error creating project. User not found.'
     })
   }
   project.owner = req.profile._id
@@ -84,7 +89,7 @@ exports.create = wrap(function * (req, res) {
     })
     // console.log('error creating project', errorsList)
     res.status(400).json({
-      message: 'Error creating project.',
+      message: 'error creating project.',
       error: errorsList[0] || err
     })
   }
@@ -103,7 +108,7 @@ exports.update = wrap(function * (req, res) {
     yield project.save()
     res.json(project)
   } catch (err) {
-    res.status(400).send({message: 'Error updating project'})
+    res.status(400).send({message: 'error updating project'})
   }
 })
 
@@ -114,14 +119,14 @@ exports.update = wrap(function * (req, res) {
 exports.destroy = wrap(function * (req, res) {
   if (req.profile && req.project.owner && req.project.owner.id !== req.profile.id) {
     return res.status(400).json({
-      message: 'You are not the project owner',
+      message: 'you are not the project owner',
       status: 'NOT_OWNER'
     })
   }
   const project = req.project
   yield project.remove()
   res.json({
-    message: 'Project deleted successfully',
+    message: 'project deleted successfully',
     status: 'SUCCESS'
   })
 })
@@ -132,13 +137,13 @@ exports.destroy = wrap(function * (req, res) {
 
 exports.addCollaborator = wrap(function * (req, res) {
   const project = req.project
-  if (!req.user) return res.status(400).json({message: 'Username is required to add a collaborator'})
+  if (!req.user) return res.status(400).json({message: 'username is required to add a collaborator'})
   try {
     yield project.addCollaborator(req.user)
     res.json(project)
   } catch (error) {
     console.log('error:', error)
-    res.status(400).send({ message: error.toString() || 'Error adding collaborator.' })
+    res.status(400).send({ message: error.toString() || 'error adding collaborator' })
   }
 })
 
@@ -148,12 +153,12 @@ exports.addCollaborator = wrap(function * (req, res) {
 
 exports.removeCollaborator = wrap(function * (req, res) {
   const project = req.project
-  if (!req.user) return res.status(400).json({message: 'Username is required to add a collaborator'})
+  if (!req.user) return res.status(400).json({message: 'username is required to add a collaborator'})
   try {
     yield project.removeCollaborator(req.user._id)
     res.json(project)
   } catch (err) {
-    res.status(400).send({message: 'Error removing collaborator.', error: err.toString()})
+    res.status(400).send({message: 'error removing collaborator.', error: err.toString()})
   }
 })
 
