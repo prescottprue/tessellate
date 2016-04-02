@@ -53,7 +53,9 @@ exports.getStateToken = function (req, res) {
 exports.providerAuth = wrap(function * (req, res) {
   if (!req.body) return res.status(400).json({ message: 'provider auth data required.' })
   const { stateToken, provider, code } = req.body
+  console.log('req.body', req.body)
   req.session.csrf_tokens = [ stateToken ]
+  if (!stateToken || !provider || !code) return res.status(400).json({ message: 'stateToken, provider, and code are all required' })
   try {
     const auth = yield OAuth.auth(provider, req.session, { code })
     const providerAccount = yield auth.me()
@@ -77,11 +79,14 @@ exports.providerAuth = wrap(function * (req, res) {
         const token = user.createAuthToken()
         res.json({ token, user })
       } catch (error) {
+        if (err.toString().indexOf('Email already exists') !== -1) {
+          return res.status(400).json({ message: 'This email has already been used to signup with another provider' })
+        }
         res.status(400).json({message: 'error creating new user.', error: error.toString()})
       }
     }
   } catch (err) {
-    console.error('error authenticating with oAuthio', err.toString())
+    console.error('error authenticating with oAuthio', err)
     res.status(400).json({message: 'error authenticating', error: err.toString()})
   }
 })

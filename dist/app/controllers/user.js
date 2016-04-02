@@ -134,44 +134,54 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
           provider = _req$body.provider;
           code = _req$body.code;
 
+          console.log('req.body', req.body);
           req.session.csrf_tokens = [stateToken];
-          _context3.prev = 7;
-          _context3.next = 10;
-          return _oauthio2.default.auth(provider, req.session, { code: code });
+
+          if (!(!stateToken || !provider || !code)) {
+            _context3.next = 10;
+            break;
+          }
+
+          return _context3.abrupt('return', res.status(400).json({ message: 'stateToken, provider, and code are all required' }));
 
         case 10:
-          auth = _context3.sent;
+          _context3.prev = 10;
           _context3.next = 13;
-          return auth.me();
+          return _oauthio2.default.auth(provider, req.session, { code: code });
 
         case 13:
+          auth = _context3.sent;
+          _context3.next = 16;
+          return auth.me();
+
+        case 16:
           providerAccount = _context3.sent;
           email = providerAccount.email;
           name = providerAccount.name;
           avatar = providerAccount.avatar;
           id = providerAccount.id;
-          _context3.prev = 18;
-          _context3.next = 21;
+          _context3.prev = 21;
+          _context3.next = 24;
           return User.load({ criteria: { email: email, provider: provider } });
 
-        case 21:
+        case 24:
           existingUser = _context3.sent;
           existingToken = existingUser.createAuthToken();
 
           if (!existingUser) {
-            _context3.next = 25;
+            _context3.next = 28;
             break;
           }
 
           return _context3.abrupt('return', res.json({ user: existingUser, token: existingToken }));
 
-        case 25:
-          _context3.next = 42;
+        case 28:
+          _context3.next = 47;
           break;
 
-        case 27:
-          _context3.prev = 27;
-          _context3.t0 = _context3['catch'](18);
+        case 30:
+          _context3.prev = 30;
+          _context3.t0 = _context3['catch'](21);
 
           // User does not already exist
           newData = {
@@ -180,41 +190,49 @@ exports.providerAuth = (0, _coExpress2.default)(regeneratorRuntime.mark(function
           };
 
           newData[req.body.provider] = providerAccount;
-          _context3.prev = 31;
+          _context3.prev = 34;
           user = new User(newData);
-          _context3.next = 35;
+          _context3.next = 38;
           return user.save();
 
-        case 35:
+        case 38:
           token = user.createAuthToken();
 
           res.json({ token: token, user: user });
-          _context3.next = 42;
+          _context3.next = 47;
           break;
-
-        case 39:
-          _context3.prev = 39;
-          _context3.t1 = _context3['catch'](31);
-
-          res.status(400).json({ message: 'error creating new user.', error: _context3.t1.toString() });
 
         case 42:
-          _context3.next = 48;
+          _context3.prev = 42;
+          _context3.t1 = _context3['catch'](34);
+
+          if (!(_context3.t0.toString().indexOf('Email already exists') !== -1)) {
+            _context3.next = 46;
+            break;
+          }
+
+          return _context3.abrupt('return', res.status(400).json({ message: 'This email has already been used to signup with another provider' }));
+
+        case 46:
+          res.status(400).json({ message: 'error creating new user.', error: _context3.t1.toString() });
+
+        case 47:
+          _context3.next = 53;
           break;
 
-        case 44:
-          _context3.prev = 44;
-          _context3.t2 = _context3['catch'](7);
+        case 49:
+          _context3.prev = 49;
+          _context3.t2 = _context3['catch'](10);
 
-          console.error('error authenticating with oAuthio', _context3.t2.toString());
+          console.error('error authenticating with oAuthio', _context3.t2);
           res.status(400).json({ message: 'error authenticating', error: _context3.t2.toString() });
 
-        case 48:
+        case 53:
         case 'end':
           return _context3.stop();
       }
     }
-  }, _callee3, this, [[7, 44], [18, 27], [31, 39]]);
+  }, _callee3, this, [[10, 49], [21, 30], [34, 42]]);
 }));
 
 /**

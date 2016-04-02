@@ -31,6 +31,7 @@ module.exports = function (app, passport) {
   app.put('/logout', userCtrl.logout)
   app.get('/stateToken', userCtrl.getStateToken)
   app.put('/auth', userCtrl.providerAuth)
+  app.post('/auth', userCtrl.providerAuth)
 
   // User routes
   app.get('/user', userCtrl.index)
@@ -55,6 +56,7 @@ module.exports = function (app, passport) {
 
   app.get('/projects', projects.index)
   app.get('/projects/:owner', projects.index)
+  app.post('/projects/:owner', projects.create)
   app.get('/projects/:owner/:projectName', projects.get)
   app.put('/projects/:owner/:projectName', projects.update)
   app.delete('/projects/:owner/:projectName', projects.destroy)
@@ -68,10 +70,10 @@ module.exports = function (app, passport) {
   app.post('/users/:owner/projects', projects.create)
   app.get('/users/:owner/projects/:projectName', projects.get)
   app.put('/users/:owner/projects/:projectName', projects.update)
+  app.delete('/users/:owner/projects/:projectName', projects.destroy)
   app.get('/users/:owner/projects/:projectName/collaborators', projects.getCollaborators)
   app.put('/users/:owner/projects/:projectName/collaborators/:collaborator', projects.addCollaborator)
   app.delete('/users/:owner/projects/:projectName/collaborators/:collaborator', projects.removeCollaborator)
-  app.delete('/users/:owner/projects/:projectName', projects.destroy)
 
   app.get('/', home.index)
 

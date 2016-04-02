@@ -160,7 +160,7 @@ module.exports = function (app, passport) {
 }
 
 function fromHeaderOrCookie (req) {
-  console.log('fromHeaderOrCookie call', req)
+  // console.log('fromHeaderOrCookie call', req)
   if (req.headers.authorization) {
     return req.headers.authorization.split(' ')[1]
   }
