@@ -72,6 +72,7 @@ exports.get = wrap(function * (req, res) {
  */
 
 exports.create = wrap(function * (req, res) {
+  console.log('create body:', req.body)
   const project = new Project(only(req.body, 'name collaborators'))
   if (!req.profile || !req.profile._id) {
     return res.status(400).send({
@@ -87,7 +88,6 @@ exports.create = wrap(function * (req, res) {
     const errorsList = _.map(err.errors, (e, key) => {
       return e.message || key
     })
-    // console.log('error creating project', errorsList)
     res.status(400).json({
       message: 'error creating project.',
       error: errorsList[0] || err
@@ -153,12 +153,12 @@ exports.addCollaborator = wrap(function * (req, res) {
 
 exports.removeCollaborator = wrap(function * (req, res) {
   const project = req.project
-  if (!req.user) return res.status(400).json({message: 'username is required to add a collaborator'})
+  if (!req.user) return res.status(400).json({ message: 'username is required to add a collaborator' })
   try {
     yield project.removeCollaborator(req.user._id)
     res.json(project)
   } catch (err) {
-    res.status(400).send({message: 'error removing collaborator.', error: err.toString()})
+    res.status(400).send({ message: 'error removing collaborator.', error: err.toString() })
   }
 })
 
@@ -169,6 +169,25 @@ exports.removeCollaborator = wrap(function * (req, res) {
 exports.getCollaborators = function (req, res) {
   res.json(req.project.collaborators)
 }
+
+/**
+ * Add collaborator to project
+ */
+
+exports.getContent = wrap(function * (req, res) {
+  // createFirebaseRef(fullPath)()
+     //   .once('value')
+     //   .then(entitySnap => {
+     //     if (!entitySnap || !entitySnap.val()) return Promise.reject({ message: 'Entity does not exist.' })
+     //     // Load file from original content if no history available
+     //     if (entitySnap.hasChild('original') && !entitySnap.hasChild('history')) {
+     //       // File has not yet been opened in firepad
+     //       this.content = entitySnap.child('original').val()
+     //       return this.content
+     //     }
+     //     return entitySnap.val()
+     //   })
+})
 
 /**
  * New project page

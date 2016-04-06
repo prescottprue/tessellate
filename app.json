@@ -1,0 +1,15 @@
+{
+  "name":"tessellate",
+  "website": "tessellate.kyper.io",
+  "description": "Collaborative editor and project building/management tool.",
+  "repository": "https://github.com/KyperTech/tessellate-site",
+  "logo": "https://s3.amazonaws.com/kyper-cdn/img/kypermonkey.png",
+  "keywords": [
+    "tessellate",
+    "kyper",
+    "codesharing",
+    "react",
+    "es6",
+    "redux"
+  ]
+}

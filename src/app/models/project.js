@@ -70,15 +70,15 @@ ProjectSchema.methods = {
 
   /**
    * Remove collaborator
-   *
    * @param {String} userId - Id of user to remove from collaborators
-   * @api private
    */
 
   removeCollaborator: function (userId) {
+    console.log('remove colab called with:', userId)
     const index = this.collaborators
       .map(user => JSON.stringify(user._id))
       .indexOf(JSON.stringify(userId))
+    console.log('collab to delete', this.collaborators.splice(index, 1))
     if (~index) this.collaborators.splice(index, 1)
     else throw new Error('Collaborator not found')
     return this.save()

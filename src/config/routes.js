@@ -62,7 +62,7 @@ module.exports = function (app, passport) {
   app.delete('/projects/:owner/:projectName', projects.destroy)
   app.get('/projects/:owner/:projectName/collaborators', projects.getCollaborators)
   app.put('/projects/:owner/:projectName/collaborators/:collaborator', projects.addCollaborator)
-  app.delete('/projects/:owner/:projectName/collaborators/:collaborator', projectAuth, projects.removeCollaborator)
+  app.delete('/projects/:owner/:projectName/collaborators/:collaborator', projects.removeCollaborator)
 
   // --------------------------- Users routes --------------------------------- //
 

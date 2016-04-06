@@ -4,6 +4,7 @@ node_modules
 coverage
 _book
 uploads/
+dist
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
