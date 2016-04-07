@@ -7,7 +7,7 @@ branches:
   only:
     - master
 sudo: false
-script: "npm run build && npm test"
+script: "npm test"
 cache:
   directories:
     - node_modules

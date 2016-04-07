@@ -27,6 +27,7 @@
     "copy": "mkdir -p dist && npm run copy-views && npm run copy-assets",
     "build": "npm run copy && babel src --out-dir dist",
     "watch": "npm run build -- --watch",
+    "postinstall": "npm run build",
     "start": "NODE_ENV=development ./node_modules/.bin/nodemon ./dist/server.js",
     "production": "NODE_ENV=production ./node_modules/.bin/forever -m 5 ./dist/server.js",
     "debug": "NODE_ENV=development ./node_modules/.bin/nodemon --debug ./dist/server.js",
