@@ -12,7 +12,7 @@ export const createFirebaseToken = payload => {
   const { _id, username, email, provider } = payload
   if (!_id) throw Error('_id parameter is required to create firebase token')
   const tokenGenerator = new FirebaseTokenGenerator(config.firebase.secret)
-  return tokenGenerator.createToken({ uid: _id, _id, username, email, provider })
+  return tokenGenerator.createToken({ uid: JSON.stringify(_id), _id, username, email, provider })
 }
 
 export const createAuthToken = payload => {

@@ -5,11 +5,12 @@
  */
 
 import mongoose, { Schema } from 'mongoose'
+import { validatePresenceOf } from '../utils'
 import { uploadAvatar } from '../utils/fileStorage'
 import {
-  validatePresenceOf, encryptPassword,
+  encryptPassword,
   makeSalt, createFirebaseToken, createAuthToken
-} from '../utils'
+} from '../utils/auth'
 
 const oAuthTypes = [
   'github',

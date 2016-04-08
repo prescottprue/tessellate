@@ -27,9 +27,15 @@ exports.index = wrap(function * (req, res) {
 exports.login = wrap(function * (req, res) {
   if (!req.user) return res.status(400).json({message: 'user required to login.'})
   const user = req.user
-  const token = user.createAuthToken()
-  const firebaseToken = user.createFirebaseToken()
-  res.json({ token, firebaseToken, user: only(user, '_id username email name avatar_url') })
+  const tokens = user.createTokens()
+  const { _id, username, email, name, avatar_url } = user
+  res.json(
+    Object.assign(
+      {},
+      tokens,
+      { user: { _id, username, email, name, avatar_url } }
+    )
+  )
 })
 
 /**
@@ -78,19 +84,32 @@ exports.providerAuth = wrap(function * (req, res) {
       try {
         const user = new User(newData)
         yield user.save()
-        const token = user.createAuthToken()
-        const firebaseToken = user.createFirebaseToken()
-        res.json({ token, user, firebaseToken })
+        const tokens = user.createTokens()
+        return res.json(
+          Object.assign(
+            {},
+            { user },
+            tokens
+          )
+        )
       } catch (error) {
         if (err.toString().indexOf('Email already exists') !== -1) {
-          return res.status(400).json({ message: 'This email has already been used to signup with another provider' })
+          return res.status(400).json({
+            message: 'This email has already been used to signup with another provider'
+          })
         }
-        res.status(400).json({message: 'error creating new user.', error: error.toString()})
+        res.status(400).json({
+          message: 'error creating new user.',
+          error: error.toString()
+        })
       }
     }
   } catch (err) {
     console.error('error authenticating with oAuthio', err)
-    res.status(400).json({message: 'error authenticating', error: err.toString()})
+    res.status(400).json({
+      message: 'error authenticating',
+      error: err.toString()
+    })
   }
 })
 
