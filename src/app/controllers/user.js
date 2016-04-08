@@ -6,7 +6,6 @@
 
 import mongoose from 'mongoose'
 import wrap from 'co-express'
-import only from 'only'
 import OAuth from 'oauthio'
 import config from '../../config/config'
 const User = mongoose.model('User')
@@ -27,8 +26,15 @@ exports.index = wrap(function * (req, res) {
 exports.login = wrap(function * (req, res) {
   if (!req.user) return res.status(400).json({message: 'user required to login.'})
   const user = req.user
-  const token = user.createAuthToken()
-  res.json({ token, user: only(user, '_id username email name avatar_url') })
+  const tokens = user.createTokens()
+  const { _id, username, email, name, avatar_url } = user
+  res.json(
+    Object.assign(
+      {},
+      tokens,
+      { user: { _id, username, email, name, avatar_url } }
+    )
+  )
 })
 
 /**
@@ -53,7 +59,6 @@ exports.getStateToken = function (req, res) {
 exports.providerAuth = wrap(function * (req, res) {
   if (!req.body) return res.status(400).json({ message: 'provider auth data required.' })
   const { stateToken, provider, code } = req.body
-  console.log('req.body', req.body)
   req.session.csrf_tokens = [ stateToken ]
   if (!stateToken || !provider || !code) return res.status(400).json({ message: 'stateToken, provider, and code are all required' })
   try {
@@ -62,10 +67,12 @@ exports.providerAuth = wrap(function * (req, res) {
     const { email, name, avatar, id } = providerAccount
     try {
       // Log into already existing user
-      // TODO: Search based on user's providerId (google id or github id)
+      // TODO: Make search based on user's providerId (google id or github id) instead of just email & type
       const existingUser = yield User.load({ criteria: { email, provider } })
-      const existingToken = existingUser.createAuthToken()
-      if (existingUser) return res.json({ user: existingUser, token: existingToken })
+      if (existingUser) {
+        const tokens = existingUser.createTokens()
+        return res.json(Object.assign(existingUser, tokens))
+      }
     } catch (err) {
       // User does not already exist
       let newData = {
@@ -76,18 +83,32 @@ exports.providerAuth = wrap(function * (req, res) {
       try {
         const user = new User(newData)
         yield user.save()
-        const token = user.createAuthToken()
-        res.json({ token, user })
+        const tokens = user.createTokens()
+        return res.json(
+          Object.assign(
+            {},
+            { user },
+            tokens
+          )
+        )
       } catch (error) {
         if (err.toString().indexOf('Email already exists') !== -1) {
-          return res.status(400).json({ message: 'This email has already been used to signup with another provider' })
+          return res.status(400).json({
+            message: 'This email has already been used to signup with another provider'
+          })
         }
-        res.status(400).json({message: 'error creating new user.', error: error.toString()})
+        res.status(400).json({
+          message: 'error creating new user.',
+          error: error.toString()
+        })
       }
     }
   } catch (err) {
     console.error('error authenticating with oAuthio', err)
-    res.status(400).json({message: 'error authenticating', error: err.toString()})
+    res.status(400).json({
+      message: 'error authenticating',
+      error: err.toString()
+    })
   }
 })
 

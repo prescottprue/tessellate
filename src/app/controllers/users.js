@@ -6,9 +6,7 @@
 
 import mongoose from 'mongoose'
 import wrap from 'co-express'
-import { escapeRegExp, map } from 'lodash'
-import only from 'only'
-const assign = require('object-assign')
+import { escapeRegExp, map, omit, pick } from 'lodash'
 const User = mongoose.model('User')
 
 /**
@@ -84,8 +82,15 @@ exports.create = wrap(function * (req, res) {
       console.error({ message: 'error with login', error })
       req.status(500).json({ message: 'error with login' })
     }
-    const token = user.createAuthToken()
-    res.json({ token, user: only(user, 'username email name provider avatar_url _id id') })
+    const tokens = user.createTokens()
+    const strippedUser = omit(user, ['password', 'salt'])
+    res.json(
+      Object.assign(
+        {},
+        tokens,
+        { user: strippedUser }
+      )
+    )
   })
 })
 
@@ -95,7 +100,7 @@ exports.create = wrap(function * (req, res) {
 exports.update = wrap(function * (req, res) {
   let user = req.profile
   // console.log('update called before:', req.body)
-  const newUser = assign(user, only(req.body, 'name username email avatar_url'))
+  const newUser = Object.assign(user, pick(req.body, ['name username email avatar_url']))
   try {
     // console.log('user after assign', newProject)
     yield newUser.save()
