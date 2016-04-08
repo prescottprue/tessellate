@@ -91,6 +91,7 @@ exports.create = wrap(function * (req, res) {
         { user: strippedUser }
       )
     )
+  })
 })
 
 /**
