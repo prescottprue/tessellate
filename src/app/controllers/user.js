@@ -6,7 +6,6 @@
 
 import mongoose from 'mongoose'
 import wrap from 'co-express'
-import only from 'only'
 import OAuth from 'oauthio'
 import config from '../../config/config'
 const User = mongoose.model('User')
