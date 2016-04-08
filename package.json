@@ -34,8 +34,8 @@
     "test": "NODE_ENV=test mocha -R spec --compilers js:babel-core/register ./test/**/*.spec.js"
   },
   "dependencies": {
-    "body-parser": "~1.14.1",
     "babel-polyfill": "^6.7.4",
+    "body-parser": "~1.14.1",
     "co-express": "~1.2.1",
     "compression": "~1.6.0",
     "connect-flash": "~0.1.1",
@@ -47,6 +47,7 @@
     "express-jwt": "^3.3.0",
     "express-session": "~1.12.1",
     "express-stormpath": "^2.3.7",
+    "firebase-token-generator": "^2.0.0",
     "forever": "~0.15.1",
     "jsonwebtoken": "^5.5.4",
     "lodash": "^4.7.0",
