@@ -10,6 +10,9 @@ const wrap = require('co-express')
 const only = require('only')
 const _ = require('lodash')
 const Project = mongoose.model('Project')
+const config = require('../../config/config')
+const Firebase = require('firebase')
+const Firepad = require('firepad')
 
 /**
  * Load project
@@ -175,18 +178,26 @@ exports.getCollaborators = function (req, res) {
  */
 
 exports.getContent = wrap(function * (req, res) {
-  // createFirebaseRef(fullPath)()
-     //   .once('value')
-     //   .then(entitySnap => {
-     //     if (!entitySnap || !entitySnap.val()) return Promise.reject({ message: 'Entity does not exist.' })
-     //     // Load file from original content if no history available
-     //     if (entitySnap.hasChild('original') && !entitySnap.hasChild('history')) {
-     //       // File has not yet been opened in firepad
-     //       this.content = entitySnap.child('original').val()
-     //       return this.content
-     //     }
-     //     return entitySnap.val()
-     //   })
+  const { owner, projectName } = req.params
+  const url = `${config.firebase.url}/files/${owner}/${projectName}/{req.query.path}`
+  console.log('url created:', url)
+  const ref = new Firebase(url)
+  Firepad.Headless(ref).getText(text => {
+    console.log('text loaded from headless:', text)
+    res.send(text)
+  })
+  // ref
+  //  .once('value')
+  //  .then(entitySnap => {
+  //    if (!entitySnap || !entitySnap.val()) return Promise.reject({ message: 'Entity does not exist.' })
+  //    // Load file from original content if no history available
+  //    if (entitySnap.hasChild('original') && !entitySnap.hasChild('history')) {
+  //      // File has not yet been opened in firepad
+  //      this.content = entitySnap.child('original').val()
+  //      return this.content
+  //    }
+  //    return entitySnap.val()
+  //  })
 })
 
 /**
