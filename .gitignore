@@ -5,6 +5,7 @@ coverage
 _book
 uploads/
 dist
+zips
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

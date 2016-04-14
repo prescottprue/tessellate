@@ -4,20 +4,21 @@
  * Module dependencies.
  */
 
-const mongoose = require('mongoose')
-const assign = require('object-assign')
-const wrap = require('co-express')
-const only = require('only')
-const _ = require('lodash')
+import mongoose from 'mongoose'
+import wrap from 'co-express'
+import { project as dsProject } from 'devshare' // Only used for firebase/util functionality
+import Firepad from 'firepad'
+import AdmZip from 'adm-zip'
+import { each, map } from 'lodash'
+
+/**
+ * Models
+ */
 const Project = mongoose.model('Project')
-const config = require('../../config/config')
-const Firebase = require('firebase')
-const Firepad = require('firepad')
 
 /**
  * Load project
  */
-
 exports.load = wrap(function * (req, res, next, projectName) {
   if (!req.profile) return res.status(400).json({ message: 'owner required to get project.' })
   req.project = yield Project.load({ name: projectName, owner: req.profile._id })
@@ -28,7 +29,6 @@ exports.load = wrap(function * (req, res, next, projectName) {
 /**
  * List projects
  */
-
 exports.index = wrap(function * (req, res) {
   const page = (req.query.page > 0 ? req.query.page : 1) - 1
   const limit = 30
@@ -59,7 +59,6 @@ exports.index = wrap(function * (req, res) {
 /**
  * Get a project
  */
-
 exports.get = wrap(function * (req, res) {
   if (!req.project) {
     return res.json({
@@ -73,14 +72,14 @@ exports.get = wrap(function * (req, res) {
 /**
  * Create an project
  */
-
 exports.create = wrap(function * (req, res) {
-  console.log('create body:', req.body)
-  const project = new Project(only(req.body, 'name collaborators'))
+  const { name, collaborators } = req.body
+  const project = new Project({ name, collaborators })
   if (!req.profile || !req.profile._id) {
-    return res.status(400).send({
-      message: 'error creating project. User not found.'
-    })
+    return res.status(400)
+      .send({
+        message: 'error creating project. authentication required.'
+      })
   }
   project.owner = req.profile._id
   try {
@@ -88,9 +87,7 @@ exports.create = wrap(function * (req, res) {
     const populatedProject = yield Project.load({ _id: project._id })
     res.json(populatedProject)
   } catch (err) {
-    const errorsList = _.map(err.errors, (e, key) => {
-      return e.message || key
-    })
+    const errorsList = map(err.errors, (e, key) => e.message || key)
     res.status(400).json({
       message: 'error creating project.',
       error: errorsList[0] || err
@@ -101,24 +98,26 @@ exports.create = wrap(function * (req, res) {
 /**
  * Update project
  */
-
 exports.update = wrap(function * (req, res) {
   const project = req.project
-  // console.log('update called before:', req.body)
-  assign(project, only(req.body, 'name collaborators owner'))
+  let { name, collaborators, owner } = req.body
+  // TODO: Handle owner as an object as well as id
+  // TODO: Handle array of objects or ids for collaborators
+  const newProject = Object.assign(
+    project,
+    { name, collaborators, owner }
+  )
   try {
-    // console.log('project after assign', newProject)
-    yield project.save()
+    yield newProject.save()
     res.json(project)
   } catch (err) {
-    res.status(400).send({message: 'error updating project'})
+    res.status(400).send({ message: 'error updating project' })
   }
 })
 
 /**
  * Delete an project
  */
-
 exports.destroy = wrap(function * (req, res) {
   if (req.profile && req.project.owner && req.project.owner.id !== req.profile.id) {
     return res.status(400).json({
@@ -172,32 +171,54 @@ exports.removeCollaborator = wrap(function * (req, res) {
 exports.getCollaborators = function (req, res) {
   res.json(req.project.collaborators)
 }
+/**
+ * Get the contents of a file
+ */
+exports.getFileContent = wrap(function * (req, res) {
+  // Firepad.Headless(fileSystem.file(child.meta.path).firebaseRef()).getText(text => {
+  //   zip.addFile(child.meta.path, new Buffer(text))
+  //   resolve(text || '')
+  // })
+})
 
 /**
- * Add collaborator to project
+ * Create zip from project directory
  */
 
-exports.getContent = wrap(function * (req, res) {
+exports.createZip = wrap(function * (req, res) {
   const { owner, projectName } = req.params
-  const url = `${config.firebase.url}/files/${owner}/${projectName}/{req.query.path}`
-  console.log('url created:', url)
-  const ref = new Firebase(url)
-  Firepad.Headless(ref).getText(text => {
-    console.log('text loaded from headless:', text)
-    res.send(text)
+  const fileSystem = dsProject(owner, projectName).fileSystem
+
+  fileSystem
+  .get()
+  .then(directory => {
+    // console.log('directory loaded:', directory)
+    let zip = new AdmZip()
+    let promiseArray = []
+    let handleZip = fbChildren => {
+      each(fbChildren, child => {
+        if (!child.meta || child.meta.entityType === 'folder') {
+          delete child.meta
+          return handleZip(child)
+        }
+        if (child.original && !child.history) return zip.file(child.meta.path, child.original)
+        let promise = new Promise(resolve =>
+          Firepad.Headless(fileSystem.file(child.meta.path).firebaseRef()).getText(text => {
+            zip.addFile(child.meta.path, new Buffer(text))
+            resolve(text || '')
+          })
+        )
+        promiseArray.push(promise)
+      })
+    }
+    handleZip(directory)
+    return Promise.all(promiseArray).then(() => {
+      // TODO: Delete zip file after download
+      const zipPath = `./zips/${owner}-${projectName}-devShare-export.zip`
+      zip.writeZip(zipPath)
+      res.download(zipPath)
+    })
   })
-  // ref
-  //  .once('value')
-  //  .then(entitySnap => {
-  //    if (!entitySnap || !entitySnap.val()) return Promise.reject({ message: 'Entity does not exist.' })
-  //    // Load file from original content if no history available
-  //    if (entitySnap.hasChild('original') && !entitySnap.hasChild('history')) {
-  //      // File has not yet been opened in firepad
-  //      this.content = entitySnap.child('original').val()
-  //      return this.content
-  //    }
-  //    return entitySnap.val()
-  //  })
 })
 
 /**

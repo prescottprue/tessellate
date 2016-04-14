@@ -34,6 +34,7 @@
     "test": "NODE_ENV=test mocha -R spec --compilers js:babel-core/register ./test/**/*.spec.js"
   },
   "dependencies": {
+    "adm-zip": "^0.4.7",
     "babel-polyfill": "^6.7.4",
     "body-parser": "~1.14.1",
     "co-express": "~1.2.1",
@@ -43,6 +44,7 @@
     "cookie-parser": "~1.4.0",
     "cookie-session": "~1.2.0",
     "cors": "^2.7.1",
+    "devshare": "0.0.9",
     "express": "~4.13.3",
     "express-jwt": "^3.3.0",
     "express-session": "~1.12.1",
