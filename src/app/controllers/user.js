@@ -8,6 +8,10 @@ import mongoose from 'mongoose'
 import wrap from 'co-express'
 import OAuth from 'oauthio'
 import config from '../../config/config'
+
+/**
+ * Models
+ */
 const User = mongoose.model('User')
 const Project = mongoose.model('Project')
 
@@ -113,7 +117,7 @@ exports.providerAuth = wrap(function * (req, res) {
 })
 
 /**
- * Return logged in user
+ * Logout of current session
  */
 exports.logout = wrap(function * (req, res) {
   // console.log('logout request:', req.user)
@@ -134,7 +138,7 @@ exports.projects = wrap(function * (req, res) {
 })
 
 /**
- * Avatar
+ * Upload Avatar
  */
 exports.avatar = wrap(function * (req, res) {
   // Handle an image
@@ -144,8 +148,11 @@ exports.avatar = wrap(function * (req, res) {
   try {
     const user = req.profile
     yield user.uploadImageAndSave(image)
-    res.json({message: 'image uploaded successfully.'})
+    res.json({ message: 'image uploaded successfully.' })
   } catch (error) {
-    res.status(400).json({message: 'error uploading image.', error: error.toString()})
+    res.status(400).json({
+      message: 'error uploading image.',
+      error: error.toString()
+    })
   }
 })
