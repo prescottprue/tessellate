@@ -61,6 +61,7 @@ module.exports = function (app, passport) {
   app.put('/projects/:owner/:projectName', projects.update)
   app.delete('/projects/:owner/:projectName', projects.destroy)
   app.get('/projects/:owner/:projectName/zip', projects.createZip)
+  app.get('/zip', projects.createZip)
   app.get('/projects/:owner/:projectName/collaborators', projects.getCollaborators)
   app.put('/projects/:owner/:projectName/collaborators/:collaborator', projects.addCollaborator)
   app.delete('/projects/:owner/:projectName/collaborators/:collaborator', projects.removeCollaborator)

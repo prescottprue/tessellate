@@ -187,6 +187,7 @@ exports.getFileContent = wrap(function * (req, res) {
 
 exports.createZip = wrap(function * (req, res) {
   const { owner, projectName } = req.params
+  console.log('create zip called:', req.body, req.params)
   const fileSystem = dsProject(owner, projectName).fileSystem
 
   fileSystem
