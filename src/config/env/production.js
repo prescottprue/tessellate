@@ -21,7 +21,7 @@ module.exports = {
     }
   },
   auth: {
-    enabled: true,
+    enabled: false,
     secret: process.env.TESSELLATE_JWT_SECRET || process.env.JWT_SECRET,
     cookieName: 'tessellate'
   },
