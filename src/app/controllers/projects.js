@@ -182,44 +182,60 @@ exports.getFileContent = wrap(function * (req, res) {
 })
 
 /**
- * Create zip from project directory
+ * @description Create zip from project directory
  */
+const getFileZip = (owner, projectName) => {
+  const fileSystem = dsProject(owner, projectName).fileSystem
+  return fileSystem
+    .get()
+    .then(directory => {
+      // console.log('directory loaded:', directory)
+      let zip = new AdmZip()
+      let promiseArray = []
+      let handleZip = fbChildren => {
+        each(fbChildren, child => {
+          if (!child.meta || child.meta.entityType === 'folder') {
+            delete child.meta
+            return handleZip(child)
+          }
+          if (child.original && !child.history) return zip.file(child.meta.path, child.original)
+          let promise = new Promise(resolve =>
+            Firepad.Headless(fileSystem.file(child.meta.path).firebaseRef()).getText(text => {
+              zip.addFile(child.meta.path, new Buffer(text))
+              resolve(text || '')
+            })
+          )
+          promiseArray.push(promise)
+        })
+      }
+      handleZip(directory)
+      return Promise.all(promiseArray).then(() => {
+        // TODO: Delete zip file after download
+        const zipPath = `./zips/${owner}-${projectName}-devShare-export.zip`
+        zip.writeZip(zipPath)
+        return zipPath
+      })
+    })
+}
+
+exports.createZipFromPost = wrap(function * (req, res) {
+  const { owner, projectName } = req.body
+  try {
+    const zipPath = yield getFileZip(owner, projectName)
+    res.download(zipPath)
+  } catch (error) {
+    res.status(400).send({ message: error.toString() || 'error creating zip' })
+  }
+})
 
 exports.createZip = wrap(function * (req, res) {
   const { owner, projectName } = req.params
-  console.log('create zip called:', req.body, req.params)
-  const fileSystem = dsProject(owner, projectName).fileSystem
-
-  fileSystem
-  .get()
-  .then(directory => {
-    // console.log('directory loaded:', directory)
-    let zip = new AdmZip()
-    let promiseArray = []
-    let handleZip = fbChildren => {
-      each(fbChildren, child => {
-        if (!child.meta || child.meta.entityType === 'folder') {
-          delete child.meta
-          return handleZip(child)
-        }
-        if (child.original && !child.history) return zip.file(child.meta.path, child.original)
-        let promise = new Promise(resolve =>
-          Firepad.Headless(fileSystem.file(child.meta.path).firebaseRef()).getText(text => {
-            zip.addFile(child.meta.path, new Buffer(text))
-            resolve(text || '')
-          })
-        )
-        promiseArray.push(promise)
-      })
-    }
-    handleZip(directory)
-    return Promise.all(promiseArray).then(() => {
-      // TODO: Delete zip file after download
-      const zipPath = `./zips/${owner}-${projectName}-devShare-export.zip`
-      zip.writeZip(zipPath)
-      res.download(zipPath)
-    })
-  })
+  try {
+    const zipPath = yield getFileZip(owner, projectName)
+    res.download(zipPath)
+  } catch (error) {
+    res.status(400).send({ message: error.toString() || 'error creating zip' })
+  }
 })
 
 /**
